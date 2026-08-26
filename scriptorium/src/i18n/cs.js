@@ -1,3310 +1,2338 @@
-// Scriptorium i18n — English (Olde)
-// Základ: STRINGS_cs. Chybějící klíče → fallback na CS automaticky.
+// Scriptorium i18n — Čeština (master jazyk)
+// Tento soubor je zdrojem pravdy pro všechny klíče.
+// Při přidávání nového klíče: přidej SEM, pak do ostatních jazyků.
 
-const STRINGS_en = {
-    nav: { home: 'Workshop', garden: 'Garden', craft: 'Craft', inv: 'Penum', lore: 'Scriptorium', library: 'Library' },
-    screens: { home: 'Officina', garden: 'The Garden', craft: 'Crafting', inv: 'Penum', lore: 'Scriptorium', library: 'The Library', settings: 'Settings', scavenge: 'Scavenge', mine: 'Mine', cooking: 'Cooking' },
-    header: { weatherNow: 'Presently in Prague (click to refresh)', weatherTomorrow: 'Morrow\'s forecast', hunger: 'Hunger', streak: 'Daily Streak', research: 'Knowledge Gathered', settings: 'Settings' },
-    // ------------------------------
+const STRINGS_cs = {
+    nav: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Script<br>orium', library: 'Knihovna' },
+    screens: { home: 'Pracovna', garden: 'Zahrada', craft: 'Výroba', inv: 'Zásoby', lore: 'Scriptorium', library: 'Knihovna', settings: 'Nastavení', scavenge: 'Sběr', mine: 'Těžba', cooking: 'Vaření' },
     fireplace: {
-        cold: 'The Hearth Lies Cold', coldDesc: 'A bitter chill claimeth the chamber.', kindle: 'KINDLE',
-        lit: 'The Hearth Burns', litDesc: 'Warmth and light fill the scriptorium.',
-        diedOutShort: 'The hearth has died out', diedOut: '❄️ The fire has died out.',
-        full: 'The hearth is full!', fuelAdded: 'Fuel added.',
-        notEnough: 'Not enough {item}.',
-        foculusTab: 'Foculus', foculusLocked: "Study Meteorologica to manage the hearth's fuel.",
-        statusLabel: 'Fire status:',
-        burnNow: 'dying out', burnSoon: 'burning out soon',
-        burnToday: 'burns out today {part}', burnTomorrow: 'burns out tomorrow {part}',
-        tempHigh: '🌡️ Roaring fire', tempMedium: '🌡️ Steady warmth', tempLow: '🌡️ Faint embers',
-        partMorning: 'in the morning', partAfternoon: 'in the afternoon', partEvening: 'in the evening', partNight: 'at night',
-        dashTitle: 'Workshop status', dashWeather: 'Weather', dashWeatherNA: '—', dashEnviron: 'Environment',
-        dashStav: 'Status', dashTime: 'Time & Calendar', dashForecast: 'Forecast',
-        dashNotes: 'Notes', dashCoins: 'Coins', dashRank: 'Rank', dashTech: 'Techs', dashKronika: 'Latest chronicle',
-        dashTimeLabel: 'Time', dashDate: 'Date', dashMoon: 'Moon', dashHora: 'Hour',
-        teaTitle: 'Tea', teaBrew: 'Brew tea', teaDrink: 'DRINK TEA', teaBrewing: 'Brewing… {s} s',
-        teaNeedKettle: 'You need a Kettle (craft it)', teaNeedFire: 'Light the fire', teaNeedHerb: 'No herb (chamomile, thyme, linden)', teaNeedWater: 'No water',
-        coffeeTitle: 'Coffee Substitute — Acorn Brew & Chicory Coffee', coffeeBrew: 'Brew coffee substitute', coffeeDrink: 'DRINK COFFEE SUBSTITUTE', coffeeBrewing: 'Brewing… {s} s',
-        coffeeNeedKettle: 'You need a Kettle (craft it)', coffeeNeedFire: 'Light the fire', coffeeNeedHerb: 'No roasted ingredient (acorn, chicory)', coffeeNeedWater: 'No water',
-        sweepReady: '🧹 Sweep the hearth (+4 ash)', sweepWait: '🧹 Sweep — in {h} h',
-        sweepDone: 'Swept. +{n} ash, +4 soot.', sweepNeedFire: 'Light the fire first.', sweepCooldown: 'The hearth was swept recently.',
-        incenseTitle: 'Incense (Thuribulum)',
-        incenseBurn: 'Ignite',
-        incenseExtinguish: 'Extinguish',
-        incenseBurnedOut: 'The incense has burned out. The fragrance fades.',
-        incenseExtinguished: 'The incense was extinguished early.',
-        incenseEmpty: 'You have no incense in stock.',
-        incenseBurning: 'Burning: {name} ({s} s)',
-        incenseLocked: 'Study Thuribulum to burn incense.'
+        cold: 'Vyhaslý Krb', coldDesc: 'Je tu zima.', kindle: 'ROZEŽEHNOUT',
+        lit: 'Hřejivý Krb', litDesc: 'Oheň dává život.',
+        diedOutShort: 'Krb vyhasl', diedOut: '❄️ Oheň v krbu vyhasl.',
+        full: 'Krb je už plný!', fuelAdded: 'Přiloženo do ohně.',
+        notEnough: 'Nedostatek: {item}.',
+        foculusTab: 'Ohniště', foculusLocked: 'Rozežehni oheň v krbu (nebo prostuduj Meteorologica) pro zpřístupnění Hřejivého krbu.', foculusSubLocked: 'Další rituály Ohniště (čaje, kávoviny, sušení, kadidelnice...) vyžadují výzkum technologie Meteorologica.',
+        statusLabel: 'Stav ohně:',
+        burnNow: 'vyhasíná', burnSoon: 'brzy vyhasne',
+        burnToday: 'vyhasne dnes {part}', burnTomorrow: 'vyhasne zítra {part}',
+        tempHigh: '🌡️ Žhavý oheň', tempMedium: '🌡️ Mírný žár', tempLow: '🌡️ Slabě doutná',
+        partMorning: 'ráno', partAfternoon: 'odpoledne', partEvening: 'večer', partNight: 'v noci',
+        dashTitle: 'Stav pracovny', dashWeather: 'Počasí', dashWeatherNA: '—', dashEnviron: 'Prostředí',
+        dashStav: 'Stav', dashTime: 'Čas & Kalendář', dashForecast: 'Předpověď',
+        dashNotes: 'Zápisky', dashCoins: 'Groše', dashRank: 'Rank', dashTech: 'Techy', dashKronika: 'Poslední kronika',
+        dashTimeLabel: 'Čas', dashDate: 'Datum', dashMoon: 'Luna', dashHora: 'Hora',
+        teaTitle: 'Čaj', teaBrew: 'Uvařit čaj', teaDrink: 'PÍT ČAJ', teaBrewing: 'Vaří se… {s} s',
+        teaNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', teaNeedFire: 'Rozdělej oheň', teaNeedHerb: 'Chybí bylina (heřmánek, tymián, lípa)', teaNeedWater: 'Chybí voda',
+        coffeeTitle: 'Kávovina — Žaludovka & Cikorka', coffeeBrew: 'Uvařit kávovinu', coffeeDrink: 'PÍT KÁVOVINU', coffeeBrewing: 'Vaří se… {s} s',
+        coffeeNeedKettle: 'Potřebuješ Konvičku (vyrob v Craftu)', coffeeNeedFire: 'Rozdělej oheň', coffeeNeedHerb: 'Chybí pražená surovina (žalud, čekanka)', coffeeNeedWater: 'Chybí voda',
+        sweepReady: '🧹 Vymést popelník (+4 popel)', sweepWait: '🧹 Vymést — za {h} h',
+        sweepDone: 'Vymeteno. +{n} popel, +4 saze.', sweepNeedFire: 'Nejdříve zapal krb.', sweepCooldown: 'Popelník byl vymetán nedávno.',
+        incenseTitle: 'Kadidlo (Thuribulum)',
+        incenseBurn: 'Zapálit',
+        incenseExtinguish: 'Uhasit',
+        incenseBurnedOut: 'Kadidlo dohořelo. Vůně se rozplynula.',
+        incenseExtinguished: 'Kadidlo bylo předčasně uhašeno.',
+        incenseEmpty: 'Nemáš v zásobě žádné kadidlo.',
+        incenseBurning: 'Hoří: {name} ({s} s)',
+        incenseLocked: 'Prostuduj Thuribulum pro pálení kadidla.'
     },
     light: {
-        none: 'No Light', noneDesc: 'Darkness claimeth this place.',
-        candle: 'Candle (Burning)', torch: 'Torch (Crackling)',
-        candleDesc: 'A small but steady flame.',
-        torchDesc: 'It smokes and crackles, yet burns bright.',
-        btnTorch: 'LIGHT TORCH', btnCandle: 'LIGHT CANDLE',
+        none: 'Není světlo', noneDesc: 'Tma halí knihy.',
+        candle: 'Svíčka (Hoří)', torch: 'Louč (Praská)',
+        candleDesc: 'Malý, ale stálý plamen.',
+        torchDesc: 'Kouří a prská, ale svítí jasně.',
+        btnTorch: 'ZAPÁLIT LOUČ', btnCandle: 'ZAPÁLIT SVÍČKU',
+        // svetlo-detail-mrd (9.8.2026): poetické popisky per typ louče a fázi
+        // hoření (fresh/steady/low), rozklikávací (viz shell.html #light-desc).
         torchDescs: {
             primitive_torch: {
-                fresh: 'Smells like a Christmas roast — your mouth waters even knowing it is only burning fat.',
-                steady: 'Smokes and drips, but still holds its flame.',
-                low: 'Now it reeks like a burnt corpse and drips greasy filth on the floor. Its final moments.',
+                fresh: 'Voní jako pečeně na Boží hod vánoční — sliny se sbíhají, i když víš, že hoří jen tuk.',
+                steady: 'Čadí a odkapává, ale zatím drží plamen.',
+                low: 'Teď už smrdí jak spálená mrtvola a kape mastnou špínu na podlahu. Poslední chvíle.',
             },
             torch_tallow: {
-                fresh: 'The tallow has hardened and burns steady, without much smoke — an honest craftsman\'s light.',
-                steady: 'Burns evenly on, reliable as an old friend.',
-                low: 'Tallow running low, the flame now only flickers.',
+                fresh: 'Lůj ztuhl a hoří stabilně, bez velkého kouře — poctivé řemeslné světlo.',
+                steady: 'Hoří rovnoměrně dál, spolehlivá jako starý přítel.',
+                low: 'Lůj dochází, plamen už jen mihotá.',
             },
             torch_resin: {
-                fresh: 'Smells of resin and pine needles, as if a piece of forest burned in your hand. Crackles cheerfully, bright, unafraid of wind.',
-                steady: 'Crackles and smokes with a scent of incense — as if a church had moved in here.',
-                low: 'The resin is spent, the scent fades, the flame shrinks low.',
+                fresh: 'Voní pryskyřicí a jehličím, jako by v ruce hořel kus lesa. Praská vesele, jasně, beze strachu z větru.',
+                steady: 'Prská a čadí kadidlovou vůní — jako by se sem přestěhoval kostel.',
+                low: 'Pryskyřice dohořívá, vůně slábne, plamínek se krčí.',
             },
         },
         candleDescs: {
-            fresh: 'Bright and steady as divine light. No smoke, no crackling, disturbs no one.',
-            steady: 'Burns quietly on, faithful as a prayer.',
-            low: 'The wax is nearly spent, the little flame trembles.',
+            fresh: 'Jasná a stálá jako boží světlo. Nekouří, nepraská, nikoho neruší.',
+            steady: 'Hoří tiše dál, věrná jako modlitba.',
+            low: 'Vosk už dochází, plamínek se chvěje.',
         },
     },
-    craft: { filterAll: 'All', filterTool: 'Tools', filterMat: 'Materials', filterFood: 'Provisions', filterAlchemy: 'Alchemy', filterLore: 'Knowledge', btn: 'Craft', repair: 'Repair', cook: 'Cook' },
-    inv: { filterAll: 'All', filterMat: 'Materials', filterTool: 'Tools', filterLore: 'Other' },
-    settings: { langLabel: '🗺️ Language / Jazyk' },
+    header: {
+        weatherNow: 'Aktuálně v Praze (klikni pro refresh)',
+        weatherTomorrow: 'Předpověď na zítra',
+        hunger: 'Hlad',
+        streak: 'Denní streak',
+        research: 'Počet Research',
+        settings: 'Nastavení'
+    },
     wellUI: {
-        title: '🚰 The Well',
-        notBuilt: 'Thou hast no well. Thou mayest construct one below.',
-        buildBasic: '🏗️ Construct Well (20 rock, 10 branch, 3 rope)',
-        level: 'Tier:',
-        condition: 'Condition:',
-        clean: '✨ Purify (powder)',
-        repair: '🔧 Repair (kit)',
-        upgrade: '🏛️ Fortify with Stone (30 rock, 5 rope, 10 charcoal)',
-        levelBasic: 'Basic',
-        levelStone: 'Stone',
-        levelBlessed: 'Blessed',
-        levelUnknown: 'Unknown',
-        condClean: '✓ Pure',
-        condDirty: '⚠️ Fouled',
-        condBroken: '💥 Broken',
-        purity: 'Water quality:',
-        waterLevel: 'Water level:',
-        frozen: 'Frozen',
-        consumers: 'Water usage:',
-        bandAlive: 'alive',
-        bandMurky: 'murky',
-        bandClogged: 'clogged',
-        bandDead: 'dead',
-        yieldNow: 'Yield per draw:',
-        yieldBase: 'base',
-        graceLeft: 'Fresh water — protected for {n} more days',
-        forecast: 'Forecast (7 days): {dry} dry, {rainy} rainy',
-        statsUses: 'Drawn {uses}× · cleaned {cleans}×',
-        levelBandEmpty: 'parched',
-        levelBandLow: 'low',
-        levelBandModerate: 'moderate',
-        levelBandGood: 'good',
-        levelBandFull: 'full',
-        levelYieldInfo: 'Water level: {band} → yield ×{mod}',
-        levelYieldInfoFixed: 'Water level: {band} → yield only {amt} (minimum)'
+        title: '🚰 Správa Studny',
+        notBuilt: 'Nemáš studnu. Můžeš ji postavit níže.',
+        buildBasic: '🏗️ Postavit studnu (20 kámen, 10 větev, 3 provaz)',
+        level: 'Úroveň:',
+        condition: 'Stav:',
+        clean: '✨ Vyčistit (prášek)',
+        repair: '🔧 Opravit (sada)',
+        upgrade: '🏛️ Vyzdít kamenem (30 kámen, 5 provaz, 10 uhel)',
+        levelNone: 'Žádná',
+        levelBasic: 'Základní',
+        levelStone: 'Kamenná',
+        levelBlessed: 'Posvěcená',
+        levelUnknown: 'Neznámá',
+        condClean: '✓ Čistá',
+        condDirty: '⚠️ Znečištěná',
+        condBroken: '💥 Poškozená',
+        purity: 'Kvalita vody:',
+        waterLevel: 'Hladina:',
+        frozen: 'Zamrzlá',
+        consumers: 'Spotřeba vody:',
+        bandAlive: 'živá',
+        bandMurky: 'kalná',
+        bandClogged: 'zanesená',
+        bandDead: 'mrtvá',
+        yieldNow: 'Výnos za nabrání:',
+        yieldBase: 'základ',
+        graceLeft: 'Čerstvá voda — chráněno ještě {n} dní',
+        forecast: 'Předpověď (7 dní): {dry} suchých, {rainy} deštivých',
+        statsUses: 'Nabráno {uses}× · vyčištěno {cleans}×',
+        levelBandEmpty: 'vyprahlá',
+        levelBandLow: 'nízká',
+        levelBandModerate: 'střední',
+        levelBandGood: 'dobrá',
+        levelBandFull: 'plná',
+        levelYieldInfo: 'Hladina: {band} → výnos ×{mod}',
+        levelYieldInfoFixed: 'Hladina: {band} → výnos jen {amt} (minimum)',
+        buildingName: 'Studna (Puteus)',
+        buildingDesc: 'Zdroj vody pro zahrádky, dobytek a vaření. Vylepšuje se kamenem a posvěcením.',
+        notBuiltShort: 'Nepostavena',
+        buildBasicBtn: 'Postavit studnu',
+        upgradeStoneBtn: 'Vyzdít kamenem',
+        upgradeBlessedBtn: 'Posvětit (rituál)',
+        maxLevel: 'Nejvyšší úroveň',
+        notBuiltCellarium: 'Studnu postavíš v Cellarium → Budovy (sekce Dvůr).'
     },
     settingsUI: {
-        musicTitle: '🎵 Music',
-        musicEnabled: 'Enable music',
-        musicVolumeDesc: 'Volume of the generative music',
-        musicTrack: 'Track',
+        musicTitle: '🎵 Hudba',
+        musicEnabled: 'Zapnout hudbu',
+        musicVolumeDesc: 'Hlasitost generativní hudby',
+        musicTrack: 'Skladba',
         musicTier1: '🏛️ Sacral Cathedral',
         musicTier2: '🏰 Abyssal Keep',
         musicTier3: '🎻 Ars Nova',
-        volume: 'Volume',
-        fireVolume: '🔥 Hearth Volume',
-        fireVolumeDesc: 'Controls only the sound of the burning hearth',
-        theme: '🎨 Theme',
-        themeClassic: 'Classic Parchment',
-        themeDark: 'Dark Mode 🌙',
-        themeNight: 'Night Mode 🌑',
-        themeSunlight: 'Sunlight Mode ☀️',
-        themeSpring: 'Spring 🌸',
-        themeSummer: 'Summer ☀️',
-        themeAutumn: 'Autumn 🍂',
-        themeWinter: 'Winter ❄️',
-        themeAuto: 'Auto (Weather) 🌦️',
-        themeAutoDesc: 'The theme shall adapt to the present weather in Prague.',
+        volume: 'Hlasitost',
+        fireVolume: '🔥 Hlasitost krbu',
+        fireVolumeDesc: 'Ovládá pouze zvuk hořícího krbu',
+        theme: '🎨 Téma',
+        themeClassic: 'Klasické Pergamen',
+        themeDark: 'Temný Mód 🌙',
+        themeNight: 'Noční Mód 🌑',
+        themeSunlight: 'Sluneční Mód ☀️',
+        themeSpring: 'Jaro 🌸',
+        themeSummer: 'Léto ☀️',
+        themeAutumn: 'Podzim 🍂',
+        themeWinter: 'Zima ❄️',
+        themeAuto: 'Automaticky (počasí) 🌦️',
+        themeAutoDesc: 'Automatické téma se přizpůsobí aktuálnímu počasí v Praze.',
+        designStyleLabel: '⚜️ Vzhled objektů a karet',
+        designMarniva: '✨ Marnivá (nový světský Art Deco vzhled)',
+        designPokorna: '🪨 Pokorná (starší prostší vzhled)',
+        designStyleDesc: 'Volba mezi zdobným secesně-dekadentním vzhledem a skromným řeholním stylem.',
         reset: 'Reset',
-        resetDesc: 'Erase thy progress.',
-        resetBtn: 'Erase',
-        backup: '💾 Safekeeping',
-        backupDesc: 'Export thy progress for safekeeping or another device.',
-        downloadSave: '📥 Download Save',
-        uploadSave: '📤 Upload Save',
-        resetGame: '🗑️ Reset Game',
-        backupWarning: '⚠️ We urge thee to secure a backup ere making grave changes!',
-        lastSaveLabel: 'Last saved:',
-        about: 'About',
-        aboutDesc: 'Version, changelog and credits',
-        showBtn: 'View',
-        footerMadeIn: 'Forged with ❤️ in Nový Bor by Ondrex',
+        resetDesc: 'Smaže postup (v7.6).',
+        resetBtn: 'Smazat',
+        backup: '💾 Záloha Save',
+        backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
+        downloadSave: '📥 Stáhnout Save',
+        uploadSave: '📤 Nahrát Save',
+        resetGame: '🗑️ Resetovat Hru',
+        backupWarning: '⚠️ Před velkými změnami doporučujeme stáhnout zálohu!',
+        lastSaveLabel: 'Poslední uložení:',
+        about: 'O hře',
+        aboutDesc: 'Verze, changelog a credits',
+        showBtn: 'Zobrazit',
+        footerMadeIn: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex',
         hourChime: {
-            title: 'Hour Chime Sound',
-            basicEnabled: 'Enabled (basic sound)',
-            mode: 'Mode',
-            modeAuto: 'Follow canonical hours',
-            modeCustom: 'Custom selection',
-            sound: 'Sound',
+            title: 'Zvuk hodinového zvonu',
+            basicEnabled: 'Zapnuto (základní zvuk)',
+            mode: 'Mód',
+            modeAuto: 'Podle kanonických hodin',
+            modeCustom: 'Vlastní výběr',
+            sound: 'Zvuk',
 
             // Bell names
-            cink: 'Cink (basic)',
-            sanctus: 'Sanctus (high)',
-            avemaria: 'Ave Maria (medium)',
-            compline: 'Compline (deep)',
-            deathknell: 'Death Knell (dark)',
-            off: 'Disabled',
+            cink: 'Cink (základní)',
+            sanctus: 'Sanctus (vysoký)',
+            avemaria: 'Ave Maria (střední)',
+            compline: 'Compline (hluboký)',
+            deathknell: 'Death Knell (temný)',
+            off: 'Vypnuto',
 
             // Quiet hours
-            quietTitle: 'Quiet Hours',
-            quietEnabled: 'Enabled',
-            quietFrom: 'From',
-            quietTo: 'To',
-            quietNote: 'Sounds will be muted during this time'
+            quietTitle: 'Noční klid',
+            quietEnabled: 'Zapnuto',
+            quietFrom: 'Od',
+            quietTo: 'Do',
+            quietNote: 'Zvuky budou ztlumeny v této době'
         }
     },
+    craft: { filterAll: 'Vše', filterTool: 'Nástroje', filterMat: 'Materiály', filterFood: 'Jídlo', filterAlchemy: 'Alchymie', filterLore: 'Vědění', btn: 'Výroba', repair: 'Opravit', cook: 'Uvařit' },
+    inv: { filterAll: 'Vše', filterMat: 'Suroviny', filterTool: 'Nástroje', filterLore: 'Ostatní' },
+    settings: { langLabel: '🗺️ Jazyk / Language' },
     actions: {
-        hunt: 'Hunt', bark: 'Cut',
-        basic: 'Explore', wetlands: 'Explore',
-        nature: 'Gather', foraging: 'Gather', resin_harvest: 'Gather', wild_beekeeping: 'Gather',
-        fishing: 'Fish',
-        well_water: 'Draw',
-        grass_gather: 'Mow',
-        wood_harvest: 'Chop',
-        worms_dig: 'Dig', dig_clay: 'Dig',
-        yard_cleanup: 'Clean',
-        default: 'Search',
-        cancel: 'CANCEL', claim: 'COLLECT',
-        quick: 'Quick!', quickDesc: 'Gather by hand',
-        done: 'Done!', waiting: 'Waiting...', remaining: 'Remaining:',
-        instantly: 'Instantly!'
+        hunt: 'Lovit', bark: 'Řezat',
+        basic: 'Prozkoumat', wetlands: 'Prozkoumat',
+        nature: 'Sbírat', foraging: 'Sbírat', resin_harvest: 'Sbírat', wild_beekeeping: 'Sbírat',
+        fishing: 'Rybařit',
+        well_water: 'Nabrat',
+        grass_gather: 'Sekat',
+        wood_harvest: 'Kácet',
+        worms_dig: 'Kopat', dig_clay: 'Kopat',
+        yard_cleanup: 'Uklidit',
+        default: 'Hledat',
+        cancel: 'ZRUŠIT', claim: 'VYZVEDNOUT',
+        quick: 'Rychle!', quickDesc: 'Ruční sběr',
+        done: 'Hotovo!', waiting: 'Čekám...', remaining: 'Zbývá:',
+        instantly: 'Ihned!'
     },
     titivillus: [
-        '👿 Titivillus hath visited. A note hath vanished.',
-        '👿 "Scripsi totum..." — yet Titivillus claimed the fruit of thy labor.',
-        '👿 The ink runs thin. A letter hath slipped into his sack.',
-        '👿 Titivillus gathers errors for the Devil. Today he took thine.',
-        '👿 "Est mihi causa mali..." Thy blunder, his gain.'
+        '👿 Titivillus byl zde. Zápisek zmizel.',
+        '👿 "Scripsi totum..." — ale Titivillus vzal výsledek.',
+        '👿 Inkoust je řídký. Písmeno zmizelo do jeho pytle.',
+        '👿 Titivillus sbírá chyby pro ďábla. Dnes i tvoje.',
+        '👿 "Est mihi causa mali..." Chyba tvá, zisk jeho.'
     ],
     game: {
-        eat: 'Eat', drink: 'Drink', required: '(Required)', needTool: 'Missing tool:',
-        techDone: 'DONE', techStudy: 'Study', techRequired: 'Required:',
-        noTinderbox: 'Thou hast no tinderbox!',
-        fireKindled: 'The hearth is kindled.',
-        needFire: 'The hearth must burn first!',
-        plotLocked: 'Locked! (Tech required)',
-        needHoe: 'A hoe is needed!',
-        needFertilizer: 'Fertilizer is needed!',
-        needSeeds: 'Seeds are needed!',
-        needWater: 'Water is needed!',
-        watered: '💧 The plot has been watered.',
-        wateredSpring: '💧 The plot has been watered with spring water.',
-        growing: 'Growing...',
-        needWell: '❌ Thou must first build a well in Crafting!',
-        fallowCropOnly: '❌ The fallow slot accepts only fallow crops (vetch).',
-        frozenHands: 'Thy hands are too cold to work!',
-        missingMats: 'Materials are wanting!',
-        notEnoughResearch: 'More study is needed!',
-        notFood: 'That cannot be eaten!',
-        crafted: 'Mastered:',
-        noFood: 'Thou hast none!',
-        busy: 'Already occupied!',
-        quickScavenge: 'Quick gather!',
-        rareFind: '⭐ Rare find: Netolický\'s bitter legacy!',
+        eat: 'Sníst', drink: 'Napít', required: '(Nutné)', needTool: 'Chybí nástroj:',
+        techDone: 'HOTOVO', techStudy: 'Studovat', techRequired: 'Nutné:',
+        noTinderbox: 'Nemáš Troud!',
+        fireKindled: 'Krb rozežehnut.',
+        needFire: 'Nejdřív oheň!',
+        plotLocked: 'Zamčeno! (Tech)',
+        needHoe: 'Motyku!',
+        needFertilizer: 'Hnojivo!',
+        needSeeds: 'Semínka!',
+        needWater: 'Vodu!',
+        watered: '💧 Záhon zalit.',
+        wateredSpring: '💧 Záhon zalit pramenitou vodou.',
+        growing: 'Roste...',
+        needWell: '❌ Nejprve musíš postavit studnu v Řemeslo!',
+        fallowCropOnly: '❌ Úhorný slot přijme jen úhorné plodiny (vikev).',
+        frozenHands: 'Máš zmrzlé ruce!',
+        missingMats: 'Chybí suroviny!',
+        notEnoughResearch: 'Zápisky!',
+        notFood: 'Tohle nejde jíst!',
+        crafted: 'Poznáno:',
+        noFood: 'Nemáš to!',
+        busy: 'Jsem zaneprázdněn!',
+        quickScavenge: 'Rychlý sběr!',
+        rareFind: '⭐ Vzácný nález: Netolického pozůstalost!',
         vigor: {
-            exhausted: '😵 The scribe is utterly exhausted. Find food before continuing.',
-            researchBlock: '⚠️ Research requires Vigor ≥ 20. Eat something first.',
-            deficiens: '⚠️ Vigor deficiens. Only light tasks available.',
-            insufficient: '😔 Not enough strength for this task.',
-            tooTiredHeavy: '😵 Too exhausted for this task. Eat something first. (Vigor < 25)',
-            tooTiredLight: '😔 Too tired for crafting. Rest or eat first. (Vigor < 10)',
+            exhausted: '😵 Písař je zcela vyčerpán. Nejdříve se najez.',
+            researchBlock: '⚠️ Na výzkum potřebuješ Vigor ≥ 20. Nejdříve se najez.',
+            deficiens: '⚠️ Vigor deficiens. Dostupné jen lehké akce.',
+            insufficient: '😔 Na tuto práci nemáš dost sil.',
+            tooTiredHeavy: '😵 Na tuto práci jsi příliš vyčerpán. Najez se. (Vigor < 25)',
+            tooTiredLight: '😔 Jsi příliš unavený. Odpočiň si nebo se najez. (Vigor < 10)',
         },
-        candleBurnedOut: 'The candle hath burned out.',
-        torchBurnedOut: 'The torch hath burned out.',
-        hungry: '⚠️ Hunger claimeth thee!',
-        saveExported: '💾 Save exported!',
-        saveExportFail: '❌ Export failed!',
-        saveImported: '✅ Save imported! Reloading...',
-        saveImportFail: '❌ Invalid save file!',
+        candleBurnedOut: 'Svíčka dohořela.',
+        torchBurnedOut: 'Louč dohořela.',
+        hungry: '⚠️ Máš hlad!',
+        saveExported: '💾 Save exportován!',
+        saveExportFail: '❌ Export selhal!',
+        saveImported: '✅ Save importován! Reloaduji...',
         waterDrawn: '🚰 +{amt} {item}',
-        needItemAmt: '❌ Thou needest {amt}x {item}!',
-        missingItem: 'Thou lackest {item}!',
-        itemIgnited: '{item} kindled.',
-        fed: 'Nourished for {hours}h{bonus}',
+        needItemAmt: '❌ Potřebuješ {amt}x {item}!',
+        missingItem: 'Nemáš {item}!',
+        itemIgnited: '{item} zapálena.',
+        fed: 'Nasycen na {hours}h{bonus}',
         itemAdded: '+{qty} {item}',
-        saveExportedFile: '💾 Save exported: {file}',
-        overwriteSave: '⚠️ WARNING: This shall overwrite thy current progress!\n\nDost thou wish to proceed?',
-        confirmReset: 'Dost thou truly wish to cast thy progress into the void and start anew?',
-        newCodexEntry: '📖 A new record in thy Codex!',
-        errorImport: '❌ An error occurred during import!',
-        errorRead: '❌ The file could not be read!',
-        successImport: '✅ Save imported! Refreshing to be certain.',
-        // v8.x — Orchard & Apiary notifications
-        treePlanted: '🌱 The sapling is set in earth.',
-        treeHarvested: '🍎 Harvest complete — {qty} gathered.',
-        treeFelled: '🪓 The tree is felled. +{qty} branches.',
-        hiveBuilt: '🪹 The hive stands ready.',
-        queenAdded: '🐝 The queen is housed. The colony shall grow.',
-        hiveCollected: '🍯 Collected: honey and wax.',
-        noSeedSelected: '❌ Choose a seed first!',
-        noSeeds: '❌ Thou hast no such seed!',
-        slotOccupied: '❌ This slot is already taken!',
-        needWood: '❌ Ten branches are needed!',
-        needRope: '❌ Five ropes are needed!',
-        needQueen: '❌ Thou hast no queen bee! (Buy at the Market)',
-        hiveNotReady: '⏳ The bees still labour.',
-        penNotReady: '⏳ Nothing ready to collect yet.',
-        // v8.x — Farmyard notifications
-        hennhouseBuilt: 'The henhouse stands ready.',
-        sheepfoldBuilt: 'The sheepfold is built.',
-        henAdded: 'Hen added to the flock.',
-        sheepAdded: 'Sheep added to the fold.',
-        roosterAlready: 'A rooster already guards the henhouse!',
-        hennsFull: 'The henhouse is full (10 hens)!',
-        sheepFull: 'The sheepfold is full (6 sheep)!',
-        needRooster: 'A rooster is needed! (buy at the Market)',
-        needHen: 'Thou hast no such hen!',
-        needSheep: 'Thou hast no sheep! (buy at the Market)',
-        needDeReRustica: 'Unlock the De Re Rustica technology first!',
-        needDePiscibus: 'Unlock the De Piscibus technology first!',
-        piscinaBuilt: 'Pond tier {tier} constructed.',
-        piscinaAlready: 'This pond already exists!',
-        piscinaTierOrder: 'Build the previous tier first!',
-        needPiscina1: 'Build the breeding pond first!',
-        noFry: 'Thou hast no fry! (wetlands or Market)',
-        fryAdded: '{qty} fry added.',
-        piscinaEmpty: 'The pond is empty!',
-        needFeedFish: 'Grass (fiber) is needed',
-        piscinaFed: 'The fish are fed.',
-        noCarp: 'No adult carp yet!',
-        carpHarvested: '{qty} carp harvested.',
-        noFryPending: 'No fry ready to transfer!',
-        fryTransferred: '{qty} fry moved to the breeding pond.',
-        nestingStarted: 'The hen settles upon her eggs.',
-        nestingActive: 'Nesting is already underway!',
-        nestingReq: 'A rooster and at least one hen are needed.',
-        breedingStarted: 'Lamb rearing has begun.',
-        breedingActive: 'Breeding is already underway!',
-        breedingReq: 'At least two sheep are needed.',
-        hennouseCollected: 'Collected from the henhouse.',
-        hennouseNotReady: '⏳ No eggs or feathers ready yet.',
-        sheepCollected: 'Collected from the sheepfold.',
-        slaughtered: '{qty} chicks slaughtered.',
-        henSlaughtered: 'The hen is slaughtered.',
-        lambSlaughtered: '{qty} lambs slaughtered.',
-        sheepSlaughtered: 'The sheep is slaughtered.',
-        noChicks: 'No chicks ready for slaughter!',
-        noLambs: 'No lambs ready for slaughter!',
-        needFeedHen: 'You need feed',
-        needFeedSheep: 'Grass is needed',
-        henFed: 'Hens fed with grain. 🌾',
-        henFedSeeds: 'Hens fed with seeds (emergency — 1/4 portion).',
-        seeds: 'seeds',
-        sheepFed: 'The sheep are fed and watered.',
-        needStone: '❌ Stone is needed',
-        wellTurningGreen: '⚠️ The well is turning green — water is contaminated.',
-        wellCollapsed: '💥 The well has collapsed!',
-        wellClouding: 'The well water is beginning to cloud. It will need cleaning soon.',
-        wellClogged: 'The well is clogged. Clean it before the water runs out.',
-        wellFrozen: '❄️ The well has frozen — water cannot be drawn.',
-        wellNeedStone: 'First line the well with stone.',
-        wellBlessed: '✨ The well has been blessed — holy water, nearly maintenance-free.',
-        wellNoWell: '❌ Build a well first.',
-        wellBroken: '💥 The well has collapsed — repair it first.',
-        wellBuilt: '🪣 Well built.',
-        wellCleaned: '🪣 Well cleaned.',
-        wellRepaired: '🪣 Well repaired.',
-        wellUpgraded: '🪣 Well upgraded.',
-        wellNotDirty: '⚠️ The well is not contaminated.',
-        wellNotBroken: '⚠️ The well is not collapsed.',
-        wellNoPowder: '❌ No purification powder.',
-        wellNoKit: '❌ No repair kit.',
-        wellNeedBasic: '❌ Build a basic well first.',
-        wellAlreadyBuilt: '⚠️ A well already stands here.',
-        wellHolyWater: '✨ The well yielded holy water!',
-        wellMurky: 'The water is murky.',
-        waterSickness: '🤢 Something about that water was not right...',
-        done: "Done!",
-        interrupted: "Interrupted.",
-        scavengeResult: "{msg} +{total} pcs.",
-        scavengeNothing: "{msg} They found nothing."
+        saveExportedFile: '💾 Save exportován: {file}',
+        overwriteSave: '⚠️ VAROVÁNÍ: Toto přepíše tvůj současný save!\n\nPokračovat?',
+        confirmReset: 'Opravdu chceš nenávratně smazat celý svůj postup a resetovat hru?',
+        newCodexEntry: '📖 Nový zápis v Codexu!',
+        errorImport: '❌ Chyba při importu!',
+        errorRead: '❌ Nelze přečíst soubor!',
+        successImport: '✅ Save importován! Refresh pro jistotu.',
+        saveImportFail: '❌ Neplatný save file!',
+        // v8.x — Sad & Apiarium notifikace
+        treePlanted: '🌱 Strom zasazen.',
+        treeHarvested: '🍎 Sklizeno {qty} kusů.',
+        treeFelled: '🪓 Strom pokácen. +{qty} větve.',
+        hiveBuilt: '🪹 Úl postaven.',
+        queenAdded: '🐝 Včelí matka usazena',
+        hiveCollected: '🍯 Sklizeno',
+        hiveNotReady: '⏳ Včely ještě pracují.',
+        hiveWinter: '❄️ Zima — včely odpočívají. Přikrm je medem.',
+        hiveRojivy: '🐝 Včelstvo se srojilo! Matka odletěla — úl je prázdný.',
+        hiveDied: '💀 Včelstvo nepřežilo zimu. Úl je prázdný.',
+        hiveVarroa: '⚠️ Varroa! Léčit tymiánem dříve než uhynou.',
+        hiveFed: '🍯 Včely přikrmeny — přežijí zimu.',
+        hiveTreated: '🌿 Varroa léčena tymiánem. Včelstvo se zotavuje.',
+        hiveFeedOnlyWinter: '❌ Přikrmovat lze jen v zimě.',
+        hiveNeedHoney: '❌ Potřebuješ med pro přikrmení.',
+        hiveNeedThyme: '❌ Potřebuješ tymián pro léčbu Varroa.',
+        hiveStrength: 'Síla včelstva',
+        noSeeds: '❌ Nemáš toto semeno!',
+        slotOccupied: '❌ Slot je obsazen!',
+        needWood: '❌ Potřebuješ 10 větví!',
+        needRope: '❌ Potřebuješ 5 provazů!',
+        needQueen: '❌ Nemáš včelí matku! (koupit na Trhu)',
+        penNotReady: '⏳ Ještě není nic k odebrání.',
+        // v8.x — Farmyard notifikace
+        hennhouseBuilt: 'Kurník postaven.',
+        sheepfoldBuilt: 'Chlév postaven.',
+        henAdded: 'Slepice přidána.',
+        sheepAdded: 'Ovce přidána.',
+        roosterAlready: 'Kohout již je v kurníku!',
+        hennsFull: 'Kurník je plný (10 slepic)!',
+        sheepFull: 'Chlév je plný (6 ovcí)!',
+        needRooster: 'Potřebuješ kohouta! (koupit na Trhu)',
+        needHen: 'Nemáš tuto slepici!',
+        needSheep: 'Nemáš ovci! (koupit na Trhu)',
+        needDeReRustica: 'Odemkni technologii De Re Rustica!',
+        needDePiscibus: 'Odemkni technologii De Piscibus!',
+        piscinaBuilt: 'Rybník tier {tier} vybudován.',
+        piscinaAlready: 'Tento rybník již existuje!',
+        piscinaTierOrder: 'Nejprve vybuduj předchozí tier!',
+        needPiscina1: 'Nejprve postav třecí rybník!',
+        noFry: 'Nemáš plůdek! (mokřad nebo Trh)',
+        fryAdded: 'Přidáno {qty} plůdku.',
+        piscinaEmpty: 'Rybník je prázdný!',
+        needFeedFish: 'Potřebuješ trávu (fiber)',
+        piscinaFed: 'Ryby nakrmeny.',
+        noCarp: 'Žádní dospělí kapři!',
+        carpHarvested: 'Sklizeno {qty} kaprů.',
+        noFryPending: 'Žádný plůdek k přesunu!',
+        fryTransferred: 'Přesunuto {qty} plůdků do třecího rybníku.',
+        nestingStarted: 'Kvočna zasedla na vejce.',
+        nestingActive: 'Líhnutí již probíhá!',
+        nestingReq: 'Potřebuješ kohouta a alespoň 1 slepici.',
+        breedingStarted: 'Odchov zahájen.',
+        breedingActive: 'Odchov již probíhá!',
+        breedingReq: 'Potřebuješ alespoň 2 ovce.',
+        hennouseCollected: 'Sklizeno z kurníku.',
+        hennouseNotReady: '⏳ Vejce ani peří ještě nejsou připraveny.',
+        sheepCollected: 'Sklizeno z chléva.',
+        slaughtered: 'Poraženo {qty} kuřat.',
+        henSlaughtered: 'Slepice poražena.',
+        lambSlaughtered: 'Poraženo {qty} jehňat.',
+        sheepSlaughtered: 'Ovce poražena.',
+        noChicks: 'Žádná kuřata k porážce!',
+        noLambs: 'Žádná jehňata k porážce!',
+        needFeedHen: 'Potřebuješ krmivo',
+        needFeedSheep: 'Potřebuješ trávu',
+        needHay: 'Potřebuješ seno',
+        henFed: 'Slepice nakrmeny zrním. 🌾',
+        henFedSeeds: 'Slepice nakrmeny semínky (nouzové krmení).',
+        seeds: 'semínek',
+        sheepFed: 'Ovce nakrmeny a napojeny.',
+        needStone: '❌ Potřebuješ kámen',
+        wellTurningGreen: '⚠️ Studna se zazelená — voda je znečištěná.',
+        wellCollapsed: '💥 Studna se zřítila!',
+        wellClouding: 'Voda ve studni začíná kalnět. Brzy ji bude třeba vyčistit.',
+        wellClogged: 'Studna je zanesená. Vyčisti ji, než voda dojde.',
+        wellFrozen: '❄️ Studna zamrzla — vodu nelze nabrat.',
+        wellNeedStone: 'Nejprve vyzdi studnu kamenem.',
+        wellBlessed: '✨ Studna byla posvěcena — svěcená voda, téměř bezúdržbová.',
+        wellNoWell: '❌ Nejprve postav studnu.',
+        wellBroken: '💥 Studna je zřícená — oprav ji nejdříve.',
+        wellBuilt: '🪣 Studna postavena.',
+        wellCleaned: '🪣 Studna vyčištěna.',
+        wellRepaired: '🪣 Studna opravena.',
+        wellUpgraded: '🪣 Studna vylepšena.',
+        wellNotDirty: '⚠️ Studna není znečištěná.',
+        wellNotBroken: '⚠️ Studna není zřícená.',
+        wellNoPowder: '❌ Nemáš čisticí prášek.',
+        wellNoKit: '❌ Nemáš opravnou sadu.',
+        wellNeedBasic: '❌ Nejprve postav základní studnu.',
+        wellAlreadyBuilt: '⚠️ Studna již stojí.',
+        wellHolyWater: '✨ Studna vydala svěcenou vodu!',
+        wellMurky: 'Voda je kalná.',
+        waterSickness: '🤢 Něco s tou vodou nebylo v pořádku...',
+        done: "Hotovo!",
+        interrupted: "Přerušeno.",
+        scavengeResult: "{msg} +{total} ks.",
+        scavengeNothing: "{msg} Nic nestihli."
     },
     notify: {
-        langSwitched: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 Language set to English.',
-        kindleHint: '🔥 Kindle the hearth — drive out the cold.'
+        langSwitched: '🇨🇿 Jazyk přepnut na češtinu.',
+        kindleHint: '🔥 Rozežehni krb – zahřej ruce.'
     },
     langPicker: {
         heading: 'Scriptorium',
-        sub: 'Anno Domini 1465 · Olomouc',
-        prompt: 'Choose thy tongue',
+        sub: 'Léta Páně 1465 · Město Olomouc',
+        prompt: 'Vyber jazyk / Choose language',
         btnCs: '🇨🇿 Česky',
         btnEn: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 English'
     },
     consent: {
-        text: '📜 <strong>Scriptorium doth employ Google Analytics</strong> to measure thy progress through the craft — which arts thou dost master, how long thou remainest at the desk. No personal tidings are shared.',
-        moreInfo: 'Learn more',
-        grant: 'I consent',
-        deny: 'I refuse',
-        policyTitle: 'Scriptorium Analytics — what we observe:',
-        policyBody: '• Thy progress (unlocked arts, achievements)\n• Session length and return visits\n• Which parts of the scriptorium thou dost frequent\n\nWhat we do NOT observe:\n• No personal data\n• IP addresses are anonymised\n• Naught is shared beyond Google Analytics\n\nConsent may be revoked by removing the localStorage key "scriptorium_consent".'
+        text: '📜 <strong>Scriptorium používá Google Analytics</strong> pro měření herního postupu (které technologie se odemykají, jak dlouho se hraje apod.). Žádné osobní údaje nejsou sdíleny.',
+        moreInfo: 'Více info',
+        grant: 'Souhlasím',
+        deny: 'Odmítám',
+        policyTitle: 'Scriptorium Analytics – co měříme:',
+        policyBody: '• Herní postup (odemčené technologie, achievementy)\n• Délka session a opakované návštěvy\n• Které části hry se nejvíce používají\n\nCo NEMĚŘÍME:\n• Žádné osobní údaje\n• IP adresy jsou anonymizovány\n• Data nejdou třetím stranám kromě Google Analytics\n\nSouhlas lze kdykoliv odvolat smazáním localStorage klíče "scriptorium_consent".'
     },
     welcome: {
-        text: 'Thou hast found an abandoned workshop.<br><br>Upon the desk: a cold tinderbox, a shard of flint, a few sheets of parchment thick with dust. Through the shutter comes a steady knocking — someone in the next street works a new machine. They call it a <em>printing press</em>.<br><br>That is outside. In here there is only dark and cold.<br><br><strong style="font-size:1.1em;">❄️ Thy fingers grow stiff with cold and yet work awaits.<br>The hearth must be kindled.</strong><br><br><span style="font-size:0.9em; opacity:0.8;">👉 Click <strong>Kindle</strong> in the Workshop to begin.</span>',
-        btn: 'Enter →',
-        aboutLink: 'About & Credits →'
+        text: 'Nalezl jsi opuštěnou pracovnu.<br><br>Na stole leží vyhaslý troud, kousek křemene a pár listů pergamenu pokrytých prachem. Za oknem je slyšet rytmické klepání – někdo v sousední ulici provozuje nový stroj. Říkají mu <em>tiskařský lis</em>.<br><br>Ale to je venku. Tady uvnitř je tma a zima.<br><br><strong style="font-size:1.1em;">❄️ Mrznou ti prsty na rukou a máš se pustit do práce.<br>Bude třeba zatopit v krbu.</strong><br><br><span style="font-size:0.9em; opacity:0.8;">👉 Klikni na <strong>Rozežehnout</strong> v pracovně a začni.</span>',
+        btn: 'Vstoupit →',
+        aboutLink: 'O hře & Credits →'
     },
     about: {
-        version: 'Version:', date: 'Date:', dateVal: '10 June 2026', author: 'Author:',
-        aboutTitle: 'About the Game',
-        devNote: 'Know ye, brethren, that Scriptorium is a work yet living, evermore wrought by our own hands. Day by day the monastery\'s world doth grow — new customs, new holdings, new bonds with the realm of CHRONICON. In such haste a blunder may now and again show itself, or some labour not yet true to its own telling. For your holy patience, and for every gracious tiding of correction, we render thee thanks. For our dwelling is built stone upon stone, even as the holy scriptoria of old grew, volume upon volume.',
-        aboutText: 'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
-        r791: 'Tools — stone and iron with wear, degradation and repair',
-        r792: 'Fabrica — iron ingots, tools and repairs from raw materials',
-        r793: 'Storage — Almarium / Cella / Horreum with growing inventory capacity',
-        r794: 'Farmyard — Ovile (wool, milk, hides, lambs) and Piscina (carp pond)',
-        r795: 'Monastery Tidings — toast / panel / modal notification system',
-        r796: 'Tidings — 26 historical letters in five voices',
-        r797: 'Mobile pills — compact info bar in the header for mobile',
-        r798: 'Calendarium — lunar calendar with Christian feasts, Anno Domini 1465',
-        r799: 'Fixes: study() crash, music off by default, repair buttons, duplicates',
-        r779: 'Dynamic bg header changes by season, time of day and weather',
-        r780: 'Athanor 2.0 — CombEngine, brewing, Nig/Alb/Rub phases, discovery log',
-        r781: 'Cellarium — Tavern with beer and wine (effects: Lupulin, In vino veritas)',
-        r778: 'Curia (Farmyard) — Well moved to Dvůr tab, structure prepared',
-        r775: 'about.html — hero section with image, GTM, JSON-LD VideoGame schema',
-        r776: 'Fixes: PWA padding, garden tab active state, ui fixes',
-        r777: '...And many many more :)',
-        r771: 'i18n Phase 1 complete — full UI translation into English',
-        r772: '61 historical books in the library',
-        r773: 'Collapsible tech cards — lore preview, expandable detail',
-        r774: 'Well system — fully translated and localised',
-        fullChangelog: '📜 Full changelog & Credits →'
+        version: 'Verze:', date: 'Datum:', dateVal: '10. června 2026', author: 'Autor:',
+        aboutTitle: 'O hře',
+        devNote: 'Vězte, bratřie, že Scriptorium jest dílem živým a rukama našima neustále hněteným. Svět klášterní den ode dne o nové zvyklosti, statky a bratrská spojení s říší CHRONICON utěšeně vzrůstá. Při kvapu takovém občasně se blud nějaký zjeví, anebo dílo, jež k popisu svému ještě zcela nepřiléhá. Za svatou trpělivost vaši a za každou milostivou zvěst o nápravu díky vám vzdáváme. Neboť příbytek náš kámen po kameni se buduje, přesně tak, jak svatá skriptoria kdysi rostla svazek po svazku.',
+        aboutText: 'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
+        r791: 'Nástroje — kamenné a železné s opotřebením, degradací a opravou',
+        r792: 'Fabrica — výroba železných ingotů, nástrojů a oprav ze surovin',
+        r793: 'Sklady — Almarium / Cella / Horreum, narůstající kapacita inventáře',
+        r794: 'Dvůr — Ovile (vlna, mléko, kůže, jehňata) a Piscina (kaprový rybník)',
+        r795: 'Zprávy z kláštera — toast / panel / modal systém notifikací',
+        r796: 'Tidings — 26 historických dopisů v pěti hlasech',
+        r797: 'Mobile pills — informační lišta v hlavičce pro mobilní zařízení',
+        r798: 'Calendarium — lunární kalendář s křesťanskými svátky, Anno Domini 1465',
+        r799: 'Opravy: study() crash, hudba defaultně vypnuta, repair tlačítka, duplicity',
+        r779: 'Dynamické pozadí — header mění obraz podle sezóny, denní doby a počasí',
+        r780: 'Athanor 2.0 — CombinationEngine, brewing timer, fáze Nigredo/Albedo/Rubedo, discovery log',
+        r781: 'Cellarium — Hospoda s pivem a vínem (efekty: Lupulin, In vino veritas)',
+        r778: 'Dvůr (Curia) — Studna přesunuta do záložky Dvůr, struktura připravena',
+        r775: 'about.html — hero sekce s obrázkem, GTM, JSON-LD VideoGame schema',
+        r776: 'Opravy: PWA padding, zahrada tab active state, Rithmomachia piece modal',
+        r777: 'A mnoho více :)',
+        r771: 'i18n Phase 1 dokončena — kompletní překlad UI do EN',
+        r772: '61 historických knih v knihovně',
+        r773: 'Collapsible tech cards — preview lore textu',
+        r774: 'Well system, Games & Records, Divination — lokalizovány',
+        fullChangelog: '📜 Celý changelog & Credits →'
     },
     fireout: {
-        heading: 'The Workshop Lies Cold',
-        btn: 'Seek the flame →',
-        absence: 'Away for:',
+        heading: 'Pracovna je studená',
+        btn: 'Hledat oheň →',
+        absence: 'Nepřítomnost:',
         texts: [
-            'The ash in the hearth is cold. Utterly cold.<br><br>It took thee time — yet thou art returned. The workshop waits as thou didst leave it. Parchment on the desk. Ink congealed. Quill dry.<br><br>Only the fire needeth to be kindled anew.',
-            'Thou hast been away {days} {dayWord}.<br><br>The scriptorium is silent and cold. The candle burned out, the torch long spent. Yet the manuscripts remain. Parchment waiteth more patiently than men.<br><br>The desk is ready. Only warmth is wanting.',
-            'Three days gone. Perhaps more.<br><br>The abbot would say: <em>"Acedia — sloth of spirit — is the scribe\'s true enemy."</em> Yet thou art here now. And that doth count for something.<br><br>Strike the tinder. Begin where thou left off.'
+            'Popel v krbu je studený. Úplně studený.<br><br>Trvalo ti to – ale vrátil ses. Pracovna čeká, tak jak jsi ji nechal. Pergamen na stole. Inkoust zatuhlý. Brko suché.<br><br>Jen krb je potřeba rozžehnout znovu.',
+            'Vrátil ses po {days} {dayWord}.<br><br>V skriptoriu je ticho a chlad. Svíčka dohořela, louč vyprchala. Ale rukopisy na stole jsou stále tam. Pergamen čeká trpělivěji než lidé.<br><br>Stůl je připraven. Chybí jen teplo.',
+            'Tři dny pryč. Možná víc.<br><br>Opat by řekl: <em>"Acedia – lenost ducha – je nepřítel písaře."</em> Ale ty jsi zpět. A to se počítá.<br><br>Rozžehni troud. Začni tam, kde jsi přestal.'
         ],
-        dayWord: { one: 'day', few: 'days', many: 'days' }
+        dayWord: { one: 'den', few: 'dny', many: 'dní' }
     },
     meta: {
-        title: 'Scriptorium — Medieval Monastery Idle Game',
-        desc: 'A medieval idle game set in a monastery scriptorium. Copy manuscripts, tend thy garden, and unlock the secrets of parchment and ink.',
-        ogLocale: 'en_US'
+        title: 'Scriptorium – Středověká idle hra',
+        desc: 'Středověká idle hra o životě v klášterním skriptoriu. Kopíruj rukopisy, pěstuj byliny a odemykej tajemství pergamenu a inkoustu.',
+        ogLocale: 'cs_CZ'
 
     },
     lore: {
-        tabResearch: 'Research',
+        tabResearch: 'Výzkum',
+        tabTasks: '📜 Denní řád',
+        tabManuscripts: '✒️ Opisování rukopisů',
         tabCodex: 'Codex',
-        tabNotebooks: '📓 Notebooks',
-        tabAchievements: 'Achievements',
-        notes: 'Notes:',
-        discovered: 'Discovered:',
-        notebooks_empty: 'Thou hast no notebooks as yet',
-        notebooks_hint: 'Unlock the "Basics of Writing" tech (3 research) and craft thy first Tabula!',
-        darkTitle: 'Darkness Claimeth This Place',
-        darkDesc: 'Light a Torch or Candle in the Workshop.',
-        darkness: 'Darkness claimeth this place',
-        darkness_hint: 'Light a Torch or Candle in the Workshop.'
+        tabNotebooks: '📓 Zápisníky',
+        tabAchievements: 'Achievementy',
+        notes: 'Zápisky:',
+        notebooks_empty: 'Zatím nemáš žádný zápisník',
+        notebooks_hint: 'Odemkni tech "Základy Psaní" (3 research) a vycrafti svou první Tabulu!',
+        discovered: 'Objeveno:',
+        darkTitle: 'Je tu tma',
+        darkDesc: 'Zapálit Louč nebo Svíčku v pracovně.'
     },
     library: {
-        tabBooks: '📚 Books',
-        tabRecords: '🏅 Records',
+        tabBooks: '📚 Knihy',
+        tabRecords: '🏅 Záznamy',
         tabGames: '🎲 Aula Ludi',
-        tabIching: '☯️ Divination',
-        tabNews: '📜 Tidings',
-        tabKronika: '📖 Chronicle',
-        locked: 'Locked',
-        divination_hint: 'Unlock the "Ancient Wisdom" tech to access divination.',
-        records_hint: 'Unlock the "Games and Records" tech to access mini-games and statistics.',
-        iching_title: '☯️ I-Ching (Book of Changes)',
-        iching_need_book: 'Thou lackest the Book of Changes',
-        iching_craft_hint: 'Craft it within the Crafting → Knowledge section.',
+        tabIching: '☯️ Věštění',
+        tabNews: '📜 Zprávy',
+        tabKronika: '📖 Kronika',
+        locked: 'Zamčeno',
+        divination_hint: 'Odemkni tech "Starověká Moudrost" pro přístup k věštění.',
+        records_hint: 'Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.',
+        scribe_short: '"Za 3x Papír ti odkryji jednu knihu předčasně..."',
+        iching_title: '☯️ I-Ching (Kniha Proměn)',
+        iching_need_book: 'Potřebuješ Knihu Proměn',
+        iching_craft_hint: 'Vyrob si ji v sekci Výroba → Scriptorium.',
     },
+
     kronika: {
-        title: 'Chronicle',
-        locked: 'The Chronicle is not yet available.',
-        lockedHint: 'Unlock the Ars Chronicae tech in the Scriptorium.',
-        empty: 'No entries yet.',
+        title: 'Kronika',
+        locked: 'Kronika ještě není k dispozici.',
+        lockedHint: 'Odemkni tech Ars Chronicae ve Scriptoriu.',
+        empty: 'Zatím žádné záznamy.',
         langCs: 'Česky',
         langEn: 'English',
         langLa: 'Latine',
-        prev: '← Previous',
-        next: 'Next →',
-        pageOf: 'Page {cur} of {total}',
-        filterAll: 'All',
-        filterLocal: 'Local',
+        prev: '← Předchozí',
+        next: 'Další →',
+        pageOf: 'Strana {cur} z {total}',
+        filterAll: 'Vše',
+        filterLocal: 'Lokální',
         filterChronicon: '☩ Chronicon',
         chroniconSrc: {
-            local_events: 'Local rumours',
-            distant_events: 'From afar',
-            monastery_internal: 'Monastery',
-            engine: 'World',
-            gm: 'From the Abbot',
+            local_events: 'Místní drby',
+            distant_events: 'Z dálky',
+            monastery_internal: 'Klášter',
+            engine: 'Svět',
+            gm: 'Od opata',
         },
     },
 
     library_lore: {
-        new_book: "📚 A new tome hath arrived! ({count})",
-        lib_title: "The Library",
-        lib_unlocked: "unlocked",
-        lib_read: "Perused",
-        lib_not_avail: "The Library is shut unto thee.",
-        lib_unlocks_in: "Unlocks in",
-        lib_days: "days",
-        desc: 'For 3x Paper, I shall reveal one book unto thee prematurely...',
-        btn_read: "Read",
-        btn_read_again: "Read Anew",
+        new_book: "📚 Nová kniha v knihovně! ({count})",
+        lib_title: "Knihovna",
+        lib_unlocked: "odemčeno",
+        lib_read: "Přečteno",
+        lib_not_avail: "Knihovna není dostupná.",
+        lib_unlocks_in: "Odemkne se za",
+        lib_days: "dní",
+        desc: 'Za 3x Papír ti odkryji jednu knihu předčasně...',
+        btn_read: "Číst",
+        btn_read_again: "Přečíst znovu",
         categories: {
-            history: "History of the Press",
-            innovation: "Innovations",
-            conflict: "Conflicts",
-            local: "Prague & Bohemia",
-            viticis: "Viticulture",
-            technical: "Crafts & Learning",
-            coquina: "Culinary Arts",
-            valetudo: "Health & Care"
+            history: "Historie Tisku",
+            innovation: "Inovace",
+            conflict: "Konflikty",
+            local: "Praha & Čechy",
+            viticis: "Vinohradnictví"
         },
         npc_scribe: {
-            name: "Master Bartholomew, The Elder Scribe",
-            first_visit_text: "*An aged man, his fingers forever stained by the black gall ink, slowly lifteth his gaze from his pulpit. A heavy, ancient scent of parchment and beeswax hangs in the air.*\n\n\"Ah... I hear thy steps. Another of those so-called 'printers', eh? Another who, in his unholy pride, thinketh a mechanical press can replace a human soul. I remember the days, lad, when books were penned by hand... Hast thou even the patience to listen to an old man?\"",
-            opt_yes: "Aye, Master. Speak on!",
-            opt_no: "Perchance later. The presses wait for no man.",
-            trade_text: "*The scribe gazeth upon thee intently.*\n\n\"Naught in this world is freely given. Neither words, nor time. A tale for a tale, I say. Bring unto me three blank sheets of thy vaunted printer's paper — and in return, I shall show thee how true truth is written upon them...\"",
-            opt_trade: "Trade (3x Paper)",
-            opt_trade_no: "Nay, I thank thee. Paper is costly.",
-            after_trade: "*The old scribe taketh thy paper with a trembling hand. He gently stroketh it with his fingertips...*\n\n\"It is so... incredibly smooth. Yet utterly bereft of a soul. Take this old, worn tome. I have guarded it long and in secret.\"",
-            opt_thanks: "I thank thee for thy priceless wisdom, Master.",
-            err_paper: "Thou lackest sufficient paper!",
-            scribe_short: '"For 3x Paper, I shall reveal one tome unto thee prematurely..."',
-            notify_book: "📖 The scribe hath bestowed a book upon thee:",
-            notify_empty: "Scribe: \"Thou knowest all the tales already...\""
+            name: "Mistr Bartoloměj, Starý Písař",
+            scribe_short: '"Za 3x Papír ti odkryji jednu knihu předčasně..."',
+            first_visit_text: "*Starý muž s hlubokými vráskami a prsty navždy zčernalými od duběnkového inkoustu pomalu zvedne zrak od svého pulpitu. Ve vzduchu je cítit těžká, starobylá vůně pergamenu a včelího vosku.*\n\n\"Ah... slyším ty tvé kroky. Další z těch takzvaných 'tiskařů', že? Další z těch, co si ve své pýše myslí, že mechanický lis dokáže nahradit lidskou duši. Pamatuji si časy, chlapče, kdy se knihy psaly rukou... Máš vůbec dost trpělivosti poslouchat starce?\"",
+            opt_yes: "Ano, mistře. Vypravuj!",
+            opt_no: "Možná později, lisy nepočkají.",
+            trade_text: "*Písař se na tebe upřeně zadívá.*\n\n\"Nic na tomto světě není zadarmo. Ani slova, ani čas. Za příběh chci příběh. Dones mi 3 čisté listy toho vašeho slavného tiskařského papíru – a já ti na oplatku ukážu, jak se na ně dá napsat skutečná pravda...\"",
+            opt_trade: "Vyměnit (3x Papír)",
+            opt_trade_no: "Ne, děkuji, papír je drahý.",
+            after_trade: "*Starý písař se třesoucí rukou převezme tvůj papír. Opatrně ho pohladí bříšky prstů...*\n\n\"Je tak... neuvěřitelně hladký. Ale naprosto bez duše. Vezmi si tuto starou, ohmatanou knihu. Strážil jsem ji velmi dlouho a tajně.\"",
+            opt_thanks: "Děkuji za tvou neocenitelnou moudrost, mistře.",
+            err_paper: "Nemáš dost papíru!",
+            notify_book: "📖 Písař ti dal knihu:",
+            notify_empty: "Písař: \"Už znáš všechny příběhy...\""
         },
         easter_eggs: {
-            faust_name: "Faust's Pact with the Shadows",
-            faust_desc: "Barter thy time. Gather and hold exactly 666 points of research.",
-            complete_name: "The Absolute Bibliophile",
-            complete_desc: "Read every single page of every available book in the Great Library.",
-            scholar_name: "Master of Prague's Alleys",
-            scholar_desc: "Unravel all mysteries by reading every tome in the Prague & Bohemia category.",
-            netolicky_name: "Netolický's Bitter Legacy",
-            netolicky_desc: "An ancient, half-burnt parchment, found beneath the floorboards of the old press.",
-            netolicky_lore: "As thou dost break the old, hardened wax seal, the musty scent of the sixteenth century greets thee...\n\n\"Brother Bartholomew Netolický! For God's sake, come to thy senses! This dismal day is thine absolutely final chance...\"",
-            notify_found: "🎉 Secret Found: {name}! A hidden tome hath been unlocked!"
+            faust_name: "Faustova smlouva s temnotami",
+            faust_desc: "Zaprodej svůj čas. Nasbírej a drž přesně 666 bodů výzkumu.",
+            complete_name: "Absolutní Bibliofil",
+            complete_desc: "Přečti každičkou stranu všech dostupných knih ve Velké knihovně.",
+            scholar_name: "Mistr pražských uliček",
+            scholar_desc: "Rozpleť všechna tajemství přečtením všech knih z kategorie Praha & Čechy.",
+            netolicky_name: "Netolického hořká pozůstalost",
+            netolicky_desc: "Prastarý, napůl sežehlý dokument, nalezený pod podlahou staré tiskárny.",
+            netolicky_lore: "Když rozlomíš starou, ztvrdlou voskovou pečeť, ucítíš zatuchlinu šestnáctého století...\n\n\"Bratře Bartoloměji Netolický! Probůh, vzpamatuj se! Dnešní pochmurný den je tvou naprosto poslední šancí...\"",
+            notify_found: "🎉 Easter Egg: {name}! Odemčena tajná kniha!"
         },
         books: {
             book_gutenberg_betrayal: {
-                title: "The Mainz Betrayal: A Bloody Dawn of Print",
-                author: "Anonymous Chronicler",
-                content: `**A Loan from a Moneylender and a Bitter End**
-
-Johannes Gutenberg was beyond doubt a visionary who changed the course of history, but he was a man without a penny to his name. To realise his secret project, he borrowed the astronomical sum of 1,600 guilders from a Mainz lawyer and wealthy merchant, Johann Fust. As security he offered the only thing he possessed — he pledged everything: his workshop, his innovative presses, and the famous forty-two-line Bible he was printing with such immense effort.
-
-**The Helmasperger Notarial Instrument (6 November 1455)**
-
-Just before the Bible could be completed and begin earning money, Fust struck hard. Driven by the prospect of profit, he accused Gutenberg of having "not eaten the money in books" but of having embezzled it for other purposes. The ensuing trial was merciless and ruled in Fust's favour. Overnight, Gutenberg lost everything — his presses, his carefully cast metal type, and his precious paper.
-
-**Who Was the Judas of the Printing Arts?**
-
-History points its finger at Peter Schöffer! He was Gutenberg's most talented journeyman, originally a skilled scribe from Paris. It was he who coolly testified against his own master in court! The reward was not long in coming — Fust took the sharp-witted Schöffer as his business partner and, to seal the alliance, later gave him his own daughter Christina in marriage. Gutenberg's life's work and workshop thus passed smoothly into the new, predatory firm of Fust & Schöffer. Shortly thereafter, in 1459, this powerful pair published the celebrated *Rationale Divinorum Officiorum*.
-
-**The Dark Legend of Doctor Faustus**
-
-Johann Fust was an extraordinarily successful merchant. He flooded the market with books and printed so quickly — hundreds of perfectly identical, flawless copies — that the superstitious and illiterate populace began to whisper dark rumours: this man must have sold his soul to the devil himself. From these whispers sprang the terrifying legend of Doctor Faustus (born of the confusion between the names Fust and Faust), which centuries later the German poet Goethe made immortal. This wholly new technology of printing was, in the eyes of the illiterate masses of the day, simply pure, black magic.
-
-*"He who betrays his master gains an empire but loses his soul. In the ink there is always a trace of blood." — An old chronicle*`
+                title: "Mohučská zrada: Krvavý úsvit tisku",
+                author: "Anonymní kronikář",
+                content: "**Půjčka od lichváře a hořký konec**\n\nJohannes Gutenberg byl bezesporu vizionář, který změnil běh dějin, ale byl to muž bez groše. Aby mohl svůj tajný projekt realizovat, půjčil si astronomickou částku 1600 zlatých od mohučského právníka a bohatého obchodníka Johanna Fusta. Jako zástavu použil to jediné, co měl – ručil vším: svou dílnou, inovativními lisy i tou svou slavnou dvaačtyřicetiřádkovou Biblí, kterou právě s nesmírným úsilím tiskl. \n\n**Helmaspergerův notářský zápis (6. listopadu 1455)**\n\nTěsně předtím, než mohla být Bible dokončena a začít vydělávat, Fust tvrdě udeřil. Hnán vidinou zisku obvinil Gutenberga, že peníze „neprojedl v knihách\", ale prý je zpronevěřil na jiné účely. Následný soud byl neúprosný a rozhodl ve prospěch Fusta. Gutenberg přišel ze dne na den o všechno – o své lisy, o pečlivě odlité kovové litery (typy) i o drahocenný papír.\n\n**Kdo byl onen Jidáš tiskařského umění?**\n\nHistorie ukazuje prstem na Petera Schöffera! Byl to Gutenbergův nejtalentovanější tovaryš a původně zručný písař pocházející z Paříže. Právě on u soudu chladnokrevně svědčil proti svému vlastnímu mistrovi! Odměna na sebe nenechala dlouho čekat – Fust si bystrého Schöffera vzal za svého obchodního společníka a aby spojenectví zpečetil, dal mu později za ženu svou vlastní dceru Christinu. Gutenbergova celoživotní práce a dílna tak plynule přešla pod novou, dravou značku Fust & Schöffer. Brzy poté, v roce 1459, tato mocná dvojice vydala slavné dílo *Rationale Divinorum Officiorum*.\n\n**Temná legenda o doktoru Faustovi**\n\nJohann Fust byl jako obchodník neuvěřitelně úspěšný. Chrlil na trh takové množství knih a tiskl tak rychle zcela identické kopie, že si prostý lid začal šeptat temné zvěsti: ten muž musel upsat svou duši samotnému ďáblu. Odtud prý pramení děsivá legenda o Doktoru Faustovi (vzniklá ze zkomoleniny jmen Fust a Faust), kterou o staletí později proslavil německý básník Goethe. Zcela nová technologie tisku byla v očích tehdejšího negramotného lidu zkrátka čistá, černá magie!\n\n*\"Kdo zradí mistra, získá impérium, ale ztratí duši. V inkoustu je vždy přimíchána krev.\" - Starý kronikářský spis*"
             },
             book_jenson_spy: {
-                title: "The Spy Who Never Returned: Jenson's Secret",
-                author: "Royal Chronicles & Secret Archives",
-                content: `**A Secret Mission to the Heart of the Holy Roman Empire (1458)**
-
-The French king Charles VII heard incredible rumours of "the miracle at Mainz". Fascinated, he dispatched in 1458 his finest engraver of coins, Nicolas Jenson, on a strictly secret espionage mission to Germany. The king's order was clear: *"Learn this new art, discover how it is done, and bring the secret home, for the glory of France!"*
-
-**The Defection of the Master Engraver**
-
-Jenson duly arrived in Mainz and mastered the revolutionary technology of printing in every detail. He discovered something fundamental, however — printing offered him a freedom that the anxious royal court would never provide. He never returned to his king. After years of silence, in 1470 he emerged triumphantly in Venice, the free commercial heart of the age. There he founded his own prospering press and created the typeface known as **Antiqua**. Jenson is today widely acknowledged as the true father of the Roman type.
-
-**The Birth of Modern Typography**
-
-One of the first books he published in Venice in 1470 was the celebrated work of Eusebius, *De evangelica præparatione*. Jenson's design was wholly revolutionary: the typeface was not a slavish copy of old manuscript models but was founded on entirely new typographical principles. Flowing forms and discreet serifs helped the eye to glide across the page. It was a typeface so timeless and perfect that its principles are used to this day — even the celebrated font Times New Roman draws directly from it in spirit.
-
-**Venetian Asylum**
-
-In the liberal republic of Venice, Jenson was immediately regarded as an absolute star. The king in Paris raged and hatched plans for revenge, but could do nothing whatever. The proud Italian city-states jealously protected their artists and master craftsmen from any outside interference. Nicolas Jenson died wealthy, honoured, and celebrated to the last day of his life. His brilliant typeface has outlasted him by five centuries.
-
-*"The king sends a spy in the shackles of duty, but the beauty of art shall set him free." — A Venetian proverb*`
+                title: "Špion, který se nevrátil: Jensonovo tajemství",
+                author: "Královská kronika & Tajné archivy",
+                content: "**Tajná mise do srdce Svaté říše římské (1458)**\n\nFrancouzský král Karel VII. zaslechl neuvěřitelné zvěsti o „zázraku v Mohuči\". Zcela fascinován poslal v roce 1458 svého nejlepšího rytce mincí, Nicolase Jensona, na přísně tajnou špionážní misi do Německa. Králův rozkaz zněl jasně: *\"Nauč se toto nové umění, zjisti, jak to dělají, a přines to tajemství domů, pro slávu Francie!\"* \n\n**Zběhnutí mistra rytce**\n\nJenson do Mohuče skutečně dorazil a revoluční technologii tisku si do detailu osvojil. Zjistil však něco zásadního – tisk mu dával svobodu, kterou mu úzkostlivý královský dvůr nikdy nenabídne. Ke svému králi se už nikdy nevrátil! Po letech ticha se v roce 1470 triumfálně vynořil v Benátkách, svobodném obchodním srdci tehdejší Evropy. Zde založil svou vlastní prosperující tiskárnu a vytvořil písmo **Antiqua**. Jenson je dnes široce uznáván jako skutečný otec římského typu písma. \n\n**Zrození moderní typografie**\n\nJednou z prvních knih, kterou v Benátkách v roce 1470 vydal, bylo proslulé Eusebiovo dílo *De evangelica præparatione*. Jensonův návrh byl naprosto revoluční: písmo nebylo jen otrockou kopií starých rukopisných modelů, ale bylo založeno na zcela nových typografických principech. Plynulé tvary a decentní serify pomáhaly oku klouzat po stránce. Bylo to písmo tak nadčasové a dokonalé, že se principielně používá dodnes (dokonce i slavný font Times New Roman z něj myšlenkově přímo vychází).\n\n**Benátský azyl**\n\nV liberálních Benátkách byl Jenson rázem považován za naprostou hvězdu. Král v Paříži sice zuřil a spřádal plány na pomstu, ale nemohl s tím dělat vůbec nic. Hrdé italské městské státy si bedlivě chránily své umělce a špičkové řemeslníky před jakýmkoliv vnějším zásahem. Nicolas Jenson zemřel bohatý, uctívaný a do konce života oslavovaný. Jeho geniální písmo přežilo plných pět století.\n\n*\"Král posílá špeha v okovech povinnosti, ale krása umění ho osvobodí.\" - Benátské přísloví*"
             },
             book_manutius: {
-                title: "The Smartphones of the Renaissance: Aldus Manutius",
-                author: "Venetian Trade Register",
-                content: `**Aldus Manutius — The Steve Jobs of His Age**
-
-This Venetian printer and humanist (1449–1515), who in 1494 founded the celebrated Aldine Press, was a true visionary who changed for ever the way people consumed the written word. Before him, books — the so-called incunabula — were enormous, heavy, unwieldy folios that had to lie on a massive library table. Manutius, however, devised a revolutionary octavo format called the **enchiridion** (handbook): small books, the direct ancestors of today's paperbacks, which slipped easily into a saddlebag or the folds of a travelling cloak.
-
-**The Mobility of Knowledge and the Purity of the Text**
-
-Suddenly nobles and merchants could read even on long journeys. Students could purchase Aristotle or Homer for the price of an ordinary supper. Overnight, books ceased to be pieces of inviolable furniture and became accessible personal companions of daily life. Manutius was moreover obsessed with accuracy. He wished to publish classical Greek texts in their original, pure form, uncorrupted by centuries of faulty translation. To that end he collaborated with the leading scholars of his day, including the celebrated Erasmus of Rotterdam.
-
-**The Invention of Italic Type**
-
-To fit as much text as possible into a small, inexpensive book and to economise on costly paper, Manutius engaged the brilliant punch-cutter Francesco Griffo. Griffo created an entirely new typeface, modelled on the elegant but economical slanted handwriting of Renaissance officials and humanists — **italic**. This was not originally intended for emphasis, as we use it today, but purely for the economic saving of paper. Their edition of Virgil's *Opera* in 1501 was the very first book in the world to be printed in this new, economical script.
-
-**The Dolphin and the Anchor**
-
-His unmistakable printer's device was a lithe dolphin (symbolising speed and constant innovation) wound about a firm anchor (symbolising stability, reliability and care). His lifelong motto ran: **Festina Lente** — Make haste slowly. Manutius proved to the whole world that books need not be locked treasures in coffers but active instruments in the hands of people.
-
-*"A small book in the hand is mightier than a great one upon the table. Freedom of thought lies in the pocket."*`
+                title: "Smartphony renesance: Aldus Manutius",
+                author: "Benátský obchodní registr",
+                content: "**Aldus Manutius - Steve Jobs své doby**\n\nTento benátský tiskař a humanista (1449–1515), který v roce 1494 založil proslulou tiskárnu Aldine Press, byl skutečným vizionářem, jenž navždy změnil konzumaci textu. Před ním byly knihy – takzvané inkunábule – obrovské, těžké a neforemné folianty, které musely ležet na masivním stole v knihovně. Manutius však vymyslel revoluční formát velikosti oktáva zvaný **enchiridion** (příručka). Šlo o malé knížky, přímé předchůdce dnešních moderních paperbacků, které se hravě vešly do kapsy u sedla či do záhybů pláště.\n\n**Mobilita vědění a čistota textu**\n\nNajednou mohli šlechtici a kupci číst i na dlouhých cestách! Studenti si mohli koupit Aristotela nebo Homéra za cenu běžné večeře. Knihy přes noc přestaly být kusem nedotknutelného nábytku a staly se z nich dostupní osobní průvodci každodenním životem. Manutius byl navíc posedlý přesností. Chtěl vydávat klasické řecké texty v jejich původní, čisté podobě, nezkreslené staletími špatných překladů. Kvůli tomu spolupracoval s předními učenci tehdejší doby, včetně slavného Erasma Rotterdamského. \n\n**Vynález kurzívy (Italiky)**\n\nAby se do malé a levné knížky vešlo co nejvíce textu a ušetřilo se za drahý papír, najal Manutius geniálního rytce Francesca Griffa. Ten vytvořil zcela nový typ písma, který napodoboval elegantní, ale úsporné nakloněné psaní renesančních úředníků a humanistů – **italiku** (kurzívu). Nebylo to původně určeno pro zvýrazňování textu, jak to děláme dnes, ale čistě pro ekonomickou úsporu papíru! Jejich vydání Vergiliova díla *Opera* z roku 1501 bylo vůbec první knihou na světě tištěnou tímto novým, úsporným písmem.\n\n**Delfín a Kotva**\n\nJeho nezaměnitelným tiskařským znakem byl mrštný delfín (symbolizující rychlost a neustálou inovaci) omotaný kolem pevné kotvy (symbolizující stabilitu, spolehlivost a pečlivost). Jeho celoživotní motto znělo: **Festina Lente** (Spěchej pomalu). Manutius dokázal celému světu, že knihy nemusí být jen zamčené poklady v truhlách, ale aktivní nástroje v rukou lidí.\n\n*\"Malá kniha v ruce je mocnější než obrovská na stole. Svoboda myšlení leží v kapse.\"*"
             },
             book_scribes_war: {
-                title: "The War of Scribes: The Virgin and the Harlot",
+                title: "Válka písařů: Panna a Děvka",
                 author: "Filippo de Strata & Johannes Trithemius",
-                content: `**"The Pen is a Virgin, the Press a Harlot"**
-
-Not everyone greeted the invention of the printing press with open arms. Filippo de Strata, a Venetian monk and professional scribe, became the radical voice of resistance. Sometime between 1473 and 1474 he composed a desperate and fiery polemic addressed to the then Doge of Venice, Nicolò Marcello, imploring him to have the printing presses banished from the city for good. In his text he proclaimed, among other things, without compromise:
-
-*"The pen is a pure virgin, the press a venal harlot! Printers are procurers who flood the market, print love poetry and teach young girls to read Ovid only that they may learn sin and vice. These printers guzzle wine, carousing in taverns, and for a handful of coins sell the sanctity of the text!"*
-
-The wealthy city, in his view, was choked with books but had utterly and irretrievably lost its soul.
-
-**The Trithemian Paradox (1492)**
-
-On the other side of Europe, the eminent Abbot Johannes Trithemius entered the cultural fray. In 1492 he composed the now legendary work **De Laude Scriptorum** (In Praise of Scribes). In it he passionately urged his monks on no account to cease copying texts by hand, citing the incontestable quality of the material:
-
-*"A printed book is made only of fragile paper. It will burn, succumb to insects, or inevitably crumble within 200 years. Our careful work on parchment, by contrast, will endure the ages and carries within it spiritual value."*
-
-Yet the cruel irony of history and the utterly perfect paradox is that Trithemius himself had this very polemic against the printing press **printed** on a press in 1494, because he pragmatically realised that otherwise his urgent thoughts would never reach the masses.
-
-**The End of the Golden Age of Calligraphy**
-
-The new technology was as unstoppable as an avalanche. Many a proud scribe ended up, with bitterness in his heart, working in the very same printshops he had loathed from the depths of his soul — as a common typesetter or proofreader. They were compelled to "retrain" in a humiliating fashion. Their noble craft, which had continued without interruption or great change for a thousand years, was utterly annihilated within a single generation.
-
-But their magnificent, hand-illuminated manuscripts survived. Today they lie quietly in museums and vaults as stately monuments to an age when every single word demanded blood, sweat, and hours of absolute concentration, and was therefore held sacred.
-
-*"Speed kills the beauty of detail, but truth survives in both forms." — The last monastic scribe*`
+                content: "**\"Pero je panna, tisk je děvka\"**\n\nNe každý vítal vynález knihtisku s otevřenou náručí. Filippo de Strata, benátský mnich a profesionální písař, se stal radikálním hlasem odporu. Někdy v letech 1473 až 1474 sepsal zoufalou a ohnivou polemiku adresovanou tehdejšímu benátskému dóžeti Nicolò Marcellovi, ve které ho zapřísahal, aby z města nechal tiskařské lisy nadobro vyhnat. Ve svém textu mimo jiné nekompromisně hlásal: \n\n*\"Pero je čistá panna, tisk je prodejná děvka! Tiskaři jsou pasáci, kteří zaplavují trh, tisknou milostnou poezii a mladé dívky pak čtou Ovidia jen proto, aby se učily hříchu a neřesti. Tito tiskaři guzzlí víno, opíjejí se v krčmách a za pár drobných prodávají posvátnost textu!\"*\n\nBohaté město podle něj bylo sice přecpané knihami, ale zcela a nenávratně ztratilo svou duši.\n\n**Trithemiův paradox (1492)**\n\nNa druhé straně Evropy se do kulturního boje zapojil významný opat Johannes Trithemius. V roce 1492 sepsal dnes již legendární dílo **De Laude Scriptorum** (Chvála písařů). Ve spise plamenně přesvědčoval své mnichy, aby v žádném případě nepřestávali ručně kopírovat texty, s odůvodněním na nepopiratelnou kvalitu materiálu:\n\n*\"Tištěná kniha je pouze z křehkého papíru. Shoří, podlehne hmyzu nebo se nevyhnutelně rozpadne za 200 let. Naproti tomu naše pečlivá práce na pergamenu přetrvá věky a nese v sobě duchovní hodnotu.\"*\n\nKrutou historickou ironií osudu a naprosto dokonalým paradoxem však zůstává, že právě Trithemius nechal tento svůj útočný spis proti knihtisku v roce 1494 **vytisknout** na lisu, protože si pragmaticky uvědomil, že jinak by se jeho naléhavé myšlenky nikdy nedostaly k masám!\n\n**Konec zlaté éry kaligrafie**\n\nNová technologie byla nezastavitelná jako lavina. Mnozí hrdí písaři nakonec s hořkostí v srdci skončili v těch samých tiskárnách, které z hloubi duše nenáviděli, jako prachobyčejní sazeči nebo korektoři. Museli se ponižujícím způsobem \"přeškolit\". Jejich ušlechtilé řemeslo, které bez přerušení a větších změn trvalo tisíc let, bylo absolutně vyhlazeno za jedinou generaci.\n\nAle jejich nádherné, ručně iluminované rukopisy přežily. Dnes tiše leží v muzeích a trezorech jako vznešené památníky věku, kdy každé jednotlivé slovo vyžadovalo krev, pot a hodiny naprostého soustředění a bylo proto považováno za posvátné.\n\n*\"Rychlost zabíjí krásu detailu, ale pravda přežije v obou formách.\" - Poslední klášterní písař*"
             },
             book_prague_mystery: {
-                title: "The Mystery of the Prague Printer: Birth in Secrecy",
-                author: "Prague Archives & Urban Legends",
-                content: `**The First Swallow above the Vltava**
-
-While in Pilsen the printing presses had been clattering since 1468 (or perhaps 1476 — scholars and historians still quarrel bitterly over the precise date of the **Trojan Chronicle**), in the very heart of the kingdom, in Prague, there was an astonishing silence for years on end. The city's milieu was conservative and dangerous. Only in **1487** did the first printed book appear in Prague from nowhere — the *Statuta synodalia Arnesti*, and shortly after, the celebrated **Psalter**.
-
-But who brought this technological revolution to Prague? No one knows. The master's name was carefully erased from history.
-
-**The Anonymous Master and the Fear of the Guild**
-
-In historiography he is known simply as the *"Printer of the Prague Bible"*, after his later monumental work of 1488. Why did he conceal his identity? Prague at the end of the fifteenth century was a city of guilds. The powerful and radical guild of Prague scribes and illuminators would have perceived any mechanical competition as an existential threat. To set fire to a workshop full of highly flammable paper and linseed oil under cover of night was an easy resolution to a commercial dispute. Or was he perhaps a secret foreigner, a heretic on the run, afraid of the Inquisition, merely passing through Prague — he fulfilled the commission and vanished back into the shadows?
-
-**Mastery Woven from Darkness**
-
-His work, however, bears no marks of amateurism. His Psalter is a masterpiece — beautifully sharp Gothic type (bastarda), elaborate woodcuts, and precisely printed red initials, which at that time demanded an extraordinarily difficult double pass through the press. Prague printing thus did not begin with slow apprenticeship, but with immediate genius wrapped in mystery.
-
-*"In the lanes of the Old Town, stories are born that no one will ever finish, for ink sometimes replaces blood, and silence is worth more than gold." — A chronicler of the Old Town*`
+                title: "Záhada pražského tiskaře: Zrození v utajení",
+                author: "Pražský archiv & Městské legendy",
+                content: "**První vlaštovka nad Vltavou**\n\nZatímco v Plzni tiskařské lisy klapaly již od roku 1468 (nebo snad 1476, učenci a historici se o přesný datový údaj **Kroniky trojánské** dodnes do krve hádají), v samotném srdci království, v Praze, bylo neuvěřitelně dlouho ticho. Zdejší prostředí bylo konzervativní a nebezpečné. Až v roce **1487** se v Praze zničehonic objevuje první tištěná kniha – **Statuta synodalia Arnesti** a nedlouho po ní proslulý **Žaltář**.\n\nAle kdo tuto technologickou revoluci do Prahy přinesl? Nikdo neví! Jméno mistra bylo pečlivě vymazáno z dějin.\n\n**Anonymní mistr a strach z cechu**\n\nV historiografii se mu říká prostě *\"Tiskář Pražské bible\"*, podle jeho pozdějšího monumentálního díla z roku 1488. Proč tajil svou identitu? Praha konce 15. století byla městem cechů. Silný a radikální cech pražských písařů a iluminátorů by jakoukoliv mechanickou konkurenci vnímal jako existenční hrozbu. Zapálit dílnu plnou vysoce hořlavého papíru a lněného oleje pod rouškou noci bylo snadné řešení obchodního sporu. Nebo to snad byl utajený cizinec, kacíř na útěku, který se bál inkvizice, jen Prahou projížděl, splnil zakázku a zmizel zpět do stínů?\n\n**Nádhera utkaná z temnoty**\n\nJeho dílo přitom nenese žádné znaky amatérismu. Jeho Žaltář je mistrovským kouskem – nádherně ostře řezané gotické písmo (bastarda), propracované dřevořezy a precizně tištěná červená iniciála, což tehdy vyžadovalo neuvěřitelně náročný dvojitý průjezd lisem. Pražský tisk tak nezačal pomalým učením, ale okamžitou genialitou zabalenou do tajemství.\n\n*\"V uličkách Starého Města se rodí příběhy, které nikdo nedopíše, protože inkoust občas nahrazuje krev a mlčení je cennější než zlato.\" - Staroměstský kronikář*"
             },
             book_severin_dynasty: {
-                title: "The Severýn Dynasty: The Printer at the Town Hall",
-                author: "Archives of the Old Town of Prague",
-                content: `**Pavel Severýn of Kapí Hora (1520–1557)**
-
-This was no ordinary craftsman with an apron stained with printer's black. Pavel Severýn was a man who knew how to combine perfectly the scent of printing ink with the scent of political power. He began printing around **1520** in the Old Town of Prague. He quickly understood that printing was not merely about books but about influence. From printer he became a respected and extraordinarily wealthy burgher.
-
-**The Mayor with a Press at His Back**
-
-His influence grew so steeply that in the turbulent years **1534–1537** he was elected the **burgomaster (mayor) of the Old Town** itself. Imagine the power — a man who decided on laws and taxes in the wealthiest city in the kingdom simultaneously controlled the machines that shaped public opinion. It was under his hands that the celebrated and beautifully illustrated *Severýn Bible* (1529 and 1537) was produced, on which he collaborated with the finest Prague woodcarvers. It was proven that the printer's craft was no longer a marginal curiosity but an absolute political and social force.
-
-**The Mystery of 1557**
-
-He created an enormous and superbly functioning family enterprise, into which he drew his capable son-in-law, Jan Kosořský of Kosoř, who took over the workshop after him. The Severýn era poured forth dozens of luxury Czech and Latin works and boasted the finest connections at court and among the Utraquist nobility.
-
-But then, around **1557**, this powerful dynasty simply vanished from the historical record. Were they killed by the plague that regularly ravaged the city? Did they fall victim to secret debts? Or did they perhaps fall from favour under the hard Counter-Reformation censorship of the Habsburgs? The truth lies buried in the archives.
-
-*"He who controls the press controls the thought of the people. And he who controls the people rules the city. But not even the finest printer can print a contract that will outwit death itself." — A record of the city council*`
+                title: "Severinská dynastie: Tiskař na radnici",
+                author: "Archiv Starého Města pražského",
+                content: "**Pavel Severýn z Kapí Hory (1520–1557)**\n\nTohle nebyl jen obyčejný řemeslník se zástěrou ušpiněnou od sazí. Pavel Severýn byl muž, který dokázal dokonale propojit vůni tiskařské černě s vůní politické moci. Začal tisknout kolem roku **1520** na Starém Městě pražském. Rychle pochopil, že tisk není jen o knihách, ale o vlivu. Z tiskaře se stal vážený a neobyčejně bohatý měšťan.\n\n**Purkmistr s lisem v zádech**\n\nJeho vliv rostl tak strmě, že v bouřlivých letech **1534–1537** byl zvolen samotným **purkmistrem (starostou) Starého Města**! Představte si tu moc – muž, který rozhodoval o zákonech a daních v nejbohatším městě království, měl zároveň pod kontrolou stroje, které formovaly veřejné mínění. Právě pod jeho rukama vyšla slavná a nádherně ilustrovaná *Severýnská bible* (1529 a 1537), na které spolupracoval s nejlepšími pražskými dřevorytci. Ukázalo se, že tiskové řemeslo už není jen okrajová kuriozita, ale absolutní politická a společenská síla.\n\n**Záhada roku 1557**\n\nVytvořil obrovský a skvěle fungující rodinný podnik, do kterého zapojil i svého šikovného zetě, Jan Kosořského z Kosoře, jenž po něm dílnu převzal. Éra Severýnů chrlila desítky luxusních českých i latinských děl a pyšnila se těmi nejlepšími kontakty u dvora i mezi kališnickou šlechtou. \n\nAle pak, kolem roku **1557**, se po této mocné dynastii doslova slehla zem. Úplně zmizeli z dobových záznamů. Zabil je mor, který město pravidelně pustošil? Doplatili na tajné dluhy? Nebo snad padli v nemilost tvrdé protireformační cenzury Habsburků? Pravda zůstává pohřbena v archivech.\n\n*\"Kdo ovládá tisk, ovládá myšlení lidu. A kdo ovládá lid, vládne městu. Ale ani ten nejlepší tiskař nevytiskne smlouvu, která by přelstila samotnou smrt.\" - Zápis z městské rady*"
             },
             book_melantrich: {
-                title: "The Predator of Prague: The Empire of Jiří Melantrich",
-                author: "Royal Chamber and Guild Records",
-                content: `**The Rise of the Predator**
-
-The story of Jiří Melantrich of Aventino (c. 1511–1580) is a textbook story of ruthless ambition in the printing trade. He came to Prague as a young, unknown student, but he had two weapons that would prove decisive: exceptional intelligence and absolute cold-bloodedness. He became an apprentice to the established Catholic printer Bartoloměj Netolický, who held the privileged royal concession from King Ferdinand I. Netolický was getting old and, after the ill-fated uprising of the Bohemian Estates in 1547, was in serious financial trouble.
-
-**The Takeover**
-
-Melantrich manoeuvred with the patience of a chess grandmaster. First he became Netolický's business partner, then in **1552** he bought — or rather *absorbed* — the entire workshop from him. He immediately moved it to the Old Town and began building an empire. He reorganised the whole operation, invested in new fonts and presses, hired the best craftsmen, and above all understood something his predecessors had not: the book trade is above all marketing.
-
-**The Melantrich Bible**
-
-His masterpiece was the *Melantrich Bible*, which he published several times (1549, 1556–1557, 1560–1561, 1570, and 1577). On this work he earned a fortune. He bought the magnificent house *U Dvou Velbloudů* (At the Two Camels) on what is today Melantrichova Street in Prague — and the street bears his name to this day. He received from the Emperor himself the title of nobility *"of Aventino"*. He was the most powerful printer in the kingdom.
-
-**The Legacy of an Empire**
-
-After Melantrich's death, his son-in-law **Daniel Adam of Veleslavín** took over the workshop. He married Melantrich's daughter Anna — a marriage of reason, love, or both? No one knows. But Daniel Adam made the print house into a centre of learning and Czech humanist culture. He is credited with forcing Praguers to read, even when they had no particular desire to.
-
-*"The press is a more powerful weapon than a cannon. A cannon destroys walls, but the press destroys minds — and rebuilds them anew." — A guild record*`
+                title: "Dravec z Prahy: Impérium Jiřího Melantricha",
+                author: "Královská komora a Cechovní spisy",
+                content: "**Nástup nekompromisního dravce**\n\nJiří Melantrich z Aventina nebyl člověk, který by čekal, až mu štěstí spadne do klína. Byl to ambiciózní, tvrdý a brilantní renesanční kapitalista. Na zkušenou přišel do učení ke starému, tehdy nesmírně bohatému Bartoloměji Netolickému, který se pyšnil výnosným titulem dvorního tiskaře krále Ferdinanda I. a měl lukrativní monopol na tisk zákonů.\n\n**Převzetí moci a budování impéria**\n\nMelantrich byl bystrý a okouzlující stratég. Nejdříve se nenápadně vypracoval z učně na Netolického **společníka**. Jakmile získal know-how a kontakty, v roce **1552** od stárnoucího mistra celou tiskárnu chladnokrevně **koupil** (historici se dodnes přou, nakolik šlo o férový obchod a nakolik o agresivní, nepřátelské převzetí takzvaně \"pod cenou\"). Okamžitě dílnu přesunul z odlehlé Malé Strany přímo do tepajícího obchodního srdce na Staré Město a začal z ní budovat nezastavitelné **impérium**.\n\n**Melantrichova Bible: Stroj na peníze**\n\nJeho mistrovským strategickým a komerčním kusem se stala slavná *Melantrichova Bible* (vydána postupně pětkrát!). Byla jazykově i vizuálně tak dokonalá, že ji kupovali katolíci i protestanti. Melantrich byl mistr obojakosti – prodával všem stranám náboženského konfliktu a vydělal na tom naprosté jmění. Z obrovských zisků si koupil majestátní měšťanský palác **U Dvou velbloudů** (v místech dnešní Melantrichovy ulice, která dodnes nese jeho jméno).\n\n**Z ušmudlaného učně šlechticem**\n\nAby svou dominanci a společenský vzestup definitivně stvrdil, nechal si za své politické a tiskařské služby udělit prestižní šlechtický erb a majestátní přídomek **\"z Aventina\"** (podle římského pahorku). To už nebyl řemeslník, to byl renesanční magnát. Když zemřel, jeho veleúspěšnou firmu plynule převzal jeho neméně schopný zeť Daniel Adam z Veleslavína, čímž vznikla dynastie, která kulturně ovládala české země po dlouhá desetiletí.\n\n*\"V obchodu, stejně jako v tisku, není nikdy místo pro slabé a nerozhodné. Pouze dravci přežijí a napíší pravidla, podle kterých budou hrát ti ostatní.\" - Připisováno Jiřímu Melantrichovi*"
             },
             book_rudolf_alchemists: {
-                title: "The City of Fools and Geniuses: Rudolf II and the 300 Alchemists",
-                author: "Secret Court Chronicle",
-                content: `**The Golden Prague of Rudolf II**
-
-When the melancholic Habsburg Emperor Rudolf II moved the imperial seat from Vienna to Prague in 1583, the Bohemian capital was transformed overnight into the most extraordinary city in Europe. Rudolf was not merely a ruler — he was a passionate collector, art lover, and above all a fervent patron of science and the occult. Prague became a magnet for the most extraordinary minds of the age.
-
-**Three Hundred Alchemists**
-
-Rudolf gathered at his court an estimated three hundred alchemists, astrologers, magicians, and natural philosophers — among them the astronomer Tycho Brahe, the mathematician Johannes Kepler, and the enigmatic Edward Kelley. All of them, genuine scientists and genuine frauds alike, worked in an atmosphere of feverish experimentation.
-
-**The Search for the Philosopher's Stone**
-
-Rudolf's primary obsession was the transmutation of base metals into gold — the Philosopher's Stone. He invested enormous sums. The alchemical laboratories in the cellars of Prague Castle worked day and night.
-
-**The Paradox of Rudolf's Legacy**
-
-Rudolf never found the Stone. Yet in their frenzied search for gold, his scientists accidentally made many real chemical and astronomical discoveries. Without Rudolf's eccentric patronage, Kepler's laws of planetary motion might have been delayed by decades.
-
-*"A fool's gold is sometimes the best ore. In the alchemist's furnace, not gold but knowledge is born." — Court chronicle of Rudolf II*`
+                title: "Město bláznů a géniů: Rudolf II. a 300 alchymistů",
+                author: "Tajná dvorská kronika",
+                content: "**Praha jako okultní pupek světa**\n\nPíše se rok 1583 a císař Svaté říše římské, excentrický a melancholický Rudolf II., dělá šokující rozhodnutí. Přesouvá celý císařský dvůr z Vídně do Prahy. Město se přes noc mění. Rudolf, posedlý hermetismem, hvězdami a okultismem, shromáždil na svém dvoře neuvěřitelných **300 alchymistů, mágů a šarlatánů** z celé Evropy. Byli mezi nimi i legendární Angličané – učenec John Dee, který rozmlouval s anděly, a jeho podivný společník Edward Kelley, mistr iluzí.\n\n**Tajemství Zlaté uličky**\n\nLegenda praví, že malé, stísněné domky přilepené k hradbám těsně pod Pražským hradem (Zlatá ulička) sloužily jako tajné laboratoře těchto mistrů. Nad ohništěmi dnem i nocí bublaly křivule a tyglíky. Všichni hledali *Lapis Philosophorum* – legendární kámen mudrců, elixír věčného mládí a substanci, která by dokázala proměňovat obyčejné kovy v ryzí zlato. \n\nZlato pro císaře nikdy nenašli... Ale při svých fanatických pokusech mimoděk položili základy moderní vědy. Zcela náhodou objevili:\n- Výrobu kyseliny sírové (vitriol).\n- Elementární fosfor, zářící ve tmě.\n- Izolaci zinku a dalších sloučenin.\n\n**Smrt mezi hvězdami**\n\nV této esoterické atmosféře žil a bádal v Praze i slavný dánský astronom Tycho Brahe. Jeho přesná měření hvězd bez dalekohledu dodnes udivují. Zemřel tu roku 1601 – podle dobových klepů prý při hostině, kdy z dvorské etikety nemohl vstát od stolu a praskl mu močový měchýř. Moderní analýza jeho vousů však odhalila děsivější pravdu: **otravu rtutí**, pravděpodobně z jeho vlastních alchymistických elixírů, které užíval na nemocné ledviny.\n\nV Rudolfově Praze se stírala hranice mezi magií a rodící se moderní vědou. Byla to doba šílená, nebezpečná, ale neuvěřitelně plodná.\n\n*\"V mlze nad Vltavou je hranice mezi snem a skutečností tenká jako pergamen. Hledali jsme zlato, ale našli jsme samotné složení hvězd.\" - John Dee ve svých denících*"
             },
             book_czech_glass: {
-                title: "The Fragile War: Bohemian Glassmaking vs. Venice",
-                author: "Secret Master of the Glassmakers' Guild",
-                content: `**The Secret of Forest Crystal**
-
-Bohemian glass became in the 17th and 18th centuries a synonym for quality throughout the civilised world. Its roots lie in the dense forests of Bohemia and Moravia, where medieval glass furnaces first began to flare up. The raw materials were ideal: pure quartz sand, potash from burned fern and beech, and unlimited wood for firing. Bohemian glass was exceptional for its purity, clarity, and almost perfect transparency.
-
-**The Venetian Monopoly and Its Cracks**
-
-For centuries Venice held an absolute monopoly on quality glass in Europe. The Venetians guarded their secrets with such fanaticism that all master glassmakers were confined on the island of Murano — officially for their protection, in practice as prisoners. Any master who dared share Venetian secrets with foreigners faced a death sentence. Despite this, the secrets gradually leaked out.
-
-**The Bohemian Counter-Attack**
-
-Around the mid-17th century, the engraver Caspar Lehmann and later Georg Schwanhardt perfected the technique of cutting and engraving glass with copper wheels. Bohemian cut glass suddenly surpassed Venetian blown glass in luxury, precision, and decorative richness. European courts began to prefer Bohemian crystal.
-
-**The Trade War**
-
-Venice reacted with panic — lobbying, attempted sabotage, trying to lure Bohemian masters away. The Bohemian masters guarded their own secrets in return. This economic war for glass supremacy was waged for two full centuries.
-
-*"Glass holds light like no other material — it neither devours it nor reflects it, but transforms it." — A Bohemian master glassmaker*`
+                title: "Křehká válka: České sklářství vs. Benátky",
+                author: "Tajný mistr Sklářského cechu",
+                content: "**Tajemství lesního křišťálu**\n\nMálokdo tuší, že zatímco Evropa krvácela ve válkách o území, probíhala paralelně ještě jedna, mnohem tišší, ale o to lukrativnější válka – válka o světlo. České lesní sklářství zažívalo boom už od **13. století** a patřilo k tomu absolutně nejlepšímu v celé Evropě. Hutě skryté hluboko v pohraničních hvozdech (Šumava, Jizerské hory) měly nevyčerpatelný zdroj dřeva pro pece a kvalitní potaš z popela, což dávalo českému sklu typickou čistotu a tvrdost. \n\n**Krvavé diamanty českých králů**\n\nČeské sklo a drahokamy byly strategickým bohatstvím. Například temně rudý český granát (pyrop) z Podsedicka byl u dvorů tak extrémně ceněný a vyhledávaný, že císař Rudolf II. zcela zakázal jeho vývoz ze země **pod přísným trestem smrti**. Později, v 18. století, se Jablonecký broušený křišťál a bižuterie staly takovou komoditou, že v některých částech světa (např. v afrických koloniích) se těmito skleněnými perlami **platilo místo peněz**! Byl to exportní artikl číslo jedna, který živil celé generace horalů.\n\n**Benátská žárlivost a průmyslová špionáž**\n\nHlavním rivalem nám byly hrdé Benátky. Benátčané měli po dlouhá staletí absolutní **monopol** na výrobu luxusních zrcadel a jemného skla. Byli na něj tak hákliví, že všechny své sklářské mistry pod hrozbou drakonických trestů internovali na izolovaném ostrově **Murano**. Šlo o nucenou zlatou klec – a de facto první organizovanou technologickou karanténu na světě. Kdo by se opovážil z ostrova s tajemstvím uprchnout, na toho úřady vyslaly nájemné vrahy. Byl automaticky prohlášen za zrádce republiky.\n\nNavzdory zabijákům se však Čechům díky špionům, kupcům a uprchlíkům podařilo benátské receptury získat. Vylepšili jsme je přidáním křídy a vytvořili takzvaný *český křišťál* – sklo, které bylo masivnější, dalo se nádherně brousit do hloubky a rýt, což tenké benátské sklo nevydrželo. Skončil monopol, začala česká dominance. Sklářství zkrátka nebylo jen řemeslo, byl to tehdejší přísně střežený high-tech průmysl, kombinující okultní alchymii s optikou.\n\n*\"Naše sklo je zmrzlé světlo, vytesané z potu lesních dělníků a slz benátských kupců.\" - Mistr huťmistr ze severu*"
             },
             book_hussite_wars: {
-                title: "Ashes of Memory: The Hussite Wars and the End of Libraries",
+                title: "Popel paměti: Husitské války a konec knihoven",
                 author: "Laurentius de Březová (Vavřinec z Březové)",
-                content: `**The Bonfire of Books**
-
-The Hussite Wars (1419–1434) left behind not only a landscape ravaged by war but an almost incalculable cultural loss. The Hussite armies, driven by religious fervour and hatred of the wealthy church establishment, systematically destroyed monasteries, churches, and above all their libraries. Hundreds of years of painstaking scribal work burned within hours.
-
-**The Library of Sázava**
-
-The Benedictine monastery at Sázava — the oldest Czech monastic library — was plundered and burned. The monks fled, and with them vanished dozens of unique manuscripts, some copied since the 11th century. Czech-language liturgical texts, Old Church Slavonic manuscripts, chronicles — all lost for ever.
-
-**The Paradox of the Hussites and Books**
-
-It would be a simplification to portray the Hussites as mere barbarians. Jan Hus himself was a university-educated man who fought for the right of the common people to read the Bible in their own language. His followers were often highly literate artisans and burghers. The destruction of monastic libraries was in their eyes not an attack on knowledge but on the corrupt wealth of the church.
-
-**The Legacy of Loss**
-
-We shall never know exactly what was lost in those fires. Some scholars believe that among the destroyed manuscripts were unique Old Czech literary works that might have changed our understanding of medieval Bohemian culture entirely.
-
-*"A book burns in minutes. Recreating it takes a lifetime. And some things cannot be recreated at all." — Laurence of Březová, chronicler of the Hussite Wars*`
+                content: "**Apokalypsa kultury a krve**\n\nHusitské války (1419–1434) nebyly jen lokální selskou rebelií. Byly to brutální, vůbec první skutečně velké náboženské války na území Evropy, které otřásly samotnými základy západního světa. Daň za tento konflikt byla strašlivá – odhaduje se, že české země během těchto let ztratily hladem, nemocemi a mečem až **třetinu veškerého obyvatelstva**.\n\n**Oheň, který pohltil staletí**\n\nZatímco reformní myšlenky kalicha šířily novou interpretaci víry, vojska radikálních husitů (táborité a sirotci) zanechávala za svými pochody zkázu. Kláštery pro ně byly symbolem církevní zkorumpovanosti a bohatství. S jejich pleněním a vypalováním však plameny pohlcovaly to nejcennější – klášterní knihovny, obří trezory středověké vzdělanosti.\nBěhem několika let nenávratně shořely statisíce stran:\n- Ve Vyšším Brodě vzplály knihovny čítající tisíce vzácných děl (některé prameny s nadsázkou mluví až o 70 000 svazcích).\n- Ve Zlaté Koruně byly v plamenech ztraceny tisíce ručně psaných a iluminovaných rukopisů z celé Evropy.\n- V pražských Emauzích lehly popelem unikátní staroslověnské texty a chorály.\n\n**Cena za háčky a čárky**\n\nZtráta kulturní paměti byla absolutní. To, co tehdy shořelo – neznámé antické texty, staré české kroniky, prastaré lékařské spisy – už nikdy znovu neobjevíme. Jsou to prázdná místa naší historie.\n\nNa počátku tohoto ohnivého pekla stál mistr Jan Hus (1372–1415), charismatický kazatel upálený v Kostnici pro kacířství. Husovo učení sice nepřežilo ve své čisté podobě, ale přežilo v myšlenkách o 200 let déle až do příchodu Martina Luthera. Paradoxně, Husův nejtrvalejší odkaz není jen náboženský, ale jazykový. Spisem *De orthographia bohemica* (1406) zjednodušil složitý pravopis spřežek a geniálně reformoval češtinu zavedením **háčků a čárek** (nabodeníček). Kdyby nebylo jeho lingvistického vizionářství, psali bychom dnes jména a slova neohrabaně jako Poláci, vršící hlásky za sebe.\n\nNásledně vzniklé jihočeské vojenské město **Tábor** (založeno 1420) se stalo dějištěm prvotního sociálního experimentu – fungovalo jako raná, radikální \"demokratická\" obec, kde si rovní bratři a sestry volili své hejtmany i faráře a kde (alespoň zpočátku) neplatily peníze, ale společné kádě.\n\nReformace přinesla zemi nevídanou svobodu myšlení a postavila se mocné Evropě, ale zaplatili jsme za ni krví celých generací a ohněm, který spálil naši minulost.\n\n*\"Pravda Boží vítězí nad vším, ale na konci bitvy zůstává jen horký popel a pláč vdov.\" - Heslo na korouhvi poražených*"
             },
             book_de_arte_predicandi: {
-                title: "De arte predicandi: The Cursed Incunable of Mainz",
-                author: "Aurelius Augustinus (Printed by Fust & Schöffer)",
-                content: `**The Oldest Bibliographic Jewel in the VKOL Collection**
-
-Imagine a book that remembers the very dawn of the printed word. This is a rare print from the workshop of **Johann Fust and Peter Schöffer** — yes, precisely those two unscrupulous businessmen who in the trial of 1455 robbed the helpless Gutenberg of his life's invention, his print workshop, and his unfinished Bible.
-
-**The Dark Irony of History and the Sacred Text**
-
-History has a perverse sense of humour. Fust and Schöffer, with the blood of betrayal on their hands, paradoxically went on to print some of the visually most beautiful and technically most perfect books of the entire 15th century. This particular volume contains the celebrated work *De arte predicandi* (On the Art of Preaching) by the Church Father Saint Augustine. It served as a manual and practical handbook for clergy on how to address and instruct the common people with proper rhetorical effect. The print itself was demonstrably completed **before the year 1467**, which makes it without question one of the very oldest surviving printed books in the world — a so-called incunable.
-
-**Salvation from Swedish Pillaging**
-
-That such a treasure is to be found in Olomouc in Moravia is no accident. It was brought there by the powerful and learned Jesuits, who collected old books from across Europe as proof that the mass-printed word could spread the Catholic faith infinitely faster than an army of scribes with quills. The book had incredible good fortune. The year is 1642 and, in the course of the Thirty Years' War, the Swedish armies of General Torstenson broke through the city walls of Olomouc and occupied the city. The Swedes looted systematically and carted away treasures by the hundredload — some hundred cartloads of the rarest books from Olomouc's monasteries and university collections disappeared northward to Stockholm as war booty. But this one small, inconspicuous book miraculously survived. How? The Jesuits, together with a handful of other valuables, hastily walled it up deep in the dark crypts and hid it in the roof timbers before the soldiers broke down the gates.
-
-*"This first book bears in its origin the bitter seal of betrayal of its creator, but the perfect beauty of its typesetting outlives wars and Swedish swords."*
-
----
-
-**GAME EFFECT:** Reading this book unlocks the rare skill **"Fust's Paradox"**. Mastery born of betrayal: once per game session you may sacrifice 10 research points and immediately *craft* any item without requiring any other materials, even those that are otherwise locked for your level.*`
+                title: "De arte predicandi: Prokletý prvotisk z Mohuče",
+                author: "Aurelius Augustinus (tisk: Fust & Schöffer)",
+                content: "**Nejstarší knižní drahokam ve fondu VKOL**\n\nPředstavte si knihu, která pamatuje samotný úsvit tištěného slova. Toto je vzácný tisk z dílny **Johanna Fusta a Petera Schöffera** – ano, přesně těch dvou bezskrupulózních obchodníků, kteří v soudním procesu roku 1455 okradli bezmocného Gutenberga o jeho životní vynález, tiskařskou dílnu i rozpracovanou Bibli.\n\n**Temná ironie dějin a svatý text**\n\nDějiny mají zvrácený smysl pro humor. Fust a Schöffer, s krví zrady na rukou, posléze paradoxně vytiskli některé z vizuálně nejkrásnějších a nejdokonalejších knih celého 15. století. Tento konkrétní svazek obsahuje slavné dílo \"De arte predicandi\" (O umění kázat) od církevního otce svatého Augustina. Fungovala jako manuál a praktická příručka pro duchovní, jak správně rétoricky působit a učit prostý lid. Samotný tisk byl prokazatelně dokončen **před rokem 1467**, což z něj bez debat činí jeden z vůbec nejstarších dochovaných tisků na světě (takzvaných inkunábulí).\n\n**Záchrana před švédským rabováním**\n\nTo, že se právě v moravské Olomouci nachází takový poklad od Gutenbergových nástupců, není žádná náhoda. Do města jej přivezli mocní a vzdělaní jezuité. Ti sbírali staré knihy z celé Evropy jako důkaz toho, že masově tištěné slovo dokáže šířit katolickou víru nekonečně rychleji než armáda písařů s perem.\n\nKniha měla neuvěřitelné štěstí. Píše se rok 1642 a v rámci třicetileté války olomoucké hradby prolomila a město obsadila švédská vojska generála Torstensona. Švédové rabovali systematicky a po stovkách odváželi cennosti – na severních vozech tehdy do Stockholmu jako válečná kořist zmizelo neuvěřitelných 100 vozů plných těch nejvzácnějších knih z olomouckých klášterů a univerzitních fondů. Ale tato jediná, nenápadná kniha zázračně přežila. Jak? Jezuité ji spolu s několika dalšími cennostmi narychlo zazdili hluboko v temných kryptách a schovali do střešních trámů, než vojáci vylomili brány.\n\n*\"Tato první kniha sice ve svém zrodu nese hořkou pečeť zrady na tvůrci, ale dokonalá krása její sazby přežívá války i švédské meče.\"*\n\n---\n\n**HERNÍ EFEKT:** Čtení této knihy odemkne vzácný skill **\"Fustův paradox\"**. Mistrovství, které se zrodilo ze zrady: jednou za herní seanci můžeš obětovat 10 bodů výzkumu (research) a okamžitě, bez potřeby jakýchkoliv dalších materiálů, \"vycraftit\" jakýkoliv předmět, dokonce i ty, které jsou jinak pro tvou úroveň zamčené (locked)."
             },
             book_kutnohorska_bible: {
-                title: "The Kutná Hora Bible: A Detective Story from the Archives",
-                author: "Martin of Tišnov (Printer of the Prague Bible)",
-                content: `**The Great Blunder of the Library Shelves**
-
-Sometimes the greatest adventure unfolds not on the battlefield but in the silence of a study. The year is 2005, and a careful researcher at the Research Library in Olomouc is examining an old, heavy volume that had been safely catalogued in the inventory for decades as a fairly ordinary *"Venetian Bible of 1506"*. On closer examination, however, the researcher experienced a shock. He realised he was looking at an extremely rare Czech **Kutná Hora Bible, printed by the wealthy merchant and patron of printing Martin of Tišnov as far back as 1489!**
-
-**How Did Such a Blunder Occur?**
-
-It was a masterful deception born of the need to restore completeness. At some point in the distant past (probably in the 16th or 17th century), the book was damaged and irretrievably lost its first and last gatherings (the pages containing the beginning of Genesis and the colophon with printing details). Some previous zealous owner or collector decided to "repair" the book and rewrote the missing pages by hand. He made one enormous, if logical, mistake, however — as a text template for the rewriting he used a DIFFERENT, newer edition of the Bible that happened to be lying on his desk. That was the Venetian print of 1506.
-
-The scribe who beautifully supplemented the pages thus physically inscribed into the ancient Czech Olomouc book the translation and dates from the Venetian edition. For whole centuries, librarians read this supplemented preface and believed the falsified title page, without examining the printed body within. The truth was uncompromisingly revealed only by modern forensic typography — the comparison of the unique shapes of the original printed metal type within the book with the fonts used in Kutná Hora at the end of the 15th century.
-
-This print thus suddenly "aged" and became **17 years older** than had previously been assumed. In so doing, it was automatically ranked among the very oldest complete Czech book prints. And all that long time it had lain dusty, misdescribed, and underestimated on ordinary library shelves.
-
-**A Mystery Waiting on the Shelves**
-
-This event sent a chill through archivists: how many other supposedly "ordinary Venetian or German" prints, scattered in depositories throughout Europe, are in fact rare Czech incunabula? How much historical truth lies safely hidden beneath layers of errors, faulty catalogue cards, and removable labels?
-
-In every great historical library, thousands of volumes quietly breathe and patiently await their true revelation. One need only look closely and carefully. One need only possess knowledge, diligently compare the lead type, and never trust the labels glued to the spines.
-
-*"Truth knows how to wait patiently. Sometimes it hides for whole centuries beneath the wrong coat."*
-
----
-
-**GAME EFFECT:** You gain the passive event ability **"Hidden Incunable"**. Whenever you craft luxury codices (luxury_codex), you have a permanent **5% chance of a critical success**, in which scholars reveal that even one of your ordinary codices (common_codex) crafted in the past was in fact a mislabelled luxury original! You immediately receive double the item's value in coins and a great bonus to research.*`
+                title: "Kutnohorská Bible: Detektivka z archivu",
+                author: "Martin z Tišnova (Tiskař Pražské bible)",
+                content: "**Velký omyl knihovních pultů**\n\nNěkdy se to největší dobrodružství neodehrává na bojišti, ale v tichu studovny. Píše se rok 2005 a jeden z pečlivých badatelů ve Vědecké knihovně v Olomouci zkoumá starý, těžký svazek, který byl v inventáři celá desetiletí bezpečně evidován a katalogizován jako poměrně běžná *\"Benátská bible z roku 1506\"*. Při bližším pohledu však badatel zažil šok. Zjistil, že se dívá na extrémně vzácnou, českou **Kutnohorskou bibli vytištěnou bohatým kramářem a sponzorem knihtisku Martinem z Tišnova už v roce 1489!**\n\n**Jak k takovému omylu vůbec došlo?**\n\nByl to mistrovský podvod pramenící z nouze o celistvost. Někdy v hluboké minulosti (patrně v 16. nebo 17. století) se kniha poškodila a nenávratně ztratila své první a poslední složky (papíry obsahující začátek Genesis a tiráž s údaji o tisku). Jakýsi horlivý předchozí majitel nebo sběratel se rozhodl, že knihu \"opraví\" a chybějící stránky znovu rukopisně dopíše. Udělal však jednu obrovskou, byť logickou chybu – jako textovou předlohu pro přepis použil JINÉ, novější vydání Bible, které měl zrovna po ruce na stole! A to byl onen benátský tisk z roku 1506. \n\nPísař, který stránky krasopisně doplňoval, tak do starobylé české olomoucké knihy fyzicky vepsal překlad textu a letopočty z benátské edice. Celá staletí si pak knihovníci četli tento doplněný úvod a věřili falšované titulce, aniž by zkoumali tištěné tělo uvnitř. Pravdu nekompromisně odhalila až moderní forenzní typografie – porovnání jedinečných tvarů původních tištěných kovových liter uvnitř knihy s fonty používanými v Kutné Hoře na konci 15. století. \n\nTento tisk tak rázem \"zestárl\" a stal se o **17 let starším**, než se původně předpokládalo. Tím se automaticky zařadil mezi vůbec nejstarší kompletní české knižní tisky. A celou tu neuvěřitelně dlouhou dobu ležel zaprášený, chybně popsaný a podceňovaný v běžných regálech knihovny.\n\n**Záhada čekající na poličkách**\n\nTato událost mezi archiváři vyvolala mrazení: Kolik dalších domněle \"běžných benátských nebo německých\" tisků, roztroušených v depozitářích po celé Evropě, je ve skutečnosti vzácnými českými prvotisky? Kolik historické pravdy je bezpečně ukryto pod vrstvami omylů, špatných katalogizačních lístků a omyvatelných etiket?\n\nV každé velké historické knihovně tiše dýchají tisíce svazků a trpělivě čekají na své pravé odhalení. Stačí se podívat zblízka a pozorně. Stačí mít znalosti, pečlivě porovnat litery z olova a bezmezně nevěřit přilepeným etiketám na hřbetech.\n\n*\"Pravda umí čekat trpělivě. Někdy se schovává celé staletí pod špatným kabátem.\"*\n\n---\n\n**HERNÍ EFEKT:** Získáš pasivní schopnost eventu **\"Skrytý prvotisk\"**. Kdykoliv budeš vyrábět luxusní kodexy (luxury_codex), máš trvalou **5% šanci na kritický úspěch**, při kterém badatelé odhalí, že i tvůj běžný kodex (common_codex) vyrobený v minulosti byl vlastně chybně zařazený luxusní originál! Okamžitě získáváš dvojnásobnou hodnotu předmětu v mincích a obrovský bonus do výzkumu (research)."
             },
             book_olomouc_misal: {
-                title: "The Olomouc Missal: The War of Vellum and Paper",
+                title: "Olomoucký Misál: Válka pergamenu a papíru",
                 author: "Johann Sensenschmidt",
-                content: `**A Dazzling Commission for an Entire Diocese**
-
-It was an enormous logistical and artistic undertaking. The eminent Bamberg printer Johann Sensenschmidt received from church dignitaries an extremely prestigious commission for a new official Olomouc Missal (the liturgical book containing the texts for Mass). He completed this monumental printing task in 1488 in the astonishing total edition of **420 perfectly identical copies**.
-
-**Two Worlds, Two Materials**
-
-The Church, however, was both practical and vain. The edition was therefore strictly divided according to the wealth of the parishes:
-- **400 copies were printed on paper** (the cheaper, pragmatic, and lighter variant intended for ordinary, poorer village churches and for everyday use by priests).
-- **Only 20 copies were printed on luxury vellum** (the enormously expensive, heavy, and magnificent variant, intended exclusively for the altars of the wealthiest monasteries and the hands of the bishops themselves).
-
-**The Unique Holdings of Olomouc**
-
-Here the magic of the Research Library in Olomouc (VKOL) comes into play. In their guarded, climate-controlled vaults today lie safely preserved:
-- 1 rare surviving copy printed on paper.
-- And 1 absolutely priceless copy from among those original 20 vellum copies.
-
-From a statistical point of view? The probability that a single institution, after 500 years of wars and fires, should hold in its collection both material variants of one edition, is utterly **astronomical**. But again we owe this to the Olomouc Jesuits, who over the centuries collected these artefacts with great system rather than haphazardly. They wished to show students the full evolutionary and material range of medieval printing art laid out on a single table.
-
-**Vellum vs. Paper: A Duel for Eternity**
-
-- **Vellum** (cleaned animal hide, usually from calves or sheep) was a guarantee of durability and physical beauty, but was terrifyingly expensive and ethically fraught. The production of one such large book meant the slaughter of an entire flock.
-- **Paper** from pounded linen rags was extraordinarily cheap, dried quickly, took ink beautifully, but was vulnerable to water, mould, and fire.
-
-Abbot Trithemius, the stubborn defender of the old scribes, once warned in a pamphlet: *"Beautiful vellum will safely endure the ages and the Day of Judgement, while your modern cheap paper will burn or crumble to dust within 200 years!"* And technologically he was of course absolutely right.
-
-But from the perspective of history he was gravely wrong in his arithmetic: because of their low cost, paper books were produced and purchased in numbers a thousand times greater than vellum books, and so from a purely statistical standpoint far more of them have survived to the present day in absolute terms, and they changed the educational level of whole societies for ever.
-
-**The Lesson of the Press**
-
-Tangible rarity and production cost are not always the same as historical value to humanity. Printing on vellum represented luxury, a display of the bishop's power and status. But it was the ordinary, fragile, and grubby paper print circulating among the poor that ultimately ignited the Reformation and changed the whole world.
-
-*"On the table before us lie two absolutely identical books with one text and one setting of type. What, then, is the vast difference between them? Only the price of the time and blood paid." *
-
----
-
-**GAME EFFECT:** You gain the ancient wisdom of the masters — you permanently unlock the supreme production chain for vellum volumes: **raw hide → processed vellum → luxury vellum codex**. These exclusive vellum codices command an **extraordinary value five times greater** on the markets than ordinary paper books, but their production will cost you **ten times more** in basic materials and time, risking empty storerooms.*`
+                content: "**Oslnivá zakázka pro celou diecézi**\n\nByl to obří logistický a umělecký počin. Významný bamberský tiskař Johann Sensenschmidt dostal od církevních hodnostářů extrémně prestižní zakázku na vytvoření nového oficiálního Olomouckého misálu (liturgické knihy obsahující texty ke mši). Tento monumentální tiskařský úkol dokončil v roce 1488 v ohromujícím celkovém nákladu **420 naprosto identických exemplářů**.\n\n**Dva světy, dva materiály**\n\nCírkev však byla praktická i marnivá zároveň. Proto byl náklad přísně rozdělen podle bohatství farností:\n- **400 exemplářů bylo vytištěno na papíru** (šlo o levnější, pragmatickou a lehčí variantu určenou pro běžné, chudší vesnické kostely a každodenní opotřebení kněžími).\n- **Pouhých 20 exemplářů bylo vytištěno na luxusním pergamenu** (to byla ohromně drahá, těžká a honosná varianta, určená výhradně pro oltáře nejbohatších klášterů a ruky samotných biskupů).\n\n**Unikát olomouckých trezorů**\n\nZde nastupuje kouzlo Vědecké knihovny v Olomouci (VKOL). V jejich střežených klimatizovaných trezorech se dnes bezpečně ukrývá:\n- 1 vzácně dochovaný exemplář tištěný na papíru.\n- A 1 absolutně nedozírně cenný z oněch původních 20 pergamenových exemplářů!\n\nZ pohledu statistiky? Šance, že jedna jediná instituce po 500 letech válek a požárů bude ve sbírce vlastnit obě materiálové verze jednoho vydání, je naprosto **astronomická**. Ale opět za to vděčíme olomouckým jezuitům, kteří v průběhu staletí sbírali tyto artefakty vysoce systematicky, nikoliv nahodile. Chtěli totiž studentům názorně ukázat celou evoluční a materiálovou škálu středověkého tiskařského umění hezky na jednom stole.\n\n**Pergamen vs. Papír: Souboj o věčnost**\n\n- **Pergamen** (vyčištěná zvířecí kůže, většinou z telat nebo ovcí) byl garantem trvanlivosti, fyzické krásy, ale byl děsivě drahý a neetický. Výroba jedné takto velké knihy znamenala vyvraždění celého stáda (často byla potřeba kůže až ze 3 ovcí jen na samotný obal a vazbu jedné knihy, nemluvě o desítkách zvířat na vnitřní strany!).\n- **Papír** z drcených lněných hadrů byl neuvěřitelně levný, rychle schnul, bral krásně inkoust, ale byl zranitelný vodou, plísní a ohněm.\n\nOpat Trithemius, zarputilý obhájce starých písařů, kdysi v pamfletu varoval: *\"Krásný pergamen bezpečně vydrží věky a soudný den, zatímco váš moderní levný papír za 200 let shoří nebo se rozpadne na prach!\"* A technologicky měl samozřejmě naprostou pravdu. \n\nAle z hlediska dějin se zásadně mýlil v matematice: papírových knih se kvůli jejich nízké ceně vzniklo a nakoupilo 1000x více než pergamenových, takže z čistě statistického hlediska jich do dnešních dnů v absolutních číslech přežilo mnohem více a navždy změnily celospolečenskou úroveň vzdělanosti.\n\n**Tiskařské ponaučení**\n\nHmatatelná vzácnost a výrobní náklady nejsou vždy to samé jako historická hodnota pro lidstvo. Tisk na pergamenu reprezentoval luxus, ukázku moci a statusu biskupa. Ale byl to ten obyčejný, křehký a ušmudlaný papírový tisk kolující mezi chudými, který nakonec zažehl reformaci a změnil celý svět. Rychlost a dostupnost zde zvítězila nad absolutní řemeslnou krásou zvířecí kůže. \n\nZásadní dilema: Extrémní dosah textu vs. neomezená trvanlivost média? Toto základní tiskařské dilema řešíme s digitálním obsahem vlastně úplně stejně i dnes, o šest století později.\n\n*\"Na stole před námi leží dvě naprosto identické knihy s jedním textem i sázkou liter. Jaký je tedy ten propastný rozdíl mezi nimi? Jen cena zaplaceného času a krve.\"*\n\n---\n\n**HERNÍ EFEKT:** Získáš prastarou vědomost mistrů – navždy si odemkneš vrcholný výrobní řetězec na pergamenové svazky (vellum crafting chain): **surová kůže (hide) → zpracovaný pergamen (vellum) → luxusní pergamenový kodex (vellum_codex)**. Budeš muset pečlivě balancovat svou ekonomiku. Tyto exkluzivní Vellum kodexy sice mají na trzích neuvěřitelnou, **5x větší prodejní hodnotu** než obyčejné papírové knihy, ale jejich výroba tě bude stát **10x více základního materiálu a času**, čímž riskneš prázdné sklady!"
             },
             book_faust_secret: {
-                title: "Faust's Covenant: A Myth Clad in Lead",
-                author: "An Unknown Heretic and Alchemist",
-                content: `**Who Was the Real Doctor Faustus?**
-
-Historical legend recounts with horror that the scholar and astrologer Johann Georg Faust (1480–1540), a real figure wandering Renaissance Germany, sold his immortal soul to the mighty demon Mephistopheles. In exchange he received 24 years of absolute earthly knowledge, wealth, and supernatural power, before the devils bore him off to Hell.
-
-**But the Truth Is Far More Pragmatic and Darker...**
-
-Consider the chronological coincidence. Johann **Fust**, that wealthy financier and printer who robbed Gutenberg, published his printed volumes in unheard-of quantities. Books appeared on the markets with such lightning speed, in hundreds of perfectly identical, flawless copies, that the superstitious and illiterate populace simply refused to believe that human hands had produced them. How could an ordinary mortal have copied a vast Bible two hundred times without a single error?
-
-**The Loop of Names (Fust ~ Faust)**
-
-The names of these two utterly different men — the printer Fust and the occultist Faust — sounded so similar in the street that in oral tradition they soon merged into one. From the real events of the birth of printing and the charlatan tricks of the astrologer, the ultimate myth was born.
-
-**Goethe and the Demonry of the Machine**
-
-More than 200 years later, the great German dramatist Johann Wolfgang von Goethe wrote his life's masterwork, **Faust** (1808). He brilliantly used this old legend as a metaphor. Faust's pact with the devil embodied the human insatiable desire for divine knowledge, for scientific progress at any cost, but also the danger of the newly emerging age of machinery and industry, which threatened to devour human souls. The printing press was, in this conception, the first "infernal machine".
-
-**Did a Pact with the Devil Ever Exist?**
-
-No, if you do not believe in horned creatures reeking of sulphur. But the merchant Johann Fust nevertheless drew up one contract — a very real, notarially attested contract with Johannes Gutenberg. And in his pursuit of money, he betrayed him mercilessly and destroyed him socially. Many scholars argue that to ruin the life of a genius and steal his life's work for personal gain is perhaps a far more terrible and real sin than to sign an imaginary pact with a demon in one's own blood.
-
-*"Sometimes the bare truth, written in black printer's ink and account books, is far darker and colder than an ancient legend."*
-
----
-
-**Easter Egg:** This ancient book full of heretical thoughts is unlocked in the library only for those hardy souls who have gathered and held exactly 666 points of forbidden research. Congratulations — thou hast gazed into the dark abyss of history and discovered one of the greatest secrets of the game! Thou art now a true master of Scriptorium.*`
-            },
-            book_pfister: {
-                title: "The Man with Pictures: Albrecht Pfister and the First Comic",
-                author: "Bamberg Register & Guild of Woodcarvers",
-                content: `**Books for the Common Folk**
-
-				While the noble Gutenberg in Mainz sweated blood over his perfect and extraordinarily expensive Latin Bibles intended exclusively for bishops and wealthy monasteries, around 1460 in nearby Bamberg there appeared a man with an entirely different vision. Albrecht Pfister was a pragmatic printer. He swiftly grasped that the true market lay not in Latin, but on the muddy streets. He therefore began to print what we would today call **picture books for the people**.
-
-				**Revolution in German**
-
-				He was the very first to dare to print books on a large scale in the local language—in **German**. Ordinary burghers, merchants, and craftsmen did not command Latin, but they spoke German and desired to read stories they could understand.
-
-				**The Birth of the Illustrated Book**
-
-				Pfister's greatest triumph, however, lay in technology. He was the first in the world to successfully combine typesetting from metal letters with hand-carved **woodcuts** (illustrations) on a single printing form! In 1461, he published the renowned book of fables *Der Edelstein* (The Jewel) by the Dominican monk Ulrich Boner. This book was filled with crude yet remarkably expressive images, which were often hand-colored after printing. It was, in fact, the great-grandfather of today's comic book.
-
-				**Democratization of Knowledge**
-
-				Pfister did not sell his books to universities or abbots. He offered his wares directly at noisy city markets and fairs. People enthusiastically carried home beloved fables, knightly epics, and poems supplemented with pictures. Gutenberg indeed brought the technology itself, but it was precisely Pfister who brought the printed word to the masses. That is the subtle difference between a brilliant inventor and a true cultural revolutionary.
-
-				*"Gutenberg gave words a body of lead, but Pfister breathed a soul into them and sent them dancing among the common folk. Words are for learned minds, but pictures speak directly to the heart." - Notes of a Bamberg burgher*`
-            },
-            book_veleslavin: {
-                title: "The Golden Age: Daniel Adam of Veleslavín",
-                author: "Prague Humanist and University Annals",
-                content: `**The Academic Who Took Over a Printing Empire**
-
-Daniel Adam of Veleslavín (1546–1599) came to the Melantrich printing house through marriage — he wedded the printer's daughter Anna Melantrichová. It was a marriage of reason, love, or perhaps both; in any case it proved extraordinarily fruitful for Czech culture. Under his direction, the workshop became the most important centre of Czech humanist learning of the second half of the 16th century.
-
-**The Encyclopaedist of the Czech Language**
-
-Veleslavín was above all a passionate linguist and lexicographer. He understood that Czech, in order to compete with Latin, German, and Italian, needed to be systematically cultivated and enriched. He published dictionaries, grammars, and above all translations of important historical and geographical works. His *Calendar Historical* (1578) and *Nomenclator Quadrilinguis* (1598) — a four-language dictionary of Czech, Latin, Greek, and German — were extraordinary achievements for their time.
-
-**The Era of Veleslavín**
-
-The period of Czech literary history from approximately 1570 to 1620 is even called the "Age of Veleslavín" by literary historians. It is characterised by a flourishing of Czech prose, a high standard of printing, and wide readership among educated burghers. Books were no longer the privilege of monasteries and nobles — they had truly reached the middle class.
-
-**The End of an Era**
-
-Veleslavín died in 1599. His heirs continued the printing house for some years, but the catastrophe of the Battle of White Mountain (1620) and the subsequent forced re-Catholicisation brought the golden age of Czech Humanist printing to an abrupt end.
-
-*"A language lives as long as someone writes it with care. The press is not merely a machine — it is the lungs of the language." — Daniel Adam of Veleslavín*`
-            },
-            book_kronika_trojanska: {
-                title: "The Mystery of the Trojan Chronicle: Pride and Watermarks",
-                author: "An Unknown Printer of Pilsen",
-                content: `**Primacy Shrouded in Mystery**
-
-For long Centuries, we took great Pride in the Belief that Bohemian Typography commenced at a most early Date. The famous Trojan Chronicle, produced by an unknown Printer in Pilsen, proudly beareth within its Text the Year 1468. Were this Assertion true, we should be accounted amongst the absolute Pioneers of Printing in all Europe.
-
-Furthermore, this most antient Bohemian Incunabulum is by no means of a religious Character, as one might expect of so early a Work, but is rather a secular Romance of Chivalry and adventurous Reading intended for the wealthier Burghers!
-
-**The Betrayal of the Translucent Paper**
-
-Modern Science, however, hath dealt a heavy Blow to our national Pride. Scholars began to examine the so-called Filigrees or Watermarks—those Marks of the Paper-mills pressed directly into the very Structure of the Paper whereon the Chronicle is physically printed. These Translucencies serve as a perfect and indisputable Fingerprint of that Age.
-
-The Analysis hath uncompromisingly proven that the Paper employed for the Printing of the Trojan Chronicle was manufactured only around the Year 1484. The Volume is therefore, in all Likelihood, a full seventeen Years younger than was formerly asserted with such Confidence!
-
-**Wherefore did the Printer Lie?**
-
-The Printer, 'twould seem, had no Intent to deceive. As a Textual Model for his Typesetting, he likely employed an older hand-written Manuscript from the Year 1468, and in his mechanical Zeal (or perchance through Inadvertence), he simply and blindly set that antient Date into Lead.
-
-"Paper unerringly remembereth that which Men have forgotten, and a Watermark never lieth. Even Lead may fall into Errour."`
-            },
-            book_moravian_flyer: {
-                title: "The Birth of Marketing: The First Moravian Handbill",
-                author: "An Unknown Merchant and Printer",
-                content: `To print a Volume and bind the same is but half the Victory. The second Part, from a Merchant’s Station much more arduous, is to sell the Book. In the Year 1501, there appeared in Moravia a Phaenomenon that absolutely outstripped its Age – the very first extant printed Advertisement in our Lands!
-
-It was a relatively simple, yet ingenious single-sheet Print promoting one specifick Title. The Merchant, whose Task was to distribute this Book in Moravia, commissioned a Parcel of these promotional Handbills to be struck.
-
-Interactive Advertisement of the Middle Age
-
-His Method was, for that Time, incredibly modern. He posted the Handbills in great Numbers at the most frequented Places where Folk passed – upon the heavy Oak Doors of Churches and upon the Walls of bustling City Halls.
-
-The Text upon the Bill praised the Book with Ostentation, but the finest Part followed at the very End. There was a Sentence announcing that the Book was to be had at the local Inn, whereby the Printer intentionally left a vacant Space upon the Paper. The distributing Agent then, with a Goose-quill, merely wrote in haste the Name of the particular Tavern in that Town where he had just unpacked his Wares and taken Lodging!
-
-"The Soul of Commerce hath not changed since the Middle Age. Naught changeth but whether the Advertisement for thy Book be shouted by a Crier at a muddy Market, or be softly whispered by Paper upon a Gate."`
-            },
-            book_mattioli_herbar: {
-                title: "Mattioli’s Herbal: A Pharmacy upon Paper",
-                author: "Pietro Andrea Mattioli / Jiří Melantrich",
-                content: `**A Renaissance Encyclopaedia of Life**
-
-When the mighty typographical magnate Jiří Melantrich and his colleague Daniel Adam of Veleslavín published the costly Bohemian translation of the Italian physician Mattioli’s work, they wrought a revolution in every burgher’s household. This massive Herbal or Book of Herbs was no meer volume for idle scholars. It was oftentimes, in literal truth, a matter of survival.
-
-**Exquisite Illustrations as a Manual for Preservation**
-
-In an age when most common maladies and distempers were yet treated by strange methods (such as the rubbing of cat’s grease) or by simple incantations, the Herbal brought exact and rational instructions. The book was extremely dear and hazardous to produce, for it contained hundreds of vast, incredibly detailed, and beautiful woodcuts (for instance, the root of the mystical mandrake). By these images, folk upon the meadows and in the forests finally discerned with safety that which was a healing remedy and that which, contrariwise, was a mortal poison.
-
-**A Treasure transmitted through Generations**
-
-To-day, as these antient paper witnesses lie in archives, we find within them fascinating traces. Folk employed these herbals daily in their cookery and physick. Their pages are therefore very often tarnished, soiled by earth, fallen blood, and bee’s wax.
-
-The owners frequently inscribed their own remarks, family events (the births of children, deaths by the plague), and inserted pressed plants or devotional holy pictures between the leaves. Thus, the Herbal very soon ceased to be a meer botanical book and became a family chronicle for entire generations.
-
-"This book doth not smell of musty printer’s ink, but of dried wormwood, of hope, and of deliverance."`
-            },
-            book_hajek_kronika: {
-                title: "Hájek’s Chronicle: The Lie that Forged History",
-                author: "Wenceslaus Hájek of Libočany",
-                content: `**A Book of greatest Sale replete with grandiose Phantasy**
-
-In the Year 1541, there issued from the Printing-Presses a monumental Tome, which forever altered the Bohemians' Perception of themselves and of their own Past – The Bohemian Chronicle. Wenceslaus Hájek of Libočany was without Doubt a famous Narrator with a Genius for the Dramatick, but as an Historian he was most tragical.
-
-Wheresoever he lacked hard Facts and verifiable Historical Springs, he simply and shamelessly feigned the Events, specifick Dates, and even the entire Names of fabled Monarchs!
-
-**Flattery unto the Mighty Nobility**
-
-The Publication of so gigantick a Book was exceedingly dear, and Hájek stood in need of potent Patrons. Therefore, for the Forefathers of the then mighty Noble Houses, he oftentimes purposefully forged heroick praehistorical Deeds, that he might flatter their Vanity and secure their bountiful Financial Favour. By Virtue of its fabulous Readability, the Chronicle became an absolute Triumph. All Men read it, and for entire Centuries following, the Nation uncritically learnt from it "their" glorious History.
-
-It was not until the Close of the 18th Century that the learned Luminary, Joseph Dobrovský, began mercilessly to correct these fabled Nonsenses of Hájek and to reduce them unto the Measure of Truth.
-
-**The Power of the Printed Word over Truth**
-
-'Tis a piquant Matter that from Hájek's Inventions the Writer Alois Jirásek later directly drew Inspiration in his much-venerated Antient Bohemian Legends (Croccus and his Daughters, the Strongman Bivoj, the Maidens' War).
-
-It is a most perfect and chilling Demonstration of the Power of Typography and of the Publick Prints in general: If thou printest a piece of Intelligence with sufficient Beauty, publishest it in a great Impression, and the People moreover delight to read it, the feigned Fiction and Lie becometh, de facto, the official National History.
-
-"The naked Truth is oftentimes tedious and selleth very ill at the Markets. A Lie set in hard Lead and cloaked in Gold liveth eternally."`
-            },
-            book_kosmas: {
-                title: "Cosmas’s Chronicle: Myths and Politicks",
-                author: "Dean Cosmas",
-                content: `**The First Bohemian Historian, or the First Propagandist?**
-
-Cosmas, the Dean of the Prague Chapter, composed his Masterpiece Chronica Boemorum in the Latin Tongue at the Close of his Life. 'Tis the most antient of all Bohemian Chronicles and the Foundation-stone of our History. It presenteth unto us the Tales of Father Boemus, of Croccus, of Libussa, and of Przemyslas the Ploughman.
-
-**Purposeful Oblivion**
-
-But mark! Cosmas was no independent Journalist. He was a sworn Catholick and a Pragmatist. In his Chronicle, he absolutely, intentionally, and perfectly expunged any Mention of the Slavonick Liturgy, of Cyril and Methodius, or of the Flourishing of Great Moravia. Wherefore? Forasmuch as at that Time 'twas not politically expedient. He desired to show the Bohemians as firmly anchored within the Western and Latin World.
-
-"History is not written by the Victors. History is written by those who have Access unto Parchment and who know that which is better suppressed in Silence."`
-            },
-            book_dalimil: {
-                title: "Dalimil’s Chronicle: Hatred in Verse",
-                author: "An Unknown Nobleman",
-                content: `**The First Chronicle penned in the Bohemian Tongue**
-
-Whilst Cosmas composed for learned Priests in the Latin Tongue, he that is called Dalimil wrote his Chronicle in Bohemian and in Rhyme, that it might be easily recited and committed to Memory. Who was he? The Name of Dalimil is an Errour of later Historians. The true Authour was an unknown, embittered, and radical Bohemian Nobleman.
-
-**The Dread of Strangers**
-
-The Volume is literally imbued with Xenophoby and a Hatred against Germans and Strangers in general. It had its Origin at a Time when German Colonists and Burghers flocked in great Multitudes into Bohemia, and the antient Bohemian Nobility lost their Interest and Weight. The Authour doth not spare bloody Descriptions and Exhortations to the Defence of the "Bohemian Tongue" (by which he signifieth the Nation).
-
-*"I had rather take a Bohemian Peasant-woman to Wife, than receive a German Queen into my Bed. Blood and Tongue are more potent than the Crown."*`
-            },
-            book_rozmberk: {
-                title: "The Rosenberg Book: The Law of the Stronger",
-                author: "Petr I. of Rosenberg (attributed)",
-                content: `**Law written by the Sword and by Possessions**
-
-'Tis the most antient legal Text penned in the Bohemian Tongue. It is no Royall Code of Laws, but a private Record of Customary Law (the so-called Land Law), which the mighty South Bohemian Nobility – the Witigonen and the Rosenbergs – caused to be set down for their own Account.
-
-**Blood Feuds and Divine Judgments**
-
-This Text affordeth us a fascinating and rugged Prospect of Mediaeval Justice. It defineth the Punishments for Murders and Thefts, and how the so-called "Divine Judgments" (Ordeals) – such as the bearing of glowing Iron or the Trial by Water – should be conducted. It portrayeth an Age when the King in Prague signified less than a provoked Rosenberg upon his own Domain.
-
-*"Justice is blind, yet she is never deaf to the Clinking of the Gold Coins of the mighty Lords of the Rose."*`
-            },
-            book_zbraslav: {
-                title: "The Zbraslav Chronicle: Tears of the Cistercians",
-                author: "Otto and Peter of Zittau",
-                content: `The Fall of the Golden King
-
-When Przemyslas Ottocarus II fell upon the Marchfield, it seemed that the End of Bohemia was at Hand. The Zbraslav Chronicle (Chronicon Aulae regiae) is a literary Jewel, which describeth the Rise and Fall of the last Przemyslids and the Accession of the House of Luxembourg.
-
-The Monastery as a Sepulchre of Dreams
-
-The Foundation of the Zbraslav Monastery by King Wenceslaus II was intended to create a new spiritual Centre and a Burial-place for Kings. Peter of Zittau writeth with such emotional Depth and poetical Elegance, that the Chronicle in Places resembleth an antient Tragedy. He describeth in Detail the Famines, Court Intrigues, and Visitations of the Plague with the Precision of a Chronicler.
-
-"Gold and Silver from Kuttenberg purchaseth Armies, yet shall it not ransom the King from the Clutches of Death, which danceth about his Couch."`
-            },
-            book_majestas: {
-                title: "Majestas Carolina: The Law that was Consumed by Fire",
-                author: "Charles IV",
-                content: `**The Royall Failure of the Greatest of Bohemians**
-
-Charles IV is venerated as the Father of the Fatherland, yet few know his most grievous political Defeat. He endeavoured to set forth the Majestas Carolina – a modern written Code of Laws, which might restrain the Power of the Nobility, forbid the arbitrary Seizure of Estates, and prevent the Alienation of the Royall Fortresses.
-
-**Fire as a Politick Evasion**
-
-The Bohemian Nobility opposed this Code with such Rancour and the Menace of an armed Insurrection, that Charles was compelled ignominiously to withdraw. To the End that he might preserve his Dignity, he employed an ingenious, albeit transparent Evasion: he declared that the original Draught of the Code had "by an unhappy Accident fallen into the Fire and was burnt." Thus was the Proposition formally quashed, without the King being forced to acknowledge his Overthrow.
-
-"Even the most puissant Emperour of the Holy Roman Empire must bow before the Wrath of the Bohemian Nobility in the Defence of their antient Privileges."`
-            },
-            book_malleus: {
-                title: "The Hammer of Witches: A Manual of Madness",
-                author: "Heinrich Kramer",
-                content: `The most Perilous Book of Europe
-
-Malleus Maleficarum. A Volume that cost the Lives of tens of Thousands of innocent Women (and many Men). The Inquisitor Heinrich Kramer composed the same after he was, for his Brutality and Fanaticism, expelled from Innsbruck by the local Bishop. The Book was intended to serve him as a Justification.
-
-A Legal Framework for Mass Murder
-
-This Print removed Witchcraft from the Sphere of local Superstitions into the Sphere of Heresy against God. It provided detailed, bureaucratick Instructions: how to discern a Witch, how to employ the Question (Torture) to obtain a Confession, and how to prevent "diabolical Influence" during the Trial. By Virtue of Typography, this Manual for Murder spread throughout all Europe like a Pestilence. Later, it inspired the bloody Trials upon the Losiny Estate in our Lands (Henry Francis Boblig).
-
-"When Paranoia is conjoined with Bureaucracy and the Printing-Press, there is born a Hell upon Earth."`
-            },
-            book_malleus_maleficarum: {
-                title: "The Hammer of Witches: An Architecture of Madness",
-                author: "Heinrich Kramer",
-                content: `**CHAPTER I: The Abased Inquisitor**
-
-To understand the Genesis of the most murderous Book in the History of Europe, we must understand its Creatour. Heinrich Kramer was no venerable Saint, but a fanatical Dominican Inquisitor, replete with Paranoia and a profound, pathological Hatred of Women. 
-
-In the Year 1485, he arrived at Innsbruck in the Tyrol, that he might unleash a Prosecution of Witches. He apprehended several Women and commenced a brutal Examination of them. Kramer’s Methods, however, were so depraved, obsessed with sexual Particulars, and so contrary to the Law of that Time, that the local Bishop, Georg Golser, himself stood against him. The Bishop denounced Kramer as a Madman and expelled him from the City with Ignominy. The Women were set at Liberty. Kramer, abased and thirsting for Vengeance, withdrew into Seclusion and resolved to compose a Book that should legalise his perverse Methods before the whole World. 
-
-**CHAPTER II: A Masterly Deception and the Printing-Press**
-
-The Book was published in the Year 1486 at Speyer, bearing the Title *Malleus Maleficarum*. Kramer knew that for the Book to be held in Regard by secular Judges and Bishops alike, he required Authority from the highest Stations. He therefore made a brilliant Stroke of Propaganda: at the very Commencement of the Volume, he inserted the Papal Bull *Summis desiderantes affectibus* of Pope Innocent VIII. 
-
-The Bull did indeed exist and permitted Kramer’s inquisitorial Labours, yet the Pope had issued the same *before* the writing of the Book, and it served by no means as an Approbation thereof. Furthermore, Kramer subjoined a forged Recommendation from the Faculty of Theology at the University of Cologne (for the Professors had, in Truth, rejected the Text as unethick and contrary to Catholick Doctrine). 
-
-By Virtue of the new Invention of Typography, these Lies and the Text itself flew across Europe with incredible Speed. Within two hundred Years, the Book was issued in no fewer than thirty Editions.
-
-**CHAPTER III: A Manual for Judicial Murders**
-
-The Book is coldly systematical and is divided into three Parts. 
-The first Part proveth theologically that Witchcraft existeth, and asserteth that whosoever believeth not in Witches is himself an Heretick. It describeth Women as Creatures by Nature weaker, more prone to carnal Sins, and incapable of maintaining the Faith (Kramer here even manipulateth the Latin Word for Woman, *femina*, and falsely claimeth it to proceed from the Words *fe* and *minus*, signifying "having less Faith").
-
-The second Part is a Collection of ghastly Fables presented as Facts. It describeth how Witches fly to Sabbats, how they sacrifice unbaptized Infants, how they conjure destructive Hailstorms, how they transmute Men into Beasts, and how they physically deprive Men of their Member.
-
-The third Part is the most cruel – 'tis a detailed legal Manual. It instructeth Judges how to circumvent the customary Rights of the Accused. It ordaineth that the meer Testimony of a malicious Neighbour sufficeth to commence a Process. It commandeth the Use of the Question (brutal Torture upon the Rack and Thumb-screws). And it giveth unto the Judges a diabolical Counsel: if a Woman weepeth during Torture and confesseth, she is guilty. If she weepeth not and remaineth obstinately silent, she is likewise guilty, for the Devil hath granted her a dark Strength to endure the Pain.
-
-**CHAPTER IV: A Legacy of Ashes**
-
-*The Hammer of Witches* was not merely a Book. It was a deadly Virus installed into the legal System of Early Modern Europe. It inspired Inquisitors across the Centuries, and even in Protestant Lands, where they otherwise burnt Catholick Books. In the Bohemian Lands alone, upon the Estates of Losiny and Šumperk, the infamous Inquisitor Henry Francis Boblig of Edelstadt sent over an hundred innocent Souls to the Stake, following fanatically the Procedures of the *Hammer*. 
-
-The Words in this Book literally melted human Flesh and transformed the Fear of a poor Harvest into a State-sanctioned Genocide of Women.`
-            },
-            book_bartos_pisar: {
-                title: "The Prague Chronicle: Tidings from the Barricadoes",
-                author: "Bartoš the Scribe",
-                content: `An Inquisitive Chronicler of the 16th Century
-
-Bartoš the Scribe was an Officer of a sharp Tongue and a biting Pen. His Prague Chronicle is no Panegyrick unto Kings, but a most severe and candid Narration of the Insurrection of the Prague Burghers against King Ferdinand I of the House of Habsburg (in the Year 1524 and the Commotions surrounding the Leader Jan Hlavsa).
-
-Censorship and Banishment
-
-Bartoš described in Detail the Corruption, the Intrigues of the Aldermen, and the Treachery at the Town Hall. He named particular Persons and their Transgressions. For his Boldness he paid dearly – he was tortured upon the Rack and banished from Prague. His Chronicle is written as a lively Relation of a Man who stood in the very Centre of the political Tempest and refused to keep Silence.
-
-"When a Clerk forbeareth to write that which is dictated unto him, and beginneth to write that which he seeth, he signeth his own Sentence of Death."`
-            },
-
-            book_sit_viry: {
-                title: "The Net of True Faith: Medieval Anarchism",
-                author: "Petr Chelčický",
-                content: `**The Rejection of Power and Violence**
-
-Petr Chelčický was a self-taught man, a rural thinker and radical. While the Hussites shed blood in the name of divine truth, he composed *The Net of True Faith*. In it he absolutely refused all violence, even in self-defence. He rejected the division of society into three estates — clergy, nobility, and common people.
-
-**The Tearing of the Net**
-
-According to his metaphor, the Church and the State are like a heavy whale tearing apart the delicate net of true faith. Kings and popes, in his view, have no right to exist, for they enforce power by the sword. His ideas on absolute pacifism and equality laid the ideological foundation for the founding of the Unity of Brethren. These were thoughts so heretical that even the Hussite priests themselves were afraid of them.
-
-*"He who takes a sword in hand, though in the name of good, has long since lost his soul."*`
-            },
-            book_jistebnicky: {
-                title: "The Jistebnice Cantional: Song Instead of Weapons",
-                author: "Unknown Hussite Cantors",
-                content: `**A Weapon of Mass Destruction in Musical Notes**
-
-This manuscript songbook, found in the attic of a parish house in Jistebnice, is one of the most precious treasures of our musical history. It is here that the text and notation of the battle hymn *"Ye Who Are Warriors of God"* are recorded.
-
-**Psychological Warfare**
-
-The Hussites did not use music only for divine services. It was part of their military tactics. When an enormous mass of thousands of soldiers began in unison to sing this hymn and beat upon their wagons, it produced a deafening, terrifying acoustic pressure, so that crusading armies (as at Domažlice) often fled the field before any clash had even begun.
-
-*"When words believe in their own power and become a hymn, they need not the edge of a sword."*`
-            },
-            book_schedel: {
-                title: "The Nuremberg Chronicle: The End of the World in Woodcuts",
-                author: "Hartmann Schedel",
-                content: `**A Medieval Encyclopaedia of the World**
-
-One of the most magnificent and best-documented incunabula in the world. Hartmann Schedel encompassed in it the history of the world from the biblical creation to the year 1493. The book is celebrated for its extraordinary 1,809 woodcuts, which were produced in the workshop of Michael Wolgemut — incidentally the teacher of the celebrated Albrecht Dürer.
-
-**The Recycling of Cities**
-
-There is an amusing typographical detail here. The production of woodcuts was expensive, and so the printers recycled without embarrassment. The same image of a city is used in the chronicle to depict Damascus, Verona, and Mantua alike. Most people at that time did not travel, so no one noticed the difference. The book also ends with blank pages — Schedel left them there so that readers might write in events until the approaching end of the world.
-
-*"The world is but a theatrical backdrop, which the printer rearranges according to whatever story he wishes to sell."*`
-            },
-            book_voynich: {
-                title: "The Voynich Manuscript: The Book That Cannot Be Read",
-                author: "Unknown",
-                content: `**A Mystery Worth 600 Ducats**
-
-This strange, handwritten manuscript is filled with drawings of non-existent plants, naked bathing women, and astrological diagrams. It is written in an unknown script, in an unknown language, and to this day the most powerful supercomputers and NSA cryptologists have been unable to decipher it.
-
-**The Bohemian Connection and Rudolf II**
-
-The book has a deep Bohemian connection. According to surviving letters, Emperor Rudolf II purchased it for the outrageous sum of 600 gold ducats, believing it had been written by the celebrated English scholar Roger Bacon. It was later owned by the Prague alchemist Georg Baresch and the rector of Charles University, Jan Marcus Marci. Does the book conceal the secret of immortality, or is it a brilliant, centuries-old fraud perpetrated upon a grasping emperor?
-
-*"The greatest wisdom is sometimes not to read a text but to leave it unread as an eternal mystery."*`
-            },
-            book_cerny_herbar: {
-                title: "Černý's Herbal: The Czech Pharmacist",
-                author: "Jan Černý",
-                content: `**Medicine Without Latin**
-
-Several decades before the celebrated translation of Mattioli, the Litomyšl physician and member of the Unity of Brethren, Jan Černý (Joannes Niger), published his work *The Medical Book Called the Herbal or Book of Herbs*. It was a revolutionary undertaking, for it was written in Czech, thereby circumventing the monopoly of the educated, Latin-speaking university masters.
-
-**Accessibility for the Poor**
-
-The book contained advice for common ailments and referred to herbs that grew behind every farmyard hedge, not to inaccessible oriental spices. It is the first original Czech medical and botanical work. The print has survived in very few copies, because those books were literally "read to pieces" in households.
-
-*"The remedy for every human pain God has already planted in the earth — we have merely forgotten its name."*`
-            },
-            book_agricola: {
-                title: "De re metallica: Treasure from the Depths",
-                author: "Georgius Agricola",
-                content: `**The Bible of Miners and Metallurgists**
-
-Georgius Agricola lived in Jáchymov (Joachimsthal), at that time the European centre of silver mining and the minting of the celebrated thalers (whence the word "dollar" derives). His work *Twelve Books on Mining and Metallurgy* became an engineering masterpiece.
-
-**Machines, Poisons, and Dust**
-
-The book was the first to describe scientifically how to drive tunnels, how ventilation machines and mine pumps work. It also addresses miners' diseases (silicosis, arsenic poisoning). It is filled with magnificent technical woodcuts of mining mechanisms. For a full 200 years it remained the unsurpassed textbook for all geologists and miners in the world.
-
-*"The wealth of nations lies not in the palaces of kings, but in the darkness, sweat, and dust beneath our feet."*`
-            },
-            book_alchymie_kelley: {
-                title: "Tractatus de Lapide: Kelley's Deception",
-                author: "Edward Kelley (attributed)",
-                content: `**Gold from Lead and Promises**
-
-The English alchemist Edward Kelley captivated the court of Rudolf II. He claimed to possess a remnant of red powder from the tomb of a bishop at Glastonbury, with which he could transmute metals. His manuscripts (frequently attributed to him retrospectively) promised the revelation of the Philosopher's Stone.
-
-**A Fall Without Ears**
-
-Kelley was a showman. At public transmutations he reportedly concealed pieces of gold in the double bottoms of crucibles. He wore his hair long not from vanity but to conceal his severed ears — punishment for forging documents in England. When he failed to deliver to the Emperor the tons of promised gold, he was imprisoned at Křivoklát castle and later Hněvín, where in a desperate escape attempt he leaped from a window to his death.
-
-*"Gold can be created by only two means: in the sweat of one's brow deep in a mine, or through lies in the ears of a greedy sovereign."*`
-            },
-            book_kralice: {
-                title: "The Kralice Bible: A Six-Part Jewel",
-                author: "Brethren Translators (Jan Blahoslav and others)",
-                content: `**A Secret Press in Exile**
-
-The Unity of Brethren was persecuted and was compelled constantly to move its press (Ivančice, Kralice nad Oslavou). In this hidden press arose the supreme work of Czech literature and typography. They did not translate from the Latin Vulgate, as was the custom, but directly from the original Hebrew and Greek texts.
-
-**The Perfection of the Typesetting**
-
-The six-part edition contained not only the text itself but on the margins immensely detailed commentaries and explanatory notes. The Czech employed in this Bible polished our language to absolute perfection. When after the Battle of White Mountain the destruction of the nation threatened, it was precisely the smuggled Kralice Bible that kept the Czech language alive in exile and in peasants' hiding places beneath the floorboards.
-
-*"When you lose your land, your king, and your freedom, your home becomes the language hidden between the pages of a single book."*`
-            },
-            book_bible_prazska: {
-                title: "The Prague Bible: The Birth of Czech Typesetting",
-                author: "Printer of the Prague Bible (Jan Kamp?)",
-                content: `**The First Complete Bible in Czech**
-
-While Gutenberg printed in Latin for the élites, a group of wealthy Prague burghers (including Jan of the Peacocks and Severin the Draper) pooled their resources for an utterly unprecedented and extremely costly project: to publish the entire, complete Bible in the Czech language. The year is 1488 and from the printing presses of the Old Town falls upon tables a monumental work.
-
-**Czech in Lead**
-
-To set Czech text meant creating entirely new lead type. Czech required its specific ligatures and characters that German printers did not know. This book thus in effect standardised the form of printed Czech for long decades. Moreover the book was published in a large edition and became accessible to wealthier burgher families, not only to inviolable monasteries.
-
-*"When God first spoke in print in Czech, the old vellum-makers trembled to their foundations."*`
-            },
-            book_michna_loutna: {
-                title: "The Bohemian Lute: A Baroque Spark in the Darkness",
-                author: "Adam Michna of Otradovice",
-                content: `**A Broken Land Sings**
-
-After the Thirty Years' War the Bohemian lands were plundered, a third of the population dead, and the non-Catholic élite driven into exile. In this hopeless darkness of the so-called "Age of Darkness", the organist of Jindřichův Hradec, Adam Michna of Otradovice, composed *The Bohemian Lute*.
-
-**Music as a Remedy for Censorship**
-
-It was a collection of mystical, devotional songs, but composed with such genius and with such fervent and comprehensible Czech that people loved them at once. Music circumvented the strict Habsburg censorship and Jesuit control. It was not political rebellion but a quiet escape of the wounded soul of a nation. These notes and texts kept the vernacular Czech alive when the official language of the authorities was becoming exclusively German.
-
-*"Where they forbid speech and reading, the people learn to sing their truths."*`
-            },
-            book_balbin_obrana: {
-                title: "A Discourse in Defence of the Language: Hidden Defiance",
-                author: "Bohuslav Balbín",
-                content: `**A Jesuit Who Loved His Nation**
-
-Bohuslav Balbín was a Jesuit, historian, and deep patriot. He watched the Czech language decline, being driven from offices and schools, and saw the nobility beginning to be ashamed of it. In secret, full of anger and sorrow, he composed his most celebrated work: *A Discourse in Defence of the Slavonic Language, and in Particular the Czech*.
-
-**A Book That Waited a Hundred Years in a Drawer**
-
-Balbín knew that were he to publish the book, it would destroy him. It was so sharp a critique of denationalisation and Habsburg officials that he would have ended in prison. He therefore carefully concealed the manuscript. It took an extraordinary 103 years before F. M. Pelcl found it in 1775 and finally published it in print. Balbín's hidden text then became the dynamite that set off the Czech National Revival.
-
-*"The most powerful book is not the one lying on a king's table, but the one that waits a hundred years in the dark for its proper moment."*`
-            },
-            book_veleslavin_kalendar: {
-                title: "The Historical Calendar: The Social Media of the Renaissance",
-                author: "Daniel Adam of Veleslavín",
-                content: `**More Than Just Days and Months**
-
-Printed calendars in the 16th century were the absolute bestselling commodity, a kind of Facebook of the age. Veleslavín's *Historical Calendar* was no dry catalogue of feast days. It contained astrological predictions, advice for farmers, the dates of fairs throughout Europe, and brief descriptions of significant historical events for each date.
-
-**The Organisation of Time and Society**
-
-It was precisely thanks to the enormous print runs of these printed calendars that time began to be unified on a mass scale. A peasant suddenly knew precisely when the market at Leipzig took place and when to expect an eclipse of the moon. Veleslavín created an information highway along which the whole of society was unified, and taught ordinary people to plan their future according to printed paper.
-
-*"He who controls the calendar controls time. And he who controls time governs the whole world."*`
-            },
-            book_codex_gigas: {
-                title: "Codex Gigas: The Devil's Bible and Its Curse",
-                author: "Herman the Recluse (per palaeographic analysis)",
-                content: `**A Pact Made at Midnight**
-
-The legend is as follows: in the early 13th century, a monk in the Benedictine monastery at Podlažice near Chrudim committed a grave transgression. His punishment was to be walled up alive. In his despair he begged for one last chance at redemption — he promised to write in a single night a book that would contain all human knowledge and bring eternal glory to the monastery. At midnight he realised he could not finish in time. In his despair he turned to the fallen angel — to the Devil himself — and promised him his soul in exchange for completing the work. The Devil wrote the book in one night. As a token of gratitude, the monk painted a large, full-page portrait of the Devil in the middle of the codex.
-
-**The Largest Book in the World**
-
-The Codex Gigas (Giant Book) weighs 75 kilograms, measures 92 centimetres in height, and requires two strong men to lift it. Despite the legend, modern graphological analysis has established that the entire codex was written by a single hand — and that this hand did not age or tire over the entire duration of the work. The script is consistent from the first to the last page, without any detectable tremor or deterioration. If the monk wrote it himself, by the most conservative estimate it would have taken him 20 to 30 years of daily work.
-
-**The Swedish Plunder**
-
-In 1648, at the very end of the Thirty Years' War, Swedish troops plundered Prague and among other treasures seized the Codex Gigas as war booty. It was carried to Stockholm, where it remains to this day in the National Library of Sweden. The Czechs have repeatedly requested its return — so far without result.
-
-*"The greatest books are never written in a single night. They are written across an entire life — only we prefer to believe in the Devil."*`
-            },
-            book_kralicka_bible: {
-                title: "The Kralice Bible: The Six-Part Jewel of Exile",
-                author: "Brethren Translators and Jan Blahoslav",
-                content: `**Scribes on the Run and a Secret Press**
-
-The sixteenth century in Europe was an age of religious wars and intolerance. In the Bohemian lands there operated the Unity of Brethren — a strict, Puritanical but extraordinarily learned reforming church. They were a thorn in the side of both Catholics and moderate Utraquists alike. They were systematically persecuted, their churches closed, and their printing presses destroyed by the authorities.
-
-To survive and preserve their teaching, they were compelled to go underground. They secretly moved their heavy printing presses on wagons from place to place under the protection of tolerant nobles. From Ivančice they finally moved them safely to a manor house in the inconspicuous Moravian village of Kralice nad Oslavou. Here, in secret, surrounded by fortifications, they began the greatest literary project in Czech history.
-
-**Dissatisfaction with Latin and Blahoslav's Triumph**
-
-Until that time, Czech Bibles had been translated mostly from the Latin Vulgate. The bishop of the Unity of Brethren, the brilliant philologist and scholar Jan Blahoslav, however, considered this insufficient. He wished for the Czech people an absolutely pure, uncorrupted text of God. He therefore first translated the New Testament himself (published 1564) directly from the original ancient Greek. His work was linguistically so brilliant, refined, and rich that it set the standard.
-
-**The Six-Part Edition and the Marginal Notes**
-
-The fruit of their fifteen years of labour was not a single ordinary volume but a monumental six-part edition, published progressively between 1579 and 1593. The Brethren scholars did not wish to give the people merely text. Around the central block of biblical text there wound on the pages enormous columns of so-called marginalia — explanatory notes, theological interpretations, linguistic observations on Hebrew words, and cross-references. The Kralice Bible was not merely a book for prayer — it was a complete, deeply analytical theological university hidden within paper pages.
-
-**A Lifeline in the Age of Darkness**
-
-Its full historical significance became apparent only thirty years later. After the Battle of White Mountain in 1620, the Unity of Brethren was banned, its members driven into exile, and non-Catholic books burned en masse on public squares. The Kralice Bible became a forbidden, mortally dangerous commodity. The men who had smuggled it back into Bohemia hid it under floorboards and in false walls. Two hundred years later, when patriots like Josef Dobrovský and Josef Jungmann were reviving the almost extinct and Germanised Czech language, they took as their absolute model of grammar and vocabulary precisely the language of the Kralice Bible.`
-            },
-            book_voynichuv_rukopis: {
-                title: "The Voynich Manuscript: A Cipher That Defies the Centuries",
-                author: "Unknown (estimated 1404–1438)",
-                content: `**A Bibliographic Ghost in the Villa Mondragone**
-
-In 1912 the Polish-American antiquary Wilfrid Voynich was searching through a collection of old books in a Jesuit college at the Villa Mondragone near Rome. The Jesuits needed money to repair the building and were secretly selling off part of their archive. Among the old folios Voynich came across a book unlike any he had seen in his life.
-
-It was a medieval codex written on fine parchment, roughly 240 pages long. At first glance it appeared not at all alarming. It was decorated with drawings of plants, astrological schemata, and images of women bathing in peculiar greenish liquids. But when Voynich attempted to read the text, a cold sweat came over him. The letters resembled a strange mixture of the Latin alphabet and an elvish script. There was not a single word that made sense. The manuscript was written in an unknown, perfectly structured language that the world had neither seen before nor since.
-
-**Anatomy of Alien Botany**
-
-The manuscript is divided into several distinct sections that only deepen its mystery. The botanical section contains over a hundred drawings of entire plants — yet botanists have to this day been unable to identify a single one with certainty. They look like chimeras, leaves of one plant grafted onto the roots of another. The astronomical section contains complex circular diagrams of the sun, moon, and stars. The balneological section — the strangest of all — depicts dozens of naked women with swollen bellies bathing in systems of tubes, vats, and basins through which flow liquids resembling human organs and vessels.
-
-**The Bohemian Connection**
-
-Among the documents associated with the book was a letter of 1666 from the Prague rector and scientist Jan Marcus Marci of Kronland. This letter revealed a fascinating trail: the book had originally been owned by Emperor Rudolf II. Rudolf purchased the manuscript at his Prague court for the enormous sum of 600 gold ducats, probably from the English charlatans John Dee or Edward Kelley, under the belief that it was the lost work of the great medieval mage Roger Bacon.
-
-**The Undefeated Mystery of Supercomputers**
-
-In over a hundred years since Voynich's discovery, the finest minds on the planet have attempted to decipher it. British code-breakers who cracked the Nazi Enigma in wartime failed on this text. NSA cryptologists in the Cold War found no solution. Not even the most modern artificial intelligence algorithms have succeeded. Radiocarbon analysis (C-14) has proven that the parchment was produced between 1404 and 1438. The language displays clear statistical patterns (Zipf's law, which applies to all natural languages), which rules out the possibility that it is mere random scribbling. Is it the encrypted diary of heretical alchemists? A medieval women's herbal community writing in a secret argot to escape the Inquisition? Or a masterly 15th-century fraud intended to extract money from wealthy European rulers? The Voynich Manuscript remains the Holy Grail of cryptography — a perfect lock for which the world has lost the key for ever.`
-            },
-            book_koldin: {
-                title: "Municipal Law: Koldín's Code and the End of Chaos",
-                author: "Pavel Kristián of Koldín",
-                content: `**A Legal Babylon in the Heart of Europe**
-
-Until the end of the 16th century, the legal system in the Bohemian lands resembled a dark, impenetrable forest. Every city had its own law. If you stole a loaf of bread or brawled in a tavern in the Old Town of Prague, the magistrate would judge you entirely differently than if you had committed the same offence in Brno, Jihlava, or Litoměřice. Cities were governed by ancient privileges, local customs, and Magdeburg or Nuremberg law, which everyone interpreted as he saw fit.
-
-**The Chancellor and His Life's Work**
-
-Koldín was no armchair theorist but a hard-headed practitioner. He served as chancellor of the Old Town of Prague — at that time one of the most influential and demanding bureaucratic positions in the kingdom. He saw daily the tears of bankrupt merchants, the frauds of guild masters, and bloody quarrels over inheritances. He resolved to write a complete, unifying legal code. His *Koldín Code* (officially *Municipal Laws of the Kingdom of Bohemia*) was in preparation for decades. He had to encompass everything: from rules for trade, through family law, guardianship, and guild regulations, to brutal criminal law.
-
-**Print and the Resistance of the Cities**
-
-When Koldín finally published his masterwork in print in 1579, he met with unexpected resistance. Moravia in particular and some northern Bohemian cities rebelled. They were unwilling to surrender their old rights and submit to the "Prague" code. Only King Rudolf II was compelled to intervene and gradually impose the code on all.
-
-**An Immortal Code**
-
-The true genius of this printed code was shown in the test of time. While dynasties fell, kings came and went, and the Thirty Years' War ravaged the land, Koldín's code stood firmly on. His laws were so deeply rooted and functional in Bohemia that Czech courts were governed by them for an extraordinary 232 years. The Koldín Code was definitively abolished only in 1811, when it was replaced by the modern Austrian General Civil Code.`
-            },
-            book_kristan_mor: {
-                title: "A Counsel Against the Plague: Dances with Death",
-                author: "Křišťan of Prachatice",
-                content: `**Stars and Miasma**
-
-When a plague struck in the Middle Ages, cities were transformed into a foretaste of Hell. People fell dead in the streets and carts could not keep pace with carrying away the bodies. In this atmosphere of utter hopelessness and horror, the people sought salvation. It was offered to them by Křišťan of Prachatice, a brilliant astronomer, rector of Prague University, and close friend of Master Jan Hus.
-
-Křišťan composed in Czech the very first comprehensive medical treatise in our language — *Medical Booklets*, the most celebrated and important part of which was the *Counsel Against the Plague*. The medical science of the time had no inkling of the existence of bacteria or fleas. They believed in two things: unfavourable positions of the planets (malign conjunctions of Saturn and Mars) and the so-called miasma — a poisonous, corrupted air that penetrated through the pores into the body.
-
-**Purification by Fire and Juniper**
-
-Křišťan's treatise, which was later massively printed and saved lives for whole centuries, contained precise instructions for survival. The first rule was flight ("Flee quickly, flee far, and return late"). For those who could not flee, Křišťan advised how to arrange the household. The foundation was to destroy the poisoned air. He recommended lighting large fires of fragrant wood — juniper, oak, and ash — in the houses. Windows were to be tightly sealed to prevent the entry of marsh fog. The air in the rooms was also "purified" by spraying strong vinegar and rose water.
-
-**Ground Emeralds and Bloodletting**
-
-The chapters on treating the disease itself appear to us today as terrifying. The fundamental assumption was that the body must expel the corrupted "black bile" and blood. Drastic bloodletting (phlebotomy) was therefore applied. Physicians cut the veins of the sick on precisely prescribed days according to the phases of the moon.
-
-**A Book as a Lifeline**
-
-Although from today's perspective Křišťan's medicine resembles quackery, in its own time it had an enormous psychological significance. In an age when plague was regarded as purely divine punishment for sin, the printed *Counsel Against the Plague* gave people a sense of control. It offered a tangible, rational guide to what to do, rather than merely resigned waiting for death. This small book was often the only thing frightened families could grasp in the darkness.`
-            },
-            book_klaudyan: {
-                title: "Klaudyán's Map: Politics Drawn Upside Down",
-                author: "Mikuláš Klaudyán",
-                content: `**A Physician of the Brethren**
-
-Mikuláš Klaudyán was a Renaissance polymath — physician, pharmacist, theologian, and printer of the Unity of Brethren at Mladá Boleslav. In 1518 he embarked on an unprecedented project: to create the very first detailed, printed map of the Bohemian Kingdom. To achieve the highest quality and avoid the censorship of powerful Catholic censors, he travelled with the design all the way to Nuremberg, to the celebrated woodcut workshop of Hieronymus Höltzel.
-
-**A World Where the Sun Shows the Way**
-
-When a modern person unfolds Klaudyán's map, he is utterly disoriented. The map is oriented in precisely the opposite manner to what we are accustomed — south is at the top and north at the bottom. Why? In the 16th century, maps were not commonly laid on tables. People used them while travelling and held them in their hands, orienting themselves by compasses and above all by small sundials. It was entirely natural for them to turn the map toward the sun, that is toward the south, and to have it in the upper part of their field of vision. Bohemia thus has Austrian borders at the top of this map and the Ore Mountains at the bottom.
-
-**A Travel Network and Secret Centres**
-
-The map is astonishing in its topographical detail. It records over 280 cities, castles, and monasteries. The red lines connecting the cities are not ordinary roads but the very first representation of postal and trade routes. Large and small symbols distinguish royal cities from subject towns.
-
-A sharp censor's eye would not, however, have missed one "inconspicuous" detail: Brethren centres such as Mladá Boleslav or Litomyšl are emphasised on the map with large crowns and coats of arms, with far greater pride and space than their objective size would warrant.`
-            },
-            book_defenestrace: {
-                title: "The Defenestration of Prague: A Pamphlet That Started a War",
-                author: "Czech Protestant Estates",
-                content: `**Three Men and a Window**
-
-On 23 May 1618, a group of Bohemian Protestant noblemen entered Prague Castle and threw three imperial Catholic governors out of a window approximately 17 metres above the ground. All three survived, landing in a heap of refuse below the window — a fact which the Catholics immediately declared a miracle wrought by the Virgin Mary, while the Protestants claimed it merely proved the low quality of imperial officials.
-
-**The Printed Apologia**
-
-This event was not merely a physical act but above all a political statement that had to be immediately explained to all of Europe. The Bohemian Estates therefore immediately set to work on a political pamphlet — the *Apologia* — which was to legitimise their violent act in the eyes of European courts.
-
-The Apologia was a masterwork of crisis communication and legal cunning. The document claimed that the throwing from the windows was not at all an attack on imperial majesty or the sovereign himself. The rebels falsely and cleverly argued that the Emperor was actually good and knew nothing of the matter. The attack was directed *exclusively* against these specific, corrupt royal officials who were manipulating the Emperor.
-
-**A Spark That Set a Continent Ablaze**
-
-For the Apologia to fulfil its purpose, it had to spread faster than the Emperor's army. The Prague printing presses did not stop. The document was immediately printed not only in Czech but above all in German, Latin, and French, and dispatched by swift messengers to all the Protestant royal courts of Europe.
-
-It worked. The book provided Protestant princes with the legal and moral pretext to become involved in the Bohemian conflict. This small printed pamphlet, sewn from a few sheets of paper, ultimately served not to calm the situation but as the formal declaration of the bloodiest conflict of the 17th century — the Thirty Years' War, which left behind a burned Europe and millions of dead.`
-            },
-            book_komensky_labyrint: {
-                title: "The Labyrinth of the World: A Pilgrimage through Madness",
-                author: "Jan Amos Comenius",
-                content: `**The Most Painful Book in Czech Literature**
-
-The year is 1623. Jan Amos Comenius — future "Teacher of Nations", great pedagogical reformer and bishop of the Unity of Brethren — is hiding in the Bohemian countryside. He is a fugitive. After the Battle of White Mountain (1620) all Brethren were expelled from the country, their schools burned and their books destroyed. Comenius has just lost his wife and children to plague.
-
-**The Pilgrim's Journey**
-
-In this situation he writes his most personal work: *The Labyrinth of the World and the Paradise of the Heart*. The book is an allegory in which the protagonist — the Pilgrim — travels through the city of the World on a donkey. He is accompanied by two guides: Searchall (representing curiosity) and Delusion (representing self-deception), who place spectacles on his nose that distort reality and present the world as better than it is.
-
-**The Anatomy of Human Foolishness**
-
-In each district of the city the Pilgrim witnesses a different form of human folly and suffering. In the scholarly district, the learned quibble over words while the world burns. In the marketplace, merchants cheat one another and call it wisdom. In the halls of power, the powerful destroy one another for hollow titles. Nowhere does the Pilgrim find true happiness or meaning.
-
-**The Paradise of the Heart**
-
-Utterly exhausted and close to absolute madness, the Pilgrim wishes to flee the world entirely. At that moment he hears a quiet voice calling him back — not into the external city, but into his own inner self. The Pilgrim closes himself in his own heart, to which the world, wars, and false people have no access. Here he meets with Christ and finds that "Paradise of the Heart".
-
-This extraordinarily powerful literary therapy saved Comenius from madness and enabled him later to become the "Teacher of Nations", even though for the rest of his life he was never permitted to see his homeland again.`
-            },
-            book_schedula_diversarum_artium: {
-                title: "Schedula Diversarum Artium: The Secrets of Crafts",
-                author: "Theophilus Presbyter",
-                content: `**The Monk Who Knew Everything**
-
-Theophilus Presbyter — probably a German Benedictine monk — wrote in the early 12th century a work without parallel in contemporary Europe. The Schedula Diversarum Artium (Handbook of Various Arts) is a three-volume encyclopaedia of craft techniques: painting, glasswork, and metalwork. But it conceals something that surprises scholars even today — a detailed guide to building organs.
-
-**Leather, Air and God**
-
-According to Theophilus, the organ is an instrument worthy of God, but its construction is work worthy of a master. The key is the bellows — great leather sacks that drive air into the pipes. Theophilus describes how the leather must be saturated with wax and tallow so that no air escapes. Without perfect bellows there is no sound. Without sound there is no prayer.
-
-*"Master, before thou reach for wood and metal, prepare the leather. Upon it all depends."*
-
-**GAME EFFECT:** Unlocks the Organum Hydraulicum tech — the construction of hydraulic organs. Without reading this treatise, the organ builder from Nuremberg shall not come.`
+                title: "Faustova smlouva: Mýtus obalený olovem",
+                author: "Neznámý heretik a alchymista",
+                content: "**Kdo byl skutečný doktor Faust?**\n\nHistorická legenda s hrůzou vypráví, že učenec a astrolog Johann Georg Faust (1480–1540), reálná postava putující renesančním Německem, upsal svou nesmrtelnou duši mocnému démonu Mefistofelovi. Výměnou za to získal 24 let absolutního pozemského vědění, bohatství a nadpřirozené moci, než si ho čerti odnesli do pekel.\n\n**Ale pravda je mnohem pragmatičtější a temnější...**\n\nUvědomte si časovou shodu! Johann **Fust**, onen bohatý finančník a tiskař, který okradl Gutenberga, vydával své tištěné svazky v nevídaných objemech. Knihy se objevovaly na trzích tak bleskově a ve stovkách na chlup identických, bezchybných kopií, že pověrčiví a negramotní lidé jednoduše odmítali uvěřit, že to dokázaly vytvořit lidské ruce. Jak by mohl obyčejný smrtelník opsat obří Bibli dvěstěkrát bez jediné chyby?\n\n**Smyčka jmen (Fust ~ Faust)**\n\nJména těchto dvou naprosto odlišných mužů – tiskaře Fusta a okultisty Fausta – zněla na ulicích natolik podobně, že v ústním podání brzy splynula v jedno. Z reálných událostí vzniku knihtisku a šarlatánských kousků astrologa se zrodil ultimátní mýtus.\n\n**Goethe a strojní démonie**\n\nO více než 200 let později velký německý dramatik Johann Wolfgang von Goethe napsal své životní, obří dílo **Faust** (1808). Brilantně v něm použil tuto starou legendu jako metaforu. Faustův pakt s ďáblem byl ztělesněním lidské neukojitelné touhy po božském poznání, vědeckém pokroku za každou cenu, ale i nebezpečí nově vznikající strojové a průmyslové doby, která hrozila požírat lidské duše. Tiskařský lis byl v tomto pojetí prvním \"pekelným strojem\".\n\n**Existovala vůbec smlouva s ďáblem?**\n\nNe, pokud nevěříte na rohaté bytosti se sirným zápachem. Ale obchodník Johann Fust přesto jednu smlouvu sepsal – velmi reálnou, notářsky ověřenou smlouvu s Johannesem Gutenbergem. A v honbě za penězi ho bez milosti zradil a sociálně zničil. Mnozí badatelé tvrdí, že zničit život geniálního mistra a ukrást jeho celoživotní dílo pro vlastní zisk je možná mnohem hroznější a reálnější hřích, než sepsat imaginární pakt s démonem vlastní krví.\n\n*\"Někdy je samotná skutečnost, psaná černou tiskařskou černí a účetními knihami, mnohem temnější a chladnější než prastará legenda.\"*\n\n---\n\n**Easter Egg:** Tato prastará kniha plná kacířských myšlenek se v knihovně odemkne pouze těm otrlým jedincům, kteří shromáždili a podrželi přesně 666 bodů zakázaného výzkumu. \nGratulujeme, právě jsi pohlédl do temné propasti historie a objevil jedno z největších tajemství hry! Nyní jsi skutečným mistrem Scriptorium."
             },
             book_tacuinum_sanitatis: {
-                title: "Tacuinum Sanitatis: Tables of Health and Ruin",
-                author: "Ibn Butlan (Latin translation: Italian schools, 13th c.)",
+                title: "Tacuinum Sanitatis: Tabulky zdraví a zkázy",
+                author: "Ibn Butlan (latinský překlad: italské školy, 13. stol.)",
                 content: ``
             },
             book_crescenzi: {
-                title: "Liber Ruralium Commodorum: The Order of Field and Farmyard",
-                author: "Pietro de' Crescenzi of Bologna",
+                title: "Liber Ruralium Commodorum: Řád pole a dvora",
+                author: "Pietro de' Crescenzi z Boloně",
                 content: ``
             },
             book_pegolotti: {
-                title: "La Pratica della Mercatura: Notes of a Venetian Merchant",
+                title: "La Pratica della Mercatura: Zápisky benátského kupce",
                 author: "Francesco Balducci Pegolotti",
                 content: ``
             }
         }
     },
     time: {
-        phase_dawn: 'Dawn',
-        phase_morning: 'Morning',
-        phase_forenoon: 'Forenoon',
-        phase_noon: 'Noon',
-        phase_afternoon: 'Afternoon',
-        phase_evening: 'Evening',
-        phase_night: 'Night',
-        phase_midnight: 'Midnight',
-        phase_deepnight: 'Deep Night',
-        night: 'NIGHT', morning: 'MORNING', forenoon: 'FORENOON', noon: 'NOON', afternoon: 'AFTERNOON', evening: 'EVENING'
+        night: 'NOC', morning: 'RÁNO', forenoon: 'DOPOLEDNE', noon: 'POLEDNE', afternoon: 'ODPOLEDNE', evening: 'VEČER',
+        phase_dawn: 'Svítání', phase_morning: 'Ráno', phase_forenoon: 'Dopoledne', phase_noon: 'Poledne', phase_afternoon: 'Odpoledne', phase_evening: 'Večer', phase_night: 'Noc', phase_midnight: 'Půlnoc', phase_deepnight: 'Hluboká noc'
     },
     hunger: {
-        full: 'Fully Nourished ({h}h {m}m)',
-        light: 'Peckish ({h}h {m}m)',
-        medium: 'Moderate Hunger ({h}h {m}m)',
-        heavy: 'Ravenous! ({h}h {m}m)',
-        starving: 'STARVING!',
-        notified: 'Thy belly rumbles. Thou art starving!'
+        full: 'Plně sytý ({h}h {m}m)',
+        light: 'Lehký hlad ({h}h {m}m)',
+        medium: 'Střední hlad ({h}h {m}m)',
+        heavy: 'Velký hlad! ({h}h {m}m)',
+        starving: 'HLADOVÝ!',
+        notified: 'Tvé břicho kručí. Jsi hladový!'
     },
-    // candleBurnedOut: 'Thy candle hath burned out.',
 
     tidings: {
-        empty: "No tidings as yet. Resume thy work.",
-        subtitle: "Letters and tidings that have reached the scriptorium...",
-        from: "From:",
-        unread: "Unread",
+        empty: "Zatím žádné zprávy. Pokračuj v práci.",
+        subtitle: "Dopisy a zprávy, které přišly do skriptoria...",
+        from: "Od:",
+        unread: "Nepřečteno",
         senders: {
-            scribe: "The Elder Scribe",
-            unknown: "Unknown",
-            monastery: "From the Monastery",
-            medicus: "Brother Physician",
-            cellar: "Brother Cellarer",
-            porter: "Brother Porter"
+            scribe: "Starý Písař",
+            unknown: "Neznámý",
+            monastery: "Z kláštera",
+            medicus: "Bratr Lékárník",
+            cellar: "Bratr Hospodář",
+            porter: "Bratr Vrátný"
         },
 
-        // ── Daily tidings (minDay trigger) ──────────────────────────────
-        news_0: "Knowest thou that in the monastery o'er the hill they scribe through the night? 'Tis said they have vellum from their own flock. I have pondered this since yesterday. Our parchment is thin and spoils quickly — perhaps it is the water, perhaps the manner of curing. But their volumes are firm as stone. I must ask the Abbot whether we might visit them under pretense of exchanging texts.",
-        news_3: "I was in the refectory when they brought an old manuscript. None of us had ever seen it — they called it simply the Regula, but it was not the Benedictine Regula. The script was older, perhaps Carolingian minuscule, but with strange ligatures I did not know. Brother Thomas claimed the text came from Ireland. Brother Kryštof crossed himself. I secretly copied three lines onto a scrap of paper and have hidden it well.",
-        news_7: "They seek an experienced scribe for the Monastery of St. Procopius by the Sázava. Work for God, not the market — those are their words. I have pondered it all day. Their library holds forty volumes, five in Greek. Here we have thirteen, one half-crumbled. Yet I know every stone in the paving here, every crack in the wall. Is it cowardice, to remain in the place one knows?",
-        news_10: "Hast thou heard the morning bells at Matins? They say at Rajhrad they scribe from the third hour of the night. We begin after Prime, by candlelight and oat gruel. And yet the finest thoughts come in that dark hour before dawn, when the hand moves of itself and the mind does not yet judge. Perhaps we miss something indeed. Or perhaps it is merely another manner of suffering.",
-        news_15: "A patron from Brno brought a single leaf from Mainz. He calleth it Druk — he says it in German, but he means Print. I saw it with mine own eyes: letters precise as God's own hand, each the same height, every line as straight as measured cord. Swift. Cheap. Soulless — that is my word, not his. He wants a hundred copies by Christmas. A hundred. In a year I copy seven volumes, and that with effort.",
-        news_20: "A brother from the monastery at Velehrad came to me. He offered an exchange — our paper notes for their vellum. He said they have sheepskins from their own flock and space for drying. Vellum is a different matter than paper — heavier, more certain, it endures the ages. Paper yields to damp and mice are fond of it. I know not whether to accept. I asked the Abbot. The Abbot was silent, then said: Pray upon it. So I pray.",
-        news_25: "The Abbot seeketh a scribe who knoweth gall ink — that dark mixture of oak galls and vitriol. For a special commission from the Bishop of Olomouc, 'tis said. He would not say what. But gall ink is a thing prepared over three days and must ripen like wine. I tried it last year. The first batch came too pale, the second too acid. The third — the third was good. But I told no one at the time. Now I wonder whether I should tell the Abbot.",
-        news_28: "Hast thou decided who thou art? A craftsman or a servant? Both paths are honorable, but they are not the same. The craftsman measures the price of work, guards the stores, counts the groschen. The servant writes without regard to price, for the word must be set down. I myself still know not. Each morning I say: today I shall be a servant. Each evening I count how many candles we have spent. Perhaps that is how it must be — perhaps a good steward is the finest servant of all.",
+        // ── Denní zprávy (minDay trigger) ───────────────────────────────
+        news_0: "Víš, že v klášteře za kopcem opisují celé noci? Prý mají pergamen z vlastních ovcí. Přemýšlím o tom od včerejška. Náš pergamen je tenký a kazí se rychle — možná je v tom ta voda, možná způsob leptání. Ale jejich svazky jsou pevné jako kámen. Musím se zeptat Opata, zda by nebylo možné navštívit je pod záminkou výměny textů.",
+        news_3: "Byl jsem v refektáři, když přinesli starý rukopis. Nikdo z nás ho nikdy neviděl — říkali mu prostě Regula, ale nebyla to benediktinská Regula. Písmo bylo starší, možná karolinská minuskula, ale s podivnými ligaturami, které jsem neznal. Bratr Tomáš tvrdil, že text pochází z Irska. Bratr Kryštof se křižoval. Já jsem si tajně opsal tři řádky na kus papíru a schovám je dobře.",
+        news_7: "Hledají zkušeného písaře do kláštera sv. Prokopa u Sázavy. Práce pro Boha, ne pro trh — to jsou jejich slova. Přemýšlím o tom celý den. Tamní knihovna má prý čtyřicet svazků, z toho pět v řečtině. Zde máme třináct, jeden polorozpadlý. Ale tady znám každý kámen v dlažbě, každou prasklinu ve zdi. Je to vůbec zbabělost, zůstat na místě, které znáš?",
+        news_10: "Slyšel jsi ranní zvony o Matutinu? Říkají, že oni tam v Rajhradě píší od třetí hodiny ranní. My začínáme po Primě, po svíčkách a ovesné kaši. Přitom ty nejlepší myšlenky přicházejí v té temné hodině před svítáním, kdy ruka jede sama a hlava ještě nesoudí. Možná nám opravdu něco uniká. Nebo možná je to jen jiný způsob trápení.",
+        news_15: "Zákazník z Brna přinesl jednu stránku z Mohuče. Říká tomu Druk — říká to německy, ale myslí tisk. Viděl jsem to na vlastní oči: písmena přesná jako od Boha, každé stejně vysoké, každá řádka rovná jako vyměřená. Rychlé. Levné. Bez duše — to říkám já, on to tak nevidí. Chce sto kusů do Vánoc. Sto. Já za rok opíšu sedm svazků, a to dobře.",
+        news_20: "Přišel za mnou bratr z kláštera na Velehradě. Nabídl výměnu — naše papírové zápisky za jejich pergamen. Řekl, že mají ovčí kůže z vlastního stáda a místo na sušení. Pergamen je jiný materiál než papír — těžší, jistější, věky vydrží. Papír se boří vlhkem a myši ho rády. Nevím zda přijmout. Zeptal jsem se Opata. Opat mlčel, pak řekl: Modli se o tom. Tak se modlím.",
+        news_25: "Opat hledá písaře, který zná galický inkoust — ten tmavý, z duběnek a vitriolu. Prý pro zvláštní zakázku biskupa z Olomouce. Neřekl co. Ale galický inkoust je věc, která se připravuje tři dny a musí uzrát jako víno. Zkoušel jsem ho loni. První várka vyšla příliš světlá, druhá příliš kyselá. Třetí — třetí byla dobrá. Ale tehdy jsem to nikomu neříkal. Teď si říkám, zda to mám říci Opatovi.",
+        news_28: "Rozhodl ses, kdo jsi? Řemeslník nebo služebník? Obě cesty jsou čestné, ale nejsou stejné. Řemeslník měří cenu práce, hlídá zásoby, počítá groše. Služebník píše bez ohledu na cenu, protože slovo musí být zapsáno. Já sám stále nevím. Každé ráno si říkám: dnes budu služebník. Každý večer počítám, kolik svíček jsme spotřebovali. Možná to tak má být — možná je dobrý hospodář ten nejlepší služebník.",
 
-        // ── Seasonal tidings ────────────────────────────────────────────
-        season_spring: "The snow in the garden melted in the night. I went out in the morning and caught that scent — wet earth, tree bark, air without the winter's weight. The garden awaits. The beds are still hard, but life stirs beneath. Brother Gardener says we shall plant more thyme and less mint this year, for mint spreads like heretical thought and crowds out all else. I am glad of spring. And of the metaphor.",
-        season_summer: "The sun shines into the scriptorium long into the evening and the ink dries faster than it ought. I must add more water — but then the lines grow pale. This is summer's eternal compromise. On the other hand — natural light till None, no candles, no smoke over the parchment. The bees fly from Prime to Vespers. The Abbot says summer is God's reward for surviving winter. I believe him.",
-        season_autumn: "Leaves are falling from Blaník to Křemešník. I saw it from the scriptorium window — a golden dusting across the whole valley. Winter stores are a matter of survival, not comfort. Brother Cellarer counted groschen yesterday with a troubled face. I count candles — we have forty-two, and winter lasts a hundred and twenty days, one candle each day. It will not be enough.",
-        season_winter: "Frost cracks in the roof beams like shots from a sling. The ink in the pot thickens toward morning — I must warm it in my palms each day before it will flow. The brothers scribe with fingerless gloves; the hand is worse for it, but at least the fingers do not fall. The Abbot has shortened morning prayer by twenty minutes, for breath freezes in the air of the chapel. That has not happened in my memory. This winter is different.",
+        // ── Sezónní zprávy ──────────────────────────────────────────────
+        season_spring: "Sníh na zahradě roztál v noci. Ráno jsem vyšel ven a ucítil jsem tu vůni — mokrá země, kůra stromů, vzduch bez té zimní tíže. Zahrada čeká. Záhony jsou ještě tvrdé, ale pod nimi to žije. Bratr zahradník říká, že letos zasadíme více tymiánu a méně mátou, protože máta se šíří jako heretická myšlenka a zabírá místo ostatním. Mám radost z jara. I z té metafory.",
+        season_summer: "Slunce svítí do skriptoria dlouho do večera a inkoust schne rychleji než obvykle. Musím přidávat více vody — ale pak jsou linky světlejší. Je to věčný kompromis léta. Na druhou stranu — světlo přirozeně až do Nony, žádné svíčky, žádný kouř nad pergamenem. Včely létají od Primy do Vesper. Opat říká, že léto je Boží odměna za přežití zimy. Věřím mu.",
+        season_autumn: "Listy padají od Blaníka ke Křemešníku. Viděl jsem to z okna skriptoria — zlatý poprašek přes celé údolí. Zásoby na zimu jsou otázka přežití, nikoli pohodlí. Bratr Hospodář počítal včera groše a tvář měl starostlivou. Já počítám svíčky — máme jich čtyřicet dva, a zima trvá sto dvacet dní, každý den svíčka. Nebude nám stačit.",
+        season_winter: "Mráz praská v trámech stropu jako výstřely z praku. Inkoust v nádobce tuhne ke ránu, musím ho každé ráno zahřívat v dlaních. Bratři píší s rukavicemi bez prstů — rukopis je pak horší, ale ruce alespoň neupadají. Opat zkrátil ranní bohoslužbu o dvacet minut, protože dech mrzne ve vzduchu kaple. To se ještě nestalo za mé paměti. Zima je letos jiná.",
 
-        // ── Flag tidings — Athanor ──────────────────────────────────────
-        flag_athanor: "I have heard things about thee, friend. They say thou dost work with fire in the night, and that from thy cell come smells the Brother Porter cannot name. These are not reproaches — they are envy. I studied the art of alchemy for twenty years and I know what that furnace means. It is faith of another kind — faith that the world has structure, that things change according to law, not by chance. Be wary of inquisitors. And send me a sample of that Nigredo, if thou hast any.",
-        flag_athanor_nigredo: "Nigredo. The first phase. I know how it looks — black as sin, foul as a grave, and yet in it lies the beginning of all. Weep not over lost material. That which burns in the Athanor does not vanish — it transforms. So says Paracelsus, so say I. Persevere. Albedo will come, if thou art patient. And patience is rarer in this scriptorium than lapis lazuli.",
-        flag_prima_cervisia: "So I hear thy ale is done. Prima Cervisia — the first brewing. That is a feast, friend, a true feast. In Benedictine monasteries ale has been brewed since the days of Charlemagne. Monks drank three litres a day in Lent — in place of meat, in place of wine, in place of all else. They called it Flüssiges Brot — liquid bread. Send me a sample, if thou hast the heart. I have.",
+        // ── Flag zprávy — Athanor ────────────────────────────────────────
+        flag_athanor: "Slyšel jsem o tobě věci, příteli. Říkají, že pracuješ s ohněm v noci a že z tvé cely vychází zápachy, které bratr vrátný nedokáže pojmenovat. To nejsou výčitky — to je závist. Já jsem se alchymii učil dvacet let a vím, co ta pec znamená. Je to víra jiného druhu — víra, že svět má strukturu, že věci se mění zákonně, ne náhodně. Buď opatrný s inkvizitory. A pošli mi vzorek toho Nigredo, pokud máš.",
+        flag_athanor_nigredo: "Nigredo. První fáze. Vím, jak to vypadá — černá jako hřích, smrdí jako hrob, a přesto je v tom počátek všeho. Neplač nad ztraceným materiálem. To, co shoří v Athanoru, nezmizí — přemění se. Tak říká Paracelsus, tak říkám i já. Vytrvej. Albedo přijde, pokud budeš trpělivý. A trpělivost je v tomto skriptoriu vzácnější než lapis lazuli.",
+        flag_prima_cervisia: "Slyšel jsem, že tvé pivo je hotovo. Prima Cervisia — první vaření. To je svátek, příteli, opravdový svátek. V benediktinských klášterech se pivo vařilo od dob Karla Velikého. Mniši pili tři litry denně v postní době — místo masa, místo vína, místo všeho. Říkali tomu Flüssiges Brot, tekutý chléb. Pošli mi vzorek, pokud máš srdce. Já ho mám.",
 
-        // ── Flag tidings — Farmyard ─────────────────────────────────────
-        flag_henhouse: "So thou hast a henhouse. A good thing, a henhouse. Hens are modest, reliable, and do not protest. Unlike goats. One goat can ruin a garden in an hour — I tell thee this from painful experience, still fresh. Eggs are another matter: each morning a small miracle, a small protein, a small hope. Brother Physician says yolk mixed with ale cures a cough. I know not whether to believe it, but it tastes well enough.",
-        flag_sheepfold: "Sheep. Yes, sheep is the right choice. Wool in winter, skin for parchment, milk in summer. They are humble, silent creatures — unlike pigs, which scream. Only one thing I tell thee: a sheep needs other sheep. One alone is wretched and will stop eating. Two are better. Five is the ideal. Brother Shepherd here says the flock is like a community — without the others, every member diminishes.",
-        flag_piscina: "Fish. An excellent choice for fasting days, and these are many — forty days of Advent, forty of Lent, every Friday. Brother Physician swears by fish broth as a remedy against melancholy. Whether that is true I know not, but a carp soup in winter warms one differently than anything else. Only beware of overpopulation. Fish are fruitful as sins — they multiply easily and are harder to manage.",
+        // ── Flag zprávy — Dvůr ──────────────────────────────────────────
+        flag_henhouse: "Takže máš kurník. Dobrá věc, kurník. Slepice jsou skromné, spolehlivé a nevzdorují. Na rozdíl od koz. Jedna koza dokáže zničit zahradu za hodinu — to ti říkám z vlastní zkušenosti, ještě bolestivé. Vejce jsou jiná věc: každé ráno malý zázrak, malý protein, malá naděje. Bratr Lékárník říká, že žloutek smíchaný s pivem léčí kašel. Nevím zda věřit, ale kupodivu to chutná.",
+        flag_sheepfold: "Ovce. Ano, ovce je správná volba. Vlna v zimě, kůže pro pergamen, mléko v létě. Jsou to tvorové pokorní a mlčenliví — na rozdíl od prasat, která křičí. Jen jedno ti řeknu: ovce potřebuje jiné ovce. Jedna sama je nešťastná a přestane jíst. Dvě jsou lepší. Pět je ideál. Bratr pastýř u nás říká, že stádo je jako komunita — bez ostatních se každý člen zmenšuje.",
+        flag_piscina: "Ryby. Výborná volba pro postní dny, a těch není málo — čtyřicet dní adventu, čtyřicet dní postu, pátek každý týden. Bratr Lékárník přísahá na rybí polévku jako na lék proti melancholii. Nevím, zda to pravda je, ale polévka z kapra v zimě vskutku zahřeje jinak než cokoli jiného. Jen pozor na přemnožení. Ryby jsou plodné jako hříchy — snadno přibudou, hůře se spravují.",
 
-        // ── Flag tidings — Printing ─────────────────────────────────────
-        flag_printing: "So thou hast done it. The press. I stood beside one in Mainz in the year of Our Lord 1462 — I was young then, picking lead type from the floor where it had fallen. Heavy, precise, cold. Gutenberg was still alive then, but his trial with Fust was known throughout the city. They said Fust was a devil in a fur coat. Perhaps he was. But those letters — those letters are another matter. They are seeds. One sheet of paper with one impression is like one seed. And seeds grow.",
-        flag_zaltar: "The Psalter. A hundred and fifty psalms in one volume, translated, printed, bound. Dost thou know how long it would take to copy that by hand? Seven years. Seven years of patient labour by one scribe, from Prime to Compline, resting only for the Divine Hours. And thou hast done it in — how long? Days. Days. I know not whether to celebrate or weep. I celebrate. But I weep a little withal.",
+        // ── Flag zprávy — Knihtisk ──────────────────────────────────────
+        flag_printing: "Tedy jsi to udělal. Lis. Já jsem stál u jednoho v Mohuči v roce Páně 1462 — byl jsem tehdy mladý, zvedal jsem olověné litery z podlahy, kde padaly. Těžké, přesné, studené. Gutenberg byl tehdy ještě naživu, ale jeho soud s Fustem byl znám celému městu. Říkali, že Fust je ďábel v kožichu. Možná byl. Ale ty litery — ty litery jsou jiná věc. Jsou to semena. Jeden list papíru s jedním výtiskem je jako jedno semeno. A semena rostou.",
+        flag_zaltar: "Žaltář. Sto padesát žalmů v jednom svazku, přeložených, vytištěných, svázaných. Víš, kolik let by trvalo opsat to ručně? Sedm. Sedm let trpělivé práce jednoho písaře, od Primy do Kompletáře, s přestávkami jen na Boží hodiny. A ty jsi to udělal za — kolik? Za dny. Dny. Nevím, zda to slavit nebo plakat. Slavím. Ale pláčem přitom trochu.",
 
-        // ── Flag tidings — Scrinium ─────────────────────────────────────
-        flag_scrinium: "So the Abbot has decided to open the Scrinium. This does not happen often — in my lifetime it has happened twice. Once when a legate came from Rome. Once when the library at Olomouc burned and they brought the rescued volumes here. What is inside, I will not tell thee — not because I would not, but because I do not know. The Scrinium is a place where knowledge awaits the one who is ready to receive it. Art thou ready?",
-        flag_epistola: "Epistola de Rebus Ignotis. A letter concerning unknown things. I read it once, in a manuscript lent to me by an old monk at Karlštejn on condition I return it within three days and mention it to no one. I returned it. I mentioned it to no one. But I remember every word. What the letter contains, only one who has read it through to the Arcanum will know. I will tell thee only this: the Athanor is not merely a furnace.",
+        // ── Flag zprávy — Scrinium ──────────────────────────────────────
+        flag_scrinium: "Tedy se Opat rozhodl otevřít Scrinium. To se nestává často — za mého života se to stalo dvakrát. Jednou, když přišel legát z Říma. Podruhé, když hořela knihovna v Olomouci a přinesli sem zachráněné svazky. Co je tam uvnitř, to ti neřeknu — ne proto, že bych nechtěl, ale proto, že to nevím. Scrinium je místo, kde znalost čeká na toho, kdo je připraven ji přijmout. Jsi připraven?",
+        flag_epistola: "Epistola de Rebus Ignotis. Dopis o věcech neznámých. Četl jsem ho jednou, v rukopise, který mi půjčil starý mnich na Karlštejně za podmínky, že ho vrátím do tří dnů a nikomu nezmíním. Vrátil jsem ho. Nezmínil jsem. Ale zapamatoval jsem si každé slovo. Co je v tom dopise, to ví jen ten, kdo ho přečetl celý — až po Arcanum. Povím ti jen toto: Athanor není jen pec.",
 
-        // ── Mystery tidings (unknown sender) ────────────────────────────
-        mystery_1: "I know not who thou art. But I know what thou dost — and I know thou dost it rightly. There are those who see the work of the scriptorium as mere craft. There are those who see in it a prayer. And there are those — we are few — who see it as both at once. Thou art among us. It can be told. Continue.",
-        mystery_2: "A man without a name came to me. He asked after thee. He would not say why. He wore a ring with a lion and at his belt a parchment case — empty. I said I did not know thee. He departed toward the monastery. Be wary, friend. I know not what he wants. But men without names want various things, and seldom is it good.",
-        mystery_3: "Titivillus was with me last night. I swear it. He sat in the corner of the scriptorium, small and grey as dust, gathering into his bag those letters I had skipped. There were many — I was tired, the light poor, the parchment rough. He looked at me and smiled. Then he vanished. In the morning I corrected errors from the third hour of the night. That is his punishment — not posthumous judgment, but morning correction. It is merciful, in its way.",
-        mystery_4: "The codex that lies at Podlažice weighs seventy-five pounds. One man wrote it all his life — or in one night, if thou believest the legend. I have seen it. Those pages are not written in fear or duty. They are written — I know not how else to say it — in ecstasy. As though the hand knew what it did, even while the mind slept. Hast thou such moments? I have. They are rare. But they are real."
+        // ── Záhadné zprávy (unknown sender) ────────────────────────────
+        mystery_1: "Nevím, kdo jsi. Ale vím, co děláš — a vím, že to děláš správně. Jsou takoví, kteří vidí práci skriptoria jako pouhé řemeslo. Jsou takoví, kteří v ní vidí modlitbu. A jsou takoví — nás je málo — kteří v ní vidí obojí zároveň. Patříš mezi nás. To se pozná. Pokračuj.",
+        mystery_2: "Přišel za mnou člověk bez jména. Ptal se na tebe. Neřekl proč. Měl na prstě prsten se lvem a na opasku pouzdro na pergamen — prázdné. Řekl jsem, že tě neznám. Odešel směrem ke klášteru. Buď opatrný, příteli. Nevím co chce. Ale lidé bez jmen chtívají různé věci, a málokdy je to dobré.",
+        mystery_3: "Titivillus byl u mě včera v noci. Přísahám. Seděl v rohu skriptoria, malý a šedý jako prach, a sbíral do pytle ta písmena, která jsem přeskočil. Bylo jich hodně — byl jsem unavený, světlo špatné, pergamen chlupatý. Podíval se na mě a usmál se. Pak zmizel. Ráno jsem opravoval chyby od třetí hodiny ranní. To je jeho trest — ne posmrtný soud, ale ranní oprava. Je to vlastně milosrdné.",
+        mystery_4: "Codex, který leží v Podlažicích, váží sedmdesát pět liber. Jeden člověk ho psal celý život — nebo jednu noc, pokud věříš legendě. Já jsem ho viděl. Ty stránky nejsou psány strachem ani povinností. Jsou psány — nevím jak to říct jinak — extází. Jako by ruka věděla, co dělá, i když hlava spala. Máš také takové chvíle? Já ano. Jsou vzácné. Ale jsou."
     },
 
-    // ── NotificationSystem i18n ──────────────────────────────────────────────
+    // ── NotificationSystem i18n ─────────────────────────────────────────────
     notifications: {
-        panel_title: "Tidings from the Monastery",
-        panel_empty: "No tidings.",
-        panel_clear: "Mark all as read",
-        just_now: "just now",
-        minutes_ago: "{n} min ago",
-        hours_ago: "{n}h ago",
-        days_ago: "{n}d ago",
-        cat_sklad: "stores",
-        cat_dvur: "farmyard",
+        panel_title: "Zprávy kláštera",
+        panel_empty: "Žádné zprávy.",
+        panel_clear: "Označit vše jako přečtené",
+        just_now: "právě teď",
+        minutes_ago: "před {n} min",
+        hours_ago: "před {n}h",
+        days_ago: "před {n}d",
+        cat_sklad: "sklad",
+        cat_dvur: "dvůr",
         cat_athanor: "athanor",
-        cat_obchod: "trade",
-        cat_udalost: "event",
-        cat_system: "system",
-        cat_postup: "progress",
-        cat_pending: "awaiting decision"
+        cat_obchod: "obchod",
+        cat_udalost: "událost",
+        cat_system: "systém",
+        cat_postup: "postup",
+        cat_pending: "čeká na rozhodnutí"
     },
     canonical: {
-        buff_crafting: 'Crafting +{percent}%',
-        buff_research: 'Research +{percent}%',
-        buff_foraging: 'Foraging +{percent}%',
-        buff_alchemy: 'Alchemy +{percent}%',
-        buff_garden: 'Garden check',
-        buff_quest: 'Daily quest',
-        buff_darkness: 'Darkness warning',
-        vesperae_warning: 'Darkness approaches. Light thy lamp!'
+        buff_crafting: 'Výroba +{percent}%',
+        buff_research: 'Výzkum +{percent}%',
+        buff_foraging: 'Sběr +{percent}%',
+        buff_alchemy: 'Alchymie +{percent}%',
+        buff_garden: 'Kontrola zahrady',
+        buff_quest: 'Denní úkol',
+        buff_darkness: 'Varování před tmou',
+        vesperae_warning: 'Blíží se tma. Zapal světlo!'
     },
-
     garden: {
-        title: 'The Garden',
-        desc: 'Cultivate rare flora. The soil requires thy care.',
-        fertilize: 'Fertilize',
-        locked: 'Locked',
-        lockedTech: 'Technology required',
-        herb: 'Herbs',
-        vegetable: 'Vegetables',
-        special: 'Special',
-        any: 'Any crop',
-        sow: 'Sow',
-        restNona: 'Nona Rest',
-        restNonaUsed: 'You have already rested today.',
-        plant: 'Plant',
-        uproot: 'Uproot',
-        noSeedsAvail: 'No seeds in stores',
-        water: 'Water',
-        dry: 'Parched',
-        growing: 'Growing...',
-        grown: 'Ready',
-        harvest: 'Harvest',
-        wait: 'Wait',
+        title: 'Zahrada',
+        desc: 'Pěstuj vzácné rostliny. Půda vyžaduje péči.',
+        fertilize: 'Zúrodnit',
+        locked: 'Zamčeno',
+        lockedTech: 'Vyžaduje technologii',
+        herb: 'Byliny',
+        vegetable: 'Zelenina',
+        special: 'Speciál',
+        any: 'Jakékoliv',
+        sow: 'Zasít',
+        restNona: 'Odpočinek při Nóně',
+        restNonaUsed: 'Dnes jsi již odpočíval.',
+        plant: 'Zasadit',
+        uproot: 'Vykořenit',
+        noSeedsAvail: 'Žádná semínka v zásobách',
+        water: 'Zalít',
+        dry: 'Suché',
+        growing: 'Roste...',
+        grown: 'Vzrostlé',
+        harvest: 'Sklidit',
+        wait: 'Čekat',
         tabPiscina: '🐟 Piscina',
-        piscinaLocked: 'Unlock the De Piscibus technology (8 notes) to access the pond.',
-        piscinaDesc: 'The monastery pond. Build a breeding pond, rearing pond and carp pond.',
-        piscinaTier1: 'Breeding Pond',
-        piscinaTier1Sub: 'Piscina Fecundationis — hatches fry (1 week)',
-        piscinaTier2: 'Rearing Pond',
-        piscinaTier2Sub: 'Piscina Educatoria — young shoal growing (2 weeks)',
-        piscinaTier3: 'Pond',
-        piscinaTier3Sub: 'Piscina Corporum — market fish ready to harvest',
-        piscinaBuild: 'Construct',
-        piscinaAddFry: 'Add fry',
-        piscinaFry: 'Fry',
-        piscinaYoung: 'Young carp',
-        piscinaCarp: 'Carp',
-        piscinaGrowing: 'Growing',
-        piscinaMaturing: 'Maturing',
-        piscinaWaitingCarp: 'Awaiting carp from the rearing pond...',
-        piscinaUpgradeFirst: 'Build the previous pond first.',
-        tabZahony: '🌱 Plots',
-        tabPole: '🌾 Fields',
-        // Fields (Ager)
-        poleLocked: 'Study De Re Rustica and build Sulci (Furrows) to unlock the fields.',
-        poleDesc: 'Monastic fields. Plough, sow, irrigate and harvest.',
-        poleEmpty: 'Empty',
-        polePloughed: 'Ploughed',
-        poleGrowing: 'Growing',
-        poleReady: 'Ready',
-        poleFallow: 'Fallow',
-        polePlough: 'Plough',
-        poleSow: 'Sow',
-        poleWater: 'Water',
-        poleHarvest: 'Harvest',
-        poleNeedsSulci: 'Requires: Sulci built',
-        poleDrought: 'Drought',
-        poleDroughtWarn: 'Drought! {days} dry days — yield -20%',
-        poleRotation: 'Three-field system: +25% yield',
-        poleFallowResting: 'Resting',
-        tabVinohrad: '🍇 Vineyard',
-        // Vineyard (Vinea)
-        vineaLocked: 'Study Liber de Cultura Vitis (Library → Master Bartholomew) to unlock the Vineyard.',
-        vineaDesc: 'Six vine plots. Plant, prune, harvest within the window.',
-        vineaEmpty: 'Empty',
-        vineaPlant: '🌿 Plant',
-        vineaPrune: '✂️ Prune',
-        vineaPruned: '✂️ Pruned ✓',
-        vineaUproot: '🪴 Uproot',
-        vineaHarvest: '🍇 Harvest',
-        vineaRipe: 'Ready!',
-        vineaOverripe: 'Overripe!',
-        vineaDormant: 'Dormant',
-        vineaPruneOnlySpring: '✂️ Pruning is done in spring (March–April).',
-        vineaAlreadyPruned: 'Already pruned this season.',
-        vineaNoViticis: 'No cutting available.',
-        vineaOccupied: 'Slot is occupied.',
-        vineaPlanted: ' planted.',
-        vineaUprooted: 'Vine uprooted.',
-        vineaHarvested: 'Harvested: ',
-        tabSad: '🌳 Orchard',
-        tabApiarium: '🐝 Apiary',
-        tabDvur: '🐄 Farmyard',
-        dvorDesc: 'The monastery farmyard. Build a henhouse, a sheepfold and tend the well.',
-        // Orchard (Pomarium)
-        orchardLocked: 'Unlock the Tractatus de Arboribus (10 notes) to tend the orchard.',
-        orchardDesc: 'The monastery orchard. Plant a seed, await its growth, and harvest fruit in season.',
-        orchardEmpty: 'Empty slot',
-        orchardNoSeeds: 'No seeds',
-        orchardPlant: '🌱 Plant',
-        orchardGrowing: 'Growing',
-        orchardHarvest: '🍎 Harvest',
-        orchardFell: 'Fell tree',
-        orchardWait: 'Wait',
-        // Apiary (Apiarium)
-        apiaryLocked: 'Unlock the Liber Apium (12 notes) to tend the apiary.',
-        apiaryDesc: 'The monastery apiary. Build a hive, place a queen, and harvest honey and wax.',
-        apiaryEmpty: 'Empty slot',
-        apiaryNoQueen: 'No queen',
-        apiaryBuild: '🪵 Build hive (10 branch, 5 rope)',
-        apiaryAddQueen: '🐝 Place queen',
-        apiaryReady: 'Honey and wax are ready!',
-        apiaryWorking: 'The bees labour...',
-        apiaryWintering: 'The bees winter',
-        apiaryCollect: '🍯 Collect',
-        apiaryWait: 'Wait',
+        piscinaLocked: 'Odemkni technologii De Piscibus (8 zápisků) pro přístup k rybníku.',
+        piscinaDesc: 'Klášterní rybník. Vybuduj třecí rybník, výtažník a kaprový rybník.',
+        piscinaTier1: 'Třecí rybník',
+        piscinaTier1Sub: 'Piscina Fecundationis — líhne plůdek (1 týden)',
+        piscinaTier2: 'Výtažník',
+        piscinaTier2Sub: 'Piscina Educatoria — dorůstá mladé hejno (2 týdny)',
+        piscinaTier3: 'Rybník',
+        piscinaTier3Sub: 'Piscina Corporum — tržní ryby ke sklizni',
+        piscinaBuild: 'Vybudovat',
+        piscinaAddFry: 'Přidat plůdek',
+        piscinaFry: 'Plůdek',
+        piscinaYoung: 'Nedospělí kapři',
+        piscinaCarp: 'Kapři',
+        piscinaGrowing: 'Dorůstá',
+        piscinaMaturing: 'Dospívá',
+        piscinaWaitingCarp: 'Čeká na příchod kaprů z výtažníku...',
+        piscinaUpgradeFirst: 'Nejprve vybuduj předchozí rybník.',
+        tabZahony: '🌱 Záhony',
+        tabPole: '🌾 Pole',
+        // Pole (Ager)
+        poleLocked: 'Odemkni De Re Rustica a postav Brázdy (Sulci) pro přístup k polím.',
+        poleDesc: 'Klášterní pole. Zor, osej, zalij a skliď.',
+        poleEmpty: 'Prázdné',
+        polePloughed: 'Zorána',
+        poleGrowing: 'Roste',
+        poleReady: 'Zralá',
+        poleFallow: 'Úhor',
+        polePlough: 'Orat',
+        poleSow: 'Osít',
+        poleWater: 'Zalít',
+        poleHarvest: 'Sklidit',
+        poleNeedsSulci: 'Nutné: Brázdy postaveny',
+        poleDrought: 'Sucho',
+        poleDroughtWarn: 'Sucho! {days} suchých dní — výnos -20%',
+        poleRotation: 'Trojpolní systém: +25% výnos',
+        poleFallowResting: 'Odpočívá',
+        tabVinohrad: '🍇 Vinohrad',
+        // Vinohrad (Vinea)
+        vineaLocked: 'Prostuduj Liber de Cultura Vitis (Knihovna → Starý Písař) pro přístup k Vinohradu.',
+        vineaDesc: 'Šest záhonů révy. Zasadit, prořezat, sklidit v okně.',
+        vineaEmpty: 'Prázdné',
+        vineaPlant: '🌿 Zasadit',
+        vineaPrune: '✂️ Prořezat',
+        vineaPruned: '✂️ Prořezáno ✓',
+        vineaUproot: '🪴 Vykořenit',
+        vineaHarvest: '🍇 Sklidit',
+        vineaRipe: 'Zralá!',
+        vineaOverripe: 'Přezrálá!',
+        vineaDormant: 'Zimní klid',
+        vineaPruneOnlySpring: '✂️ Prořez se dělá na jaře (březen–duben).',
+        vineaAlreadyPruned: 'Již prořezáno.',
+        vineaNoViticis: 'Nemáš řízek.',
+        vineaOccupied: 'Záhon je obsazený.',
+        vineaPlanted: ' zasazena.',
+        vineaUprooted: 'Réva vykořeněna.',
+        vineaHarvested: 'Sklizeno: ',
+        tabSad: '🌳 Sad',
+        tabApiarium: '🐝 Apiarium',
+        tabDvur: '🐄 Dvůr',
+        dvorDesc: 'Hospodářský dvůr kláštera. Postav kurník, chlév a spravuj studnu.',
+        // Sad (Pomarium)
+        orchardLocked: 'Odemkni technologii Tractatus de Arboribus (10 zápisků) pro přístup k sadu.',
+        orchardDesc: 'Klášterní sad. Zasaď semeno, čekej na vzrůst a opakovaně sklízej ovoce.',
+        orchardEmpty: 'Prázdný slot',
+        orchardNoSeeds: 'Žádná semena',
+        orchardPlant: '🌱 Zasadit',
+        orchardGrowing: 'Roste',
+        orchardHarvest: '🍎 Sklidit',
+        orchardFell: 'Pokácet',
+        orchardWait: 'Čekat',
+        // Apiarium (Včelín)
+        apiaryLocked: 'Odemkni technologii Liber Apium (12 zápisků) pro přístup k včelínu.',
+        apiaryDesc: 'Klášterní včelín. Postav úl, usaď včelí matku a sklízej med a vosk.',
+        apiaryEmpty: 'Prázdný slot',
+        apiaryNoQueen: 'Bez matky',
+        apiaryBuild: '🪵 Postavit úl (10 větev, 5 provaz)',
+        apiaryAddQueen: '🐝 Usadit matku',
+        apiaryReady: 'Med a vosk připraveny!',
+        apiaryWorking: 'Včely pracují...',
+        apiaryWintering: 'Včely zimují',
+        apiaryCollect: '🍯 Sklidit',
+        apiaryWait: 'Čekat',
     },
-
     daily: {
         streak: 'Streak',
-        streakTitle: 'Daily streak:',
-        loyaltyBonus: '🎉 Loyalty Bonus!',
-        factTitle: 'Today\'s Fact'
+        streakTitle: 'Denní streak:',
+        loyaltyBonus: '🎉 Bonus za věrnost!',
+        factTitle: 'Dnešní fakt'
     },
     achievements: {
-        unlocked: 'Achievements unlocked',
-        hidden: 'Hidden',
-        reward: 'Reward:'
+        unlocked: 'Achievementy odemčeny',
+        hidden: 'Neobjeveno',
+        reward: 'Odměna:'
     },
     records: {
-        locked: 'Locked',
-        lockHint: 'Unlock the "Games and Records" tech to access mini-games and statistics.',
+        locked: 'Zamčeno',
+        lockHint: 'Odemkni tech "Hry a Záznamy" pro přístup k mini-games a statistikám.',
         miniGames: '🎮 Mini-Games',
-        stats: '📊 Personal Statistics',
+        stats: '📊 Osobní záznamy',
         items: '📦 Items',
         discovered: '📖 Discovered',
         crafts: '⚒️ Crafts',
-        harvests: '🌿 Harvests',
-        researchGained: '📜 Research Gained',
+        harvests: '🌿 Sklizně',
+        researchGained: '📜 Research získáno',
         tech: '👑 Tech',
-        gamesWon: '🎮 Games Won',
-        meals: '🍖 Meals',
-        mealsEaten: '🍖 Meals Eaten',
-        candles: '🕯️ Candles',
-        candlesLit: '🕯️ Candles Lit',
-        wellUses: '💧 Well',
+        gamesWon: '🎮 Hry vyhráno',
+        meals: '🍖 Jídel',
+        mealsEaten: '🍖 Jídel',
+        candles: '🕯️ Svíčky',
+        candlesLit: '🕯️ Svíčky',
+        wellUses: '💧 Studna',
         well: '💧 Well',
         streak: '🔥 Streak',
-        streakDays: 'days',
-        streakMax: 'best',
-        days: 'days',
+        streakDays: 'dní',
+        streakMax: 'max',
+        days: 'dní',
         max: 'max',
-        booksRead: '📚 Books Read',
-        booksUnlocked: '📖 Books Unlocked',
-        backup: '💾 Safekeeping',
-        backupTitle: '💾 Save Backup',
-        backupDesc: 'Export thy save as backup or transfer to another device.',
-        backupWarning: '💡 We urge thee to secure a copy ere making grave changes!',
-        backupReset: 'To reset the game, visit Settings.',
-        backupNote: '💡 Before great experiments, we recommend downloading a backup!<br>For game reset, go to Settings.',
-        downloadSave: '📥 Download Save',
-        uploadSave: '📤 Upload Save',
-        btnDownload: '📥 Download Save',
-        btnUpload: '📤 Upload Save'
+        booksRead: '📚 Knihy přečtené',
+        booksUnlocked: '📖 Knihy odemčené',
+        backup: '💾 Záloha Save',
+        backupTitle: '💾 Záloha Save',
+        backupDesc: 'Exportuj save jako zálohu nebo přenes na jiné zařízení.',
+        backupWarning: '💡 Před velkými experimenty doporučujeme stáhnout zálohu!',
+        backupReset: 'Pro reset hry jdi do Nastavení.',
+        backupNote: '💡 Před velkými experimenty doporučujeme stáhnout zálohu!<br>Pro reset hry jdi do Nastavení.',
+        downloadSave: '📥 Stáhnout Save',
+        uploadSave: '📤 Nahrát Save',
+        btnDownload: '📥 Stáhnout Save',
+        btnUpload: '📤 Nahrát Save'
     },
     fontSpec: {
-        unlocked: 'Unlocked',
-        title: '✒️ Script of the Age',
-        close: 'Close'
+        unlocked: 'Odemčeno',
+        title: '✒️ Písmo té doby',
+        close: 'Zavřít'
     },
     ui: {
-        close: 'Close'
+        close: 'Zavřít'
     },
+
     rank: {
-        current: 'CURRENT RANK',
-        next: 'Next Rank',
-        remaining: 'remaining',
-        needCreate: 'must be crafted',
-        needObtain: 'must be obtained',
-        maxReached: 'Thou hast attained the highest secular rank!',
-        monasticEntry: 'Enter the Monastery',
-        monasticNotEligible: '⛔ Thou must be at least Antiquarius for the monastery to accept thee.'
+        current: 'SOUČASNÁ HODNOST',
+        next: 'Další hodnost',
+        remaining: 'zbývá',
+        needCreate: 'musí být vyrobeno',
+        needObtain: 'musí být získáno',
+        maxReached: 'Dosáhl jsi nejvyššího světského ranku!',
+        monasticEntry: 'Vstoupit do kláštera',
+        monasticNotEligible: '⛔ Musíš být alespoň Antiquarius, aby tě klášter přijal.'
     },
+
 
     ranks: {
         // ===== TIER 1: LAICUS =====
-        laicus_name: 'Laicus',
+        laicus_name: 'Laický písař',
         laicus_name_short: 'Laicus',
-        laicus_desc: 'A novice in the scriptorium. Cleaning quills, mixing ink, copying prayers under watchful eyes.',
-        laicus_lore: 'Scribes began thus from the age of twelve. The left hand held the knife, the right the quill. Both labored together always.',
-        laicus_toast: 'Thou art Laicus — the lowest link in the chain. But somewhere a start must be made.',
-        laicus_requirement: 'Starting rank',
+        laicus_desc: 'Nováček v skriptoriu. Čistíš brka, mícháš inkoust, opisuješ modlitby pod dohledem.',
+        laicus_lore: 'Písaři od 12 let začínali takto. Levá ruka držela nůž, pravá pero. Obě pracovaly vždy zároveň.',
+        laicus_toast: 'Jsi Laicus – nejnižší článek řetězce. Ale někde začít musíš.',
+        laicus_requirement: 'Startovní rank',
 
         // ===== TIER 2: LIBRARIUS =====
-        librarius_name: 'Librarius',
+        librarius_name: 'Opisovač',
         librarius_name_short: 'Librarius',
-        librarius_desc: 'Thou dost copy alone. Liturgical texts, legends. No one stands behind thee now.',
-        librarius_lore: 'At Cîteaux (12th century) the librarii were the lowest fully functioning members of the scriptorium. In the margins they wrote: "I am cold. The ink is thin."',
-        librarius_toast: 'Librarius — the ink is on the desk. The master watcheth from afar.',
-        librarius_requirement: '5× research + notebook',
+        librarius_desc: 'Opisuješ samostatně. Liturgické texty, legendy. Nikdo nestojí za tvými zády.',
+        librarius_lore: 'V Cîteaux (12. stol.) byli librarii nejnižším plně funkčním členem skriptoria. Na okraje psali: "Je mi zima. Inkoust je řídký."',
+        librarius_toast: 'Librarius – inkoust je na stole. Mistr tě sleduje jen z povzdálí.',
+        librarius_requirement: '5× research + zápisník',
 
         // ===== TIER 3: ANTIQUARIUS =====
-        antiquarius_name: 'Antiquarius',
+        antiquarius_name: 'Starší opisovač',
         antiquarius_name_short: 'Antiquarius',
-        antiquarius_desc: 'Thou dost copy complex texts. Others transcribe calendars — thou hast been given Augustine.',
-        antiquarius_lore: '"The antiquarii were senior scribes and the librarii junior scribes." The antiquarius established the Ductus — the hand of the entire workshop.',
-        antiquarius_toast: 'Antiquarius — thy Ductus is legible. Others copy thee now.',
-        antiquarius_requirement: '15 research + 2 tech unlocked',
+        antiquarius_desc: 'Opisuješ složité texty. Ostatní přepisují kalendáře – tobě dali Augustina.',
+        antiquarius_lore: '"The antiquarii were senior scribes and the librarii junior scribes." Antiquarius stanovoval Ductus – rukopis celé dílny.',
+        antiquarius_toast: 'Antiquarius – tvůj Ductus je čitelný. Ostatní tě kopírují.',
+        antiquarius_requirement: '15 research + 2 tech odemčeny',
 
         // ===== TIER 4: RUBRICATOR =====
-        rubricator_name: 'Rubricator',
+        rubricator_name: 'Rubrikátor',
         rubricator_name_short: 'Rubricator',
-        rubricator_desc: 'Thou dost add red headings and initials. The red pigment is poisonous. Do not lick the brush.',
-        rubricator_lore: 'In early printed books there remain empty squares to this day — there should have been an initial, but the owner paid not the rubricator.',
-        rubricator_toast: 'Rubricator — the red is thine. Remember what befell Nicholas of Cluny.',
-        rubricator_requirement: 'Tech illumination + ink_gallic',
+        rubricator_desc: 'Přidáváš červené nadpisy a iniciály. Rudá barva je jedovatá. Neoliž štětec.',
+        rubricator_lore: 'V prvotiscích jsou dodnes prázdné čtverečky – tam měla být iniciála, ale majitel nezaplatil rubrikátora.',
+        rubricator_toast: 'Rubricator – červená je tvoje. Pamatuj, co se stalo Mikuláši z Cluny.',
+        rubricator_requirement: 'Tech iluminace + ink_gallic',
 
         // ===== TIER 5: ILLUMINATOR =====
-        illuminator_name: 'Illuminator',
+        illuminator_name: 'Iluminátor',
         illuminator_name_short: 'Illuminator',
-        illuminator_desc: 'A painter. Gold, lapis lazuli, malachite. The highest paid in the entire chain of craft.',
-        illuminator_lore: 'In the dental calculus of a nun from Dalheim (11th century) they found lapis lazuli from Afghanistan. She licked the brush during illumination. Women illuminators existed, though none spoke of them.',
-        illuminator_toast: 'Illuminator — lapis lazuli from Afghanistan. Every drop costeth a groat. Spill not.',
+        illuminator_desc: 'Malíř. Zlatem, lapis lazuli, malachitem. Nejvíce placený v celém řetězci výroby.',
+        illuminator_lore: 'V zubním kameni jeptišky z Dalheim (11. stol.) našli lapis lazuli z Afghánistánu. Olizovala štětec při iluminaci. Ženy iluminátoři existovaly, jen se o nich nemluvilo.',
+        illuminator_toast: 'Illuminator – lapis lazuli z Afghánistánu. Každá kapka stojí groš. Nekap.',
         illuminator_requirement: 'vellum_codex + tech_illumination + 25 research',
 
         // ===== TIER 6: STATIONARIUS =====
-        stationarius_name: 'Stationarius',
+        stationarius_name: 'Stacionář',
         stationarius_name_short: 'Stationarius',
-        stationarius_desc: 'Head of the workshop. Thou dost take commissions. Thou decidest what shall be copied. And what printed.',
-        stationarius_lore: 'Vespasiano da Bisticci (Florence) refused to shift from manuscripts to print — and in the year 1480 went bankrupt. The flexible survived.',
-        stationarius_toast: 'Stationarius — thou hast a workshop. Beyond the wall, a printing press knocketh. It needeth thee not yet.',
+        stationarius_desc: 'Vedoucí dílny. Přijímáš zakázky. Rozhoduješ, co se bude opisovat. A co tisknout.',
+        stationarius_lore: 'Vespasiano da Bisticci (Florencie) odmítl přejít od rukopisů k tisku – a v roce 1480 zkrachoval. Flexibilní přežili.',
+        stationarius_toast: 'Stationarius – máš dílnu. Za zdí klepe tiskařský lis. Zatím tě nepotřebuje.',
         stationarius_requirement: 'bishop_seal + 40 research',
 
         // ===== MONASTIC B1: CANDIDATUS =====
-        candidatus_name: 'Candidatus',
+        candidatus_name: 'Uchazeč',
         candidatus_name_short: 'Candidatus',
-        candidatus_desc: 'Thou knockest at the gate. The abbot hath admitted thee on trial — now it is seen whether thou wilt persevere. Return tomorrow.',
-        candidatus_lore: 'The Rule of St. Benedict (ch. 58): "Let not admission be easily granted." Refuse four times. If he persisteth, only then admit him.',
-        candidatus_toast: 'Thou hast approached the gate. The abbot admits thee on trial. It will be seen whether thou dost persevere.',
-        candidatus_requirement: 'Antiquarius+ and voluntary choice',
+        candidatus_desc: 'Klepeš na bránu. Opat tě přijal na zkoušku — teď se čeká, zda vytrváš. Vrať se zítra.',
+        candidatus_lore: 'Řehole sv. Benedikta (kap. 58): "Nechť mu není přijímání ulehčeno." Čtyřikrát odmítni. Pokud vytrvá, teprve pak ho vpusť.',
+        candidatus_toast: 'Přistoupils ke bráně. Opat tě přijímá na zkoušku. Ukáže se, zda vytrváš.',
+        candidatus_requirement: 'Antiquarius+ a dobrovolná volba',
 
         // ===== MONASTIC B2: NOVITIUS =====
-        novitius_name: 'Novitius',
+        novitius_name: 'Novic',
         novitius_name_short: 'Novitius',
-        novitius_desc: 'A year under the Master\'s watch. Learning the Rule, the chant, the liturgy. From nothing.',
-        novitius_lore: 'A novice for one year might not own personal property. Pride was grounds for expulsion.',
-        novitius_toast: 'Novitius — thou hast shed thy worldly garb. What thou wert outside mattereth not here.',
-        novitius_requirement: 'Candidatus + 24h + 10 research sacrificed',
+        novitius_desc: 'Rok pod dohledem Magistra. Učíš se Řeholi, zpěvu, liturgii. Od nuly.',
+        novitius_lore: 'Novic rok nesměl vlastnit osobní majetek. Pýcha byla důvodem k vyloučení.',
+        novitius_toast: 'Novitius – sundal jsi světský oděv. Co jsi byl venku, tady nehraje roli.',
+        novitius_requirement: 'Candidatus + 24h + 10 research obětováno',
 
         // ===== MONASTIC B3: FRATER =====
-        frater_name: 'Frater',
+        frater_name: 'Mnich',
         frater_name_short: 'Frater',
-        frater_desc: 'Thou hast taken thy vows. Stabilitas. Obedientia. Conversatio morum.',
-        frater_lore: 'Monks in the 15th century mostly hired not copyists themselves — they hired lay scribes. The monk supervised and approved.',
-        frater_toast: 'Frater — prayer at six. Scriptorium at nine.',
+        frater_desc: 'Složil jsi sliby. Stabilitas. Obedientia. Conversatio morum.',
+        frater_lore: 'Mniši v 15. stol. většinou nenajímali opisovače sami – najímali světské písaře. Mnich kontroloval a schvaloval.',
+        frater_toast: 'Frater – modlitba v šest. Skriptorium v devět.',
         frater_requirement: 'Novitius + 50 research + 7 Canonical Hours streak',
 
         // ===== MONASTIC B4: ARMARIUS =====
-        armarius_name: 'Armarius',
+        armarius_name: 'Vedoucí skriptoria',
         armarius_name_short: 'Armarius',
-        armarius_desc: 'The keys to the shelves are now thy care. Thou decidest what shall be copied.',
-        armarius_lore: 'The armarius assigned materials, supervised copying. From the 10th century he sang the 8th responsory and held the lamp during the abbot\'s reading.',
-        armarius_toast: 'Armarius — the scriptorium is thine. Every scribe awaiteth thy word.',
+        armarius_desc: 'Klíče od regálů jsou teď tvoje starost. Ty rozhoduješ, co se opisuje.',
+        armarius_lore: 'Armarius přiděloval suroviny, dohlížel na kopírování. Od 10. stol. zpíval 8. responsorium a držel lucernu při opátově čtení.',
+        armarius_toast: 'Armarius – skriptorium je tvoje. Každý písař čeká na tvé slovo.',
         armarius_requirement: 'Frater + 75 research',
 
         // ===== MONASTIC B5: PRIOR =====
         prior_name: 'Prior',
         prior_name_short: 'Prior',
-        prior_desc: 'Second in the monastery. Thou art not promoted for points — thou art appointed for merit.',
-        prior_lore: 'The prior was not a career advancement — he was appointed or elected by the community. The abbot could recall him at any time.',
-        prior_toast: 'Prior — the abbot hath named thee. The community hath accepted thee.',
+        prior_desc: 'Druhý v klášteře. Nejsi povýšen za body – jsi jmenován za zásluhy.',
+        prior_lore: 'Prior nebyl kariérní postup – byl jmenován nebo volen komunitou. Opat ho mohl kdykoliv odvolat.',
+        prior_toast: 'Prior – Opat tě jmenoval. Komunita tě přijala.',
         prior_requirement: 'Armarius + nomination event',
     },
 
-
-    // minigames-i18n-fix (7.8.2026): mirror of cs.js fix — see comment there.
+    // minigames-i18n-fix (7.8.2026): memory.js a ur.js volají t('minigames.*'),
+    // ale ten namespace tu nikdy nebyl — proto se zobrazoval raw klíč
+    // (např. "minigames.memory.moves") místo textu. Doplněno.
     minigames: {
         memory: {
-            need_items: 'Discover more things in the game first, so you have pairs to play with!',
-            win: '🎉 Great work! Completed in {moves} moves. +{reward} Notes.',
-            moves: 'Moves',
-            new_game: 'New Game',
+            need_items: 'Objev nejdřív víc věcí ve hře, ať máš z čeho hrát páry!',
+            win: '🎉 Skvělá práce! Dokončeno na {moves} tahů. +{reward} Zápisky.',
+            moves: 'Tahy',
+            new_game: 'Nová hra',
         },
         ur: {
-            grade_perfect: 'Perfect',
-            grade_good: 'Good',
-            grade_ok: 'Pass',
-            grade_pass: 'Finished',
+            grade_perfect: 'Dokonalé',
+            grade_good: 'Dobré',
+            grade_ok: 'Ujde',
+            grade_pass: 'Dohráno',
         },
     },
 
     games: {
         // Header
-        title: '🎮 Miniature Games',
+        title: '🎮 Mini-Games',
 
         // Memory Game
         memoryName: 'Memory Game',
-        memoryDesc: 'Match pairs of discovered items!',
-        memoryCraft: 'Craft Playing Cards',
+        memoryDesc: 'Najdi páry discovered items!',
+        memoryCraft: 'Vyrobit Hrací karty',
 
         // Royal Game of Ur
         urName: 'Royal Game of Ur',
-        urDesc: 'The world\'s oldest game (2600 BCE)',
-        urTech: 'Tech: Ancient Games (6 Research)',
-        urCraft: 'Craft the Royal Game of Ur Board',
+        urDesc: 'Nejstarší hra světa (2600 př.n.l.)',
+        urTech: 'Tech: Starobylé Hry (6 Research)',
+        urCraft: 'Vyrobit Královskou desku z Uru',
         urPlayVsAI: 'VS AI 🤖',
         urPlaySolo: 'Solo 🧩',
-        urNeedBoard: 'You don\'t have an Ur board!',
+        urNeedBoard: 'Nemáš hrací desku Ur!',
+
+        // Royal Game of Ur - VS AI mode
         urTitleVs: 'Royal Game of Ur',
-        urSubtitleVs: 'Play against AI',
-        urDescVs: 'The world\'s oldest board game (2600 BCE)',
-        urBtnVsAi: 'Play VS AI',
-        urBtnBackVs: 'Back to selection',
-        urLabelYou: 'You',
+        urSubtitleVs: 'Hra proti AI',
+        urDescVs: 'Nejstarší desková hra na světě (2600 př.n.l.)',
+        urBtnVsAi: 'Hrát VS AI',
+        urBtnBackVs: 'Zpět na výběr',
+        urLabelYou: 'Ty',
         urLabelAi: 'AI',
-        urLabelFinished: 'finished',
-        urLabelOffboard: 'off board',
-        urLabelRoll: 'Roll',
-        urLabelTrack: 'Track',
-        urBtnRoll: 'Roll dice',
-        urErrMoveFirst: 'Roll dice first!',
-        urErrNoMoves: 'Can\'t move! Try another piece.',
-        urErrInvalid: 'Invalid move!',
-        urRollSuccess: 'You rolled {roll}!',
-        urRollZeroRetry: 'You rolled 0. Roll again!',
-        urRollZeroSkip: 'You rolled 0. Opponent\'s turn.',
-        urRosette: '🌟 Rosette! Play again!',
-        urCapture: '⚔️ You captured opponent\'s piece!',
-        urAiMove: 'AI moved a piece.',
-        urAiRosette: 'AI hit a Rosette!',
-        urAiRollZero: 'AI rolled 0.',
-        urAiNoMoves: 'AI can\'t move.',
-        urWinVs: '🏆 You won! +{reward} Research',
-        urLossVs: '💀 AI won.',
+        urLabelFinished: 'dokončeno',
+        urLabelOffboard: 'mimo hru',
+        urLabelRoll: 'Hod',
+        urLabelTrack: 'Dráha',
+        urBtnRoll: 'Hodit kostkami',
+        urErrMoveFirst: 'Nejdřív hoď kostkami!',
+        urErrNoMoves: 'Nemůžeš táhnout! Zkus jiného kamene.',
+        urErrInvalid: 'Neplatný tah!',
+        urRollSuccess: 'Hodil jsi {roll}!',
+        urRollZeroRetry: 'Hodil jsi 0. Hod znovu!',
+        urRollZeroSkip: 'Hodil jsi 0. Soupeř je na řadě.',
+        urRosette: '🌟 Roseta! Hraješ znovu!',
+        urCapture: '⚔️ Zajal jsi soupeřův kámen!',
+        urAiMove: 'AI posunulo kámen.',
+        urAiRosette: 'AI trefilo Rosetu!',
+        urAiRollZero: 'AI hodilo 0.',
+        urAiNoMoves: 'AI nemůže táhnout.',
+        urWinVs: '🏆 Vyhrál jsi! +{reward} Výzkumu',
+        urLossVs: '💀 AI vyhrála.',
+
+        // Royal Game of Ur - Solo mode
         urTitleSolo: 'Royal Game of Ur — Solo',
-        urSubtitleSolo: 'Practice game',
-        urBtnPlaySolo: 'Play Solo',
-        urBtnSolo: 'Solo mode',
-        urLabelOffboardSolo: 'Off board',
-        urLabelRolls: 'Rolls',
-        urLabelMoves: 'Moves',
-        urLabelPace: 'Pace',
-        urLabelRating: 'Rating',
-        urGradePass: 'Pass',
-        urGradeOk: 'Good',
-        urGradeGood: 'Great',
-        urGradePerfect: 'Perfect',
-        urRatingPass: '⭐ Pass (30+ rolls)',
-        urRatingOk: '⭐⭐ Good (20-29 rolls)',
-        urRatingGood: '⭐⭐⭐ Great (15-19 rolls)',
-        urRatingPerfect: '⭐⭐⭐⭐ Perfect (<15 rolls)',
-        urWinSolo: '🎉 All pieces finished! {grade} | +{reward} Research | {rolls} rolls',
-        urRulesTitle: 'ROYAL GAME OF UR — Rules',
-        urRulesHistory: '📜 History',
-        urRulesHistoryText: 'The world\'s oldest known board game, discovered in tombs at Ur (modern Iraq) from 2600 BCE.',
-        urRulesGoal: '🎯 Goal',
-        urRulesGoalText: 'Be the first to get all 7 pieces through the track and off the board.',
-        urRulesDice: '🎲 Dice',
-        urRulesDiceText: 'Roll 4 tetrahedra (pyramids). Sum of marks = squares to move (0-4).',
-        urRulesRosettes: '🌟 Rosettes',
-        urRulesRosettesText: 'Star squares = Rosettes. Landing on one gives you another turn! Opponent can\'t capture you on the middle rosette.',
-        urRulesCapture: '⚔️ Capture',
-        urRulesCaptureText: 'Landing on opponent\'s piece (except middle rosette) sends it back to start.',
+        urSubtitleSolo: 'Zkušební hra',
+        urBtnPlaySolo: 'Hrát Solo',
+        urBtnSolo: 'Solo mód',
+        urLabelOffboardSolo: 'Mimo hru',
+        urLabelRolls: 'Hodů',
+        urLabelMoves: 'Tahů',
+        urLabelPace: 'Tempo',
+        urLabelRating: 'Hodnocení',
+        urGradePass: 'Projít',
+        urGradeOk: 'Dobrý',
+        urGradeGood: 'Skvělý',
+        urGradePerfect: 'Perfektní',
+        urRatingPass: '⭐ Projít (30+ hodů)',
+        urRatingOk: '⭐⭐ Dobrý (20-29 hodů)',
+        urRatingGood: '⭐⭐⭐ Skvělý (15-19 hodů)',
+        urRatingPerfect: '⭐⭐⭐⭐ Perfektní (<15 hodů)',
+        urWinSolo: '🎉 Všechny kameny dokončeny! {grade} | +{reward} Výzkumu | {rolls} hodů',
+
+        // Royal Game of Ur - Rules
+        urRulesTitle: 'ROYAL GAME OF UR — Pravidla',
+        urRulesHistory: '📜 Historie',
+        urRulesHistoryText: 'Nejstarší známá desková hra na světě, objevená v hrobech v Uru (dnešní Irák) z roku 2600 př.n.l.',
+        urRulesGoal: '🎯 Cíl',
+        urRulesGoalText: 'Jako první dostat všech 7 kamenů skrz herní dráhu a ven z hrací desky.',
+        urRulesDice: '🎲 Kostky',
+        urRulesDiceText: 'Hod 4 tetraedry (pyramidy). Součet značek = počet polí k pohybu (0-4).',
+        urRulesRosettes: '🌟 Rosety',
+        urRulesRosettesText: 'Pole s hvězdou = Roseta. Pokud na ní přistaneš, hraješ znovu! Na střední rosetu tě soupeř nemůže zajmout.',
+        urRulesCapture: '⚔️ Zajímání',
+        urRulesCaptureText: 'Přistaneš-li na soupeřově kameni (mimo střední rosetu), pošleš ho zpět na start.',
 
         // Primero
         primeroName: 'Primero',
-        primeroDesc: 'Ancestor of poker (1530)',
+        primeroDesc: 'Předchůdce pokeru (1530)',
         primeroTech: 'Tech: Primero (10 Research)',
-        primeroCraft: 'Craft the Primero Deck',
-        primeroNeedDeck: 'You don\'t have a Primero deck!',
-        primeroNeedBet: 'Not enough Research for the bet ({bet})',
+        primeroCraft: 'Vyrobit Primero balíček',
+        primeroNeedDeck: 'Nemáš balíček Primero!',
+        primeroNeedBet: 'Nemáš dostatek Výzkumu na sázku ({bet})',
         primeroTitle: 'Primero',
-        primeroSubtitle: '16th century Spanish card game',
-        primeroBetInfo: 'Bet: {bet} Research',
-        primeroBtnPlay: 'Play',
-        primeroLabelYou: 'You',
-        primeroLabelRound: 'Round',
-        primeroLabelOpponent: 'Opponent',
-        primeroLabelYourCards: 'Your cards',
-        primeroBtnReveal: 'Reveal!',
-        primeroRoundWin: '🎉 You win the round! ({player} vs {opponent})',
-        primeroRoundLoss: '😔 You lose the round ({player} vs {opponent})',
-        primeroRoundDraw: '🤝 Draw ({player})',
-        primeroGameWin: '🏆 You won the game! +{reward} Research',
-        primeroGameLoss: '💸 You lost. -{bet} Research',
-        primeroGameDraw: '🤝 Draw! Bet returned ({bet})',
+        primeroSubtitle: 'Španělská karetní hra ze 16. století',
+        primeroBetInfo: 'Sázka: {bet} Výzkumu',
+        primeroBtnPlay: 'Hrát',
+        primeroLabelYou: 'Ty',
+        primeroLabelRound: 'Kolo',
+        primeroLabelOpponent: 'Soupeř',
+        primeroLabelYourCards: 'Tvé karty',
+        primeroBtnReveal: 'Odhalit!',
+        primeroRoundWin: '🎉 Vyhráváš kolo! ({player} vs {opponent})',
+        primeroRoundLoss: '😔 Prohráváš kolo ({player} vs {opponent})',
+        primeroRoundDraw: '🤝 Remíza ({player})',
+        primeroGameWin: '🏆 Vyhrál jsi hru! +{reward} Výzkumu',
+        primeroGameLoss: '💸 Prohrál jsi. -{bet} Výzkumu',
+        primeroGameDraw: '🤝 Remíza! Sázka vrácena ({bet})',
 
         // Primero Rules
-        primeroRulesTitle: 'PRIMERO — Rules',
-        primeroRulesHistory: '📜 History',
-        primeroRulesHistoryText: 'Primero is a 16th-century Spanish card game, the ancestor of modern poker. It was played at royal courts.',
-        primeroRulesDeck: '🎴 Deck',
-        primeroRulesDeckText: '40 cards (10 ranks × 4 suits: ♠️♥️♣️♦️)',
-        primeroRulesGoal: '🎯 Goal',
-        primeroRulesGoalText: 'Win 2 out of 3 rounds with the best hand.',
-        primeroRulesScoring: '🏆 Scoring',
-        primeroRulesScoringFlux: '• Flux (all 4 cards same suit): +40 points',
-        primeroRulesScoringFour: '• Four of a kind: +50 points',
-        primeroRulesScoringThree: '• Three of a kind: +30 points',
-        primeroRulesScoringPair: '• Pair: +10 points',
-        primeroRulesScoringFace: '• Face cards: King +5, Queen +4, Jack +3',
-        primeroRulesHowTo: '🎮 How to play',
-        primeroRulesHowToText: 'You get 4 cards, opponent too. Click "Reveal!" — higher score wins the round. First to 2 wins gets double the bet!',
+        primeroRulesTitle: 'PRIMERO — Pravidla',
+        primeroRulesHistory: '📜 Historie',
+        primeroRulesHistoryText: 'Primero je španělská karetní hra ze 16. století, předchůdce moderního pokeru. Hrála se na dvorech králů a šlechty.',
+        primeroRulesDeck: '🎴 Balíček',
+        primeroRulesDeckText: '40 karet (10 hodnot × 4 barvy: ♠️♥️♣️♦️)',
+        primeroRulesGoal: '🎯 Cíl hry',
+        primeroRulesGoalText: 'Vyhrát 2 ze 3 kol s nejlepší kombinací karet.',
+        primeroRulesScoring: '🏆 Bodování',
+        primeroRulesScoringFlux: '• Flux (všechny 4 karty stejné barvy): +40 bodů',
+        primeroRulesScoringFour: '• Čtveřice (4× stejná hodnota): +50 bodů',
+        primeroRulesScoringThree: '• Trojice (3× stejná hodnota): +30 bodů',
+        primeroRulesScoringPair: '• Dvojice (2× stejná hodnota): +10 bodů',
+        primeroRulesScoringFace: '• Figurky: Král +5, Dáma +4, Kluk +3',
+        primeroRulesHowTo: '🎮 Jak se hraje',
+        primeroRulesHowToText: 'Dostaneš 4 karty, soupeř také. Klikni "Odhalit!" — vyšší skóre vyhrává kolo. První k 2 výhrám získává 2× sázku!',
 
         // Karnöffel
         karnoffelName: 'Karnöffel',
-        karnoffelDesc: 'The oldest trump game (1426)',
+        karnoffelDesc: 'Nejstarší trumfová hra (1426)',
         karnoffelTech: 'Tech: Karnöffel (12 Research)',
-        karnoffelCraft: 'Craft the Karnöffel Deck',
-        karnoffelNeedDeck: 'You don\'t have a Karnöffel deck!',
+        karnoffelCraft: 'Vyrobit Karnöffel balíček',
+        karnoffelNeedDeck: 'Nemáš Karnöffel balíček!',
         karnoffelTitle: 'Karnöffel',
-        karnoffelSubtitle: '15th century German trump game',
-        karnoffelBtnPlay: 'Play',
-        karnoffelLabelYourTricks: 'Your tricks',
-        karnoffelLabelTrump: 'Trump',
-        karnoffelLabelOpponent: 'Opponent',
-        karnoffelLabelCurrentTrick: 'Current trick',
-        karnoffelLabelYourCards: 'Your cards',
-        karnoffelTrickWin: '🎉 You won the trick!',
-        karnoffelTrickLoss: '😔 Opponent won the trick',
-        karnoffelGameWin: '🏆 You won! +{reward} Research',
-        karnoffelGameLoss: '💸 You lost.',
+        karnoffelSubtitle: 'Německá trumfová hra ze 15. století',
+        karnoffelBtnPlay: 'Hrát',
+        karnoffelLabelYourTricks: 'Tvé štychy',
+        karnoffelLabelTrump: 'Trumf',
+        karnoffelLabelOpponent: 'Soupeř',
+        karnoffelLabelCurrentTrick: 'Aktuální štych',
+        karnoffelLabelYourCards: 'Tvé karty',
+        karnoffelTrickWin: '🎉 Vyhrál jsi štych!',
+        karnoffelTrickLoss: '😔 Soupeř vyhrál štych',
+        karnoffelGameWin: '🏆 Vyhrál jsi! +{reward} Výzkumu',
+        karnoffelGameLoss: '💸 Prohrál jsi.',
 
         // Karnöffel Rules
-        karnoffelRulesTitle: 'KARNÖFFEL — Rules',
-        karnoffelRulesHistory: '📜 History',
-        karnoffelRulesHistoryText: 'Karnöffel is the oldest known trump card game, first mentioned in 1426 in Germany. The name comes from "Karniffel" (executioner).',
-        karnoffelRulesDeck: '🎴 Deck',
-        karnoffelRulesDeckText: '32 cards (4 suits × 8 ranks): 🍃 Leaves, 🔔 Bells, ❤️ Hearts, 🎯 Acorns',
-        karnoffelRulesGoal: '🎯 Goal',
-        karnoffelRulesGoalText: 'Win the majority of 5 tricks (3+).',
-        karnoffelRulesTrump: '🃏 Trump',
-        karnoffelRulesTrumpText: 'At game start, a trump suit is randomly chosen. Trump cards beat other suits.',
-        karnoffelRulesPlay: '🎮 Play',
-        karnoffelRulesPlayText: 'Click a card from your hand to play it. AI plays its card. Higher value (or trump) wins the trick.',
+        karnoffelRulesTitle: 'KARNÖFFEL — Pravidla',
+        karnoffelRulesHistory: '📜 Historie',
+        karnoffelRulesHistoryText: 'Karnöffel je nejstarší známá trumfová hra, první zmínka z roku 1426 z Německa. Název pochází z "Karniffel" (kat/popravčí).',
+        karnoffelRulesDeck: '🎴 Balíček',
+        karnoffelRulesDeckText: '32 karet (4 barvy × 8 hodnot): 🍃 Listy, 🔔 Zvonky, ❤️ Srdce, 🎯 Terče',
+        karnoffelRulesGoal: '🎯 Cíl',
+        karnoffelRulesGoalText: 'Vyhrát většinu ze 5 štychů (3+).',
+        karnoffelRulesTrump: '🃏 Trumf',
+        karnoffelRulesTrumpText: 'Na začátku hry se náhodně určí trumfová barva. Karty trumfové barvy bijí ostatní barvy.',
+        karnoffelRulesPlay: '🎮 Hra',
+        karnoffelRulesPlayText: 'Klikni na kartu z ruky — zahraješ ji. AI zahraje svou kartu. Vyšší hodnota (nebo trumf) vyhrává štych.',
 
         // FreeCell
         freecellName: 'FreeCell Solitaire',
-        freecellDesc: 'A game of logic and cards',
-        freecellTech: 'Tech: Solitaire Mastery (15 Research)',
-        freecellCraft: 'Craft the French Deck',
-        freecellNeedDeck: 'You don\'t have a French deck!',
+        freecellDesc: 'Logická karetní hra',
+        freecellTech: 'Tech: Solitér Mistryně (15 Research)',
+        freecellCraft: 'Vyrobit Francouzský balíček',
+        freecellNeedDeck: 'Nemáš Francouzský balíček!',
         freecellTitle: 'FreeCell Solitaire',
-        freecellSubtitle: 'Strategy-based patience game',
-        freecellBtnPlay: 'Play',
-        freecellBtnNew: 'New Game',
-        freecellLabelMoves: 'Moves: {moves}',
-        freecellErrAce: 'Only Aces can start foundations!',
-        freecellErrInvalid: 'Invalid move!',
-        freecellErrColorVal: 'Must be opposite color and 1 lower value!',
-        freecellErrCellFull: 'This free cell is occupied!',
-        freecellWin: '🏆 You won! +{reward} Research ({moves} moves)',
+        freecellSubtitle: 'Logický patience založený na strategii',
+        freecellBtnPlay: 'Hrát',
+        freecellBtnNew: 'Nová hra',
+        freecellLabelMoves: 'Tahy: {moves}',
+        freecellErrAce: 'Na základ můžeš položit jen Eso!',
+        freecellErrInvalid: 'Neplatný tah!',
+        freecellErrColorVal: 'Musí být opačná barva a o 1 nižší hodnota!',
+        freecellErrCellFull: 'Tato volná buňka je obsazená!',
+        freecellWin: '🏆 Vyhrál jsi! +{reward} Výzkumu ({moves} tahů)',
 
         // FreeCell Rules
-        freecellRulesTitle: 'FREECELL SOLITAIRE — Rules',
-        freecellRulesHistory: '📜 History',
-        freecellRulesHistoryText: 'FreeCell was created in 1978 by Paul Alfille. It became famous in 1995 as part of Windows.',
-        freecellRulesGoal: '🎯 Goal',
-        freecellRulesGoalText: 'Move all cards to 4 foundation piles (sorted by suit from A to K).',
-        freecellRulesFreeCells: '💠 Free Cells',
-        freecellRulesFreeCellsText: '4 free cells (💠) can temporarily hold 1 card each. Use them strategically!',
-        freecellRulesTableau: '🃏 Columns',
-        freecellRulesTableauText: 'Cards must be placed in descending order and alternating colors (red on black, black on red).',
-        freecellRulesStrategy: '🧠 Strategy',
-        freecellRulesStrategyText: 'Almost every deal is solvable! The key is planning ahead and smart use of free cells.',
+        freecellRulesTitle: 'FREECELL SOLITAIRE — Pravidla',
+        freecellRulesHistory: '📜 Historie',
+        freecellRulesHistoryText: 'FreeCell byl vytvořen v roce 1978 Paulem Alfille. Proslavil se v roce 1995 jako součást Windows.',
+        freecellRulesGoal: '🎯 Cíl',
+        freecellRulesGoalText: 'Přesunout všechny karty na 4 základové hromádky (seřazené podle barvy od A do K).',
+        freecellRulesFreeCells: '💠 Volné buňky',
+        freecellRulesFreeCellsText: '4 volné buňky (💠) mohou dočasně držet 1 kartu. Používej je strategicky!',
+        freecellRulesTableau: '🃏 Sloupce',
+        freecellRulesTableauText: 'Karty musí být kladeny v klesajícím pořadí a v opačných barvách (červená na černou, černá na červenou).',
+        freecellRulesStrategy: '🧠 Strategie',
+        freecellRulesStrategyText: 'Skoro každá partie je řešitelná! Klíčem je plánování dopředu a chytré využití volných buněk.',
 
         // Rithmomachia
         rithmoName: 'Rithmomachia',
-        rithmoDesc: '"Philosophers\' Chess" (1030)',
-        rithmoTech: 'Tech: Philosophical Mathematics (20 Research)',
-        rithmoCraft: 'Craft the Rithmomachia Board',
-        rithmoNeedBoard: 'You don\'t have a Rithmomachia board!',
+        rithmoDesc: '"Šachy Filozofů" (1030)',
+        rithmoTech: 'Tech: Filozofická Matematika (20 Research)',
+        rithmoCraft: 'Vyrobit Rithmomachia desku',
+        rithmoNeedBoard: 'Nemáš Rithmomachia hrací desku!',
         rithmoTitle: 'Rithmomachia',
-        rithmoSubtitle: 'Medieval game of numbers and geometry',
-        rithmoVictoryCond: 'Victory conditions: Capture 3 opponent pyramids OR reach 160+ points',
-        rithmoBtnPlay: 'Play',
-        rithmoBtnClose: 'Close',
-        rithmoBtnRules: 'Rules',
-        rithmoLabelYou: 'You (white)',
-        rithmoLabelAi: 'AI (black)',
-        rithmoLabelPoints: 'points',
-        rithmoLabelYourTurn: 'Your turn',
-        rithmoLabelAiTurn: 'AI\'s turn',
-        rithmoLegend: 'Legend: ○ circle | □ square | △ triangle | Number = piece value',
-        rithmoTutMsg: 'Click on your piece (white) then on target square.',
-        rithmoErrNotYours: 'That\'s not your piece!',
-        rithmoErrNoMove: 'This piece cannot move!',
-        rithmoErrInvalid: 'Invalid move!',
-        rithmoCapture: 'You captured {value}!',
-        rithmoAiMove: 'AI moved {type} to [{x}, {y}]',
-        rithmoWinWhitePyr: 'You captured 3 pyramids!',
-        rithmoWinBlackPyr: 'AI captured 3 pyramids!',
-        rithmoWinPoints: 'You won by points!',
-        rithmoWin: '🏆 Victory! {reason} +{reward} Research',
-        rithmoLoss: '💀 Defeat. {reason}',
+        rithmoSubtitle: 'Středověká hra čísel a geometrie',
+        rithmoVictoryCond: 'Podmínky vítězství: Zajmi 3 pyramidy soupeře NEBO získej 160+ bodů',
+        rithmoBtnPlay: 'Hrát',
+        rithmoBtnClose: 'Zavřít',
+        rithmoBtnRules: 'Pravidla',
+        rithmoLabelYou: 'Ty (bílý)',
+        rithmoLabelAi: 'AI (černý)',
+        rithmoLabelPoints: 'bodů',
+        rithmoLabelYourTurn: 'Tvůj tah',
+        rithmoLabelAiTurn: 'Tah AI',
+        rithmoLegend: 'Legenda: ○ kruh | □ čtverec | △ trojúhelník | Číslo = hodnota kamene',
+        rithmoTutMsg: 'Klikni na svůj kámen (bílý) a pak na cílové pole.',
+        rithmoErrNotYours: 'To není tvůj kámen!',
+        rithmoErrNoMove: 'Tento kámen se nemůže pohybovat!',
+        rithmoErrInvalid: 'Neplatný tah!',
+        rithmoCapture: 'Zajal jsi {value}!',
+        rithmoAiMove: 'AI přesunulo {type} na [{x}, {y}]',
+        rithmoWinWhitePyr: 'Zajal jsi 3 pyramidy!',
+        rithmoWinBlackPyr: 'AI zajalo 3 pyramidy!',
+        rithmoWinPoints: 'Vyhrál jsi na body!',
+        rithmoWin: '🏆 Vítězství! {reason} +{reward} Výzkumu',
+        rithmoLoss: '💀 Prohra. {reason}',
 
         // Rithmomachia Rules
-        rithmoRulesTitle: 'Rithmomachia — Rules',
-        rithmoRulesMovementTitle: '🎯 Movement',
-        rithmoRulesMovementText: 'Circles move 1 square, Squares move 2, Triangles move 3. Pyramids combine all movement types.',
-        rithmoRulesCaptureTitle: '⚔️ Capture',
-        rithmoRulesCaptureText: 'You can capture an opponent\'s piece if your number matches a mathematical relationship (equality, multiple, or difference).',
-        rithmoRulesVictoryTitle: '🏆 Victory',
-        rithmoRulesVictoryText: 'Capture 3 opponent pyramids OR exceed 160 points from captured pieces.',
-        rithmoRulesHistoryTitle: '📜 History',
-        rithmoRulesHistoryText: 'The game dates from 1030 AD, played at medieval universities as an exercise in arithmetic and geometry.',
+        rithmoRulesTitle: 'Rithmomachia — Pravidla',
+        rithmoRulesMovementTitle: '🎯 Pohyb',
+        rithmoRulesMovementText: 'Kruhy se pohybují o 1 pole, Čtverce o 2, Trojúhelníky o 3. Pyramidy kombinují všechny pohyby.',
+        rithmoRulesCaptureTitle: '⚔️ Zajímání',
+        rithmoRulesCaptureText: 'Můžeš zajmout soupeřův kámen pokud tvoje číslo odpovídá matematickému vztahu (rovnost, násobek, rozdíl).',
+        rithmoRulesVictoryTitle: '🏆 Vítězství',
+        rithmoRulesVictoryText: 'Zajmi 3 pyramidy soupeře NEBO překroč 160 bodů ze zajatých kamenů.',
+        rithmoRulesHistoryTitle: '📜 Historie',
+        rithmoRulesHistoryText: 'Hra pochází z roku 1030, hrála se na středověkých univerzitách jako cvičení z aritmetiky a geometrie.',
 
         // Common buttons
-        btnPlay: 'Play 🎮',
-        btnRules: '📖 Rules',
+        btnPlay: 'Hrát 🎮',
+        btnRules: '📖 Pravidla',
 
         // ── Senet ──────────────────────────────────────────────────────────────────
         senetName: 'Senet',
-        senetDesc: 'Game of the Pharaohs (3100 BC)',
-        senetTech: 'Tech: Senet — Game of Pharaohs (6 Research)',
-        senetCraft: 'Craft the Senet Board',
-        senetNeedBoard: 'You have no Senet board!',
+        senetDesc: 'Hra faraonů (3100 př.n.l.)',
+        senetTech: 'Tech: Senet — Hra Faraonů (6 Research)',
+        senetCraft: 'Vyrobit Senet desku',
+        senetNeedBoard: 'Nemáš Senet hrací desku!',
         senetTitle: 'Senet',
-        senetSubtitle: "The world's oldest board game",
-        senetBtnPlay: 'Play',
-        senetBtnNew: 'New Game',
-        senetLabelMoves: 'Moves: {moves}',
-        senetLabelYou: 'You',
+        senetSubtitle: 'Nejstarší desková hra světa',
+        senetBtnPlay: 'Hrát',
+        senetBtnNew: 'Nová hra',
+        senetLabelMoves: 'Tahy: {moves}',
+        senetLabelYou: 'Ty',
         senetLabelAi: 'AI',
-        senetLabelYourTurn: 'Your turn — cast the sticks',
-        senetLabelAiTurn: "AI's turn...",
-        senetBtnRoll: 'Cast Sticks',
-        senetWin: '🏆 Victory! All stones passed through the afterlife. +{reward} Research',
-        senetLoss: '💀 The AI moved all its stones first.',
-        senetRulesTitle: 'Senet — Rules',
-        senetRulesHistoryTitle: '📜 History',
-        senetRulesHistoryText: 'Senet is the oldest recorded board game in the world (3100 BC). Egyptian pharaohs played it as preparation for the journey to the afterlife — 30 squares symbolise the soul\'s passage.',
-        senetRulesGoalTitle: '🎯 Goal',
-        senetRulesGoalText: 'Move all 5 of your stones across all 30 squares and off the board before your opponent.',
-        senetRulesDiceTitle: '🎲 Throw-sticks',
-        senetRulesDiceText: '4 sticks are cast — each lands light or dark side up. Number of light sides = number of steps (0–4). All dark = 5 steps.',
-        senetRulesSpecialTitle: '⭐ Special Squares',
-        senetRulesSpecialText: 'Square 15 (House of Rebirth): a stone must stop here. Squares 27–29: dangerous squares that send stones back to start. Square 30: safe exit.',
+        senetLabelYourTurn: 'Tvůj tah — hoď hůlky',
+        senetLabelAiTurn: 'Tah AI...',
+        senetBtnRoll: 'Hodit hůlky',
+        senetWin: '🏆 Vítězství! Všechny kameny prošly záhrobím. +{reward} Výzkumu',
+        senetLoss: '💀 AI dostalo všechny kameny první.',
+        senetRulesTitle: 'Senet — Pravidla',
+        senetRulesHistoryTitle: '📜 Historie',
+        senetRulesHistoryText: 'Senet je nejstarší doložená desková hra světa (3100 př.n.l.). Egyptští faraoni ji hráli jako přípravu na cestu do záhrobí — 30 polí symbolizuje putování duše.',
+        senetRulesGoalTitle: '🎯 Cíl',
+        senetRulesGoalText: 'Dostat všech 5 kamenů přes všech 30 polí a ven z desky dříve než soupeř.',
+        senetRulesDiceTitle: '🎲 Hůlky-kostky',
+        senetRulesDiceText: 'Hodí se 4 hůlky — každá padne na bílou nebo tmavou stranu. Počet bílých = počet kroků (0–4). Padnou-li 4 tmavé = 5 kroků.',
+        senetRulesSpecialTitle: '⭐ Zvláštní pole',
+        senetRulesSpecialText: 'Pole 15 (Dům znovuzrození): kámen se zde musí zastavit. Pole 27–29: nebezpečná pole, odkud se vrací na start. Pole 30: bezpečný výstup.',
 
         // ── Backgammon (Tables) ────────────────────────────────────────────────────
-        backgammonName: 'Tables',
-        backgammonDesc: 'Ancestor of Backgammon',
-        backgammonTech: 'Tech: Tables — Journey of Stones (8 Research)',
-        backgammonCraft: 'Craft the Tables Board',
-        backgammonNeedBoard: 'You have no Tables board!',
+        backgammonName: 'Tables (Vrhcáby)',
+        backgammonDesc: 'Předchůdce Backgammonu',
+        backgammonTech: 'Tech: Tables — Cesta Kamenů (8 Research)',
+        backgammonCraft: 'Vyrobit Tables desku',
+        backgammonNeedBoard: 'Nemáš Tables hrací desku!',
         backgammonTitle: 'Tables',
-        backgammonSubtitle: 'Medieval ancestor of Backgammon',
-        backgammonBtnPlay: 'Play',
-        backgammonBtnNew: 'New Game',
-        backgammonBtnRoll: 'Roll Dice',
-        backgammonLabelYou: 'You (white)',
-        backgammonLabelAi: 'AI (black)',
-        backgammonLabelYourTurn: 'Your turn',
-        backgammonLabelAiTurn: "AI's turn...",
-        backgammonLabelDice: 'Dice: {d1} and {d2}',
-        backgammonWin: '🏆 Victory! All stones home. +{reward} Research',
-        backgammonLoss: '💀 The AI bore off all its stones first.',
-        backgammonRulesTitle: 'Tables — Rules',
-        backgammonRulesHistoryTitle: '📜 History',
-        backgammonRulesHistoryText: 'Tables is the medieval ancestor of Backgammon, popular in monasteries and taverns from the 12th to 15th century. Played across the world from England to Persia.',
-        backgammonRulesGoalTitle: '🎯 Goal',
-        backgammonRulesGoalText: 'Move all 15 of your stones into your home quarter and bear them off before your opponent.',
-        backgammonRulesMoveTitle: '♟️ Movement',
-        backgammonRulesMoveText: 'Players alternate rolling two dice. Stones move in opposite directions. A point with one stone is vulnerable — the opponent can hit it to the bar.',
-        backgammonRulesHitTitle: '⚔️ Hitting',
-        backgammonRulesHitText: 'A stone on the bar must re-enter the game before the player can move other stones. It enters on the opponent\'s home quarter.',
+        backgammonSubtitle: 'Středověký předchůdce Backgammonu',
+        backgammonBtnPlay: 'Hrát',
+        backgammonBtnNew: 'Nová hra',
+        backgammonBtnRoll: 'Hodit kostky',
+        backgammonLabelYou: 'Ty (bílý)',
+        backgammonLabelAi: 'AI (černý)',
+        backgammonLabelYourTurn: 'Tvůj tah',
+        backgammonLabelAiTurn: 'Tah AI...',
+        backgammonLabelDice: 'Kostky: {d1} a {d2}',
+        backgammonWin: '🏆 Vítězství! Všechny kameny v cíli. +{reward} Výzkumu',
+        backgammonLoss: '💀 AI dostalo všechny kameny první.',
+        backgammonRulesTitle: 'Tables — Pravidla',
+        backgammonRulesHistoryTitle: '📜 Historie',
+        backgammonRulesHistoryText: 'Tables je středověký předchůdce Backgammonu, oblíbený v klášterech i krčmách 12.–15. století. Hrál se na celém území od Anglie po Persii.',
+        backgammonRulesGoalTitle: '🎯 Cíl',
+        backgammonRulesGoalText: 'Dostat všech 15 kamenů do domácí čtvrtiny a snést je z desky dříve než soupeř.',
+        backgammonRulesMoveTitle: '♟️ Pohyb',
+        backgammonRulesMoveText: 'Hráči se střídají v hodu dvěma kostkami. Kameny se pohybují v protisměru. Pole s jedním kamenem je zranitelné — soupeř ho může vyrazit na bar.',
+        backgammonRulesHitTitle: '⚔️ Vyražení',
+        backgammonRulesHitText: 'Kámen na baru se musí vrátit do hry dříve než hráč může táhnout jiné kameny. Vrací se na soupeřovu domácí čtvrtinu.',
 
-        // ── Draughts ───────────────────────────────────────────────────────────────
-        draughtsName: 'Draughts',
-        draughtsDesc: 'Game of Ladies and Lords',
-        draughtsTech: 'Tech: Draughts — Game of Ladies (10 Research)',
-        draughtsCraft: 'Craft the Draughts Board',
-        draughtsNeedBoard: 'You have no Draughts board!',
-        draughtsTitle: 'Draughts',
-        draughtsSubtitle: 'From Arabic Alquerque (10th cent.)',
-        draughtsBtnPlay: 'Play',
-        draughtsBtnNew: 'New Game',
-        draughtsLabelYou: 'You (white)',
-        draughtsLabelAi: 'AI (black)',
-        draughtsLabelYourTurn: 'Your turn',
-        draughtsLabelAiTurn: "AI's turn...",
-        draughtsLabelCaptured: 'Captured: {n}',
-        draughtsPromoted: 'King! Piece promoted.',
-        draughtsWin: '🏆 Victory! +{reward} Research',
-        draughtsLoss: '💀 Defeat. The AI won.',
-        draughtsDraw: '🤝 Draw.',
-        draughtsRulesTitle: 'Draughts — Rules',
-        draughtsRulesHistoryTitle: '📜 History',
-        draughtsRulesHistoryText: 'Draughts descends from the Arabic game Alquerque (10th cent.). It reached Europe via Spain around 1100 and spread rapidly as a favourite pastime of nobility and commoners alike.',
-        draughtsRulesGoalTitle: '🎯 Goal',
-        draughtsRulesGoalText: "Capture or block all of your opponent's pieces.",
-        draughtsRulesMoveTitle: '♟️ Movement',
-        draughtsRulesMoveText: 'Pieces move diagonally one square forward. A jump over an opponent\'s piece captures it — and if a jump is possible, it is mandatory.',
-        draughtsRulesKingTitle: '👑 King',
-        draughtsRulesKingText: 'A piece reaching the far row becomes a King — it may move diagonally in any direction.',
+        // ── Dáma (Draughts) ────────────────────────────────────────────────────────
+        draughtsName: 'Dáma',
+        draughtsDesc: 'Hra dam a pánů',
+        draughtsTech: 'Tech: Dáma — Hra Dam a Pánů (10 Research)',
+        draughtsCraft: 'Vyrobit Dáma desku',
+        draughtsNeedBoard: 'Nemáš Dáma hrací desku!',
+        draughtsTitle: 'Dáma',
+        draughtsSubtitle: 'Z arabského Alquerque (10. stol.)',
+        draughtsBtnPlay: 'Hrát',
+        draughtsBtnNew: 'Nová hra',
+        draughtsLabelYou: 'Ty (bílý)',
+        draughtsLabelAi: 'AI (černý)',
+        draughtsLabelYourTurn: 'Tvůj tah',
+        draughtsLabelAiTurn: 'Tah AI...',
+        draughtsLabelCaptured: 'Zajato: {n}',
+        draughtsPromoted: 'Dáma! Kámen povýšen.',
+        draughtsWin: '🏆 Vítězství! +{reward} Výzkumu',
+        draughtsLoss: '💀 Prohra. AI vyhrálo.',
+        draughtsDraw: '🤝 Remíza.',
+        draughtsRulesTitle: 'Dáma — Pravidla',
+        draughtsRulesHistoryTitle: '📜 Historie',
+        draughtsRulesHistoryText: 'Dáma pochází z arabské hry Alquerque (10. stol.). Do Evropy přišla přes Španělsko kolem roku 1100 a rychle se rozšířila jako oblíbená zábava šlechty i prostého lidu.',
+        draughtsRulesGoalTitle: '🎯 Cíl',
+        draughtsRulesGoalText: 'Zajmout nebo zablokovat všechny soupeřovy kameny.',
+        draughtsRulesMoveTitle: '♟️ Pohyb',
+        draughtsRulesMoveText: 'Kameny se pohybují diagonálně o jedno pole dopředu. Skok přes soupeřův kámen ho zajme — a je-li možný, je povinný.',
+        draughtsRulesKingTitle: '👑 Dáma',
+        draughtsRulesKingText: 'Kámen který dosáhne protilehlé řady se stává Dámou — pohybuje se diagonálně i dozadu.',
 
         // ── Hnefatafl ──────────────────────────────────────────────────────────────
         hnefataflName: 'Hnefatafl',
-        hnefataflDesc: "The Royal Viking Game",
-        hnefataflTech: 'Tech: Hnefatafl — King\'s Game (14 Research)',
-        hnefataflCraft: 'Craft the Hnefatafl Board',
-        hnefataflNeedBoard: 'You have no Hnefatafl board!',
+        hnefataflDesc: 'Královská hra Vikingů',
+        hnefataflTech: 'Tech: Hnefatafl — Královská Hra (14 Research)',
+        hnefataflCraft: 'Vyrobit Hnefatafl desku',
+        hnefataflNeedBoard: 'Nemáš Hnefatafl hrací desku!',
         hnefataflTitle: 'Hnefatafl',
-        hnefataflSubtitle: 'Viking royal game (400–1100 AD)',
-        hnefataflBtnPlay: 'Play',
-        hnefataflBtnNew: 'New Game',
-        hnefataflLabelAttacker: 'Attackers (black)',
-        hnefataflLabelDefender: 'Defenders (white)',
-        hnefataflLabelYourTurn: 'Your turn',
-        hnefataflLabelAiTurn: "AI's turn...",
-        hnefataflLabelCaptured: 'Captured: {n}',
-        hnefataflKingEscaped: '🏆 The King escaped! You win. +{reward} Research',
-        hnefataflKingCaptured: '💀 The King was captured. AI wins.',
-        hnefataflRulesTitle: 'Hnefatafl — Rules',
-        hnefataflRulesHistoryTitle: '📜 History',
-        hnefataflRulesHistoryText: 'Hnefatafl (the King\'s Game) was played by the Vikings from the 4th to the 11th century. It vanished with the arrival of chess. Its asymmetric design — attackers vs. defenders — is unique in gaming history.',
-        hnefataflRulesGoalTitle: '🎯 Goal',
-        hnefataflRulesGoalText: 'Defenders: move the King to a corner square. Attackers: surround the King on all four sides (or three sides plus the board edge).',
-        hnefataflRulesMoveTitle: '♟️ Movement',
-        hnefataflRulesMoveText: 'All pieces move like the rook in chess — any number of squares in a straight line. No jumping.',
-        hnefataflRulesCaptureTitle: '⚔️ Capture',
-        hnefataflRulesCaptureText: 'A piece is captured when the opponent flanks it on two opposite sides. The King requires flanking on all four sides (or three sides plus the board edge).',
+        hnefataflSubtitle: 'Vikingská královská hra (400–1100 n.l.)',
+        hnefataflBtnPlay: 'Hrát',
+        hnefataflBtnNew: 'Nová hra',
+        hnefataflLabelAttacker: 'Útočníci (černý)',
+        hnefataflLabelDefender: 'Obránci (bílý)',
+        hnefataflLabelYourTurn: 'Tvůj tah',
+        hnefataflLabelAiTurn: 'Tah AI...',
+        hnefataflLabelCaptured: 'Zajato: {n}',
+        hnefataflKingEscaped: '🏆 Král uprchl! Vyhráváš. +{reward} Výzkumu',
+        hnefataflKingCaptured: '💀 Král byl zajat. AI vyhrálo.',
+        hnefataflRulesTitle: 'Hnefatafl — Pravidla',
+        hnefataflRulesHistoryTitle: '📜 Historie',
+        hnefataflRulesHistoryText: 'Hnefatafl (Královská hra) hrávali Vikingové od 4. do 11. století. S příchodem šachů zanikl. Asymetrická hra — útočníci vs. obránci — unikátní v herní historii.',
+        hnefataflRulesGoalTitle: '🎯 Cíl',
+        hnefataflRulesGoalText: 'Obránci: dostat Krále do rohu desky. Útočníci: obklíčit Krále ze čtyř stran (nebo ze tří stran + okraj).',
+        hnefataflRulesMoveTitle: '♟️ Pohyb',
+        hnefataflRulesMoveText: 'Všechny figurky se pohybují jako věž v šachu — libovolně daleko v přímé linii. Přeskakovat nelze.',
+        hnefataflRulesCaptureTitle: '⚔️ Zajímání',
+        hnefataflRulesCaptureText: 'Kámen je zajat když ho soupeř obklíčí ze dvou protilehlých stran. Král je zajat ze čtyř stran (nebo tří + okraj).',
     },
 
     cellarium: {
         title: 'Cellarium',
-        benedict: 'Benedikt of Litomyšl',
-        benedictRole: 'Cellarius · monastic steward',
-        motto: '"Quid offers? Quid quaeris?" — What dost thou offer? What dost thou seek?',
-        mottoEmpty: '"Arca vacua est." — The treasury lies empty. I pray for better days.',
-        mottoPoor: '"Pecunia deficit." — The coins run thin, brother. Sell something.',
-        mottoShuttered: '"Taberna clausa est." — The tavern is not yet open. Come after Vespers.',
-        mottoFull: '"Horreum plenum est!" — The stores are bursting. Sell before it rots.',
-        mottoRich: '"Deus laboriosus benedicit." — The treasury sings! God blesses the industrious.',
-        grose: 'groschen',
-        have: 'Have',
-        price: 'Price',
-        sellPrompt: 'Select quantity and sell:',
-        nothingToSell: 'Nothing to sell.',
-        closed: 'Closed now.',
-        lockedMsg: 'Unlock <strong>Cellarium — Order of the Cellar</strong> to access Benedikt.',
-        lockedMsgPre: 'Unlock <strong>Commercium — Merchant Routes</strong> for first contact with traders.',
-        numLocked: 'Benedikt welcomes thy visit, but trade stands still. Unlock <strong>Numismatica — The Science of Groschen</strong> for full access.',
-        soldNotify: '+{total} groschen for {qty}× {item}',
-        boughtNotify: 'Purchased: {qty}× {item} for {total} groschen',
-        noGrose: 'Insufficient groschen!',
+        benedict: 'Benedikt z Litomyšle',
+        benedictRole: 'Cellarius · správce klášterního hospodářství',
+        motto: '„Quid offers? Quid quaeris?" — Co nabízíš? Co hledáš?',
+        mottoEmpty: '„Arca vacua est.“ — Pokladna zeje prázdnotou. Modlím se za lepší časy.',
+        mottoPoor: '„Pecunia deficit.“ — Groše docházejí, bratře. Prodej něco.',
+        mottoShuttered: '„Taberna clausa est.“ — Hospoda ještě neotvirá. Přijď po nešporách.',
+        mottoFull: '„Horreum plenum est!“ — Sklady praská ve švách. Prodávej, než to začne hnít.',
+        mottoRich: '„Deus laboriosus benedicit.“ — Pokladna zpívá! Bůh žehná pracovitým.',
+        grose: 'grošů',
+        have: 'Máš',
+        price: 'Cena',
+        sellPrompt: 'Vyber množství a prodej:',
+        nothingToSell: 'Nic k prodeji.',
+        closed: 'Nyní zavřeno.',
+        lockedMsg: 'Odemkni <strong>Cellarium — Řád Sklepa</strong> pro přístup k Benediktovi.',
+        lockedMsgPre: 'Odemkni <strong>Commercium — Stezky Kupců</strong> pro první kontakt s kupci.',
+        numLocked: 'Benedikt vítá tvou návštěvu, ale obchod zatím stojí. Odemkni <strong>Numismatica — Věda o Groších</strong> pro plný přístup.',
+        soldNotify: '+{total} grošů za {qty}× {item}',
+        boughtNotify: 'Koupeno: {qty}× {item} za {total} grošů',
+        noGrose: 'Nedostatek grošů!',
         entityOpen: 'OPEN',
         entityClosed: 'CLOSED',
-        buySection: 'Buy from {entity}:',
-        tavernHours: 'daily 14:00–02:00',
-        shopHours: 'Mon–Fri 09:00–17:00',
-        marketHours: 'Sat–Sun 08:00–16:00',
-        giacomoTitle: 'Giacomo Foscari has arrived!',
-        giacomoSubtitle: 'Venetian merchant · trader from afar',
-        giacomoGreeting: '"Salve, fratello! I have brought goods from distant lands — from Venice, from the Levant, from places where the sun burns differently. See what I have for thee..."',
-        giacomoBtnClose: 'Close the gate',
-        giacomoBtnVisit: 'Visit at the Market',
-        heinrichTitle: 'Heinrich Traxdorf from Nuremberg',
-        heinrichSubtitle: 'Organ builder · weekly visit',
-        heinrichGreeting: '"My organs resound in churches from Prague to Basel! I cast the pipes from Nuremberg tin — the finest in all the Empire. Dost thou require a set of pipes?"',
-        heinrichBtnClose: 'Not today',
-        heinrichBtnBuy: 'Buy organ (600 💰)',
-        heinrichAlready: '(Thou already hast an organ)',
+        buySection: 'Koupit od {entity}:',
+        tavernHours: 'každý den 14:00–02:00',
+        shopHours: 'Po–Pá 09:00–17:00',
+        marketHours: 'So–Ne 08:00–16:00',
+        giacomoTitle: 'Giacomo Foscari přijel!',
+        giacomoSubtitle: 'Benátský kupec · obchodník z dálky',
+        giacomoGreeting: '„Salve, fratello! Přivezl jsem zboží z daleka — z Benátek, z Levanty, z míst, kde slunce spaluje jinak než zde. Podívej, co mám pro tebe..."',
+        giacomoBtnClose: 'Zavřít bránu',
+        giacomoBtnVisit: 'Navštívit na Trhu',
+        heinrichTitle: 'Heinrich Traxdorf z Norimberka',
+        heinrichSubtitle: 'Varhanář · týdenní návštěva',
+        heinrichGreeting: '"Mé varhany zní v kostelích od Prahy po Basilej! Píšťaly liji z cínu norimberkého — nejlepšího v celém císařství. Nepotřebuješ varhany, bratře?"',
+        heinrichBtnClose: 'Dnes ne',
+        heinrichBtnBuy: 'Koupit varhany (600 💰)',
+        heinrichAlready: '(Varhany již vlastníš)',
     },
 
     invFilter: {
-        all: 'All',
-        mat: '🌾 Materials',
-        tool: '🔨 Tools',
-        lore: '📜 Writings',
-        animal: '🐄 Animals',
-        food: '🍖 Food',
-        alchemy: '⚗️ Alchemy',
-        stone: '🪨 Stone',
-        iron: '⚒️ Iron',
-        fire: '🔥 Fire',
-        other: '🗝️ Miscellaneous',
+        all: 'Vše',
+        mat: '🌾 Suroviny',
+        tool: '🔨 Nástroje',
+        lore: '📜 Písemnosti',
+        animal: '🐄 Zvířata',
+        food: '🍖 Jídlo',
+        alchemy: '⚗️ Alchymie',
+        stone: '🪨 Kamenné',
+        iron: '⚒️ Železné',
+        fire: '🔥 Oheň',
+        other: '🗝️ Ostatní',
     },
     craftFilter: {
-        all: 'All',
-        stone: '🪨 Stone',
-        iron: '⚒️ Iron',
-        craft: '🪵 Crafting',
-        building: '🏗️ Buildings',
-        fire: '🕯️ Fire',
-        parchment: '📜 Parchment',
-        codex: '📖 Codex',
-        food: '🍖 Provisions',
-        alchemy: '⚗️ Alchemy',
-        lore: '🎲 Knowledge',
+        all: 'Vše',
+        stone: '🪨 Kamenné',
+        iron: '⚒️ Železné',
+        craft: '🪵 Řemeslo',
+        building: '🏗️ Stavby',
+        fire: '🕯️ Oheň',
+        parchment: '📜 Pergamen',
+        codex: '📖 Kodex',
+        food: '🍖 Jídlo',
+        alchemy: '⚗️ Alchymie',
+        lore: '🎲 Vědění',
     },
     dvur: {
-        dashTitle: 'Farmyard status',
-        tab_kurnik: 'Henhouse',
-        tab_kosar: 'Sheepfold',
-        tab_kotce: 'Hutches',
-        tab_chlevy: 'The Byres',
-        tab_mastal: 'Stable',
-        tab_studna: 'Well',
-        tab_columbarium: 'Dovecote',
-        tab_mice: 'Mice',
-        catFed: 'fed, resting',
-        catHunting: 'hungry — hunting at night',
-        decayImpact: 'Mice speed up the spoilage of grain, bread and cheese.',
-        comingSoon: 'Research complete. The enclosure is being prepared — animals arrive soon.',
-        notEnough: 'Not enough materials.',
-        penFull: 'The pen is full.',
-        noAnimal: 'No animal to place. Buy at the Market (weekends).',
-        buyAtMarket: 'Animals are bought at the Market — open on weekends.',
-        occupancy: 'Occupancy',
-        have: 'have',
-        title_rabbitry: 'Cuniculi (Rabbit Hutch)',
-        title_goatpen: 'Caprile (Goat Pen)',
-        title_cowbyre: 'Armentum (Cow Byre)',
-        title_pigsty: 'Suile (Pigsty)',
-        buildDesc_rabbitry: 'A wooden rabbit hutch. Two rabbits suffice — they handle the rest themselves.',
-        buildDesc_goatpen: 'A pen for goats. Milk even in winter, hides for parchment.',
-        buildDesc_cowbyre: 'A stone cow byre. A cow gives far more milk than a goat, but costs more and eats more.',
-        buildDesc_pigsty: 'A sturdy sty of cut stone. A piglet matures in two months — then comes the slaughter.',
-        title_stable: 'Stabulum (Stable)',
-        buildDesc_stable: 'A stone stable for horses. The monastery needs it for distant markets and representation.',
-        place_stable: 'Stable a horse',
-        placed_stable: '🐎 Horse stabled.',
-        build_rabbitry: 'Build rabbit hutch',
-        build_goatpen: 'Build goat pen',
-        build_cowbyre: 'Build cow byre',
-        build_pigsty: 'Build pigsty',
-        built_rabbitry: 'Rabbit hutch built.',
-        built_goatpen: 'Goat pen built.',
-        built_cowbyre: 'Cow byre built.',
-        built_pigsty: 'Pigsty built.',
-        place_rabbitry: 'Place rabbit',
-        place_goatpen: 'Place goat',
-        place_cowbyre: 'Place cow',
-        place_pigsty: 'Place piglet',
-        placed_rabbitry: '🐇 Rabbit settled in the hutch.',
-        placed_goatpen: '🐐 Goat in the pen.',
-        placed_cowbyre: '🐄 Cow in the byre.',
-        placed_pigsty: '🐷 Piglet in the sty. Feed it acorns!',
-        breeding: 'A pair of rabbits is getting along — expect newcomers.',
-        rabbitBorn: 'A kit was born in the hutch!',
-        slaughterRabbit: 'Slaughter rabbit (meat + pelt)',
-        rabbitSlaughtered: 'Rabbit slaughtered: +1 meat, +1 pelt.',
-        milkGoats: 'Milk the goats',
-        goatMilked: 'Collected {n}× goat milk.',
-        goatNotReady: 'The goats are not ready for milking yet.',
-        milkCow: 'Milk the cows',
-        cowMilked: 'Collected {n}× cow milk.',
-        cowNotReady: 'The cows are not ready for milking yet.',
-        feedAcorn: 'Acorn',
-        noAcorn: 'No acorns. Available at the Market.',
-        acornFed: 'The pig munches happily. Growth sped up by 5 days.',
-        pigGrowing: 'Growing...',
-        pigMature: 'Mature — ready for slaughter',
-        slaughterPig: 'Slaughter',
-        pigSlaughtered: 'Pig slaughter! +4 pork, +3 lard.',
-        slaughterCow: 'Slaughter cow',
-        calfGrowing: 'Calf growing',
-        cowSlaughtered: 'Cattle slaughter! +5 beef, +2 hide.',
-        buildInCellarium: 'Order construction in the Cellarium → Buildings (Farmyard section).',
-        penHungry: 'The animals are hungry! Production halted — restock feed (the Horreum feeds automatically).',
-        goatsHungry: 'The goats are hungry and give no milk. Restock hay.',
-        cowsHungry: 'The cows are hungry and give no milk. Restock hay.',
-        feedStock: 'Feed',
-        feedHay: 'hay',
-        feedGrain: 'grain',
-        days: 'days',
-        rabbitMature: 'Mature — ready for slaughter',
-        rabbitGrowing: 'Growing...',
-        rabbitNotMature: 'The rabbit is not yet mature. Wait 4 days.',
-        daysLeft: 'days',
-        milkReady: 'Ready to milk',
-        nextMilk: 'Next milk',
-        goatLabel: 'Goat',
-        mineBonus: 'Mine bonus',
-        mineBonusDesc: '(horses speed up mining)',
-        horseLabel: 'Horse',
-        noBonus: 'none',
-        needRam: 'You need a ram for breeding — arrange a loan in the Saeculum (Forum Pecuarium).',
-        built_donkeyStall: 'Donkey stall built.',
-        title_donkeyStall: 'Donkey Stall (Asinus)',
-        buildDesc_donkeyStall: 'A shelter for the donkey. Powers the well, hauls to the fields, grants +15% field yield.',
-        lockedPrefix: 'Requires research:',
-        mice_label: 'Mice',
-        mice_scraps: 'Scraps eaten/day',
-        mice_decay: 'Decay multiplier',
-        mice_net_per_day: '/day',
-        feedScraps: 'scraps',
+        dashTitle: 'Stav hospodářství',
+        tab_kurnik: 'Kurník',
+        tab_kosar: 'Košár',
+        tab_kotce: 'Kotce',
+        tab_chlevy: 'Chlévy',
+        tab_mastal: 'Maštal',
+        tab_studna: 'Studna',
+        tab_columbarium: 'Holubník',
+        tab_mice: 'Myši',
+        catFed: 'sytá, odpočívá',
+        catHunting: 'hladová — v noci loví',
+        decayImpact: 'Myši zrychlují kažení zrní, chleba a sýra.',
+        comingSoon: 'Výzkum dokončen. Výběh se připravuje — zvířata dorazí brzy.',
+        notEnough: 'Nedostatek surovin.',
+        penFull: 'Výběh je plný.',
+        noAnimal: 'Nemáš žádné zvíře k umístění. Kup na Trhu (o víkendu).',
+        buyAtMarket: 'Zvířata se kupují na Trhu — otevřeno o víkendu.',
+        occupancy: 'Obsazenost',
+        have: 'máš',
+        title_rabbitry: 'Cuniculi (Králíkárna)',
+        title_goatpen: 'Caprile (Kozí chlívek)',
+        title_cowbyre: 'Armentum (Kravín)',
+        title_pigsty: 'Suile (Chlév)',
+        buildDesc_rabbitry: 'Dřevěná králíkárna. Dva králíci stačí — o zbytek se postarají sami.',
+        buildDesc_goatpen: 'Chlívek pro kozy. Mléko i v zimě, kůže na pergamen.',
+        buildDesc_cowbyre: 'Kamenný kravín. Kráva dává mnohem víc mléka než koza, ale stojí víc a žere víc.',
+        buildDesc_pigsty: 'Pevný chlév z tesaného kamene. Sele doroste za dva měsíce — pak přijde zabijačka.',
+        title_stable: 'Stabulum (Stáj)',
+        buildDesc_stable: 'Kamenná stáj pro koně. Klášter ho potřebuje pro vzdálené trhy i reprezentaci.',
+        place_stable: 'Ustájit koně',
+        placed_stable: '🐎 Kůň ustájen ve stáji.',
+        build_rabbitry: 'Postavit králíkárnu',
+        build_goatpen: 'Postavit kozí chlívek',
+        build_cowbyre: 'Postavit kravín',
+        build_pigsty: 'Postavit chlév',
+        built_rabbitry: 'Králíkárna postavena.',
+        built_goatpen: 'Kozí chlívek postaven.',
+        built_cowbyre: 'Kravín postaven.',
+        built_pigsty: 'Chlév postaven.',
+        place_rabbitry: 'Umístit králíka',
+        place_goatpen: 'Umístit kozu',
+        place_cowbyre: 'Umístit krávu',
+        place_pigsty: 'Umístit sele',
+        placed_rabbitry: '🐇 Králík usazen v králíkárně.',
+        placed_goatpen: '🐐 Koza ve chlívku.',
+        placed_cowbyre: '🐄 Kráva v kravíně.',
+        placed_pigsty: '🐷 Sele v chlévě. Krm ho žaludy!',
+        breeding: 'Pár králíků se má k světu — čekej přírůstky.',
+        rabbitBorn: 'V králíkárně přibylo mládě!',
+        slaughterRabbit: 'Porazit králíka (maso + kožka)',
+        rabbitSlaughtered: 'Králík poražen: +1 maso, +1 kožka.',
+        milkGoats: 'Podojit kozy',
+        goatMilked: 'Nadojeno {n}× kozí mléko.',
+        goatNotReady: 'Kozy ještě nejsou připravené k dojení.',
+        milkCow: 'Podojit krávy',
+        cowMilked: 'Nadojeno {n}× kravské mléko.',
+        cowNotReady: 'Krávy ještě nejsou připravené k dojení.',
+        feedAcorn: 'Žalud',
+        noAcorn: 'Nemáš žaludy. K mání na Trhu.',
+        acornFed: 'Prase spokojeně chroupe. Růst se urychlil o 5 dní.',
+        pigGrowing: 'Roste...',
+        pigMature: 'Dospělé — připraveno na zabijačku',
+        slaughterPig: 'Zabijačka',
+        pigSlaughtered: 'Zabijačka! +4 vepřové, +3 sádlo.',
+        slaughterCow: 'Porazit krávu',
+        calfGrowing: 'Tele dorůstá',
+        cowSlaughtered: 'Zabijačka! +5 hovězí, +2 kůže.',
+        buildInCellarium: 'Stavbu zadej v Cellariu → Budovy (sekce Dvůr).',
+        penHungry: 'Zvířata hladoví! Produkce stojí — doplň krmivo (Horreum krmí automaticky).',
+        goatsHungry: 'Kozy hladoví a mléko nedají. Doplň seno.',
+        cowsHungry: 'Krávy hladoví a mléko nedají. Doplň seno.',
+        feedStock: 'Krmivo',
+        feedHay: 'seno',
+        feedGrain: 'zrní',
+        days: 'dní',
+        rabbitMature: 'Dospělý — připraven k porážce',
+        rabbitGrowing: 'Roste...',
+        rabbitNotMature: 'Králík ještě není dospělý. Počkej 4 dny.',
+        daysLeft: 'dní',
+        milkReady: 'Připraveno k dojení',
+        nextMilk: 'Příští mléko',
+        goatLabel: 'Koza',
+        mineBonus: 'Bonus Mine',
+        mineBonusDesc: '(koně urychlují těžbu)',
+        horseLabel: 'Kůň',
+        noBonus: 'žádný',
+        needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Saeculu (Forum Pecuarium).',
+        built_donkeyStall: 'Oslárna postavena.',
+        title_donkeyStall: 'Oslárna (Asinus)',
+        buildDesc_donkeyStall: 'Přístřešek pro osla. Osel pohání studnu, vleče na pole a přináší +15% výnosu.',
+        lockedPrefix: 'Vyžaduje výzkum:',
+        mice_label: 'Myší',
+        mice_scraps: 'Zbytky sežrány/den',
+        mice_decay: 'Multiplikátor kažení',
+        mice_net_per_day: '/den',
+        feedScraps: 'zbytky',
     },
     decay: {
-        lossMsg: 'Spoiled: {items}. Details in the Inventarium (Cellarium).',
-        overflowNote: 'Stores are overflowing — the surplus spoils twice as fast!',
-        overflowWarn: 'Stores overflowing! Goods above capacity spoil at double speed.',
-        discardAll: 'ALL',
-        discardConfirm: 'Really discard the whole stack: {qty}× {item}?',
-        discarded: 'Discarded: {qty}× {item}',
-        trapBroken: 'A mousetrap broke ({n}×).',
-        lastLosses: 'Yesterday\'s losses',
-        miceNone: 'The cloister is quiet. Mice pose no threat to the stores.',
-        miceFew: 'A faint scurrying behind the walls at night. Grain slowly dwindles.',
-        miceSome: 'Mice have been seen near the granary. Grain, bread and cheese spoil faster.',
-        miceMany: 'A mouse paradise! Droppings in the flour, holes in the sacks. The stores suffer.',
-        fliesNone: 'The Farmyard is quiet. Flies pose no threat to the stores.',
-        fliesFew: 'A few flies buzz around the pens. Nothing serious.',
-        fliesSome: 'Flies gather at the uncleared manure. Meat and cheese spoil faster.',
-        fliesMany: 'Swarms of flies over the Farmyard! Raw meat and fish stores suffer. Clean the pens or get a fly trap.',
+        lossMsg: 'Zkazilo se: {items}. Podrobnosti v Inventarium (Cellarium).',
+        overflowNote: 'Sklad přetéká — přebytek se kazí dvojnásob!',
+        overflowWarn: 'Sklad přetéká! Zásoby nad kapacitu se kazí dvojnásobnou rychlostí.',
+        discardAll: 'VŠE',
+        discardConfirm: 'Opravdu zahodit celý stack: {qty}× {item}?',
+        discarded: 'Zahozeno: {qty}× {item}',
+        trapBroken: 'Pastička se rozbila ({n}×).',
+        lastLosses: 'Včerejší ztráty',
+        miceNone: 'V klášteře je ticho. Myši zásoby neohrožují.',
+        miceFew: 'V noci je za zdmi slyšet slabý šramot. Zrní mírně ubývá.',
+        miceSome: 'U sýpky byly vidět myši. Zrní, chléb a sýr se kazí rychleji.',
+        miceMany: 'Myší ráj! Trus v mouce, díry v pytlích. Zásoby trpí.',
+        fliesNone: 'Na Dvoře je klid. Mouchy zásoby neohrožují.',
+        fliesFew: 'Pár much bzučí kolem chlévů. Nic vážného.',
+        fliesSome: 'Mouchy se slétají k neuklizenému hnoji. Maso a sýry se kazí rychleji.',
+        fliesMany: 'Roje much nad Dvorem! Zásoby syrového masa a ryb trpí. Ukliď chlévy nebo pořiď mucholapku.',
     },
     felis: {
-        locked: 'The cat roams the cloister wild and wary. Research Cura Felium to care for her.',
-        defaultName: 'Nameless mouser',
-        age: 'Age',
-        namePlaceholder: 'Name the cat...',
-        satiety: 'Satiety',
-        affection: 'Affection',
-        huntDrive: 'Hunting drive',
-        feedTitle: 'Feed',
-        noFood: 'You have nothing the cat would eat. Cream, fish, meat...',
-        caught: 'Mice caught',
-        stolenCount: 'Stolen from stores',
-        shameHall: 'Hall of shame',
+        locked: 'Kočka se klášterem potuluje divoká a nedůvěřivá. Prozkoumej Cura Felium, aby ses o ni mohl starat.',
+        defaultName: 'Bezejmenný myšilov',
+        age: 'Věk',
+        namePlaceholder: 'Pojmenuj kočku...',
+        satiety: 'Sytost',
+        affection: 'Přízeň',
+        huntDrive: 'Lovecký pud',
+        feedTitle: 'Nakrmit',
+        noFood: 'Nemáš nic, co by kočka žrala. Smetana, ryba, maso...',
+        caught: 'Chyceno myší',
+        stolenCount: 'Ukradeno ze zásob',
+        shameHall: 'Síň hanby',
     },
     saeculum: {
-        mola: 'Mola (Mill)',
-        millActive: 'The mill is already grinding — wait until it is done.',
-        millNoGold: 'Not enough groats for the trip to the miller.',
-        millSent: 'The load is off to the mill. Returns processed in 4 hours.',
-        millCollected: 'Flour collected from the mill.',
-        millCollect: 'Collect',
-        milling: 'Milling',
-        readyIn: 'ready in',
-        millCostNote: '4 hours · trip cost scales with quantity',
-        millTo: 'mill',
-        sawTo: 'saw',
-        crushTo: 'crush',
+        mola: 'Mola (Mlýn)',
+        millActive: 'Mlýn už mele — počkej, až bude hotovo.',
+        millNoGold: 'Nemáš dost grošů na cestu k mlynáři.',
+        millSent: 'Náklad odvezen na mlýn. Vrátí se za 4 hodiny zpracovaný.',
+        millCollected: 'Mouka vyzvednuta z mlýna.',
+        millCollect: 'Vyzvednout',
+        milling: 'Mele se',
+        readyIn: 'hotovo za',
+        millCostNote: '4 hodiny · cena za cestu dle množství',
+        millTo: 'mlít',
+        sawTo: 'řezat',
+        crushTo: 'drtit',
     },
     farmyard: {
-        // krava-bug-fix (7.8.2026): mirror cs.js — viz komentář tam
-        goatBreeding: 'Breeding',
-        goatStartBreeding: 'Start breeding',
-        goatBreedingStarted: 'Breeding started.',
-        goatGestating: 'Goat pregnant',
-        needDoe: 'You need a mature doe.',
-        needBilly: 'You need a billy goat (Forum Pecuarium).',
-        bullSlaughtered: 'Bull slaughtered.',
-        calfSlaughtered: 'Calf slaughtered. +2 Veal, +1 Calf Hide.',
-        needMatureCow: 'No mature cow to slaughter.',
-        noBullToSlaughter: 'No bull to slaughter.',
-        noCalfToSlaughter: 'No calf to slaughter.',
-        kidsBorn: '{n} kids were born.',
-        needSlug: 'Not enough slugs',
-        slugFed: 'Hens fed slugs (+25% laying, 8h).',
-        strayCowPlaced: 'The cow waits in your inventory for a byre.',
-        strayCowSlaughtered: 'Culled. Beef and hide to the larder.',
-        strayCowSold: 'Cow sold.',
-        gallinarium: 'Gallinarium (Henhouse)',
-        ovile: 'Ovile (Sheepfold)',
-        buildHenhouse: 'Build henhouse',
-        hennhouseBuildDesc: 'Build a henhouse to raise hens. Produces eggs and feathers.',
-        buildSheepfold: 'Build sheepfold',
-        sheepfoldBuildDesc: 'Build a sheepfold to raise sheep. Produces milk, wool and hide.',
-        ovileLocked: 'Unlock the De Re Rustica technology to access the sheepfold.',
-        columbarium: 'Columbarium (Dovecote)',
-        columbariumBuildDesc: 'Wicker nesting niches for the messenger pigeons. The Abbot will send a flock once it is built.',
-        columbariumBuilt: 'Columbarium built. Awaiting pigeons from the abbey.',
-        columbariumCollected: 'Eggs and feathers collected from the Columbarium.',
-        columbariumWhitewash_btn: 'Whitewash the walls with lime',
-        columbariumWhitewashed: 'Walls whitewashed with lime. Martens and snakes can no longer climb in.',
-        columbariumPredatorRisk: 'Unwhitewashed walls — a marten or snake occasionally steals a pigeon.',
-        hens: 'Hens',
-        rooster: 'Rooster',
-        sheep: 'Sheep',
-        eggs: 'Eggs',
-        feathers: 'Feathers',
-        milk: 'Milk',
-        wool: 'Wool',
-        ready: '✓ Ready',
-        collect: 'Collect',
-        feed: 'Feed',
-        addRooster: 'Add rooster',
-        addSheep: 'Add sheep',
-        slaughterSheep: 'Slaughter sheep',
-        nesting: 'Nesting (hatching)',
-        startNesting: '🥚 Start nesting',
-        nestingProgress: 'The hen broods upon her eggs',
-        chicksGrowing: 'Chicks growing ({n} pcs)',
-        chickPool: 'Chicks ready to slaughter',
-        breeding: 'Lamb rearing',
-        startBreeding: '🐑 Start breeding',
-        gestating: 'Ewe is with lamb',
-        cowBreeding: 'Breeding',
-        cowStartBreeding: '🐄 Start breeding',
-        cowGestating: 'Cow is pregnant',
-        needCow: 'You need a milking cow.',
-        needBull: 'You need a bull (buy or Forum Pecuarium).',
-        cowBreedingStarted: 'Breeding started.',
-        calfBorn: 'A calf was born.',
-        pigBreeding: 'Breeding',
-        pigStartBreeding: '🐖 Start breeding',
-        pigGestating: 'Sow is pregnant',
-        needSow: 'You need an adult sow.',
-        needBoar: 'You need a boar (Forum Pecuarium).',
-        pigBreedingStarted: 'Breeding started.',
-        pigletsBorn: '{n} piglets born.',
-        lambGrowing: 'Lamb is growing',
-        lambPool: 'Lambs ready to slaughter',
-        clean: 'Clean pen',
-        cleanDone: 'Pen cleaned! +{n}× manure.',
-        cleanCooldown: 'You can clean again tomorrow.',
-        cleanTomorrow: 'Tomorrow',
-        unshod: 'unshod',
-        shoeHorse: '🧲 Shoe horse',
-        needShoes: '❌ No horseshoe set (buy from the Blacksmith).',
-        shoeHorseDone: 'Horse shod. Shoes last 100 days/uses.',
-        addDonkey: 'Tie the donkey',
-        donkeyStallTitle: 'Donkey Stall (Asinus)',
-        donkeyBuildDesc: 'A shelter for the donkey. Powers the well, hauls to the fields, grants +15% yield.',
-        donkeyStallBuilt: 'Donkey stall built.',
-        donkeyPlaced: 'Donkey tied up. Ouško is home.',
+        // krava-bug-fix (7.8.2026): audit proti kódu odhalil 17 chybějících
+        // klíčů — raw i18n string se zobrazoval místo textu (stejný bug jako
+        // dřív u domus_iii, jen jinde). Doplněno najednou po auditu.
+        goatBreeding: 'Plemenitba',
+        goatStartBreeding: 'Zahájit odchov',
+        goatBreedingStarted: 'Plemenitba zahájena.',
+        goatGestating: 'Koza březí',
+        needDoe: 'Potřebuješ dospělou kozu.',
+        needBilly: 'Potřebuješ kozla (Forum Pecuarium).',
+        bullSlaughtered: 'Býk poražen.',
+        calfSlaughtered: 'Tele poraženo. +2 Telecí, +1 Telecí kůže.',
+        needMatureCow: 'Žádná dospělá kráva k porážce.',
+        noBullToSlaughter: 'Žádný býk k porážce.',
+        noCalfToSlaughter: 'Žádné tele k porážce.',
+        kidsBorn: 'Narodilo se {n} kůzlat.',
+        needSlug: 'Nedostatek slimáků',
+        slugFed: 'Slepice nakrmeny slimáky (+25 % snůška, 8h).',
+        strayCowPlaced: 'Kráva čeká v inventáři na chlév.',
+        strayCowSlaughtered: 'Utracena. Hovězí a kůže do spižírny.',
+        strayCowSold: 'Kráva prodána.',
+        gallinarium: 'Gallinarium (Kurník)',
+        ovile: 'Ovile (Chlév)',
+        buildHenhouse: 'Postavit kurník',
+        hennhouseBuildDesc: 'Postav kurník pro chov slepic. Produkuje vejce a peří.',
+        buildSheepfold: 'Postavit chlév',
+        sheepfoldBuildDesc: 'Postav chlév pro chov ovcí. Produkuje mléko, vlnu a kůži.',
+        ovileLocked: 'Odemkni technologii De Re Rustica pro přístup k chlévu.',
+        columbarium: 'Columbarium (Holubník)',
+        columbariumBuildDesc: 'Proutěné hnízdní výklenky pro poštovní holuby. Opat pošle hejno, jakmile bude postaveno.',
+        columbariumBuilt: 'Columbarium postaveno. Čeká na holuby z opatství.',
+        columbariumCollected: 'Vejce a peří sklizeny z Columbaria.',
+        columbariumWhitewash_btn: 'Nabílit zdi vápnem',
+        columbariumWhitewashed: 'Zdi nabíleny vápnem. Kuny a hadi už dovnitř nevylezou.',
+        columbariumPredatorRisk: 'Nenabílené zdi — kuna nebo had občas ukradnou holuba.',
+        hens: 'Slepice',
+        rooster: 'Kohout',
+        sheep: 'Ovce',
+        eggs: 'Vejce',
+        feathers: 'Peří',
+        milk: 'Mléko',
+        wool: 'Vlna',
+        ready: '✓ Připraveno',
+        collect: 'Sklidit',
+        feed: 'Nakrmit',
+        addRooster: 'Přidat kohouta',
+        addSheep: 'Přidat ovci',
+        slaughterSheep: 'Porazit ovci',
+        nesting: 'Kukaň (líhnutí)',
+        startNesting: '🥚 Zahájit líhnutí',
+        nestingProgress: 'Kvočna sedí na vajíčkách',
+        chicksGrowing: 'Kuřata dorůstají ({n} ks)',
+        chickPool: 'Kuřata k porážce',
+        breeding: 'Odchov jehňat',
+        startBreeding: '🐑 Zahájit odchov',
+        gestating: 'Ovce březí',
+        cowBreeding: 'Plemenitba',
+        cowStartBreeding: '🐄 Zahájit plemenitbu',
+        cowGestating: 'Kráva březí',
+        needCow: 'Potřebuješ dojnici.',
+        needBull: 'Potřebuješ býka (koupě nebo Forum Pecuarium).',
+        cowBreedingStarted: 'Plemenitba zahájena.',
+        calfBorn: 'Narodilo se tele.',
+        pigBreeding: 'Plemenitba',
+        pigStartBreeding: '🐖 Zahájit odchov',
+        pigGestating: 'Prasnice březí',
+        needSow: 'Potřebuješ dospělou prasnici.',
+        needBoar: 'Potřebuješ kance (Forum Pecuarium).',
+        pigBreedingStarted: 'Odchov zahájen.',
+        pigletsBorn: 'Narodilo se {n} selat.',
+        lambGrowing: 'Jehně dorůstá',
+        lambPool: 'Jehňata k porážce',
+        clean: 'Uklidit výběh',
+        cleanDone: 'Výběh uklizen! +{n}× hnůj.',
+        cleanCooldown: 'Uklidíte až zítra.',
+        cleanTomorrow: 'Zítra',
+        unshod: 'neokován',
+        shoeHorse: '🧲 Okovat',
+        needShoes: '❌ Nemáš sadu podkov (koupíš u Kováře).',
+        shoeHorseDone: 'Kůň okován. Podkovy vydrží 100 dní/použití.',
+        addDonkey: 'Uvázat osla',
+        donkeyStallTitle: 'Oslárna (Asinus)',
+        donkeyBuildDesc: 'Přístřešek pro osla. Osel pohání studnu, vleče na pole a přináší +15% výnosu.',
+        donkeyStallBuilt: 'Oslárna postavena.',
+        donkeyPlaced: 'Osel uvázán. Ouško je doma.',
         donkeyDefault: 'Ouško',
-        donkeyRename: "What is the donkey's name?",
-        donkeyStubborn: '{name} refused to work today.',
-        borrowNoGold: 'Not enough groschen for the loan.',
-        borrowActive: 'A loan is already in progress.',
-        borrowDone_ram: 'A ram has arrived from the village.',
-        borrowDone_billy_goat: 'A billy goat has arrived from the village.',
-        borrowDone_boar: 'A boar has arrived from the village.',
-        needRam: 'You need a ram for breeding — arrange a loan in the Saeculum.',
-        loanActive_ram: 'Ram on loan',
-        loanActive_billy_goat: 'Billy goat on loan',
-        loanActive_boar: 'Boar on loan',
-        feedSlug: 'Feed slugs', slugFed: '🐌 Hens feasted on slugs. +25% eggs for 8h.',
-        slugBonus: 'Slug bonus', needSlug: 'Not enough slugs (2× per hen)',
+        donkeyRename: 'Jak se osel jmenuje?',
+        donkeyStubborn: '{name} dnes odmítl pracovat.',
+        borrowNoGold: 'Na výpůjčku nemáte dost grošů.',
+        borrowActive: 'Výpůjčka právě probíhá.',
+        borrowDone_ram: 'Beran dorazil ze vsi.',
+        borrowDone_billy_goat: 'Kozel dorazil ze vsi.',
+        borrowDone_boar: 'Kanec dorazil ze vsi.',
+        needRam: 'Pro odchov potřebuješ berana — sjednej výpůjčku v Saeculu.',
+        loanActive_ram: 'Beran vypůjčen',
+        loanActive_billy_goat: 'Kozel vypůjčen',
+        loanActive_boar: 'Kanec vypůjčen',
+        feedSlug: 'Nakrmit slimáky', slugFed: '🐌 Slepice se napásly na slimácích. +25% vajec po dobu 8h.',
+        slugBonus: 'Slug bonus', needSlug: 'Chybí slimáci (2× na slepici)',
     },
+
     // ── VALETUDO (Health System) ────────────────────────────────────────────
     health: {
-        cured: '{name} cured.',
-        expired: '{name} has passed.',
+        cured: '{name} vyléčeno.',
+        expired: '{name} odeznělo.',
     },
-    // ── PORTA (correspondence) ───────────────────────────────────────────────
+
+    // ── PORTA (korespondence) ────────────────────────────────────────────────
     porta: {
         title: 'Porta',
-        intro: 'The monastery\'s pigeon post — news from near and far.',
-        empty: 'No new letters.',
-        open: 'Open',
-        archive: 'Archive',
-        locked: 'The dovecote does not yet stand. Porta awaits the Abbot\'s decision.',
-        cannotAfford: 'You lack the means for this choice.',
+        intro: 'Holubí pošta klášteru — zprávy z okolí i z dálky.',
+        empty: 'Žádné nové dopisy.',
+        open: 'Otevřít',
+        archive: 'Archiv',
+        locked: 'Holubník ještě nestojí. Porta čeká na rozhodnutí opata.',
+        cannotAfford: 'Na tuto volbu nemáš dost prostředků.',
     },
+
     // ── SCRINIUM ABBATIS ─────────────────────────────────────────────────────
     scrinium: {
         title: 'Scrinium Abbatis',
-        subtitle: "The Abbot's Private Library",
-        locked_title: 'Entry Forbidden',
-        locked_text: '"Nondum tempus tuum venit, frater." — Thy time hath not yet come, brother.',
-        locked_hint: 'Earn the favour of the Abbot, that he may open this chamber unto thee.',
-
+        subtitle: 'Soukromá knihovna opata',
+        locked_hint: 'Získej přízeň opata, aby ti otevřel tuto místnost.',
         subtabs: {
-            bestiar: '🐉 Bestiary',
-            herbar: '🌿 Herbarium',
-            kroniky: '📜 Chronicles',
-            tajne_spisy: '🔐 Secret Writings',
-            mapy: '🗺️ Maps',
+            bestiar: '🐉 Bestiář',
+            herbar: '🌿 Herbář',
+            kroniky: '📜 Kroniky',
+            tajne_spisy: '🔐 Tajné spisy',
+            mapy: '🗺️ Mapy',
         },
-
         folio: {
-            not_found: 'This folio hath not yet been found.',
-            found: 'Folio found',
-            physical_scroll: '📜 Scroll',
-            physical_leaf: '📃 Loose Leaf',
-            physical_codex: '📖 Codex',
-            physical_map: '🗺️ Map',
-            btn_lectio: 'Lectio (read)',
-            btn_glossa: 'Glossa (translate)',
-            btn_arcanum: 'Arcanum (decipher)',
-            btn_done: '✓ Read',
+            not_found: 'Folio dosud nenalezeno.',
+            found: 'Folio nalezeno',
+            physical_scroll: '📜 Svitek',
+            physical_leaf: '📃 Volný list',
+            physical_codex: '📖 Kodex',
+            physical_map: '🗺️ Mapa',
+            btn_lectio: 'Lectio (přečíst)',
+            btn_glossa: 'Glossa (přeložit)',
+            btn_arcanum: 'Arcanum (rozluštit)',
+            btn_done: '✓ Přečteno',
             layer_lectio: 'Lectio',
             layer_glossa: 'Glossa',
             layer_arcanum: 'Arcanum',
-            cost_label: 'Requireth:',
-            err_no_item: 'Thou lackest the necessary materials.',
+            cost_label: 'Vyžaduje:',
+            err_no_item: 'Nemáš potřebné suroviny.',
         },
-
         folios: {
-
             epistola: {
                 title: 'Epistola de Rebus Ignotis',
-                lectio: `*The scroll is scorched at its edges. Part of the text is missing. The Latin heading is barely legible.*
-
-"Est locus post murum, ubi ignis non dormit. Ibi calor perpetuus servat formas rerum, quae oculis communibus non patent..."
-
-— A fragment of a letter to an unknown addressee. Year unknown.`,
-
-                glossa: `*By careful study in candlelight the words begin to yield their meaning.*
-
-"There is a place behind the wall, where fire sleepeth not. There eternal heat preserveth the forms of things hidden from common eyes."
-
-The writer speaks of a room or chamber with a constant fire — perhaps a furnace. He mentions three phases of the transformation of matter. The words are deliberately veiled. Who wrote this letter — and to whom?`,
-
-                arcanum: `*The final lines of the scroll, concealed behind a scorched fold:*
-
-"Qui scit verbum, intrat. Verbum est: exordium."
-
-— He who knoweth the word, entereth. The word is: exordium.
-
-*In the lower right corner of the scroll is a drawing — a circle with a triangle within. The symbol of the athanor.*`,
-
-                reward_notify: '🔥 The Athanor is unlocked! The furnace behind the wall is thine.',
+                lectio: '*Svitek je ohořelý na okrajích. Část textu chybí.*\n\n"Est locus post murum, ubi ignis non dormit..."\n\n— Zlomek dopisu neznámého adresáta. Rok neznámý.',
+                glossa: '*Po pečlivém studiu při svíčce začínají slova dávat smysl.*\n\n„Jest místo za zdí, kde oheň nespí. Tam věčné teplo uchovává tvary věcí, jež jsou očím prostých lidí skryty."\n\nKdo psal tento dopis — a komu?',
+                arcanum: '*Poslední řádky svitku, skryté za přeložením ohořelého okraje:*\n\n"Qui scit verbum, intrat. Verbum est: exordium."\n\n— Kdo zná slovo, vejde. Slovo jest: exordium.\n\n*V pravém dolním rohu svitku je nákres — kruh s trojúhelníkem uvnitř. Symbol athanoru.*',
+                reward_notify: '🔥 Athanor odemčen! Pec za zdí je tvá.',
             },
-
             fausto: {
                 title: 'De Fausto Contractu',
-                lectio: `*A loose leaf, greasy with tallow-candle stains. The signature at the end is struck through.*
-
-"Hear ye who read: there was a man who made a compact beyond all reason. For the swift completion of his great work — in a single night — he sold that which was most precious."
-
-— A fragment. No title, no author.`,
-
-                glossa: `*By comparing with other documents, a name and place become clear.*
-
-Johann Fust, Mainz, anno Domini 1455. Gutenberg's press passed into other hands — not by law, as the chronicles say, but otherwise. Schöffer testified against his master. Gutenberg lost everything.
-
-The people whispered: no man prints so swiftly without aid from dark powers. "Fust" — "Faust". The names blurred together. The legend was born.`,
-
-                arcanum: `*On the reverse of the leaf, written in another hand, in small script:*
-
-"I offer the same. Sign, and thy work shall be completed. Materials shall multiply, knowledge shall advance.
-Or refuse — and remain what thou art: an honest craftsman without shortcut."
-
-— The signature is absent. Only the place for thine remaineth.`,
-
-                choice_prompt: 'What wilt thou do?',
-                choice_sign: '✍️ Sign the compact',
-                choice_refuse: '🙏 Refuse',
-                signed_notify: '😈 The compact is signed. A fleeting boon — but at a price.',
-                refused_notify: '✝️ Thou hast refused. Honest labour taketh longer — but thy soul remaineth thine own.',
-                achievement: 'I Resisted',
+                lectio: '*Volný list, mastné skvrny. Podpis na konci je škrtnutý.*\n\n„Slyšte: jest muž, jenž uzavřel smlouvu přesahující rozum. Za rychlé dokončení díla zaprodal to nejcennější."',
+                glossa: '*Po srovnání s jinými dokumenty se vyjasní jméno i místo.*\n\nJohann Fust, Mohuč, léta Páně 1455. Schöffer svědčil proti mistrovi. Gutenberg přišel o vše.\n\n„Fust" — „Faust". Zvuk jmen splýval. Legenda se rodila.',
+                arcanum: '*Na rubu listu, psáno jinou rukou:*\n\n„Nabízím totéž. Podpiš a dílo bude dokončeno. Nebo odmítni — a zůstaň poctivým řemeslníkem bez zkratky."',
+                choice_prompt: 'Co učiníš?',
+                choice_sign: '✍️ Podepsat smlouvu',
+                choice_refuse: '🙏 Odmítnout',
+                signed_notify: '😈 Smlouva podepsána. Dočasný bonus — ale za cenu.',
+                refused_notify: '✝️ Odmítl jsi. Poctivá práce trvá déle — ale duše zůstává tvá.',
+                achievement: 'Odolal jsem',
             },
-
             palimpsest: {
                 title: 'Ars Palimpsesti',
-                lectio: `*A loose leaf, beneath the text the traces of an older layer are visible — like the shadow of a former hand.*
-
-"De arte radendi et rescribendi. On the art of scraping and rewriting."
-
-A technical description in Latin. It mentions pumice, a knife, a wet cloth. The process in five steps.`,
-
-                glossa: `*After reading the whole leaf, an older text appears beneath — legible in the oblique light of a candle.*
-
-Beneath the recipe for scraping parchment lies an older text: a fragment of verse.
-
-"Omnia mutantur, nihil interit." — All things change, nothing perisheth.
-
-The parchment was once someone's chronicle. Then it became a recipe. What shall it become next?`,
-
-                arcanum: `*At the lower margin, concealed in a fold:*
-
-"Pumice and water. Scrape. Let it dry. Write again. Nothing is lost — it only changeth its face."
-
-This method may be employed in the workshop. Spent parchment is not waste — it is a new beginning.
-
-*Recipe unlocked: Parchment Recycling*`,
-
-                reward_notify: '📋 New recipe unlocked: Parchment Recycling.',
+                lectio: '*Volný list, pod textem stopy starší vrstvy.*\n\n„De arte radendi et rescribendi. O umění škrabání a přepisování."',
+                glossa: '*Pod recepturou je starší text: fragment básně.*\n\n„Omnia mutantur, nihil interit." — Vše se mění, nic nezaniká.',
+                arcanum: '*Na spodním okraji, skryto v přeložení:*\n\n„Pemza a voda. Oškrábej. Nech uschnout. Piš znovu."\n\n*Odemčen recept: Recyklace pergamenu*',
+                reward_notify: '📋 Nový recept odemčen: Recyklace pergamenu.',
             },
-
             titivillus: {
                 title: 'De Titivillo Daemone',
-                lectio: `*A codex furnished with numerous marginalia — small pointing hands ☞ mark the key passages.*
-
-"De daemone qui in scriptoriis habitat. Of the demon who dwelleth in scriptoria."
-
-In every scriptorium lurks Titivillus. His task is not to tempt to sin — others do that. Titivillus collecteth errors.`,
-
-                glossa: `*The marginalia are denser than the text itself. One of them readeth:*
-
-"I have seen him. Small, grey, silent. He passeth among the desks. He hath a sack of goatskin. He collecteth omitted letters, transposed syllables, mangled words. Each day he carrieth the sack to the devil."
-
-"After death the monk shall be judged. Titivillus shall empty the sack upon the scales. Each error shall weigh."`,
-
-                arcanum: `*The final page of the codex — written in different ink, as though added much later:*
-
-"Titivillus sleepeth not. He watcheth most keenly when the darkness falleth and the scribe is weary. The light of a candle repelleth him — but only true light."
-
-*From this hour thou shalt see a gentle warning in thy workshop when Vigour sinketh too low.*`,
-
-                reward_notify: "👁️ Titivillus's warning: thou shalt now see when errors threaten thy manuscripts.",
+                lectio: '*Kodex s margináliemi — malé ručičky ☞ ukazují na klíčová místa.*\n\n„O démonu, jenž přebývá ve skriptoriích."\n\nTitivillus sbírá chyby.',
+                glossa: '*Marginálie říkají:*\n\n„Viděl jsem ho. Malý, šedý, tichý. Sbírá vynechaná písmena. Každý den odnáší pytel k ďáblu."',
+                arcanum: '*Poslední strana — psána jiným inkoustem:*\n\n„Titivillus nespí. Bdí obzvláště, když je tma a písař unavený."\n\n*Od této chvíle vidíš varování, když Vigor klesá příliš nízko.*',
+                reward_notify: '👁️ Titivillovo varování aktivováno.',
             },
 
-            // ── Scrinium Recipe Folios MRD — 7 folios, 23 Athanor recipes ──
+            // ── Scrinium Recipe Folios MRD — 7 folií, 23 receptů do Athanoru ──
             scr01: {
                 title: 'Codex Coloris Perditi',
-                lectio: `*A codex bound in brown leather, its spine cracked with age. The first page is missing — torn out, or rotted away.*
-
-"...secundum Theophilum, quod pictor sciens tenere debet." — According to Theophilus, what a knowing painter ought to hold.
-
-The rest of the first chapter is illegible. Water hath done its work.`,
-                glossa: `*The second chapter hath fared better.*
-
-The author citeth an old monk named Theophilus — perhaps of Helmarshausen, perhaps elsewhere — and his manual for painters, glassworkers and goldsmiths. Colours, it seemeth, are not mere colours. They are recipes passed hand to hand, generation to generation, and he who forgetteth them forgetteth the craft itself.
-
-"Lost colours" — a title that maketh sense only now.`,
-                arcanum: `*The final pages, densely written in small script — recipes, one after another.*
-
-"Lead white, red lead and ochre, ground together, yield the colour of living skin."
-
-"That same colour, deepened with sinopia, casteth a shadow beneath eye and cheek — and the face cometh alive."
-
-"Pure verdigris with the stone of the Afghan mountains, mingled, yield a colour fit for a king's robe."
-
-*Recipes unlocked: Flesh Tone, Shading Paint, Regal Pigment.*`,
-                reward_notify: '🎨 Codex Coloris Perditi studied. 3 recipes unlocked.',
+                lectio: '*Kodex vázaný v hnědé kůži, hřbet popraskaný stářím. První strana chybí — vytržena, nebo shnilá.*\n\n„...secundum Theophilum, quod pictor sciens tenere debet.\" — Podle Theophila, co má vědoucí malíř znát.\n\nZbytek první kapitoly je nečitelný. Voda udělala své.',
+                glossa: '*Druhá kapitola je zachovalejší.*\n\nAutor cituje starého mnicha Theophila — snad z Helmarshausenu, snad odjinud — a jeho příručku pro malíře, sklaře a zlatníky. Barvy prý nejsou jen barvy. Jsou to recepty, co se dědí z ruky do ruky, z generace na generaci, a kdo je zapomene, zapomene i řemeslo samo.\n\n„Ztracené barvy\" — název, co dává smysl až teď.',
+                arcanum: '*Poslední stránky, hustě popsané drobným písmem — recepty jeden za druhým.*\n\n„Běloba, suřík a okr, utřeny dohromady, dají barvu kůže živého člověka.\"\n\n„Tatáž barva, prohloubená sinopií, vrhne stín pod oko a líc — a tvář ožije.\"\n\n„Měděnka čirá s kamenem z hor Afghánských, smíšeny, dají barvu hodnou roucha králova.\"\n\n*Odemčeny recepty: Tělová barva, Stínovací barva, Královský pigment.*',
+                reward_notify: '🎨 Codex Coloris Perditi prostudován. 3 recepty odemčeny.',
             },
             scr02: {
                 title: 'Notata Fornacis',
-                lectio: `*A scroll scorched at one end — perhaps in the very furnace-fire it speaketh of.*
-
-"Notata de arte vitri." — Notes on the art of glass, set down by the furnace while memory yet burneth like the fire itself.`,
-                glossa: `*The text describeth the glassworks where the author learned his trade.*
-
-The glassmaker, it seemeth, could neither read nor write Latin — yet he knew fire better than any monk knoweth the psalter. A scribe who visited the works set down what he heard. The colours of glass, saith the glassmaker, are no magic. They are metals — copper, tin, lead — each lending the glass a different soul.`,
-                arcanum: `*The final leaf, in the rougher hand of the glass-master:*
-
-"Copper, calcined and melted with lye, giveth glass green as moss."
-
-"Tin ash with chalk giveth glass white and covering — for vessels, not for windows."
-
-"Litharge with lye giveth glass heavy and soft, easily cut and ground."
-
-*Recipes unlocked: Green Glass, White Glaze, Lead Glass.*`,
-                reward_notify: '🔥 Notata Fornacis studied. 3 recipes unlocked.',
+                lectio: '*Svitek ohořelý na jednom konci — snad při požáru huti, o níž mluví.*\n\n„Notata de arte vitri.\" — Poznámky o umění skla, sepsané u pece, dokud paměť ještě hoří jako oheň sám.',
+                glossa: '*Text popisuje sklářskou huť, kde se autor učil.*\n\nSklář prý neumí číst ani psát latinsky — ale zná oheň lépe než kterýkoli mnich zná žaltář. Poznámky sepsal písař, co huť navštívil a naslouchal. Barvy skla, praví sklář, nejsou kouzlo. Jsou to kovy — měď, cín, olovo — každý dá sklu jinou duši.',
+                arcanum: '*Poslední list, rukou sklářského mistra, hrubší písmo:*\n\n„Měď žíhaná s louhem dá sklo zelené jako mech.\"\n\n„Cínový popel s křídou dá sklo bílé a kryjící — pro nádoby, ne pro okna.\"\n\n„Klejt s louhem dá sklo těžké, měkké, snadné k broušení.\"\n\n*Odemčeny recepty: Zelené sklo, Bílá glazura, Olovnaté sklo.*',
+                reward_notify: '🔥 Notata Fornacis prostudována. 3 recepty odemčeny.',
             },
             scr03: {
                 title: 'Liber Medicaminum Arcanorum',
-                lectio: `*A codex of small size, easily hidden in a habit's sleeve. Perhaps that was its very purpose.*
-
-"Liber medicaminum arcanorum, quem non omnis frater legere debet." — The book of arcane remedies, which not every brother may read.
-
-Why arcane? Herbs, surely, are no sin.`,
-                glossa: `*The second page explaineth the reason for secrecy.*
-
-Some recipes in the book belong to the infirmarian. Others belong to the town's barber-surgeon — a layman who doth what the Rule forbids to monks. The author gathered both, heedless of whose recipe it was. The Abbot would not have liked that.
-
-"A remedy asketh no leave as to whom it may belong."`,
-                arcanum: `*Recipes, one after another, in a neat hand:*
-
-"Comfrey with wax and linseed oil, boiled together, healeth fracture and bruise alike."
-
-"Yarrow steeped in vinegar — Achilles is said to have healed his soldiers' wounds with it before the walls of Troy."
-
-"Juniper boiled with honey easeth gout and the ache of joints."
-
-"Hyssop boiled with wine relieveth cough and tightness of the chest."
-
-*Recipes unlocked: Comfrey Salve, Yarrow Tincture, Juniper Syrup, Lung Elixir.*`,
-                reward_notify: '🌿 Liber Medicaminum Arcanorum studied. 4 recipes unlocked.',
+                lectio: '*Kodex menší velikosti, snadno ukrytý do rukávu hábitu. Přesně k tomu snad sloužil.*\n\n„Liber medicaminum arcanorum, quem non omnis frater legere debet.\" — Kniha tajných léčiv, kterou ne každý bratr smí číst.\n\nProč tajných? Byliny přece nejsou hřích.',
+                glossa: '*Druhá strana vysvětluje důvod tajnosti.*\n\nNěkteré recepty v knize patří infirmariovi. Jiné patří ranhojiči z města — laikovi, co dělá to, co mnichům zapovídá řehole. Autor sbíral obojí, bez ohledu na to, komu recept patřil. To by se opatovi nelíbilo.\n\n„Lék se neptá na dovolení, komu smí patřit.\"',
+                arcanum: '*Recepty, jeden za druhým, úhledným písmem:*\n\n„Kostival s voskem a olejem lněným, svařeny, hojí zlomeninu i pohmožděninu.\"\n\n„Řebříček louhovaný v octě — Achillovi prý léčil rány jeho vojáků pod Trójou.\"\n\n„Jalovec s medem svařený tiší dnu a bolest kloubů.\"\n\n„Yzop s vínem vařený uleví kašli a tísni na prsou.\"\n\n*Odemčeny recepty: Kostivalová mast, Řebříčková tinktura, Jalovcový sirup, Plicní elixír.*',
+                reward_notify: '🌿 Liber Medicaminum Arcanorum prostudována. 4 recepty odemčeny.',
             },
             scr04: {
                 title: 'Testamentum Ultimum',
-                lectio: `*A codex bound in black leather, unadorned. The weight of the volume is out of proportion to its thinness — as though something were sewn into the boards.*
-
-"Testamentum ultimum." — The final testament. The author left no name. Perhaps by design.`,
-                glossa: `*The introduction speaketh of death, and of what remaineth after it.*
-
-The author, it seemeth, spent a life seeking two things: a remedy against every poison, and a substance that would return a day of youth to a weary body. The first he found — or so he believed. The second he sought until his last breath.
-
-"I leave no gold. I leave a recipe."`,
-                arcanum: `*The final two pages, written in a hand already trembling with age:*
-
-"Wormwood, gentian and honey, boiled with wine — a simple theriac, but a theriac still. Not the sixty-four ingredients of the old masters, but what a monastery hath to hand."
-
-"And for one who desireth more: spirit of wine, honey and honeyed ultramarine, distilled together. I promise no immortality. I promise a day without weariness — and that is more than most men ever know."
-
-*Recipes unlocked: Theriacum Monasticum, Elixir Vitae.*`,
-                reward_notify: '👑 Testamentum Ultimum studied. 2 legendary recipes unlocked.',
+                lectio: '*Kodex vázaný v černé kůži bez jediného zdobení. Váha svazku je nepřiměřená jeho tloušťce — jako by v deskách bylo něco zašité.*\n\n„Testamentum ultimum.\" — Poslední odkaz. Autor se nepodepsal. Možná záměrně.',
+                glossa: '*Úvod mluví o smrti a o tom, co po ní zůstává.*\n\nAutor prý strávil život hledáním dvou věcí: léku proti všem jedům, a látky, co by unavenému tělu vrátila den mladosti. První prý našel — nebo se mu to aspoň zdálo. Druhou hledal do posledního dechu.\n\n„Nezanechávám zlato. Zanechávám recept.\"',
+                arcanum: '*Poslední dvě stránky, psané rukou už chvějící se stářím:*\n\n„Pelyněk, hořec a med, svařeny s vínem — theriak prostý, ale theriak. Ne šedesát čtyři složek starých mistrů, ale co má klášter po ruce.\"\n\n„A pro toho, kdo touží po víc: vinný líh, med a medový ultramarín, destilovány společně. Neslibuji nesmrtelnost. Slibuji den bez únavy — a to už je víc, než většina lidí kdy pozná.\"\n\n*Odemčeny recepty: Theriacum Monasticum, Elixir Vitae.*',
+                reward_notify: '👑 Testamentum Ultimum prostudováno. 2 legendární recepty odemčeny.',
             },
             scr05: {
                 title: 'Herbarium Occultum',
-                lectio: `*A gathering of leaves, stitched with cord rather than bound — as though the author was in haste, or had no coin for a bookbinder.*
-
-"Herbarium occultum." — The hidden herbarium. Hidden from whom? The text doth not say.`,
-                glossa: `*The recipes are plain, almost commonplace — why would anyone hide them?*
-
-Perhaps not because they were dangerous. Perhaps because they worked better than the remedies sanctioned by the infirmary, and the author would not have them taken from him — or taxed. Poverty maketh secret-keepers of herbalists.`,
-                arcanum: `*Three recipes, each in a different hand — perhaps written across the years, one at a time:*
-
-"Plantain ground with wax healeth the wound of a pilgrim upon the road."
-
-"Fennel boiled with honey easeth a swollen belly and a heavy stomach."
-
-"Comfrey with yarrow and wax — a salve for all that aches and will not heal."
-
-*Recipes unlocked: Plantain Salve, Fennel Syrup, Universal Salve.*`,
-                reward_notify: '🌱 Herbarium Occultum studied. 3 recipes unlocked.',
+                lectio: '*Svazek listů, sešitých provázkem, ne vázaných — jako by autor spěchal, nebo neměl na knihaře peníze.*\n\n„Herbarium occultum.\" — Skrytý herbář. Skrytý před kým? Text to neříká.',
+                glossa: '*Recepty jsou prosté, skoro až všední — proč by je někdo skrýval?*\n\nMožná ne proto, že by byly nebezpečné. Možná proto, že fungovaly líp než recepty schválené infirmariem, a autor nechtěl, aby mu je někdo vzal — nebo za ně žádal poplatek. Chudoba dělá z bylinkářů tajnůstkáře.',
+                arcanum: '*Tři recepty, každý jinou rukou — snad psáno postupně, roky od sebe:*\n\n„Jitrocel s voskem utřený hojí ránu poutníka na cestě.\"\n\n„Fenykl s medem svařený tiší nadýmání a těžký žaludek.\"\n\n„Kostival s řebříčkem a voskem — mast na vše, co bolí a nechce se hojit.\"\n\n*Odemčeny recepty: Jitrocelová mast, Fenyklový sirup, Univerzální mast.*',
+                reward_notify: '🌱 Herbarium Occultum prostudován. 3 recepty odemčeny.',
             },
             scr06: {
                 title: 'Fragmenta Alchemiae',
-                lectio: `*Several loose leaves, of different ages and hands, bound together later by someone who deemed them precious but did not know how they were joined.*
-
-"Fragmenta." — Fragments. An accurate description.`,
-                glossa: `*One theme joineth the fragments: how to make common clay and stone into something that outlasteth the ages.*
-
-Malachite from the mountains. Alum from trade. Bone from the slaughterhouse. Orpiment from the mine. Seemingly unrelated things — yet all solving the same problem: how to make a colour or a glue cling to vellum longer than a human life endureth.`,
-                arcanum: `*Four recipes, four different hands:*
-
-"Malachite ground with gum and water giveth a green as old as Egypt."
-
-"Alum with chalk and gum bindeth dye so damp cannot wash it away."
-
-"Bone ash with linseed oil giveth a putty beneath gilding."
-
-"Orpiment with gum giveth a yellow golden to the eye — for one who cannot afford true gold."
-
-*Recipes unlocked: Malachite Green, Universal Mordant, Bone Putty, Golden Yellow Pigment.*`,
-                reward_notify: '⚗️ Fragmenta Alchemiae studied. 4 recipes unlocked.',
+                lectio: '*Několik volných listů, různého stáří a rukopisu, svázaných dohromady později — někým, kdo je považoval za cenné, ale netušil, jak spolu souvisí.*\n\n„Fragmenta.\" — Zlomky. Přesný popis.',
+                glossa: '*Zlomky spojuje jedno téma: jak z obyčejné hlíny a kamene udělat něco, co vydrží věky.*\n\nMalachit z hor. Kamenec z obchodu. Kost z jatek. Auripigment z dolu. Zdánlivě nesouvisející věci — ale všechny řeší stejný problém: jak přimět barvu nebo lepidlo držet se pergamenu déle, než trvá lidský život.',
+                arcanum: '*Čtyři recepty, čtyři různé ruce:*\n\n„Malachit utřený s gumou a vodou dá zeleň starou jako Egypt.\"\n\n„Kamenec s křídou a gumou váže barvivo, aby ho vlhko nesmylo.\"\n\n„Kostní popel s olejem lněným dá tmel pod zlacení.\"\n\n„Auripigment s gumou dá žluť zlatou na pohled — pro toho, kdo si pravé zlato nemůže dovolit.\"\n\n*Odemčeny recepty: Malachitová zeleň, Univerzální mořidlo, Kostní tmel, Zlatožlutý pigment.*',
+                reward_notify: '⚗️ Fragmenta Alchemiae prostudována. 4 recepty odemčeny.',
             },
             scr07: {
                 title: 'Secretum Vitriarii',
-                lectio: `*A sealed scroll, though the seal was long since broken — another read it before I.*
-
-"Secretum vitriarii." — The glassmaker's secret. Yet the scroll speaketh not of glass alone.`,
-                glossa: `*The author was a glassmaker, or a smith — perhaps both. The furnace and the forge shared more than one might think.*
-
-Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper instead of killing — all the craft of one man who could read fire as others read books.`,
-                arcanum: `*The final four notes, crowded into the scroll's margin:*
-
-"Tin and lead, melted together, give pewter — solder and tableware alike."
-
-"Copper and tin, melted, give bronze — a bell, a tool, a statue."
-
-"Sandarac dissolved in spirit of wine giveth a varnish clear as glass itself."
-
-"Arsenic with chalk whiteneth copper — Albertus Magnus wrote of it. Poison or remedy, according to who holdeth it."
-
-*Recipes unlocked: Tin-Lead Alloy, Bronze, Sandarac Varnish, Copper Whitener.*`,
-                reward_notify: '⚒️ Secretum Vitriarii studied. 4 recipes unlocked.',
+                lectio: '*Svitek pečetěný, ale pečeť je už dávno zlomená — někdo jiný ho četl přede mnou.*\n\n„Secretum vitriarii.\" — Sklářovo tajemství. Ale svitek nemluví jen o skle.',
+                glossa: '*Autor byl sklář nebo kovář — možná obojí. Huť a kovárna sdílely víc, než by se zdálo.*\n\nSlitiny kovů, laky na dřevo i pergamen, jed, co bělí měď místo aby zabíjel — všechno řemeslo jednoho muže, co uměl číst oheň jako jiní čtou knihy.',
+                arcanum: '*Poslední čtyři poznámky, natěsnané na okraj svitku:*\n\n„Cín a olovo tavené dohromady dají cíncovinu — pájku i nádobí.\"\n\n„Měď a cín tavené dají bronz — zvon, nářadí, sochu.\"\n\n„Sandarak rozpuštěný ve vinném lihu dá lak čirý jako sklo samo.\"\n\n„Arsen s křídou bělí měď — Albertus Magnus o tom psal. Jed i lék, podle toho, kdo ho drží.\"\n\n*Odemčeny recepty: Cínovo-olověná slitina, Bronz, Sandarakový lak, Bělidlo mědi.*',
+                reward_notify: '⚒️ Secretum Vitriarii prostudováno. 4 recepty odemčeny.',
             },
 
-            // ── Herbarium ────────────────────────────────────────────────────
+            // ── Herbář ─────────────────────────────────────────────────────
             signatura: {
                 title: 'De Signatura Rerum',
-                lectio: '*A loose leaf, its edges smoothed by frequent handling.*\n\n"Deus omnem herbam signavit forma sua." — God hath marked every herb with its own likeness.\n\nA list of plants and their shapes follows.',
-                glossa: '*Study reveals logic, not superstition.*\n\nThe walnut resembleth the brain — it healeth the head. The lungwort beareth spotted leaves like lungs — it healeth the cough. The bean is shaped as a kidney — it healeth the kidney.\n\nThe doctrine holds: God inscribed upon every plant a sign of its healing purpose. One need only learn to read it.',
-                arcanum: '*In the margin, in small script:*\n\n"He who seeketh signs shall find them everywhere — even where none exist. Take heed, brother. The signature showeth a path, not a certainty."\n\n*From this hour thou shalt perceive a subtle hint of each herb\'s healing purpose in thy garden.*',
-                reward_notify: "🌿 The Doctrine of Signatures understood. The herbs now reveal more.",
+                lectio: '*Volný list, okraje ohlazené častým listováním.*\n\n„Deus omnem herbam signavit forma sua." — Bůh každou bylinu označil její vlastní podobou.\n\nZa touto větou následuje seznam rostlin a jejich tvarů.',
+                glossa: '*Studium odhaluje logiku, ne pověru.*\n\nOřech vypadá jako mozek — léčí hlavu. Plicník má skvrnité listy jako plíce — léčí kašel. Fazole má tvar ledviny — léčí ledviny.\n\nTeorie praví: Bůh vepsal do každé rostliny znamení jejího léčivého určení. Stačí umět číst.',
+                arcanum: '*Na okraji, drobným písmem:*\n\n„Kdo hledá znamení, najde je všude — i tam, kde není. Opatrnost, bratře. Signatura ukazuje cestu, ne jistotu."\n\n*Od této chvíle vidíš u bylin v zahradě jemný náznak jejich léčivého určení.*',
+                reward_notify: '🌿 Signatura Rerum pochopena. Byliny nyní prozrazují víc.',
             },
             hildegardis: {
                 title: 'Hildegardis de Herbis',
-                lectio: '*A codex, plainly bound but carefully kept. On the first page, a name: Hildegardis.*\n\n"Physica — on the nature of various created things." Written by a nun of Bingen, more than three hundred years past.',
-                glossa: '*The text explains why these very herbs belong in a monastery garden.*\n\nChamomile — "mother of herbs," calmeth body and mind alike. Thyme — purifieth the air, healeth wounds, driveth pests from the hives. Hildegard recommended them together, steeped and sweetened with honey.\n\n"What groweth near the cloister is oft a remedy for what troubleth the cloister most."',
-                arcanum: '*The final page bears a recipe, written in another hand — perhaps a scribe, centuries later:*\n\n"Chamomile and thyme, in equal part. Pour boiling water upon them. Sweeten with honey. Drink at dusk."\n\n*Recipe unlocked: Hildegard\'s Tisane.*',
-                reward_notify: "🍵 New recipe unlocked: Hildegard's Tisane.",
+                lectio: '*Kodex, vazba prostá, ale pečlivá. Na první straně jméno: Hildegardis.*\n\n„Physica — o přirozenosti různých stvoření." Sepsáno jeptiškou z Bingenu, více než tři sta let stará.',
+                glossa: '*Text vysvětluje, proč právě tyto byliny patří do klášterní zahrady.*\n\nHeřmánek — „matka bylinek", uklidňuje tělo i mysl. Tymián — čistí vzduch, hojí rány, odhání škůdce z úlů. Hildegarda je doporučovala společně, spařené a slazené medem.\n\n„Co roste blízko kláštera, bývá lékem na to, co kláštera nejblíže sužuje."',
+                arcanum: '*Poslední stránka obsahuje recept, psaný jinou rukou — snad opisovačem o staletí později:*\n\n„Heřmánek a tymián, v rovném dílu. Zalij vroucí vodou. Slaď medem. Pij za soumraku."\n\n*Odemčen recept: Hildegardin odvar.*',
+                reward_notify: '🍵 Nový recept odemčen: Hildegardin odvar.',
             },
             miasma: {
                 title: 'Miasma et Odor Malus',
-                lectio: '*A scroll, its edges stained with wax — perhaps protective, perhaps accidental.*\n\n"De aere corrupto." On corrupted air. Author unknown; the time of its writing uncertain — perhaps after the great plague.',
-                glossa: '*The text describes a theory believed and doubted in equal measure.*\n\nDisease, it is said, cometh not from touch but from the air — from marshes, from the unburied dead, from foul odor. Protection: scented vinegars, herbs held to the nose, a beaked mask filled with dried flowers.\n\n"Where it stinketh, tarry not. Where it is sweet, thou mayest dwell."',
-                arcanum: '*In the margin, another hand, unsettlingly specific:*\n\n"I have seen it myself. A scribe who labored in darkness and hunger fell ill sooner than those who had light and bread. Perhaps \'tis the air. Perhaps something else. Who knoweth what the body shall yet reveal, before its turn cometh?"',
+                lectio: '*Svitek, okraje potřísněné voskem — možná ochranným, možná náhodným.*\n\n„De aere corrupto." O zkaženém vzduchu. Autor neznámý, doba psaní nejistá — snad po velkém moru.',
+                glossa: '*Text popisuje teorii, které se dnes věří i nevěří zároveň.*\n\nNemoc prý nepřichází z doteku, ale ze vzduchu — z bažin, z nepohřbených těl, ze zkaženého pachu. Ochrana: vonné octy, byliny u nosu, maska se zobákem plněná sušenými květy.\n\n„Kde smrdí, tam se nezdržuj. Kde voní, tam přebývej."',
+                arcanum: '*Na okraji, jinou rukou, znepokojivě konkrétně:*\n\n„Viděl jsem to sám. Písař, jenž pracoval ve tmě a hladu, onemocněl dřív než ti, kdo měli světlo a chléb. Snad vzduch. Snad něco jiného. Kdo ví, co ještě tělo prozradí, než přijde na řadu?"',
             },
             mandragora: {
                 title: 'Mandragora Vociferans',
-                lectio: '*A loose leaf, the ink smeared in places — perhaps from sweat, perhaps from fear.*\n\n"De radice clamante." On the shrieking root. A warning upon the first line: Read not at midnight.',
-                glossa: '*The text describes the ritual of gathering, step by step.*\n\nA moonless night. No iron — only ivory or bone. A rope tied to the root, its other end about the neck of a starved dog. The gatherer\'s ears sealed with wax. Meat cast just beyond reach, that the dog might tear the root free in its stead.\n\nThe root is said to shriek. The dog payeth with its life. The gatherer surviveth — if all was done aright.',
-                arcanum: '*On the reverse of the leaf, a soberer note, as though penned by another — less superstitious — hand:*\n\n"The root is poisonous, that much is certain truth. The shriek, perhaps not. But who would test whether the curse is merely a tale kept alive by merchants wishing to hold their price?"\n\n*Perhaps the garden itself shall reveal what it hideth — none can know beforehand what shall grow from an unknown seed.*',
+                lectio: '*Volný list, inkoust místy rozmazaný — možná od potu, možná od strachu.*\n\n„De radice clamante." O křičícím kořeni. Varování na první řádce: Nečti o půlnoci.',
+                glossa: '*Text popisuje rituál sběru, krok za krokem.*\n\nBezměsíčná noc. Žádné železo — jen slonovina nebo kost. Provaz uvázaný ke kořeni, druhý konec ke krku hladového psa. Uši sběrače zacpané voskem. Maso hozené opodál, aby pes vytrhl kořen za něj.\n\nKořen prý křičí. Pes za to platí životem. Sběrač přežívá — pokud udělal vše správně.',
+                arcanum: '*Na rubu listu, střízlivější poznámka, jako by psaná jiným — méně pověrčivým — člověkem:*\n\n„Kořen je jedovatý, to je jistá pravda. Křik možná ne. Ale kdo by chtěl zkoušet, zda kletba je jen povídačka kupců, kteří si takto drží cenu?"\n\n*Zahrada možná sama odhalí, co se v ní skrývá — nikdo neví předem, co vyroste ze záhadného semínka.*',
             },
             theriaca: {
                 title: 'Theriaca Universalis',
-                lectio: '*A codex, heavy, bound in leather. On the first page, the crest of an unknown apothecary.*\n\n"Theriaca — a remedy against all poisons." King Mithridates, it is said, consumed poisons in small doses to build his resistance. Whence the name: Mithridatium.',
-                glossa: "*The recipe is long — perhaps the longest thou hast ever seen.*\n\nSixty-four ingredients. Viper's flesh, opium, myrrh, honey, and many more whose names are now forgotten. Twelve years to mature. A price — higher than gold of equal weight.\n\n\"He who possesseth Theriac possesseth peace of mind. He knoweth that whatever poison may come, he holdeth a weapon against it.\"",
-                arcanum: '*On the final page, a note almost illegible:*\n\n"I have heard that the abbot of an old monastery to the south possessed a furnace that could hasten what nature doeth slowly. Perhaps it could accomplish this too. Perhaps. I have never seen it with mine own eyes — only heard it told."\n\n*The Athanor may yet hide more than it seemeth.*',
+                lectio: '*Kodex, těžký, vázaný v kůži. Na první stránce erb neznámého lékárníka.*\n\n„Theriaca — lék proti všem jedům." Král Mithridatés prý požíral jedy po malých dávkách, aby si vypěstoval odolnost. Odtud jméno: Mithridatium.',
+                glossa: '*Recept je dlouhý — snad nejdelší, jaký jsi kdy viděl.*\n\nŠedesát čtyři složek. Maso zmijí, opium, myrha, med, a mnoho dalších, jejichž jména jsou dnes zapomenutá. Zrání dvanáct let. Cena — vyšší než zlato stejné váhy.\n\n„Kdo vlastní Theriac, vlastní klid mysli. Ví, že ať přijde jakýkoliv jed, má proti němu zbraň."',
+                arcanum: '*Na poslední straně, téměř nečitelná poznámka:*\n\n„Slyšel jsem, že opat starého kláštera na jihu měl pec, jež uměla urychlit, co příroda dělá pomalu. Snad by dokázala i tohle. Snad. Nikdy jsem to neviděl na vlastní oči — jen jsem o tom slyšel vyprávět."\n\n*Athanor možná skrývá víc, než se zdá.*',
             },
 
-            // ── Netolický's Legacy ──────────────────────────────────────────
+            // ── Netolického pozůstalost ──────────────────────────────────────
             netolicky_01: {
-                title: 'The Privilege of Ferdinand (1527)',
-                lectio: '*Parchment bearing a royal seal. The ink is faded in places, but the text remains legible.*\n\n"We, Ferdinand, by the grace of God King of Bohemia... do grant to Bartoloměj Netolický the exclusive right to print on the Lesser Town of Prague, without hindrance from any party..."\n\n— Original privilege. Lesser Town printing house, 1527.',
-                glossa: '*On closer reading, the details emerge.*\n\nNetolický was a loyal Catholic — precisely what Ferdinand needed after the Battle of Mohács. Prague was in turmoil, the nobility resisting. But a printer with a royal privilege was untouchable.\n\nA monopoly on printing in Bohemia. At the price of loyalty.',
-                arcanum: '*On the reverse of the privilege, in small script, another hand:*\n\n"Every privilege has its time. Ours ended in 1552. Melantrich came with money and young blood. What could I do?"\n\n— Netolický, old and tired.',
-                reward_notify: '📜 +5 notes. The Privilege of Ferdinand studied.',
+                title: 'Privilegium Ferdinandovo (1527)',
+                lectio: '*Pergamen s královskou pečetí. Ink místy vybledlý, ale text čitelný.*\n\n„My, Ferdinand, z Boží milosti král český... udělujeme Bartoloměji Netolickému výsadní právo tisknout na Malé Straně pražské, a to bez překážky od kohokoli..."\n\n— Originál privilegia. Tiskárna na Malé Straně, rok 1527.',
+                glossa: '*Po podrobnějším čtení se vynoří detaily.*\n\nNetolický byl věrný katolík — přesně co Ferdinand po bitvě u Moháče potřeboval. Praha zuřila, šlechta vzdorovala. Ale tiskař s privilegiem byl nedotknutelný.\n\nMonopol na tisk v Čechách. Za cenu loajality.',
+                arcanum: '*Na rubu privilegia, drobným písmem, jinou rukou:*\n\n„Každé privilegium má svůj čas. Naše skončilo roku 1552. Melantrich přišel s penězi a mladou krví. Co jsem mohl dělat?"\n\n— Netolický, starý a unaven.',
+                reward_notify: '📜 +5 zápisků. Privilegium Ferdinandovo prostudováno.',
             },
             netolicky_02: {
-                title: 'Price List of Prints (1541)',
-                lectio: '*A loose leaf, greasy with ink stains. The figures are carefully aligned.*\n\nNew Testament — 8 groschen\nPsalter — 3 groschen\nCalendar — 1 groschen\nOrdinary — 5 groschen\n\n— Price list of Netolický\'s printing house, Lesser Town, 1541.',
-                glossa: '*Comparison with other sources reveals the context.*\n\nDaily wage of a craftsman in Prague: 2–3 groschen. A calendar for 1 groschen was within anyone\'s reach. A psalter for 3 — a week\'s work. The New Testament for 8 — nearly a month.\n\nThe printed book had ceased to be a bishop\'s luxury. It had become a commodity.',
-                arcanum: '*At the bottom, in pencil:*\n\n"We had to lower prices three times. Competition from Nuremberg. Paper dearer. Compositors dearer. And yet — the press feeds twelve families."\n\nThe economics of printing in a nutshell. It was always about the margin.',
-                reward_notify: '📜 +5 notes. The Price List studied.',
+                title: 'Ceník tisků (1541)',
+                lectio: '*Volný list, mastné skvrny od inkoustu. Čísla jsou pečlivě zarovnána.*\n\nNový zákon — 8 grošů\nŽaltář — 3 groše\nKalendář — 1 groš\nOrdinárium — 5 grošů\n\n— Sazebník tiskárny Netolického, Malá Strana, 1541.',
+                glossa: '*Srovnání s jinými zdroji odhalí kontext.*\n\nDenní mzda řemeslníka v Praze: 2–3 groše. Kalendář za 1 groš si mohl dovolit každý. Žaltář za 3 groše — týden práce. Nový zákon za 8 — téměř měsíc.\n\nKnihopis přestal být luxusem biskupů. Stal se zbožím.',
+                arcanum: '*Na spodním okraji, tužkou:*\n\n„Ceny jsme museli snížit třikrát. Konkurence z Norimberku. Papír zdražil. Sázecí zdraží. A přesto — tiskárna živí dvanáct rodin."\n\nEkonomika tisku v kostce. Všechno to bylo o marži.',
+                reward_notify: '📜 +5 zápisků. Ceník tisků prostudován.',
             },
             netolicky_03: {
-                title: 'Letter to Melantrich (1551)',
-                lectio: '*A sheet folded into quarters. The fold is sharp — the letter was kept folded for a long time.*\n\n"Esteemed Master Melantrich, I come to you with an offer which — I hope — will be received in a spirit of mutual respect and benefit to both parties..."\n\n— Netolický, 1551. His last year before the transfer.',
-                glossa: '*Between the lines, another truth emerges.*\n\nMelantrich did not come with an offer — he came with pressure. Netolický was ageing, in debt to the papermakers, his privilege expiring. The letter is courteous. But the courtesy of a desperate man.\n\n"Mutual respect" — words that conceal a surrender.',
-                arcanum: '*On the reverse, in Melantrich\'s hand:*\n\n"Accepted. The workshop to be moved to the Old Town. Name: Melantrich of Aventino. Netolický to receive a lifetime pension — provided he does not interfere."\n\nThe end of one era. The beginning of an empire.',
-                reward_notify: '📜 +5 notes. Letter to Melantrich studied.',
+                title: 'Dopis Melantrichovi (1551)',
+                lectio: '*List přeložený na čtyři díly. Přeložení je ostré — dopis byl dlouho uchováván složený.*\n\n„Vážený mistře Melatrichu, přicházím k Vám s nabídkou, jež — jak doufám — bude přijata v duchu vzájemné úcty a prospěchu obou stran..."\n\n— Netolický, rok 1551. Poslední rok před převodem.',
+                glossa: '*Mezi řádky se čte jiná pravda.*\n\nMelantrich nepřišel s nabídkou — přišel s tlakem. Netolický stárnul, dlužil papírníkům, privilegium vyprchávalo. Dopis je zdvořilý. Ale zdvořilost zoufalého člověka.\n\n„Vzájemná úcta" — slova, která zakrývají kapitulaci.',
+                arcanum: '*Na rubu dopisu, Melantrichovou rukou:*\n\n„Přijato. Dílna bude přesunuta na Staré Město. Název: Melantrich z Aventina. Netolický dostane doživotní rentu — pokud se nebude plést."\n\nKonec jedné éry. Začátek impéria.',
+                reward_notify: '📜 +5 zápisků. Dopis Melantrichovi prostudován.',
             },
             netolicky_04: {
-                title: 'Inventory of Type (workshop stock)',
-                lectio: '*A folded sheet with tables. Each row is a different typeface.*\n\nLatin Fraktur — 847 pieces\nBohemian Bastarda — 623 pieces\nHebrew characters — 89 pieces\nGreek capitals — 44 pieces\n\n— Type inventory, Netolický\'s workshop, undated.',
-                glossa: '*Study of the inventory reveals a surprise.*\n\nHebrew type. In the Catholic printing house of Ferdinand\'s court printer. Why?\n\nPrague had a thriving Jewish community in Josefov. Someone ordered a Hebrew print — Netolický supplied it. Business is business, even for a loyal Catholic.',
-                arcanum: '*In pencil in the lower corner, an old hand:*\n\n"Gutenberg\'s type. Father brought it from Mainz himself. It cost as much as a house. Melantrich took it as part of the workshop — at scrap price."\n\nGutenberg\'s legacy in Prague. And then — scrap.',
-                reward_notify: '📜 +5 notes. The Type Inventory studied.',
+                title: 'Soupis liter (inventář dílny)',
+                lectio: '*Složený arch s tabulkami. Každý řádek je jiný typ písma.*\n\nLatinská fraktura — 847 kusů\nČeská bastarda — 623 kusů\nHebrejské znaky — 89 kusů\nŘecká verzálka — 44 kusů\n\n— Inventář liter, Netolického dílna, nedatováno.',
+                glossa: '*Studie inventáře odhalí překvapení.*\n\nHebrejské znaky. V katolické tiskárně Ferdinandova dvorního tiskaře. Proč?\n\nPraha měla silnou židovskou komunitu v Josefově. Někdo objednal hebrejský tisk — Netolický dodal. Obchod je obchod, i pro loajálního katolíka.',
+                arcanum: '*Tužkou v dolním rohu, stará ruka:*\n\n„Gutenbergovy litery. Přivezl je z Mohuče sám otec. Stály tolik jako dům. Melantrich je vzal jako součást dílny za cenu šrotu."\n\nGutenbergova tradice v Praze. A pak — šrot.',
+                reward_notify: '📜 +5 zápisků. Soupis liter prostudován.',
             },
             netolicky_05: {
-                title: 'Ink Recipe (personal formula)',
-                lectio: '*A small booklet, bound with twine. Written in different inks — the recipe was amended over many years.*\n\n"Gall nuts: 4 lots. Vitriol: 2 lots. Gum arabic: 1 lot. Rainwater: 1 pint. Leave to stand 3 days before printing."\n\n— Netolický\'s personal formula, amended 1530–1548.',
-                glossa: '*Comparison with standard recipes reveals deviations.*\n\nStandard formula: vitriol and gall nuts in a ratio of 1:2. Netolický used 1:4 — more gall nuts, less acid. The ink dried more slowly, but did not eat through the type so quickly.\n\nA master\'s trick: it saved him money on type. Type lasts longer = lower costs.',
-                arcanum: '*On the last page, added later:*\n\n"For special prints: add a pinch of soot from birchwood. The ink will be blacker and lustrous. Bishops love it."\n\nRecipe unlocked: Netolický\'s iron gall ink.',
-                reward_notify: '⚗️ Recipe unlocked: Netolický\'s Iron Gall Ink.',
+                title: 'Receptura inkoustu (vlastní recept)',
+                lectio: '*Malý svazek, vázaný provázkem. Psán různými inkousty — recept byl upravován mnoho let.*\n\n„Duběnky: 4 loty. Vitriol: 2 loty. Guma arabská: 1 lot. Voda dešťová: 1 pintu. Nechat stát 3 dny před tiskem."\n\n— Netolického vlastní receptura, upravovaná 1530–1548.',
+                glossa: '*Srovnání s obecnými recepty odhalí odchylky.*\n\nStandardní recept: vitriol a duběnky v poměru 1:2. Netolický používal 1:4 — více duběnek, méně kyseliny. Inkoust schnul pomaleji, ale nevyleptával typy tak rychle.\n\nMistrovský trik: šetřil tím na litery. Litery vydrží déle = nižší náklady.',
+                arcanum: '*Na poslední stránce, přidáno později:*\n\n„Pro zvláštní tisky: přidat špetku sazí z březového dřeva. Inkoust bude černější a lesklý. Biskupové to milují."\n\nOdemčen recept: Netolického duběnkový inkoust.',
+                reward_notify: '⚗️ Recept odemčen: Netolického duběnkový inkoust.',
             },
             netolicky_06: {
-                title: 'Contract with the Papermaker (1538)',
-                lectio: '*Parchment bearing two seals — Netolický\'s and the mill at Zbraslav.*\n\n"Master Václav of the Zbraslav mill undertakes to supply the printer Netolický with paper of middling and better quality, in quantity 200 sheets per month, at a price of 3 groschen per hundred sheets..."\n\n— Contract, 1538, for five years.',
-                glossa: '*The numbers do not add up.*\n\n200 sheets per month. Netolický\'s largest print — the New Testament — consumed over 800 sheets. The contract barely covered a quarter.\n\nNetolický had to buy paper elsewhere — from Nuremberg, from Venice. At three times the price. The margin vanished.',
-                arcanum: '*On the margin of the contract, in red chalk:*\n\n"The mill flooded in 1541. Václav died. Contract void. I had to buy paper stocks from Melantrich — at his price. From that moment I knew how it would end."\n\nPaper as a weapon. Melantrich had known it all along.',
-                reward_notify: '📜 +5 notes. The Papermaker\'s Contract studied.',
+                title: 'Smlouva s papírníkem (1538)',
+                lectio: '*Pergamen s dvěma pečetěmi — Netolického a mlýna ve Zbraslavi.*\n\n„Mistr Václav z mlýna zbraslavského se zavazuje dodávat tiskaři Netolickému papír kvality střední a lepší, v množství 200 archů měsíčně, za cenu 3 groše za sto archů..."\n\n— Smlouva, rok 1538, na 5 let.',
+                glossa: '*Počty se nevychází.*\n\n200 archů měsíčně. Netolického největší tisk — Nový zákon — spotřeboval přes 800 archů. Smlouva nestačila na čtvrtinu.\n\nNetolický musel kupovat papír jinde — z Norimberku, z Benátek. Za trojnásobnou cenu. Marže zmizela.',
+                arcanum: '*Na okraji smlouvy, červenou křídou:*\n\n„Mlýn zaplavilo roku 1541. Václav zemřel. Smlouva zrušena. Musel jsem koupit zásoby papíru od Melantricha — za jeho cenu. Od té chvíle jsem věděl, jak to skončí."\n\nPapír jako zbraň. Melantrich to věděl dávno.',
+                reward_notify: '📜 +5 zápisků. Smlouva s papírníkem prostudována.',
             },
             netolicky_07: {
-                title: 'Colophon of the Last Book (1552)',
-                lectio: '*The final page. The ink is smeared in places — as though the paper was wet, or the hand trembling.*\n\n"Printed in Prague, in the Lesser Town, in the year of Our Lord 1552, at the printing house of Bartoloměj Netolický of Kapí Hora."\n\nBelow — added in another hand, fresh ink:\n\n"Now the printing house of Jiří Melantrich of Aventino."',
-                glossa: '*Two names on one page. History in miniature.*\n\nNetolický had been printing for thirty years. Melantrich erased it with a single sentence.\n\nYet Netolický lived another ten years. He drew his pension. He walked past the printing house that had borne his name — and then ceased to.\n\nHistory does not ask how the overwritten feel.',
-                arcanum: '*On the very last page, hidden behind a folded edge:*\n\n"Whosoever finds this page — know that I printed honestly. What was mine was good. What came after me — let time be the judge."\n\n— B. N.',
-                reward_notify: '📜 Netolický\'s legacy studied. The printer\'s memory endures.',
+                title: 'Kolofon poslední knihy (1552)',
+                lectio: '*Poslední stránka. Inkoust je místy rozmazaný — jako by papír byl mokrý, nebo ruka třásla.*\n\n„Vytištěno v Praze, na Malé Straně, léta Páně 1552, v tiskárně Bartoloměje Netolického z Kapí Hory."\n\nPod tím — připsáno jinou rukou, novým inkoustem:\n\n„Nyní tiskárna Jiřího Melantricha z Aventina."',
+                glossa: '*Dvě jména na jedné stránce. Dějiny v miniaturě.*\n\nNetolický tiskl 30 let. Melantrich to smazal jednou větou.\n\nAle Netolický žil ještě 10 let. Dostával rentu. Chodil kolem tiskárny, která nesla jeho jméno — a pak přestala.\n\nHistorie se neptá, jak se přepisovaný cítí.',
+                arcanum: '*Na úplně poslední stránce, skrytá za přeloženým okrajem:*\n\n„Kdo najde tuto stránku — věz, že jsem tiskl poctivě. Co bylo mé, bylo dobré. Co přišlo po mně — to ať posoudí čas."\n\n— B. N.',
+                reward_notify: '📜 Netolického pozůstalost prostudována. Odkaz tiskaře žije dál.',
             },
 
-            // ── Bestiary ───────────────────────────────────────────────────
+            // ── Bestiář ────────────────────────────────────────────────────
             titivillus_bestiar: {
                 title: 'Titivillus',
-                lectio: '*A German copperplate engraving, 17th century. A horned, goat-legged figure carries a bundle of books and scrolls on its back; two church towers rise in the background. Ribbons bearing a Latin inscription curl around its head — no one in the scriptorium has managed to translate it in full.*\n\nTITIVILLUS\nDaemon librarius, minor\n\nHaunts: any scriptorium where the Office is read aloud\nBehaviour: collects skipped syllables, garbled words, dropped lines\nTool: a sack on his back — filled a thousand times a day\nPurpose: evidence against the scribe on Judgment Day',
-                glossa: 'The legend of a demon collecting scribal errors first appears in preachers\' exempla at the end of the 12th century. The name "Titivillus" settles into the texts around 1285, in the writings of John of Wales — though the demon himself is older, and wandered Europe nameless before that.\n\nAcross the centuries he gathered dozens of names: Tutivillus, Tintinillus, Titelinus, Tantillus... in Bohemia he was reportedly called Tibini. Every monastery, every church from England to Byzantium held its own version of the same fear — that even the faintest mumbled syllable in the Hours would one day be placed on the scales.\n\nWhen printing arrived, monks whispered with a bitter smile: now Titivillus will have his harvest. The first printed books were full of errors — and the demon, it was said, did not hesitate a moment to switch from parchment to type.',
-                arcanum: 'The oldest tellers of the tale added a detail that still makes even a solemn chronicler smile: when no more errors would fit in the sack, Titivillus was said to stretch the parchment with his teeth. And when it tore, he struck his head helplessly against the wall.\n\n*Fragmina verborum Titivillus colligit horum,\nQuaque die mille vicibus se sarcinat ille.*\n\n"Titivillus gathers up these fragments of words, and fills his sack with them a thousand times a day."\n\nIn the scriptorium this holds literally true: write in the dark, without a candle or torch, and you risk Titivillus stealing the work from your hand — sometimes taking a cramp in your fingers along with it. Light a flame before you begin.',
+                lectio: '*Německý mědiryt, 17. století. Rohatá postava s kozíma nohama nese na zádech otep knih a svitků; v pozadí dvě věže kostela. Kolem hlavy létají stuhy s latinským nápisem — nikdo ve skriptoriu ho nedokázal přeložit celý.*\n\nTITIVILLUS\nDaemon librarius, minor\n\nSídlo: každé skriptorium, kde se čte nahlas\nChování: sbírá vynechané slabiky, zkomolená slova, přeskočené řádky\nNástroj: pytel na zádech — denně naplněn tisíckrát\nÚčel: doklad viny proti písaři v den posledního soudu',
+                glossa: 'Legenda o démonovi sbírajícím chyby písařů se poprvé objevuje v kazatelských exemplech koncem 12. století. Jméno „Titivillus" se v textech ustaluje kolem roku 1285, u Jana z Walesu — ale démon sám je starší a bezejmenný putoval Evropou už dřív.\n\nPřes staletí sbíral desítky jmen: Tutivillus, Tintinillus, Titelinus, Tantillus... v Čechách se mu prý říkalo Tibini. Každý klášter, každý kostel od Anglie po Byzanc měl svou verzi téhož strachu — že i sebemenší zamumlaná slabika v hodinkách se jednou položí na misku vah.\n\nKdyž přišel knihtisk, mniši si šeptali s hořkým úsměvem: teď bude mít Titivillus žně. První tisky byly plné chyb — a démon prý neváhal ani chvíli přesedlat od pergamenu k sazbě.',
+                arcanum: 'Nejstarší vypravěči přidávali detail, který dodnes rozesměje i vážného bratra kronikáře: když se do pytle nevešly další chyby, Titivillus prý natahoval pergamen zuby. A když se roztrhl, bouchl bezmocně hlavou o zeď.\n\n*Fragmina verborum Titivillus colligit horum,\nQuaque die mille vicibus se sarcinat ille.*\n\n„Úlomky těchto slov sbírá Titivillus, a každý den si jimi tisíckrát naplní pytel."\n\nVe skriptoriu to platí doslova: kdo píše potmě, bez svíce nebo louče, riskuje že mu Titivillus ukradne práci z ruky — a někdy s sebou vezme i křeč do prstů. Zapal světlo, než se pustíš do díla.',
             },
 
             acedia_bestiar: {
                 title: 'Daemon meridianus',
-                lectio: '*A copperplate engraving by Pieter van der Heyden after Pieter Bruegel the Elder, 1558. The figure of Desidia lies among snails and a donkey in the middle of a world turned upside down — the mill stands still, the house crumbles, nothing is ever finished.*\n\nDAEMON MERIDIANUS\nAlso called Acedia\n\nHaunts: the cell, whenever the sun stands highest\nBehaviour: time drags, the day grows fifty hours long, everything sours at once\nTool: none — only silence where prayer should be\nPurpose: the most dangerous of all — commander of the other demons (Evagrius)',
-                glossa: 'Fourth-century Egyptian hermits called him daemon meridianus — a demon who, unlike the others, does not wait for darkness but walks by day, in the hottest hour. His name comes from Psalm 90: "nor the destruction that wastes at noonday."\n\nEvagrius Ponticus, who first described him, called him the most troublesome of all the demons — commander of the whole host of temptation. He writes: first the sun seems to stand still. The day grows fifty hours long. The cell feels like a prison, the brothers like strangers, prayer like a duty stripped of meaning. The monk becomes a "runaway" — he either falls asleep at prayer, flees his cell, or abandons the monastery altogether.\n\nJohn Cassian carried the teaching west — and through him it remained in every rule to this day, whichever one a monastery follows.',
-                arcanum: 'Later centuries flattened Acedia into mere "sloth" — one of the seven deadly sins, easily pictured as a sleeper astride a donkey. But the old fathers knew it was something else: not rest, but dryness. Not laziness of the body, but a weariness of the spirit that cannot be seen until it is too late.\n\n*Segnities robur frangit, longa ocia nervos.*\n"Sloth breaks strength, long idleness withers the sinews."\n\nIn the monastery this holds exactly true: neglect the body and the spirit long enough — lose track of how much strength remains — and you will not notice how quietly your Piety drains away with it. Acedia never arrives all at once. It arrives as a tiredness that never quite rests.',
+                lectio: '*Mědiryt Pietera van der Heyden podle Pietera Bruegela staršího, 1558. Postava Desidie leží mezi hlemýždi a oslem uprostřed světa vzhůru nohama — mlýn se netočí, dům se rozpadá, nikdo nic nedokončí.*\n\nDAEMON MERIDIANUS\nVocatur etiam Acedia\n\nSídlo: cela, kdykoliv slunce stojí nejvýš\nChování: čas se vleče, den má padesát hodin, všechno omrzí najednou\nNástroj: žádný — jen ticho, kde má být modlitba\nÚčel: nejnebezpečnější ze všech — velitel ostatních běsů (Evagrius)',
+                glossa: 'Egyptští poustevníci 4. století mu říkali daemon meridianus — démon, co nečeká na tmu jako ostatní, ale chodí ve dne, v nejparnější hodině. Jméno má z 90. žalmu: „ani nákaza, jež pustoší o poledni."\n\nEvagrius Pontský, který ho popsal první, ho nazval nejobtížnějším ze všech běsů — velitelem celého vojska pokušení. Píše: nejdřív se zdá, že slunce stojí na místě. Den má padesát hodin. Cela se zdá jako vězení, bratři jako cizinci, modlitba jako povinnost bez smyslu. Mnich se stane „utečencem" — buď usne na modlitbě, nebo uteče z cely, nebo z kláštera úplně.\n\nJan Cassianus přinesl to učení na Západ — a skrze něj zůstalo v každé řeholi dodnes, bez ohledu na to, kterou z nich klášter dodržuje.',
+                arcanum: 'Pozdější staletí z Acedie udělaly jen „lenost" — jeden ze sedmi hlavních hříchů, klidně zobrazitelný jako spáč na oslu. Ale staří otcové věděli, že je to něco jiného: ne odpočinek, ale vyprahlost. Ne lenost těla, ale únava ducha, která nejde vidět, dokud není pozdě.\n\n*Segnities robur frangit, longa ocia nervos.*\n„Lenost láme sílu, dlouhá zahálka vysušuje šlachy."\n\nV klášteře to platí přesně takhle: kdo dlouho zanedbává tělo i ducha — kdo netuší, kolik síly ještě zbývá — netuší ani, jak potichu se mu vytrácí Zbožnost. Acedia nepřijde náhle. Přijde jako únava, která se nikdy pořádně neodpočine.',
             },
 
             titivillus_secunda: {
-                title: 'Titivillus — The Other Face',
-                lectio: '*The same Titivillus, a different pew. On the misericords carved beneath choir seats (England, 14th–15th c.) he sits among gossiping women, not among scribes. The sack is the same — only what falls into it differs.*\n\nTITIVILLUS (secunda facies)\nHaunts: the choir, the chapter house, wherever whispering replaces prayer\nBehaviour: collects gossip, idle talk, laughter behind backs\nTool: the very same sack — it does not distinguish where the words came from, only their worthlessness\nPurpose: the same judgment, a different witness',
-                glossa: 'The earliest mention is older than he himself might expect — Jacques de Vitry recorded it already in the 1220s: a demon who listens to the choir during the psalms and gathers into his sack the syllables skipped and swallowed. Two centuries later the English priest John the Blind Audeley warned against those who "over-hip and over-skip, mutter and mumble" — but added the other half of his work too: gossip in the pews, talk behind backs, laughter that has no place in church.\n\nOn the misericords (New College, Oxford, 14th c.; St Mary the Virgin, Enville, 15th c.) he sits precisely between two women, listening. Same figure, same sack — only the head turned the other way.',
-                arcanum: 'The brothers knew it, and gossiped anyway. Perhaps precisely because of it: believing a demon recorded the gossip was a way to keep confessing it for forgiveness — and keep on doing it regardless.\n\nIn the monastery this holds exactly true: where two lay brothers carry an old grudge against each other, it takes little for it to surface as a dispute at Chapter. Who knows how much of it Titivillus heard before the abbot did.',
+                title: 'Titivillus — druhá tvář',
+                lectio: '*Stejný Titivillus, jiná lavice. Na řezbách pod sedátky v kůru (misericordiích, Anglie 14.–15. stol.) sedí mezi klevetícími ženami, ne mezi opisovači. Pytel je stejný — jen to, co do něj padá, je jiné.*\n\nTITIVILLUS (secunda facies)\nSídlo: kůr, kapitulní síň, kdekoliv se šeptá místo modlí\nChování: sbírá klevety, plané řeči, smích za zády\nNástroj: tentýž pytel — nerozlišuje původ slov, jen jejich zbytečnost\nÚčel: stejný soud, jiný svědek',
+                glossa: 'Nejstarší zmínka je starší, než by čekal i on sám — Jakub z Vitry ji zapsal už ve 20. letech 13. století: démon, co poslouchá sbor při žalmech a sbírá do pytle vynechané a spolykané slabiky. Anglický kněz Jan Slepý z Audeley o dvě stě let později varoval před těmi, co „přeskakují a přebíhají, mumlají a huhňají" — ale přidal i druhou polovinu jeho práce: klevety v lavicích, řeči za zády, smích, co nepatří do kostela.\n\nNa řezbách pod sedátky v kůru (New College Oxford, 14. stol.; St Mary the Virgin, Enville, 15. stol.) sedí přesně mezi dvěma ženami a poslouchá. Stejná postava, stejný pytel — jen jinak natočená hlava.',
+                arcanum: 'Bratři to věděli, a přesto klevetili dál. Možná právě proto: věřit, že klevety zapisuje démon, byl způsob, jak si je nechat pro sebe za odpuštění — a přece pokračovat.\n\nV klášteře to platí přesně takhle: kde dva konvrši drží proti sobě starou křivdu, stačí málo a je z toho spor na Kapitule. Kdo ví, kolik z toho slyšel Titivillus dřív, než to slyšel opat.',
             },
 
             belzebub_bestiar: {
-                title: 'Beelzebub',
-                lectio: 'Lord of the Flies — the name is an insult, not a title. Originally Baal Zebul, "Lord of the Lofty Dwelling," a god honored in Philistine Ekron. The Israelites turned the name inside out: Baal Zebub, Lord of Flies — from palace to dung heap by a single letter.\n\nBEELZEBUB\nHaunts: wherever meat rots, wherever filth gathers\nBehaviour: harasses concentration with buzzing, tempts toward the sin of gluttony\nTool: the swarm — never alone, always many\nPurpose: one of the seven princes of Hell, patron of intemperance (Peter Binsfeld, 1589)',
-                glossa: 'In the Second Book of Kings (c. 850 BCE), the Israelite king Ahaziah sends messengers to Baal Zebub, god of Ekron, to ask whether he will recover from his injury. The prophet Elijah condemns him for it — and from that moment theology steadily dismantles the old cult into ruins. Baal Zebul, "Lord of the Lofty Dwelling," becomes Baal Zebub, "Lord of Flies" — an insult stamped permanently into the name.\n\nIn medieval art he appears as a giant fly, or as a bloated figure with insect wings, crowned by a swarm. Peter Binsfeld placed him in 1589 among the seven princes of Hell as patron of Gluttony (Gula) — the link between flies, rot, and excess of food is as old as the Bible itself.',
-                arcanum: 'A fly buzzing around the head of a praying monk was never just an irritating insect. It was a scout, or perhaps a small demon in its own right, trying to break concentration and remind the body it is hungry before the spirit has finished praying.\n\nIn the monastery this holds literally true: an uncleaned pen and rotting stores are not merely untidy. In the warm season they draw swarms that speed up decay all around them — raw meat, fish, cheese. The more manure and the more neglect, the more flies; the more flies, the faster the rest rots. Beelzebub does not ask where to begin.',
+                title: 'Belzebub',
+                lectio: 'Pán much — jméno je urážka, ne titul. Původně Baal Zebul, „Pán vznešeného příbytku", bůh ctěný ve filištínském Ekronu. Izraelité mu jméno obrátili naruby: Baal Zebub, Pán much — z paláce do hnoje jedním písmenem.\n\nBELZEBUB\nSídlo: kdekoli hnije maso, kdekoli se hromadí špína\nChování: obtěžuje soustředění bzučením, láká k hříchu obžerství\nNástroj: roj — nikdy sám, vždycky mnoho\nÚčel: jedno ze sedmi knížat pekla, patron nestřídmosti (Petr Binsfeld, 1589)',
+                glossa: 'Ve 2. Knize královské (asi 850 př. n. l.) pošle izraelský král Achazjáš posly k Baal Zebubovi, bohu Ekronu, zeptat se, zda se uzdraví ze zranění. Prorok Eliáš ho za to odsoudí — a od té chvíle teologie soustavně bourá starý kult na trosky. Baal Zebul, „Pán vznešeného příbytku", se stává Baal Zebub, „Pán much" — urážka vtisknutá do jména natrvalo.\n\nVe středověkém umění se objevuje jako obrovská moucha, nebo jako naducaná postava s hmyzími křídly, korunovaná rojem. Petr Binsfeld ho roku 1589 zařadil mezi sedm knížat pekla jako patrona Obžerství (Gula) — spojení much s hnilobou a přebytkem jídla je stejně staré jako Bible.',
+                arcanum: 'Moucha bzučící kolem hlavy modlícího se mnicha nebyla jen otravný hmyz. Byl to zvěd, nebo přímo drobný démon sám, co zkouší narušit soustředění a připomenout tělu, že má hlad, dřív než duch stihne domodlit.\n\nV klášteře to platí doslova: neuklizený chlév a hnijící zásoby nejsou jen nepořádek. V teplém období přitahují roje, které zrychlují kažení všeho kolem — syrového masa, ryb, sýra. Čím víc hnoje a čím víc neuklizeno, tím víc much; čím víc much, tím rychleji hnije zbytek. Belzebub se neptá, kde začít.',
             },
 
             grim_bestiar: {
-                title: 'Church Grim',
-                lectio: 'An English and Scandinavian legend, carried into Christian ground from pagan roots. It was believed that the first being buried in a new churchyard had to guard its gate against the Devil forever.\n\nCHURCH GRIM\nHaunts: the churchyard gate, the first grave\nBehaviour: guards the consecrated ground against grave robbers and evil spirits\nTool: none — only presence, a black dog with burning eyes\nPurpose: a protector, not a scourge — the only kindly demon in this whole bestiary',
-                glossa: 'So that no human soul had to carry the task, a black dog was often walled alive into the foundations of the church, or buried at the edge of the churchyard — the first victim, the first guardian. Its ghost then walked the grounds at night, visible only to those soon to die.\n\nThe legend is as old as the custom of founding consecrated ground itself — protection through sacrifice, not through prayer. The Church never officially sanctioned it, nor forbade it outright; it survived in folk belief alongside the liturgy.',
-                arcanum: 'Unlike every other demon in this bestiary, the Church Grim punishes no one, collects no errors, tempts no one toward sin. It guards.\n\nIn the monastery this holds literally true: the first grave in a churchyard is not merely the first loss. It is the moment consecrated ground truly becomes consecrated — it has something to defend, and someone.',
+                title: 'Church Grim (Kostelní grim)',
+                lectio: 'Anglická a skandinávská legenda, přenesená do křesťanského prostředí z pohanských kořenů. Věřilo se, že první bytost pohřbená na novém hřbitově musí navždy hlídat jeho bránu před Ďáblem.\n\nCHURCH GRIM\nSídlo: hřbitovní brána, první hrob\nChování: hlídá posvátnou půdu před vykradači hrobů a zlými duchy\nNástroj: žádný — jen přítomnost, černý pes s planoucíma očima\nÚčel: ochránce, ne škůdce — jediný vlídný běs v celém bestiáři',
+                glossa: 'Aby tenhle úkol nemusel plnit lidský duch, zazdíval se do základů kostelní zdi nebo pohřbíval na kraj hřbitova zaživa černý pes — první oběť, první strážce. Jeho duch pak v noci obcházel hřbitov, viditelný jen tomu, kdo měl umřít brzy.\n\nLegenda je stará jako sám zvyk zakládat posvátnou půdu — ochrana skrze oběť, ne skrze modlitbu. Církev ji nikdy oficiálně neschválila, ale ani nezakázala; přežila v lidové víře dál, paralelně s liturgií.',
+                arcanum: 'Na rozdíl od všech ostatních běsů v tomhle bestiáři Church Grim nikoho netrestá, nesbírá chyby, neláká k hříchu. Hlídá.\n\nV klášteře to platí doslova: první hrob na hřbitově není jen první ztráta. Je to okamžik, kdy se posvátná půda skutečně stane posvátnou — má co bránit, i koho.',
             },
 
             revenanti_bestiar: {
-                title: 'Revenants',
-                lectio: 'Forerunners of today\'s zombies and vampires — but no romantic blood-drinking aristocrats. Rotting, bloated corpses of sinners, suicides, or plague victims who climb out of their graves at night.\n\nREVENANTUS\nHaunts: a neglected churchyard, an untended grave\nBehaviour: wanders the village, spreads a plague-breath, terrifies the living\nTool: its own body — swelling, blisters, a stench attributed to demonic power\nPurpose: a warning — a neglected grave is an open gate',
-                glossa: 'William of Newburgh, a 12th-century English chronicler, recorded several such cases as fact, not rumor — the dead rising from the grave to torment the living, until someone dug up the body and stopped it.\n\nThe defense was practical as much as spiritual: the body was exhumed, its head struck off with a spade, its heart pierced or removed and burned — meant to release the trapped gases of decomposition, taken at the time for demonic force itself.',
-                arcanum: 'Behind the talk of plague-breath and swollen bodies lies a simple, literal truth: a grave no one tends is a grave that speaks. The stench, the swelling, things emerging from the ground — all of it has a perfectly ordinary explanation, except the medieval mind looked for that explanation elsewhere.\n\nIn the monastery this holds exactly true: a neglected churchyard is not merely an unpleasant sight. It is a place where legend and neglect blur into one — and the longer it goes on, the harder they are to tell apart.',
+                title: 'Revenanti',
+                lectio: 'Předchůdci dnešních zombie a upírů — ale žádní romantičtí aristokraté. Tlející, naběhlé mrtvoly hříšníků, sebevrahů nebo obětí moru, které v noci vylézají z hrobů.\n\nREVENANTUS\nSídlo: zanedbaný hřbitov, hrob bez péče\nChování: bloudí vesnicí, šíří morový dech, děsí živé\nNástroj: vlastní tělo — otoky, puchýře, zápach připisovaný démonické síle\nÚčel: varování — zanedbaný hrob je otevřená brána',
+                glossa: 'Vilém z Newburghu, anglický kronikář 12. století, zaznamenal několik takových případů jako fakta, ne pověsti — mrtví, co vstávají z hrobu a obtěžují živé, dokud jejich tělo někdo nevyhrabe a nezastaví.\n\nObrana byla praktická, ne jen duchovní: tělo se exhumovalo, useklo se mu rýčem hlavou, srdce se probodlo nebo vyňalo a spálilo — což mělo vypustit nahromaděné plyny rozkladu, tehdy brané za démonickou sílu samu.',
+                arcanum: 'Za slovy o morovém dechu a naběhlých tělech je jednoduchá, doslovná pravda: hrob, o který se nikdo nestará, je hrob, který mluví. Zápach, otoky, věci vylézající ze země — to všechno má docela obyčejné vysvětlení, jenže středověký člověk vysvětlení hledal jinde.\n\nV klášteře to platí přesně takhle: zanedbaný hřbitov není jen ošklivý pohled. Je to místo, kde legenda a nedbalost splývají v jedno — a čím déle to trvá, tím hůř se to od sebe odlišuje.',
             },
 
             marginalie_bestiar: {
-                title: 'Marginalia (Wandering Demons)',
-                lectio: 'Not everything in this bestiary has a name, a theology, or even a body. These creatures were born directly in the tired minds of scribes — in the margins of the parchment, not in any treatise.\n\nMARGINALIA (DROLLERIES)\nHaunts: the edge of the page, whenever attention fades\nBehaviour: murderous snails, dog-headed men, hares hunting hounds, monkeys playing instruments\nTool: the scribe\'s own quill — the only demon that draws itself\nPurpose: a release valve, not a sin — a visual symptom of fatigue, not a temptation',
-                glossa: 'When a scribe\'s attention faded after hours of work, his struggle to concentrate visualized itself directly in the margins of the parchment. The most common motif: a fully armed knight retreating before a giant snail — satire on cowardice, or perhaps simply on how unbearably slowly the work on the manuscript crept along.\n\nDog-headed men, Blemmyes, hares hunting hounds, monkeys with musical instruments — none of these figures has a theological treatise, a sermon, a name in any bestiary. They were born right here, in the margin, and nowhere else.',
-                arcanum: 'All six demons found so far — Titivillus in two faces, Acedia, Beelzebub, the Church Grim, the Revenants — had a name, a treatise, a theologian who described them. This last one does not. It is the only beast in the whole bestiary that no one invented — it drew itself, by the hand of an exhausted man.\n\nPerhaps it was the most honest record of all: not what the monastery believed threatened it, but what it actually felt, when it could go no further.',
+                title: 'Marginalie (Běsi rozptýlení)',
+                lectio: 'Ne všechno v bestiáři má jméno, teologii, nebo dokonce tělo. Tohle jsou stvoření, co se rodila přímo v unavených myslích skriptorů — na okrajích pergamenu, ne v žádném traktátu.\n\nMARGINALIA (DROLERIE)\nSídlo: okraj stránky, kdykoliv pozornost opadne\nChování: vražední šneci, psohlavci, zajíci lovící psy, opice hrající na nástroje\nNástroj: brk skriptora samotného — jediný běs, co kreslí sám sebe\nÚčel: ventil, ne hřích — vizuální projev únavy, ne pokušení',
+                glossa: 'Když pozornost skriptora po hodinách opadla, jeho boj se soustředěním se vizualizoval přímo do okrajů pergamenu. Nejčastější motiv: plně ozbrojený rytíř ustupující před obřím šnekem — satira na zbabělost, nebo možná jen na to, jak nesnesitelně pomalu se práce na rukopisu vlekla.\n\nKynocefalové, Blemyové, zajíci lovící psy, opice s hudebními nástroji — žádná z těchto postav nemá teologický traktát, žádnou kázeň o nich, žádné jméno v žádném bestiáři. Rodily se přímo tady, na okraji, a nikde jinde.',
+                arcanum: 'Všech šest běsů, co jsi až dosud našel — Titivillus ve dvou tvářích, Acedia, Belzebub, Church Grim, Revenanti — mělo jméno, traktát, teologa, co je popsal. Tenhle poslední ne. Je to jediná bestie v celém bestiáři, co nikdo nevymyslel — nakreslila se sama, rukou vyčerpaného člověka.\n\nMožná to byl ten nejupřímnější záznam ze všech: ne co klášter věřil, že ho ohrožuje, ale co skutečně cítil, když už nemohl dál.',
             },
-
-        }, // end folios
-
-    }, // end scrinium
+        },
+    },
 
     // ── EVENTS ───────────────────────────────────────────────────────────────
     events: {
         ui: {
-            result: 'Outcome',
-            close: 'Close',
+            result: 'Výsledek',
+            close: 'Zavřít',
         },
 
-        // ── CALENDAR EVENTS ───────────────────────────────────────────────────
+        // ── KALENDÁŘNÍ EVENTY ─────────────────────────────────────────────────
         cal_ash_wednesday: {
-            title: 'Ash Wednesday',
-            text: 'The bells have rung since dawn. The Abbot hath decreed a fast — no meat, no wine, no excess. Forty days of penance begin this day. The scriptorium worketh on, but the hands are heavier.',
-            notify: '✝️ Ash Wednesday. Forty days of fasting begin.',
+            title: 'Popeleční středa',
+            text: 'Zvony bijí od rána. Opat nařídil půst — žádné maso, žádné víno, žádný přepych. Čtyřicet dní pokání začíná dnes. Skriptorium pracuje dál, ale ruce jsou těžší.',
+            notify: '✝️ Popeleční středa. Čtyřicet dní půstu začíná.',
         },
         cal_walpurgis: {
-            title: 'Walpurgis Night',
-            text: 'Fires burn upon the hills from Blaník to Říp. It is said that this night herbs hold their greatest power and the Athanor burns more brightly. But also — that the inquisitor from Olomouc keepeth his eyes open.',
-            athanor_btn: 'Work in the Athanor through the night',
-            athanor_desc: 'Make use of the magical night. Combinations have +30% chance of success — but the inquisitor may come in the morning.',
-            athanor_notif: '🔥 The furnace blazeth. This night belongeth to fire.',
-            athanor_res: 'The Athanor burned all night long. Attempts in the next 8 hours will have a better chance of success. We shall see if anyone noticed the lights.',
-            pray_btn: 'Close the shutters and pray',
-            pray_desc: 'The safe choice. No risk.',
-            pray_notif: '🙏 Prayer hath protected the scriptorium.',
-            pray_res: 'A quiet night. The fires upon the hills burned out unnoticed. The scriptorium is safe.',
-            herbs_btn: 'Send a helper to gather herbs',
-            herbs_desc: 'Walpurgis herbs are the rarest of the whole year.',
-            herbs_notif: '🌿 The helper returned before dawn with arms full of herbs.',
-            herbs_res: 'Thyme, St. John\u2019s wort, chamomile \u2014 all gathered at midnight. Hildegard would approve.',
+            title: 'Filipojakubská noc',
+            text: 'Ohně hoří na kopcích od Blaníku až po Říp. Říká se, že tuto noc mají byliny největší moc a pec Athanoru hoří jasněji. Ale také — že inkvizitor z Olomouce má oči otevřené.',
+            athanor_btn: 'Pracovat v Athanoru celou noc',
+            athanor_desc: 'Využít magické noci. Kombinace mají +30% šanci úspěchu — ale inkvizitor může přijít ráno.',
+            athanor_notif: '🔥 Pec plane. Tato noc patří ohni.',
+            athanor_res: 'Athanor hořel celou noc. Pokusy v příštích 8 hodinách budou mít vyšší šanci na úspěch. Uvidíme, zda někdo nezaregistroval světla.',
+            pray_btn: 'Zavřít okna a modlit se',
+            pray_desc: 'Bezpečná volba. Žádné riziko.',
+            pray_notif: '🙏 Modlitba ochránila skriptorium.',
+            pray_res: 'Tichá noc. Ohně na kopcích dohorěly bez povšimnutí. Skriptorium je v bezpečí.',
+            herbs_btn: 'Vyslat pomocníka sbírat byliny',
+            herbs_desc: 'Filipojakubské byliny jsou nejvzácnější v celém roce.',
+            herbs_notif: '🌿 Pomocník se vrátil před svítáním s plnou náručí bylin.',
+            herbs_res: 'Tymián, třezalka, heřmánek — vše trhané o půlnoci. Hildegarda by schválila.',
         },
         cal_easter: {
-            title: 'Easter Morning',
-            text: 'Alleluia ringeth from the church tower. Pilgrims come from every direction. Benedikt of Litomyšl hath opened the Tavern since dawn and Giacomo Foscari hath arrived with new wares.',
-            notify: '✝️ Christus resurrexit. The scriptorium rejoiceth.',
+            title: 'Velikonoční ráno',
+            text: 'Aleluja zní z kostelní věže. Poutníci přicházejí ze všech stran. Benedikt z Litomyšle otevřel Hospodu od svítání a Giacomo Foscari připlul s novým zbožím.',
+            notify: '✝️ Christus resurrexit. Skriptorium slaví.',
         },
         cal_may_day: {
-            title: 'The First of May',
-            text: 'The young men spent the whole night raising the maypole before the village. The maidens garland the cattle. The garden seemeth to know — everything groweth faster, the bees fly further than usual.',
-            notify: '🌿 May hath come. The garden awaketh.',
+            title: 'První máj',
+            text: 'Mladíci celou noc stavěli máj před vesnicí. Dívky věnčí dobytek. Zahrada jako by sama věděla — vše roste rychleji, včely létají dál než jindy.',
+            notify: '🌿 Máj přišel. Zahrada se probouzí.',
         },
         cal_midsummer: {
-            title: 'St. John\u2019s Night',
-            text: 'The shortest night of the year. Herb-gatherers believe that St. John\u2019s wort picked at midnight cureth all. The fires upon the hills speak in the pagan tongue, the bells in the church in the Christian tongue. Both tongues sound as one this day.',
-            herbs_btn: 'Go gathering herbs at midnight',
-            herbs_desc: 'Midsummer herbs hold the greatest power. But the short night will make itself felt.',
-            herbs_notif: '🌿 Herbs gathered at midnight hold a singular power.',
-            herbs_res: 'St. John’s wort, thyme, pollen — all gathered by the light of midsummer. Vigour suffereth, but the stores are rich.',
-            work_btn: 'Stay in the scriptorium and work',
-            work_desc: 'A bright night meaneth fewer candles. A good time to work.',
-            work_notif: '🌙 A bright night. Candles scarce needed.',
-            work_res: 'Thou worked by natural light. Candles saved, manuscripts advancing.',
+            title: 'Noc svatého Jana',
+            text: 'Nejkratší noc roku. Bylinkáři věří, že třezalka trhána o půlnoci léčí vše. Ohně na kopcích mluví pohanskou řečí, zvony v kostele řečí křesťanskou. Oba jazyky dnes znějí najednou.',
+            herbs_btn: 'Jít sbírat byliny o půlnoci',
+            herbs_desc: 'Byliny trhané o slunovratu mají největší moc. Ale krátká noc dá o sobě vědět.',
+            herbs_notif: '🌿 Byliny trhané o půlnoci mají zvláštní moc.',
+            herbs_res: 'Třezalka, tymián, pyl — vše sebráno za svitu Sv. Jana. Vigor trpí, ale zásoby jsou bohaté.',
+            work_btn: 'Zůstat ve skriptoriu a pracovat',
+            work_desc: 'Jasná noc znamená méně svíček. Dobrý čas na práci.',
+            work_notif: '🌙 Jasná noc. Svíčky téměř nepotřeba.',
+            work_res: 'Pracoval jsi při přirozeném světle. Svíčky ušetřeny, rukopisy pokračují.',
         },
         cal_all_souls: {
-            title: 'All Souls’ Day',
-            text: 'Candles burn upon the graves since dusk. Titivillus is more lively this night than any other — it is said that the dead souls of scribes who erred bring him fresh letters for his sack. Write with care.',
-            notify: '🕯️ All Souls’ Day. Titivillus watcheth.',
+            title: 'Dušičky',
+            text: 'Svíčky hoří na hrobech od soumraku. Titivillus je tuto noc živější než jindy — říká se, že mrtvé duše písařů, kteří chybovali, mu nosí nová písmena do pytle. Piš opatrně.',
+            notify: '🕯️ Dušičky. Titivillus bdí.',
         },
         cal_advent: {
-            title: 'Advent Hath Begun',
-            text: 'Four weeks of waiting. The church smelleth of incense, the market of gingerbread. The demand for psalters and prayer books groweth — everyone wisheth to have the word of God at home before Christmas.',
-            notify: '✝️ Advent. A time of waiting and light.',
+            title: 'Advent začal',
+            text: 'Čtyři neděle čekání. Kostel voní kadidlem, trh voní perníkem. Poptávka po žaltářích a modlitebních knihách roste — každý chce mít doma slovo Boží před Vánocemi.',
+            notify: '✝️ Advent. Čas čekání a světla.',
         },
         cal_christmas: {
-            title: 'Christmas Eve',
-            text: 'The star hath risen. The Cellarium is closed, Benedikt and Giacomo are with their families. The community needeth food and warmth. The scriptorium resteth — but the fire in the hearth never goeth out.',
-            notify: '⭐ Christmas Eve. Pax et bonum.',
+            title: 'Štědrý večer',
+            text: 'Hvězda vyšla. Cellarium zavřeno, Benedikt i Giacomo jsou u svých rodin. Komunita potřebuje jídlo a teplo. Skriptorium odpočívá — ale oheň v krbu nikdy nezhasíná.',
+            notify: '⭐ Štědrý večer. Pax et bonum.',
         },
         cal_new_year: {
-            title: 'The Year’s End',
-            text: 'The old year departeth. The chronicler shall write the last line. All old matters are closed — and new ones begin upon a clean page.',
-            notify: '🕯️ New Year. A clean page.',
+            title: 'Konec roku',
+            text: 'Starý rok odchází. Kronikář zapíše poslední řádku. Všechny staré záležitosti jsou uzavřeny — a nové začínají čistou stránkou.',
+            notify: '🕯️ Nový rok. Čistá stránka.',
         },
         swedish_siege: {
-            title: 'Raiders from the North',
-            text: 'Word cometh from the lower town — an armed band marcheth from the north. They call them Swedes, yet they speak a strange mixture of tongues. They seek valuables. Thy manuscripts are in peril.',
-            sartorius_btn: 'Treat with Captain Sartorius',
-            sartorius_desc: 'Offer part of thy stores in exchange for protection.',
-            sartorius_notif: '⚔️ Sartorius hath accepted. The losses are bearable.',
-            sartorius_res: 'Captain Sartorius took his share and withdrew. The scriptorium still standeth.',
-            wall_btn: 'Wall up the stores in the cellar',
-            wall_desc: 'Conceal all behind a false wall. Risky, but thy best chance.',
-            wall_notif: '🧱 The stores are walled up. Thou waitest.',
-            wall_res: 'All is hidden. The raiders searched the scriptorium — they found nothing. In 48 hours thou shalt dig it out.',
-            wall_return: '🧱 The false wall uncovered — thy stores have returned, most of them saved.',
-            nego_btn: 'Surrender part of the manuscripts as ransom',
-            nego_desc: 'Painful, but swift.',
-            nego_notif: '📜 The ransom hath been delivered. They have gone.',
-            nego_res: 'They took the manuscripts and vanished into the forest. The rest of the scriptorium is safe.',
+            title: 'Nájezd od severu',
+            text: 'Zprávy přicházejí z podhradí — ozbrojená skupina táhne od severu. Říkají jim Švédové, ale mluví divnou směsicí jazyků. Hledají cennosti. Tvé rukopisy jsou v nebezpečí.',
+            sartorius_btn: 'Vyjednat s kapitánem Sartoriem',
+            sartorius_desc: 'Nabídnout část zásob výměnou za ochranu.',
+            sartorius_notif: '⚔️ Sartorius přijal nabídku. Ztráty jsou únosné.',
+            sartorius_res: 'Kapitán Sartorius si vzal svůj díl a odtáhl. Skriptorium stojí.',
+            wall_btn: 'Zazdit zásoby do sklepa',
+            wall_desc: 'Skrýt vše za falešnou zeď. Riskantní, ale nejlepší šance.',
+            wall_notif: '🧱 Zásoby jsou zazděny. Čekáš.',
+            wall_res: 'Vše je skryto. Švédové prohledali skriptorium — nic nenašli. Za 48 hodin vše vykopáš.',
+            wall_return: '🧱 Falešná zeď odkryta — zásoby se vrátily, většina zachráněna.',
+            nego_btn: 'Vydat část rukopisů jako výkupné',
+            nego_desc: 'Bolestivé, ale rychlé řešení.',
+            nego_notif: '📜 Výkupné předáno. Odešli.',
+            nego_res: 'Vzali rukopisy a zmizeli do lesa. Zbytek skriptoria je v bezpečí.',
         },
         hidden_incunabula: {
-            title: 'A Mysterious Book',
-            text: 'While rearranging the shelves, thou findest a dusty book behind a beam. Printed, but old — very old. It may be an incunabulum.',
-            compare_btn: 'Compare with the Kutná Hora Bible',
-            compare_desc: 'A scholarly comparison — it may yield precious insight.',
-            compare_notif_ok: '📚 The comparison hath yielded remarkable findings!',
-            compare_res_ok: 'The manuscript is truly rare. Thy notes shall enrich the knowledge of the scriptorium.',
-            compare_notif_fail: '📚 The comparison hath yielded no clear conclusion.',
-            compare_res_fail: 'The book remaineth a mystery. At least a few notes.',
-            ignore_btn: 'Set aside for later',
-            ignore_desc: 'There is no time for scholarship now.',
-            ignore_notif: '📦 The book awaiteth better times.',
-            ignore_res: 'Thou hast stored it safely. Perhaps thou shalt return to it.',
+            title: 'Záhadná kniha',
+            text: 'Při přeskládání regálů nalezneš za trámem zaprášenou knihu. Tisk, ale starý — velmi starý. Mohla by to být inkunábule.',
+            compare_btn: 'Porovnat s Kutnohorskou biblí',
+            compare_desc: 'Vědecké srovnání — může přinést cenné poznatky.',
+            compare_notif_ok: '📚 Srovnání přineslo ojedinělé poznatky!',
+            compare_res_ok: 'Rukopis je skutečně vzácný. Tvé poznámky rozšíří vědění skriptoria.',
+            compare_notif_fail: '📚 Srovnání nepřineslo jasný závěr.',
+            compare_res_fail: 'Kniha zůstává záhadou. Aspoň pár poznámek.',
+            ignore_btn: 'Odložit na později',
+            ignore_desc: 'Teď není čas na bádání.',
+            ignore_notif: '📦 Kniha čeká na lepší časy.',
+            ignore_res: 'Uložil jsi ji bezpečně. Možná se k ní vrátíš.',
         },
         discovered_old_vaults: {
-            title: 'The Collapsed Floor',
-            text: 'While moving stores, the timber gave way beneath the cellarer\'s feet. Beneath the floor — forgotten vaults. Old masonry, darkness, the smell of damp. Someone was here before us.',
-            explore_btn: 'Explore',
-            explore_desc: 'Take a lantern and descend.',
-            explore_notif: '🕯️ Old Cellars discovered beneath the monastery.',
-            explore_res: 'The vaults run deeper than thou expected. They will need clearing and repair — but the space is there.',
-            wall_btn: 'Wall it up',
-            wall_desc: 'Safer to let sleeping things lie.',
-            wall_notif: '🧱 The opening was walled up again.',
-            wall_res: 'The cellarer nodded. "What lies beneath, let it remain." The hole is sealed.',
-            wait_btn: 'Wait',
-            wait_desc: 'Think it over first, return to it later.',
-            wait_notif: '⏳ The decision is postponed.',
-            wait_res: 'Thou leavest the hole covered with planks. Thou mayest return to this decision another time.',
+            title: 'Propadlá podlaha',
+            text: 'Při přenášení zásob prasklo dřevo pod nohama bratra sklepníka. Pod podlahou — zapomenuté klenby. Staré zdivo, tma, pach vlhka. Někdo tu byl před námi.',
+            explore_btn: 'Prozkoumat',
+            explore_desc: 'Vzít lucernu a sestoupit dolů.',
+            explore_notif: '🕯️ Objeveny Staré sklepy pod klášterem.',
+            explore_res: 'Klenby vedou hlouběji, než jsi čekal. Bude třeba je vyčistit a opravit — ale prostor je tu.',
+            wall_btn: 'Zazdít',
+            wall_desc: 'Bezpečnější nechat spát, co spí.',
+            wall_notif: '🧱 Otvor byl znovu zazděn.',
+            wall_res: 'Bratr sklepník přikývl. "Co je pod zemí, ať tam zůstane." Díra je zazděná.',
+            wait_btn: 'Počkat',
+            wait_desc: 'Napřed to promyslet, vrátit se později.',
+            wait_notif: '⏳ Rozhodnutí odloženo.',
+            wait_res: 'Necháváš díru zakrytou prkny. K rozhodnutí se můžeš vrátit jindy.',
         },
 
-        // ── REPEATABLE EVENTS (Category B — Athanor & Inquisition) ─────────────
+        // ── OPAKOVATELNÉ EVENTY (kategorie B — Athanor & Inkvizice) ────────────
         inq_morning_visit: {
-            title: 'A Knock at the Door',
-            text: 'The porter brother arrived pale as a sheet. A man in black stands at the gate — a Dominican bearing the seal of the Olomouc inquisitorial tribunal. He asks about suspicious smells and lights at night.',
-            open_btn: 'Open up and show the scriptorium',
-            open_desc: 'Admit to the scriptorium, hide the Athanor.',
-            open_notif_ok: '🕊️ The inquisitor left satisfied. The scriptorium is clean.',
-            open_res_ok: 'He examined the shelves, leafed through a few manuscripts, nodded. "All in order, brother." He left without suspicion.',
-            open_notif_fail: '⚠️ The inquisitor found the laboratory. The Athanor is sealed.',
-            open_res_fail: 'Behind the false wall he caught the scent of sulfur. The Athanor is sealed as of today — no one may enter for 48 hours.',
-            bribe_btn: 'Bribe him (20 groschen)',
-            bribe_desc: 'Coin speaks louder than words.',
-            bribe_notif: '💰 The Dominican accepted the gift and left. God forgives.',
-            bribe_res: 'The coins vanished up his sleeve faster than thou wouldst expect from a man of a holy order. He left without further questions.',
-            bribe_notif_poor: '⚠️ Thou hast not enough groschen for a bribe.',
-            bribe_res_poor: 'Thou reachest into the purse — it is empty. The inquisitor waits, impatiently.',
-            refuse_btn: 'Refuse entry — monastic right',
-            refuse_desc: 'The monastery holds immunity from secular power. Risky.',
-            refuse_notif_ok: '🛡️ The inquisitor respected the monastery\'s right. He left.',
-            refuse_res_ok: 'The Abbot would be proud. The Dominican studied the seal on the gate, nodded silently, and turned to leave.',
-            refuse_notif_fail: '⚠️ The inquisitor will return with reinforcements.',
-            refuse_res_fail: 'His face hardened. "We shall see what the bishop says." He left — but this was not the end.',
+            title: 'Klepe na dveře',
+            text: 'Bratr vrátný přišel celý bledý. U brány stojí muž v černém — dominikán s pečetí inkvizičního tribunálu z Olomouce. Ptá se na podezřelé zápachy a světla v noci.',
+            open_btn: 'Otevřít a ukázat skriptorium',
+            open_desc: 'Přiznat skriptorium, Athanor skrýt.',
+            open_notif_ok: '🕊️ Inkvizitor odešel spokojen. Skriptorium je čisté.',
+            open_res_ok: 'Prohlédl regály, prolistoval pár rukopisů, přikývl. „Vše v pořádku, bratře." Odešel bez podezření.',
+            open_notif_fail: '⚠️ Inkvizitor nalezl laboratoř. Athanor zapečetěn.',
+            open_res_fail: 'Za falešnou stěnou ucítil síru. Athanor je od dnešního dne pod pečetí — na 48 hodin nikdo dovnitř.',
+            bribe_btn: 'Podplatit (20 grošů)',
+            bribe_desc: 'Groše promluví za vše.',
+            bribe_notif: '💰 Dominikán přijal dar a odešel. Bůh odpouští.',
+            bribe_res: 'Mince zmizely v jeho rukávu rychleji, než bys čekal od muže svatého řádu. Odešel bez dalších otázek.',
+            bribe_notif_poor: '⚠️ Na úplatek nemáš dost grošů.',
+            bribe_res_poor: 'Sáhl jsi do měšce — je prázdný. Inkvizitor čeká, netrpělivě.',
+            refuse_btn: 'Odmítnout vstup — klášterní právo',
+            refuse_desc: 'Klášter má imunitu před světskou mocí. Riskantní.',
+            refuse_notif_ok: '🛡️ Inkvizitor respektoval klášterní právo. Odešel.',
+            refuse_res_ok: 'Opat by byl hrdý. Dominikán si prohlédl pečeť na bráně, mlčky přikývl a otočil se k odchodu.',
+            refuse_notif_fail: '⚠️ Inkvizitor se vrátí s posilami.',
+            refuse_res_fail: 'Jeho tvář ztvrdla. „Uvidíme, co na to řekne biskup." Odešel — ale tohle nebyl konec.',
         },
         athanor_pilgrim_ingredient: {
-            title: 'A Pilgrim at the Gate',
-            text: 'A man with no name arrived. He says he comes from afar — from Constantinople, perhaps farther still. He offers a small pouch of an unknown substance. "For one who knows what to do with it," he says.',
-            accept_btn: 'Accept it (5 groschen)',
-            accept_desc: 'The pouch looks promising.',
-            accept_notif: '🎒 The pouch is thine. The pilgrim vanished before thou couldst turn around.',
-            accept_res: 'Inside — a rare ingredient the likes of which thou hast never seen in these parts. Best not to ask where he got it.',
-            accept_notif_poor: '⚠️ Thou hast not enough groschen for the pouch.',
-            accept_res_poor: 'Thou reachest into the purse — the pilgrim only smiles and walks away in silence.',
-            decline_btn: 'Decline',
-            decline_desc: 'Caution is its own reward.',
-            decline_notif: '🙏 Thou declinest. The pilgrim shrugged and left.',
-            decline_res: 'Perhaps needless caution, perhaps wisdom. The porter brother nodded — strange things from strangers never end well.',
+            title: 'Poutník u brány',
+            text: 'Přišel muž bez jména. Říká, že přichází z daleka — z Konstantinopole, možná ještě dál. Nabízí malý váček s neznámou látkou. „Pro toho, kdo ví, co s tím dělat," říká.',
+            accept_btn: 'Přijmout (5 grošů)',
+            accept_desc: 'Váček vypadá slibně.',
+            accept_notif: '🎒 Váček je váš. Poutník zmizel dřív, než jste se otočili.',
+            accept_res: 'Uvnitř — vzácná ingredience, jakou jsi ve zdejších krajích ještě neviděl. Kde ji sehnal, radši se neptej.',
+            accept_notif_poor: '⚠️ Na váček nemáš dost grošů.',
+            accept_res_poor: 'Sáhl jsi do měšce — poutník se jen usmál a mlčky odešel.',
+            decline_btn: 'Odmítnout',
+            decline_desc: 'Opatrnost se cení.',
+            decline_notif: '🙏 Odmítli jste. Poutník pokrčil rameny a odešel.',
+            decline_res: 'Možná zbytečná opatrnost, možná moudrost. Bratr vrátný přikývl — cizí věci od cizích lidí nikdy nekončí dobře.',
         },
         athanor_explosion: {
-            notify: '💥 Explosion! The Athanor has cooled and sealed for 2 hours.',
+            notify: '💥 Exploze! Athanor ochlazen, zapečetěn na 2 hodiny.',
         },
 
-        // ── REPEATABLE EVENTS (Category C — Printing & Incunabula) ─────────────
+        // ── OPAKOVATELNÉ EVENTY (kategorie C — Knihtisk & Inkunábule) ──────────
         print_malleus: {
-            title: 'A Dangerous Commission',
-            text: 'A messenger from the Dominicans of Cologne arrived. They bring a manuscript — the Malleus Maleficarum, the Hammer of Witches. They want it printed. They pay well. Very well.',
-            anon_btn: 'Accept the commission (anonymous printing)',
-            anon_desc: 'No colophon. No one will know.',
-            anon_notif: '💰 The book was printed without a colophon. No one knows.',
-            anon_res: 'The type worked all night without a name on the title page. The messenger paid and left satisfied. Conscience rests easier when no one knows.',
-            open_btn: 'Accept it openly',
-            open_desc: 'With the scriptorium\'s name on the title page. Higher pay, higher risk.',
-            open_notif: '⚠️ The book bears thy name. The Dominicans are pleased. Others less so.',
-            open_res: 'Thou didst print openly, proudly, with the monastery\'s seal on the title page. The Dominicans are pleased. The same cannot be said of others.',
-            refuse_btn: 'Refuse',
-            refuse_desc: 'Some commissions are not worth the money.',
-            refuse_notif: '🕊️ Thou refusedst. The messenger left coldly.',
-            refuse_res: 'The messenger took the manuscript back without a word. Cologne will find another workshop. Thy conscience is clear — thy purse the lighter for it.',
+            title: 'Nebezpečná zakázka',
+            text: 'Přišel posel od dominikánů z Kolína. Přinášejí rukopis — Malleus Maleficarum, Kladivo na čarodějnice. Chtějí tisk. Platí dobře. Velmi dobře.',
+            anon_btn: 'Přijmout zakázku (anonymní tisk)',
+            anon_desc: 'Bez kolofonu. Nikdo se to nedozví.',
+            anon_notif: '💰 Kniha vytištěna bez kolofonu. Nikdo neví.',
+            anon_res: 'Litery pracovaly celou noc beze jména na titulní straně. Posel zaplatil a odešel spokojen. Svědomí je tišší, když nikdo nic neví.',
+            open_btn: 'Přijmout otevřeně',
+            open_desc: 'Se jménem skriptoria na titulní straně. Vyšší plat, vyšší riziko.',
+            open_notif: '⚠️ Kniha nese vaše jméno. Dominikáni jsou spokojeni. Ostatní méně.',
+            open_res: 'Tiskli jste otevřeně, hrdě, s pečetí kláštera na titulní straně. Dominikáni jsou spokojeni. O ostatních se to říct nedá.',
+            refuse_btn: 'Odmítnout',
+            refuse_desc: 'Některé zakázky nestojí za peníze.',
+            refuse_notif: '🕊️ Odmítli jste. Posel odešel chladně.',
+            refuse_res: 'Posel si vzal rukopis zpět beze slova. Kolín si najde jinou dílnu. Vaše svědomí je čisté — měšec o to lehčí.',
         },
         print_gutenberg_type: {
-            title: 'An Estate from Mainz',
-            text: 'Giacomo Foscari came with an unusual offer. He has a contact in Mainz — someone is selling a set of type from Gutenberg\'s original workshop. A historical rarity. The price matches.',
-            buy_btn: 'Buy it (200 groschen)',
-            buy_desc: 'Full price, a certain purchase.',
-            buy_notif: '🔡 The type from Mainz is thine. Gutenberg\'s spirit is with thee.',
-            buy_res: 'The pouch of type weighs more in the hand than it should. History itself. Giacomo smiled — he knew thou wouldst not refuse.',
-            buy_notif_poor: '⚠️ Thou hast not enough groschen for the type.',
-            buy_res_poor: 'The purse is too light. Giacomo shrugged — perhaps next time.',
-            haggle_btn: 'Haggle (150 groschen)',
-            haggle_desc: 'Riskier, but cheaper — if it works.',
-            haggle_notif_ok: '🔡 Giacomo agreed. The type for a fair price.',
-            haggle_res_ok: 'After lengthy bargaining, Giacomo nodded. "For an old friend." The type is thine, thy purse fuller than expected.',
-            haggle_notif_fail: '📦 Giacomo shrugged. Another buyer was faster.',
-            haggle_res_fail: 'The negotiation dragged on too long. Meanwhile someone else in Mainz paid full price. The type is gone.',
-            haggle_notif_poor: '⚠️ Thou hast not enough groschen even to haggle.',
-            haggle_res_poor: 'The purse is too light even for haggling. Giacomo keeps the offer to himself.',
-            decline_btn: 'Decline',
-            decline_desc: 'The type is a costly affair.',
-            decline_notif: '📦 Thou let the opportunity pass.',
-            decline_res: 'Giacomo packed the type back up. "A pity," he said. "Such things are not offered twice."',
+            title: 'Pozůstalost z Mohuče',
+            text: 'Giacomo Foscari přišel s neobvyklou nabídkou. Má kontakt v Mohuči — někdo prodává sadu liter z původní Gutenbergovy dílny. Historická vzácnost. Cena tomu odpovídá.',
+            buy_btn: 'Koupit (200 grošů)',
+            buy_desc: 'Plná cena, jistá koupě.',
+            buy_notif: '🔡 Litery z Mohuče jsou vaše. Gutenbergův duch je s vámi.',
+            buy_res: 'Váček liter váží v ruce víc, než by měl. Historie samotná. Giacomo se usmál — věděl, že neodmítnete.',
+            buy_notif_poor: '⚠️ Na litery nemáš dost grošů.',
+            buy_res_poor: 'Měšec je příliš lehký. Giacomo pokrčil rameny — snad příště.',
+            haggle_btn: 'Smlouvat (150 grošů)',
+            haggle_desc: 'Riskantnější, ale levnější — pokud to vyjde.',
+            haggle_notif_ok: '🔡 Giacomo přistoupil. Litery za rozumnou cenu.',
+            haggle_res_ok: 'Po dlouhém dohadování Giacomo kývl. "Pro starého přítele." Litery jsou vaše, měšec o něco plnější, než jste čekali.',
+            haggle_notif_fail: '📦 Giacomo pokrčil rameny. Jiný zájemce byl rychlejší.',
+            haggle_res_fail: 'Vyjednávání se táhlo příliš dlouho. Mezitím kdosi jiný v Mohuči zaplatil plnou cenu. Litery jsou pryč.',
+            haggle_notif_poor: '⚠️ Na smlouvání nemáš dost grošů.',
+            haggle_res_poor: 'Měšec je příliš lehký i na smlouvání. Giacomo si nechá nabídku pro sebe.',
+            decline_btn: 'Odmítnout',
+            decline_desc: 'Litery jsou drahá záležitost.',
+            decline_notif: '📦 Nechali jste příležitost projít.',
+            decline_res: 'Giacomo litery zabalil zpět. "Škoda," řekl. "Takové věci se dvakrát nenabízí."',
         },
 
-        // ── REPEATABLE EVENTS (Category D — Farmyard & Nature) ─────────────────
+        // ── OPAKOVATELNÉ EVENTY (kategorie D — Dvůr & Příroda) ─────────────────
         curia_sheep_disease: {
-            title: 'The Sheep Are Coughing',
-            text: 'The shepherd arrived at dawn with unpleasant news — the sheep stand still and will not eat. Their eyes are clouded, their wool dull. He knows this as murrain.',
-            thyme_btn: 'Treat with thyme',
-            thyme_desc: 'A tried remedy, but not always enough.',
-            thyme_notif_ok: '🌿 The thyme helped. The sheep recovered.',
-            thyme_res_ok: 'The shepherd mixed thyme into the water and feed. Within two days the sheep were on their feet again, grazing and bleating as if nothing had happened.',
-            thyme_notif_fail: '⚠️ Too late for one. A sheep did not survive.',
-            thyme_res_fail: 'The thyme helped most of the flock, but one sheep was already too weak. The shepherd bowed his head — he did what he could.',
-            thyme_notif_poor: '⚠️ Thou hast not enough thyme (2 needed).',
-            thyme_res_poor: 'There is not enough thyme in store to treat the whole flock. The sheep will have to wait.',
-            healer_btn: 'Call a healer (10 groschen)',
-            healer_desc: 'Costly, but reliable.',
-            healer_notif: '💊 The healer came and helped. The flock is saved.',
-            healer_res: 'The village healer came with her own herbs and a steady hand. By evening the whole flock was on its feet.',
-            healer_notif_fail: '⚠️ Even the healer was too late for one sheep.',
-            healer_res_fail: 'The healer did what she could, but one sheep was beyond help. The rest of the flock is well.',
-            healer_notif_poor: '⚠️ Thou hast not enough groschen for a healer.',
-            healer_res_poor: 'The purse is too light. The healer will not come without payment upfront.',
-            healer_notif_called: '💊 A healer has been summoned — she will arrive tomorrow.',
-            healer_res_called: 'You sent for the village healer. With her herbs and steady hand she will arrive tomorrow — until then the flock is safe.',
-            healer_notif_active: '⏳ The healer is already on her way.',
-            healer_res_active: 'A healer has already been summoned and is on her way. No need to send for another.',
-            isolate_btn: 'Isolate the sick',
-            isolate_desc: 'A harsh solution, but it stops the spread.',
-            isolate_notif: '🐑 The sick sheep are isolated. There are losses, but the murrain does not spread.',
-            isolate_res: 'The shepherd separated the sick animals from the healthy. A painful decision, but the rest of the flock is safe.',
+            title: 'Ovce kašlou',
+            text: 'Pastýř přišel zrána s nepěknou zprávou — ovce stojí a nežerou. Oči mají zakalené, srst matnou. Zná to jako mor dobytka.',
+            thyme_btn: 'Léčit tymiánem',
+            thyme_desc: 'Osvědčený lék, ale ne vždy stačí.',
+            thyme_notif_ok: '🌿 Tymián pomohl. Ovce se uzdravily.',
+            thyme_res_ok: 'Pastýř vmíchal tymián do vody a krmiva. Za dva dny byly ovce zase na nohou, žraly a bečely jako by se nic nestalo.',
+            thyme_notif_fail: '⚠️ Příliš pozdě. Jedna ovce nepřežila.',
+            thyme_res_fail: 'Tymián pomohl většině stáda, ale jedna ovce byla už příliš slabá. Pastýř sklopil hlavu — udělal, co mohl.',
+            thyme_notif_poor: '⚠️ Nemáš dost tymiánu (potřeba 2×).',
+            thyme_res_poor: 'V zásobárně není dost tymiánu na léčbu celého stáda. Ovce budou muset počkat.',
+            healer_btn: 'Povolat léčitele (10 grošů)',
+            healer_desc: 'Drahé, ale spolehlivé.',
+            healer_notif: '💊 Léčitel přišel a pomohl. Stádo je zachráněno.',
+            healer_res: 'Léčitel z vesnice přišel s vlastními bylinami a jistou rukou. Do večera bylo celé stádo na nohou.',
+            healer_notif_fail: '⚠️ I léčitel přišel pozdě k jedné ovci.',
+            healer_res_fail: 'Léčitel udělal, co mohl, ale jedna ovce byla už za pomocí. Zbytek stáda je v pořádku.',
+            healer_notif_poor: '⚠️ Na léčitele nemáš dost grošů.',
+            healer_res_poor: 'Měšec je příliš lehký. Léčitel bez zálohy nepřijde.',
+            healer_notif_called: '💊 Léčitel byl povolán — dorazí zítra.',
+            healer_res_called: 'Poslal jsi pro léčitele z vesnice. Se svými bylinami a jistou rukou dorazí až zítra — do té doby stádu nic nehrozí.',
+            healer_notif_active: '⏳ Léčitel je už na cestě.',
+            healer_res_active: 'Léčitel byl už povolán a je na cestě. Není třeba posílat druhého.',
+            isolate_btn: 'Izolovat nemocné',
+            isolate_desc: 'Tvrdé řešení, ale zastaví to šíření.',
+            isolate_notif: '🐑 Nemocné ovce izolovány. Ztráty jsou, ale mor se nešíří.',
+            isolate_res: 'Pastýř oddělil nemocné kusy od zdravých. Bolestivé rozhodnutí, ale zbytek stáda je v bezpečí.',
         },
         garden_hail: {
-            title: 'Hailstorm',
-            text: 'It came without warning. Pea-sized hail lashed the garden for a quarter hour. What survived?',
-            notify: '🧊 Hailstorm! The garden and orchard are damaged.',
+            title: 'Krupobití',
+            text: 'Přišlo bez varování. Kroupy velikosti hrášku bičovaly zahradu čtvrt hodiny. Co přežilo?',
+            notify: '🧊 Krupobití! Zahrada a sad poškozeny.',
         },
 
-        // ── REPEATABLE EVENTS (Category E — Cellarium & NPCs) ───────────────────
+        // ── OPAKOVATELNÉ EVENTY (kategorie E — Cellarium & NPC) ────────────────
         cellarium_giacomo_news: {
-            title: 'Giacomo Has News',
-            text: 'The Venetian arrived with a broad smile and new goods. "From the Orient," he says mysteriously. "Things no one in Bohemia has."',
-            view_btn: 'Look at the goods (30 groschen)',
-            view_desc: 'A rare material, but Giacomo charges for the exotic.',
-            view_notif: '📦 Giacomo opened the chest. A rare material is thine.',
-            view_res: 'The chest smells of spice and distance. Inside — a material the local market has never known. Giacomo asked a fair price, and did not haggle.',
-            view_notif_poor: '⚠️ Thou hast not enough groschen for Giacomo\'s goods.',
-            view_res_poor: 'The purse is too light. Giacomo closed the chest again — "Next time, friend."',
-            decline_btn: 'Decline',
-            decline_desc: 'Not today.',
-            decline_notif: '🤷 Giacomo shrugged. "Next time, friend."',
-            decline_res: 'Giacomo kept the offer to himself and left with the chest under his arm. Perhaps next time.',
+            title: 'Giacomo má zprávy',
+            text: 'Benátčan přišel s širokým úsměvem a novým zbožím. "Z Orientu," říká tajemně. "Věci, které v Čechách nikdo nemá."',
+            view_btn: 'Prohlédnout zboží (30 grošů)',
+            view_desc: 'Vzácná surovina, ale Giacomo si za exotiku počítá.',
+            view_notif: '📦 Giacomo otevřel truhlu. Vzácná surovina je vaše.',
+            view_res: 'Truhla vonět kořením a dálkou. Uvnitř — surovina, jakou zdejší trh nezná. Giacomo si za ni řekl slušně, ale nesmlouval.',
+            view_notif_poor: '⚠️ Na Giacomovo zboží nemáš dost grošů.',
+            view_res_poor: 'Měšec je příliš lehký. Giacomo truhlu zase zavřel — "Příště, příteli."',
+            decline_btn: 'Odmítnout',
+            decline_desc: 'Ne dnes.',
+            decline_notif: '🤷 Giacomo pokrčil rameny. "Příště, příteli."',
+            decline_res: 'Giacomo si nabídku nechal pro sebe a odešel s truhlou pod paží. Snad příště.',
         },
         cellarium_benedikt_debt: {
-            title: 'Benedikt Needs Help',
-            text: 'Innkeeper Benedikt of Litomyšl came in person. He owes groschen to a brewer in Brno. The tavern will close for a week unless thou helpest.',
-            lend_btn: 'Lend 30 groschen',
-            lend_desc: 'Benedikt is a good friend of the monastery.',
-            lend_notif: '🍺 Benedikt left with relief. "I shall never forget this."',
-            lend_notif_poor: '⚠️ Thou hast not enough groschen to lend.',
-            lend_res: 'Benedikt gripped thy hand tighter than expected. "The monastery has my debt," he said, and left with the coin for the brewer.',
-            lend_res_poor: 'The purse is too light even to help a friend. Benedikt nodded sadly and left.',
-            decline_btn: 'Decline',
-            decline_desc: 'The monastery is not a bank.',
-            decline_notif: '🍺 Benedikt understood. The tavern closes tomorrow.',
-            decline_res: 'Benedikt shrugged — it was not the first time he had to manage alone. The tavern will remain closed tomorrow.',
+            title: 'Benedikt potřebuje pomoc',
+            text: 'Hospodský Benedikt z Litomyšle přišel osobně. Dluží groše sládkovi z Brna. Hospoda bude zavřena týden, pokud nepomůžete.',
+            lend_btn: 'Půjčit 30 grošů',
+            lend_desc: 'Benedikt je dobrý přítel kláštera.',
+            lend_notif: '🍺 Benedikt s úlevou odešel. "Nikdy nezapomenu."',
+            lend_res: 'Benedikt stiskl vaši ruku pevněji, než jste čekali. "Klášter má u mě dluh," řekl a odešel s groši k sládkovi.',
+            lend_notif_poor: '⚠️ Na půjčku nemáš dost grošů.',
+            lend_res_poor: 'Měšec je příliš lehký i na pomoc příteli. Benedikt smutně přikývl a odešel.',
+            decline_btn: 'Odmítnout',
+            decline_desc: 'Klášter není banka.',
+            decline_notif: '🍺 Benedikt pochopil. Hospoda zítra zavřena.',
+            decline_res: 'Benedikt pokrčil rameny — nebylo to poprvé, co si musel poradit sám. Hospoda zůstane zítra zavřená.',
         },
         cellarium_counterfeit: {
-            title: 'Counterfeit Groschen',
-            text: 'While counting the coffer, thou foundest three groschen with a suspicious sheen. Counterfeit. Who slipped them in?',
-            benedikt_btn: 'Return them to Benedikt',
-            benedikt_desc: 'Suspicion falls on the Tavern.',
-            benedikt_notif: '🍺 Benedikt protested, but took the coins back.',
-            benedikt_res: 'Benedikt looked offended — "I would never cheat the monastery!" — but took the coins back without further argument.',
-            giacomo_btn: 'Return them to Giacomo',
-            giacomo_desc: 'Suspicion falls on the Market.',
-            giacomo_notif: '📦 Giacomo protested, but took the coins back.',
-            giacomo_res: 'Giacomo looked hurt — "A Venetian never counterfeits!" — but silently pocketed the coins and left.',
-            keep_btn: 'Keep them and stay silent',
-            keep_desc: 'The simplest, if not the cleanest, solution.',
-            keep_notif: '🤐 The counterfeit coins are hidden. The problem solved in thine own way.',
-            keep_res: 'The counterfeit groschen ended up buried at the bottom of a chest. No one asked, no one found out. The coffer is a few groschen poorer.',
+            title: 'Falešné groše',
+            text: 'Při počítání pokladny jste našli tři groše s podezřelým leskem. Falzum. Kdo je podstrčil?',
+            benedikt_btn: 'Vrátit Benediktovi',
+            benedikt_desc: 'Podezření padá na Hospodu.',
+            benedikt_notif: '🍺 Benedikt se ohradil, ale groše přijal zpět.',
+            benedikt_res: 'Benedikt se tvářil uraženě — "Já bych klášter neošidil!" — ale groše si vzal zpět beze slova dalšího sporu.',
+            giacomo_btn: 'Vrátit Giacomovi',
+            giacomo_desc: 'Podezření padá na Trh.',
+            giacomo_notif: '📦 Giacomo se ohradil, ale groše přijal zpět.',
+            giacomo_res: 'Giacomo se zatvářil dotčeně — "Benátčan nikdy nefalšuje!" — ale groše mlčky schoval a odešel.',
+            keep_btn: 'Nechat si je a mlčet',
+            keep_desc: 'Nejjednodušší, i když ne nejčistší řešení.',
+            keep_notif: '🤐 Falešné groše skryty. Problém vyřešen po svém.',
+            keep_res: 'Falešné groše skončily zahrabané na dně truhly. Nikdo se nezeptal, nikdo se nedozvěděl. Pokladna je o pár grošů chudší.',
         },
 
-        // ── REPEATABLE EVENTS (Category F — Scrinium & Abbot) ───────────────────
+        // ── OPAKOVATELNÉ EVENTY (kategorie F — Scrinium & Opat) ────────────────
         scrinium_abbot_ill: {
-            title: 'The Abbot Lies Ill',
-            text: 'The apothecary brother arrived with a grave face. The Abbot has a fever. Scrinium is locked — the Abbot keeps the keys, and no one else may enter.',
-            notify: '🤒 The Abbot has fallen ill. Scrinium is closed for 12 hours.',
+            title: 'Opat leží',
+            text: 'Bratr lékárník přišel s vážnou tváří. Opat má horečku. Scrinium je zamčeno — klíče má opat u sebe a nikdo jiný nesmí dovnitř.',
+            notify: '🤒 Opat onemocněl. Scrinium je zavřeno na 12 hodin.',
         },
         scrinium_mysterious_guest: {
-            title: 'Who Is That Man?',
-            text: 'Walking through the monastery, thou glimpsedst a stranger through Scrinium\'s half-open door. The Abbot speaks with him quietly. The stranger carries a large pouch — and the corner of a scroll peeks out.',
-            enter_btn: 'Enter and introduce thyself',
-            enter_desc: 'Risky, but curiosity wins.',
-            enter_notif_ok: '📜 The stranger is a folio merchant. He showed thee what he has.',
-            enter_res_ok: 'The man introduced himself as a collector of old manuscripts. "I have something for thee too, brother," he said, drawing a forgotten folio from his pouch.',
-            enter_notif_fail: '⚠️ The Abbot is angered. Scrinium closed for 6 hours.',
-            enter_res_fail: 'The Abbot turned with a look that brooked no argument. "This is not thy concern, brother." Scrinium was locked for a while.',
-            wait_btn: 'Wait and observe',
-            wait_desc: 'Patience may reveal more than questions.',
-            wait_notif: '🗺️ The stranger showed the Abbot a map. Interesting.',
-            wait_res: 'From fragments of the conversation thou caughtest the word "map" and the name of a distant town. Something is brewing — perhaps the Maps are worth watching.',
-            leave_btn: 'Leave it be',
-            leave_desc: 'Not everything is thy concern.',
-            leave_kronika: 'A mysterious stranger visited the Abbot in Scrinium. No one knows what they discussed.',
-            leave_res: 'Thou turned and went about thy business. Let the Abbot manage his own affairs — thou hast enough work of thine own.',
+            title: 'Kdo je ten člověk?',
+            text: 'Procházeli jste klášterem a skrze pootevřené dveře Scrinia jste zahlédli cizího muže. Opat s ním hovoří potichu. Cizinec nese velký váček — a z váčku kouká roh svitku.',
+            enter_btn: 'Vstoupit a představit se',
+            enter_desc: 'Riskantní, ale zvědavost vítězí.',
+            enter_notif_ok: '📜 Cizinec je obchodník s foliemi. Ukázal, co má.',
+            enter_res_ok: 'Muž se představil jako sběratel starých rukopisů. "Mám i pro tebe něco, bratře," řekl a z váčku vytáhl zapomenutý zápisek.',
+            enter_notif_fail: '⚠️ Opat je rozzloben. Scrinium zavřeno na 6 hodin.',
+            enter_res_fail: 'Opat se otočil s pohledem, který nesnesl odmluvy. "Toto není tvá věc, bratře." Scrinium se na chvíli zamklo.',
+            wait_btn: 'Počkat a pozorovat',
+            wait_desc: 'Trpělivost může prozradit víc než otázky.',
+            wait_notif: '🗺️ Cizinec ukázal opatovi mapu. Zajímavé.',
+            wait_res: 'Z úlomků rozhovoru jste zaslechli slovo "mapa" a jméno vzdáleného města. Něco se chystá — možná stojí za to sledovat Mapy dál.',
+            leave_btn: 'Odejít a neřešit',
+            leave_desc: 'Ne všechno je vaše starost.',
+            leave_kronika: 'Záhadný cizinec navštívil opata ve Scriniu. Nikdo neví, o čem mluvili.',
+            leave_res: 'Otočili jste se a odešli po svých. Ať si opat řeší své záležitosti sám — vy máte dost práce vlastní.',
         },
     },
     abbotPetition: {
         fodina: {
-            title: 'Request for Mining Rights',
-            submit_btn: 'Submit petition to the Abbot',
-            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
-            approved: '✅ The Abbot has granted mining rights. The Fodina may be opened.',
-            denied_tech: '❌ Abbot denied: The monastery has not yet acquired knowledge of mining. Research: Fodina — Art of Mining.',
-            denied_fabrica: '❌ Abbot denied: You have no place to work the ore. Build the Fabrica first.',
-            denied_groats: '❌ Abbot denied: The monastery lacks funds for the royal mining toll (50 groats).',
-            denied_pickaxe: '❌ Abbot denied: No tools to open a mine. Obtain a pickaxe first.',
-            kronika_submit: 'Petition submitted to the Abbot for mining rights (Fodina). Reply expected by {responseDate}.',
-            kronika_approved: 'The Abbot granted the opening of the mine (Fodina). Mining privilege awarded.',
-            kronika_denied: 'The Abbot denied the petition for the Fodina. Reason: {reason}',
-            inspect_hint: 'The Abbot has promised an inspection visit in the coming days.',
-            locked_hint: 'To mine iron ore, you need the Abbot\'s consent to open a mine.',
+            title: 'Žádost o právo těžby',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil právo těžby. Fodina může být otevřena.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud nezískal vědomosti o umění těžby. Prostuduj: Fodina — Umění Těžby.',
+            denied_fabrica: '❌ Opat zamítl: Nemáte kde vytěžené železo zpracovat. Postavte nejprve Fabricu.',
+            denied_groats: '❌ Opat zamítl: Klášter nemá prostředky na horní poplatek panovníkovi (50 grošů).',
+            denied_pickaxe: '❌ Opat zamítl: Bez nářadí nelze důl otevřít. Opatřete krumpáč.',
+            kronika_submit: 'Odeslána žádost opatovi o právo těžby (Fodina). Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil otevření dolu (Fodina). Horní privilegium uděleno.',
+            kronika_denied: 'Opat zamítl žádost o Fodinu. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu v nejbližších dnech.',
+            locked_hint: 'Chceš-li těžit železnou rudu, potřebuješ souhlas opata s otevřením dolu.',
         },
         fornax: {
-            title: 'Request to Build a Smelting Furnace',
-            submit_btn: 'Submit petition to the Abbot',
-            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
-            approved: '✅ The Abbot has approved the Fornax Ferraria. The furnace may be built.',
-            denied_tech: '❌ Abbot denied: The monastery has not yet acquired knowledge of iron smelting. Research: Fornax Ferraria — Smelting Iron.',
-            denied_fodina: '❌ Abbot denied: A mine (Fodina) must be opened first.',
-            denied_groats: '❌ Abbot denied: The monastery lacks sufficient funds (80 groats).',
-            denied_charcoal: '❌ Abbot denied: No charcoal stores to run a furnace (15 required).',
-            kronika_submit: 'Petition submitted to the Abbot for the Fornax Ferraria. Reply expected by {responseDate}.',
-            kronika_approved: 'The Abbot approved the Fornax Ferraria. Ore smelting may begin.',
-            kronika_denied: 'The Abbot denied the petition for the Fornax Ferraria. Reason: {reason}',
-            inspect_hint: 'The Abbot has promised an inspection visit once the furnace is complete.',
-            locked_hint: 'Smelting ore requires the Abbot\'s consent to build a furnace.',
-            build_cost: 'Build cost: 40 rock, 15 cut stone, 20 clay, 20 planks, 15 charcoal.',
+            title: 'Žádost o stavbu hutě',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil stavbu Fornax Ferraria. Huť může být postavena.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud nezískal vědomosti o tavbě železa. Prostuduj: Fornax Ferraria — Tavba Železa.',
+            denied_fodina: '❌ Opat zamítl: Nejprve musí být otevřen důl (Fodina).',
+            denied_groats: '❌ Opat zamítl: Klášter nemá dostatek prostředků (80 grošů).',
+            denied_charcoal: '❌ Opat zamítl: Bez zásob dřevěného uhlí nelze huť provozovat (15 ks).',
+            kronika_submit: 'Odeslána žádost opatovi o stavbu hutě (Fornax Ferraria). Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil stavbu Fornax Ferraria. Tavení rudy může začít.',
+            kronika_denied: 'Opat zamítl žádost o Fornax Ferraria. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
+            locked_hint: 'Tavení rudy vyžaduje souhlas opata ke stavbě hutě.',
+            build_cost: 'Stavba: 40 kamene, 15 tesaného kamene, 20 hlíny, 20 fošen, 15 dřevěného uhlí.',
         },
         furnus: {
-            title: 'Request to Build a Bakery Oven',
-            submit_btn: 'Submit petition to the Abbot',
-            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
-            approved: '✅ The Abbot has approved the Furnus. The oven may be built.',
-            denied_tech: '❌ Abbot denied: The monastery has not yet acquired the art of oven-building. Research: Furnus — The Art of Baking.',
-            denied_parcel: '❌ Abbot denied: The Bakers\' Yard must be acquired first (Cellarium — Land).',
-            denied_groats: '❌ Abbot denied: The monastery lacks sufficient funds (60 groats).',
-            denied_clay: '❌ Abbot denied: Not enough clay to line the oven (20 required).',
-            kronika_submit: 'Petition submitted to the Abbot for the Furnus (bakery oven). Reply expected by {responseDate}.',
-            kronika_approved: 'The Abbot approved the Furnus. Bread baking may begin.',
-            kronika_denied: 'The Abbot denied the petition for the Furnus. Reason: {reason}',
-            inspect_hint: 'The Abbot has promised an inspection visit once the oven is complete.',
-            locked_hint: 'Baking bread at scale requires the Abbot\'s consent to build an oven.',
-            build_cost: 'Build cost: 20 clay, 15 rock, 10 planks, 5 nails.',
+            title: 'Žádost o stavbu pekárny',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil stavbu Furnusu. Pekárna může být postavena.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud nezná umění stavby pece na chléb. Prostuduj: Furnus — Umění Pečení.',
+            denied_parcel: '❌ Opat zamítl: Nejprve musí být získán Pekařský dvůr (Cellarium — Pozemky).',
+            denied_groats: '❌ Opat zamítl: Klášter nemá dostatek prostředků (60 grošů).',
+            denied_clay: '❌ Opat zamítl: Bez dostatku hlíny nelze pec vyzdít (20 ks).',
+            kronika_submit: 'Odeslána žádost opatovi o stavbu pekárny (Furnus). Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil stavbu Furnusu. Pečení chleba může začít.',
+            kronika_denied: 'Opat zamítl žádost o Furnus. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
+            locked_hint: 'Pečení chleba ve velkém vyžaduje souhlas opata ke stavbě pekárny.',
+            build_cost: 'Stavba: 20 hlíny, 15 kamene, 10 fošen, 5 hřebíků.',
         },
         land_dvur_pekarsky: {
-            title: 'Request for the Bakers\' Yard',
-            submit_btn: 'Submit petition to the Abbot',
-            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
-            approved: '✅ The Abbot approved dealings over the Bakers\' Yard. The parcel may be bought in Cellarium — Land.',
-            denied_regalia: '❌ Abbot denied: You must first study the Regalia and open dealings with the Lord of the Manor.',
-            kronika_submit: 'Petition submitted to the Abbot for the Bakers\' Yard. Reply expected by {responseDate}.',
-            kronika_approved: 'The Abbot approved dealings over the Bakers\' Yard.',
-            kronika_denied: 'The Abbot denied the petition for the Bakers\' Yard. Reason: {reason}',
-            inspect_hint: 'The Abbot has promised to send an officer to survey the site before it is entered in the register.',
-            locked_hint: 'The monastery is already bursting at the seams — a new workshop needs its own land, and the Abbot\'s word first.',
+            title: 'Žádost o pekařský dvůr',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil jednání o pekařském dvoře. Parcelu jde koupit v Cellariu — Pozemky.',
+            denied_regalia: '❌ Opat zamítl: Nejprve musíš prostudovat Regálie a otevřít jednání se Zemským pánem.',
+            kronika_submit: 'Odeslána žádost opatovi o pekařský dvůr. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil jednání o pekařském dvoře.',
+            kronika_denied: 'Opat zamítl žádost o pekařský dvůr. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil poslat úředníka na místo, než parcelu zapíše do desek.',
+            locked_hint: 'Klášter už praská ve švech — nová dílna potřebuje vlastní pozemek, a k tomu nejdřív opatovo slovo.',
         },
         columbarium: {
-            title: 'Request for a Flock of Pigeons',
-            submit_btn: 'Submit petition to the Abbot',
-            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
-            approved: '✅ The Abbot sends a flock of pigeons for training. The Columbarium comes alive.',
-            denied_tech: '❌ Abbot denied: The monastery does not yet know the art of pigeon post. Research: Porta — Pigeon Post.',
-            denied_build: '❌ Abbot denied: The dovecote does not yet stand. Build the Columbarium first.',
-            kronika_submit: 'Petition submitted to the Abbot for pigeons for the Columbarium. Reply expected by {responseDate}.',
-            kronika_approved: 'The Abbot sent a flock of pigeons. The Columbarium is inhabited.',
-            kronika_denied: 'The Abbot denied the petition for pigeons. Reason: {reason}',
-            inspect_hint: 'The Abbot has promised to visit the dovecote soon.',
-            locked_hint: 'The pigeon post requires the Abbot\'s consent to deliver birds.',
+            title: 'Žádost o holubí hejno',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat posílá hejno holubů k výcviku. Columbarium ožívá.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud nezná umění holubí pošty. Prostuduj: Porta — Holubí pošta.',
+            denied_build: '❌ Opat zamítl: Holubník ještě nestojí. Nejprve postav Columbarium.',
+            kronika_submit: 'Odeslána žádost opatovi o holuby pro Columbarium. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat poslal hejno holubů. Columbarium je obydleno.',
+            kronika_denied: 'Opat zamítl žádost o holuby. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil, že se na holubník brzy podívá.',
+            locked_hint: 'Holubí pošta vyžaduje souhlas opata k dodání ptáků.',
         },
         domus_ii: {
-            title: 'Request to Expand the House of Lay Brothers',
-            submit_btn: 'Submit petition to the Abbot',
-            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
-            approved: '✅ The Abbot has approved the expansion to Domus Conversorum II. Construction may begin.',
-            denied_phase2: '❌ Abbot denied: Phase 2 (Domus Conversorum I) must be completed first.',
-            denied_influence: '❌ Abbot denied: The monastery has not yet earned enough of the Abbot\'s trust.',
-            denied_food: '❌ Abbot denied: Food stores are too modest to support a larger community.',
-            denied_economy: '❌ Abbot denied: The monastery lacks sufficient funds or a stable income.',
-            denied_drink: '❌ Abbot denied: The monastery must show its prosperity — wine, ale or honey in store.',
-            denied_rank: '❌ Abbot denied: Only a Prior may petition for so great an expansion.',
-            kronika_submit: 'Petition submitted to the Abbot to expand the House of Lay Brothers. Reply expected by {responseDate}.',
-            kronika_approved: 'The Abbot approved the expansion to Domus Conversorum II.',
-            kronika_denied: 'The Abbot denied the petition to expand the House of Lay Brothers. Reason: {reason}',
-            inspect_hint: 'The Abbot has promised an inspection visit once the building is complete.',
+            title: 'Žádost o rozšíření Domu Konvršů',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil rozšíření na Domus Conversorum II. Stavba může začít.',
+            denied_phase2: '❌ Opat zamítl: Nejprve musí být dokončena Fáze 2 (Domus Conversorum I).',
+            denied_influence: '❌ Opat zamítl: Klášter dosud nezískal dostatečnou důvěru opata.',
+            denied_food: '❌ Opat zamítl: Zásoby jídla jsou příliš skromné na rozšíření komunity.',
+            denied_economy: '❌ Opat zamítl: Klášter nemá dostatek prostředků ani stabilní příjem.',
+            denied_drink: '❌ Opat zamítl: Klášter musí prokázat prosperitu — víno, pivo nebo med v zásobách.',
+            denied_rank: '❌ Opat zamítl: Žádost o tak zásadní rozšíření může podat jen Prior.',
+            kronika_submit: 'Odeslána žádost opatovi o rozšíření Domu Konvršů. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil rozšíření na Domus Conversorum II.',
+            kronika_denied: 'Opat zamítl žádost o rozšíření Domu Konvršů. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
         },
         domus_iii: {
-            title: 'Request for the Great Dormitory of Lay Brothers',
-            submit_btn: 'Submit petition to the Abbot',
-            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
-            approved: '✅ The Abbot has approved the expansion to Domus Conversorum III. Construction may begin.',
-            kronika_submit: 'Petition submitted to the Abbot for the great dormitory of lay brothers. Reply expected by {responseDate}.',
-            kronika_approved: 'The Abbot approved the expansion to Domus Conversorum III.',
-            kronika_denied: 'The Abbot denied the petition for the great dormitory of lay brothers. Reason: {reason}',
-            inspect_hint: 'The Abbot has promised an inspection visit once the building is complete.',
+            title: 'Žádost o velký dormitář Konvršů',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil rozšíření na Domus Conversorum III. Stavba může začít.',
+            kronika_submit: 'Odeslána žádost opatovi o velký dormitář Konvršů. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil rozšíření na Domus Conversorum III.',
+            kronika_denied: 'Opat zamítl žádost o velký dormitář Konvršů. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
         },
         probost: {
-            title: 'Request for the Office of Provost',
-            submit_btn: 'Submit petition to the Abbot',
-            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
-            approved: '✅ The Abbot has confirmed the office of Provost. The parish is entrusted to you.',
-            denied_fabrica: '❌ Abbot denied: The church must first reach the tier of Church (Fabrica Ecclesiae).',
-            denied_rank: '❌ Abbot denied: Only a brother of rank Armarius or higher may petition for the office of Provost.',
-            kronika_submit: 'Petition submitted to the Abbot for the office of Provost. Reply expected by {responseDate}.',
-            kronika_approved: 'The Abbot confirmed the office of Provost. The parish entrusted to the monastery\'s care.',
-            kronika_denied: 'The Abbot denied the petition for the office of Provost. Reason: {reason}',
-            inspect_hint: 'The Abbot has promised to visit the parish soon.',
-            locked_hint: 'To administer a parish, you need the Abbot\'s consent to the office of Provost.',
+            title: 'Žádost o úřad probošta',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat potvrdil úřad probošta. Farnost je ti svěřena.',
+            denied_fabrica: '❌ Opat zamítl: Kostel musí nejprve dosáhnout úrovně Kostel (Fabrica Ecclesiae).',
+            denied_rank: '❌ Opat zamítl: Úřad probošta smí žádat jen bratr v hodnosti armarius nebo výše.',
+            kronika_submit: 'Odeslána žádost opatovi o úřad probošta. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat potvrdil úřad probošta. Farnost svěřena do péče kláštera.',
+            kronika_denied: 'Opat zamítl žádost o úřad probošta. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil, že farnost brzy navštíví.',
+            locked_hint: 'Chceš-li spravovat farnost, potřebuješ souhlas opata s úřadem probošta.',
         },
     },
 };
