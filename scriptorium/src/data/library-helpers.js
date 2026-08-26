@@ -655,18 +655,31 @@ const LibraryHelpers = {
         });
     },
     
+    // Cena obchodu s Bartolomějem — stupně dle podílu odemčené knihovny (unlockedBooks/total).
+    // Sjednocená škála pro scribeTrade i scribeTradeChoice (design rozhodnutí 26.8.2026).
+    getScribePrice: function() {
+        const total = (typeof LibraryDB !== 'undefined' && LibraryDB.books) ? LibraryDB.books.length : 0;
+        const unlocked = (GameState.library && GameState.library.unlockedBooks) ? GameState.library.unlockedBooks.length : 0;
+        const ratio = total > 0 ? unlocked / total : 0;
+        if (ratio >= 0.90) return 50;
+        if (ratio >= 0.75) return 34;
+        if (ratio >= 0.50) return 24;
+        if (ratio >= 0.25) return 16;
+        return 10;
+    },
+
     // NPC Písař - obchod
     scribeTrade: function() {
-        const cost = ScribeNPC.dialogues.trade_info.cost;
+        const cost = LibraryHelpers.getScribePrice();
         
         // Check if player has enough
-        if ((GameState.inventory.paper || 0) < cost.paper) {
+        if ((GameState.inventory.paper || 0) < cost) {
             UI.notify(t('library_lore.npc_scribe.err_paper'), true);
             return;
         }
         
         // Remove items
-        Game.removeItem('paper', cost.paper);
+        Game.removeItem('paper', cost);
         
         // Unlock random book
         const locked = LibraryDB.books.filter(b => 
@@ -728,7 +741,7 @@ const LibraryHelpers = {
         }
     },
 
-    // NPC Písař - výběr konkrétní knihy (odemčeno vztahem ≥25, MRD krok 3, cena 10x papír)
+    // NPC Písař - výběr konkrétní knihy (odemčeno vztahem ≥25, MRD krok 3, cena dle getScribePrice())
     scribeTradeChoice: function() {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const rel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej) || 0;
@@ -736,7 +749,7 @@ const LibraryHelpers = {
             UI.notify(lang === 'en' ? 'The scribe does not yet trust thee enough.' : 'Písař ti ještě natolik nedůvěřuje.', true);
             return;
         }
-        const CHOICE_COST = 10;
+        const CHOICE_COST = LibraryHelpers.getScribePrice();
         if ((GameState.inventory.paper || 0) < CHOICE_COST) {
             UI.notify(t('library_lore.npc_scribe.err_paper'), true);
             return;
@@ -782,8 +795,8 @@ const LibraryHelpers = {
             icon: '🖋️',
             title: ScribeNPC.name,
             text: lang === 'en'
-                ? '"This time... this time, choose for thyself. Thou hast earned it — bring me ten sheets of paper, and name the book thou desirest."'
-                : '"Tentokrát... tentokrát si vyber sám. Zasloužil sis to — dones mi deset listů papíru a řekni, kterou knihu chceš."',
+                ? `"This time... this time, choose for thyself. Thou hast earned it — bring me ${CHOICE_COST} sheets of paper, and name the book thou desirest."`
+                : `"Tentokrát... tentokrát si vyber sám. Zasloužil sis to — dones mi ${CHOICE_COST} listů papíru a řekni, kterou knihu chceš."`,
             choices: bookChoices
         });
     },
@@ -997,6 +1010,7 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
         const daysPlayed = GameState.library && GameState.library.startDate
             ? Math.floor((Date.now() - GameState.library.startDate) / 86400000)
             : null;
+        const weekday = (typeof TimeSys !== 'undefined') ? TimeSys.gameWeekday() : null; // 0=Ne...6=So, Europe/Prague
         return {
             rank: GameState.rank && GameState.rank.secular,
             daysPlayed: daysPlayed,
@@ -1004,7 +1018,9 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
             bartolomejRel: GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej,
             booksRead: GameState.library && GameState.library.readBooks ? GameState.library.readBooks.length : null,
             hasReadRuralia: !!(GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes('book_ruralia_apibus')),
-            hasGrandHive: !!(GameState.apiary && GameState.apiary.some(function(h) { return h.grand; }))
+            hasGrandHive: !!(GameState.apiary && GameState.apiary.some(function(h) { return h.grand; })),
+            weekday: weekday,
+            scribePrice: (typeof LibraryHelpers !== 'undefined') ? LibraryHelpers.getScribePrice() : null
         };
     },
 
