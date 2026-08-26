@@ -9,35 +9,35 @@ const TerrainSystem = {
     // ── Akce ovlivněné únavou krajiny (whitelist) ──────────────────────────────
     // Vše mimo tento seznam = bez terrain efektu (workshop/dvůr/studna akce)
     TERRAIN_ACTIONS: [
-        'hunt', 'bark', 'fishing', 'wetlands', 'resin_harvest',
+        'hunt', 'bark', 'fishing', 'wetlands', 'resin_harvest', 'wild_beekeeping',
         'worms_dig', 'dig_clay', 'foraging', 'grass_gather', 'wood_harvest',
     ],
 
-    isTerrainAction: function(type) {
+    isTerrainAction: function (type) {
         return this.TERRAIN_ACTIONS.includes(type);
     },
 
     // ── Thresholds ────────────────────────────────────────────────────────────
-    FATIGUE_RESTED:  20,   // 0–20  → plný výnos (1.0×)
-    FATIGUE_TIRED:   50,   // 21–50 → poloviční výnos (0.5×)
-                           // 51+   → čtvrtinový výnos (0.25×)
+    FATIGUE_RESTED: 20,   // 0–20  → plný výnos (1.0×)
+    FATIGUE_TIRED: 50,   // 21–50 → poloviční výnos (0.5×)
+    // 51+   → čtvrtinový výnos (0.25×)
 
     // Fatigue dopad per akce
     FATIGUE_INSTANT: 2,    // každý instant klik
     FATIGUE_TIMED: {       // timed výpravy — šetrnější na krajinu
-        1:  1,
-        5:  3,
+        1: 1,
+        5: 3,
         10: 5,
         20: 8,
         30: 12,
     },
 
     // Regen: −10 fatigue každých 10 minut reálného času (zrychleno 2×)
-    REGEN_AMOUNT:   10,
+    REGEN_AMOUNT: 10,
     REGEN_INTERVAL: 10 * 60 * 1000,
 
     // ── Init ──────────────────────────────────────────────────────────────────
-    init: function() {
+    init: function () {
         if (!GameState.terrain) {
             GameState.terrain = { fatigue: 0, lastRegen: 0 };
         }
@@ -46,16 +46,16 @@ const TerrainSystem = {
     },
 
     // ── Výpočet multiplikátoru výnosu ─────────────────────────────────────────
-    getMult: function() {
+    getMult: function () {
         const f = (GameState.terrain && GameState.terrain.fatigue) || 0;
         if (f <= this.FATIGUE_RESTED) return 1.0;
-        if (f <= this.FATIGUE_TIRED)  return 0.5;
+        if (f <= this.FATIGUE_TIRED) return 0.5;
         return 0.25;
     },
 
     // ── Dopad scavenge na únavu krajiny ───────────────────────────────────────
     // durationMin: 0 = instant, 1/5/10/20/30 = timed
-    onScavenge: function(durationMin) {
+    onScavenge: function (durationMin) {
         if (!GameState.terrain) this.init();
         const add = durationMin === 0
             ? this.FATIGUE_INSTANT
@@ -64,7 +64,7 @@ const TerrainSystem = {
     },
 
     // ── Tick — regen (voláno z minutového game loop) ──────────────────────────
-    tick: function() {
+    tick: function () {
         if (!GameState.terrain) this.init();
         const now = Date.now();
         const last = GameState.terrain.lastRegen || 0;
@@ -81,7 +81,7 @@ const TerrainSystem = {
 
     // ── UI indikátor pro scavenge sekci ───────────────────────────────────────
     // Vždy zobrazen — hráč vždy vidí stav krajiny
-    renderIndicator: function() {
+    renderIndicator: function () {
         if (!GameState.terrain) this.init();
         const f = GameState.terrain.fatigue || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -146,20 +146,20 @@ const CuriaSystem = {
 
     CURIA_ACTIONS: ['basic', 'nature', 'yard_cleanup'],
 
-    isCuriaAction: function(type) {
+    isCuriaAction: function (type) {
         return this.CURIA_ACTIONS.includes(type);
     },
 
     FATIGUE_RESTED: 20,
-    FATIGUE_TIRED:  50,
+    FATIGUE_TIRED: 50,
 
     FATIGUE_INSTANT: 2,
     FATIGUE_TIMED: { 1: 1, 5: 3, 10: 5, 20: 8, 30: 12 },
 
-    REGEN_AMOUNT:   10,
+    REGEN_AMOUNT: 10,
     REGEN_INTERVAL: 10 * 60 * 1000,
 
-    init: function() {
+    init: function () {
         if (!GameState.curia) {
             GameState.curia = { fatigue: 0, lastRegen: 0 };
         }
@@ -167,14 +167,14 @@ const CuriaSystem = {
         if (typeof GameState.curia.lastRegen !== 'number') GameState.curia.lastRegen = Date.now();
     },
 
-    getMult: function() {
+    getMult: function () {
         const f = (GameState.curia && GameState.curia.fatigue) || 0;
         if (f <= this.FATIGUE_RESTED) return 1.0;
-        if (f <= this.FATIGUE_TIRED)  return 0.5;
+        if (f <= this.FATIGUE_TIRED) return 0.5;
         return 0.25;
     },
 
-    onScavenge: function(durationMin) {
+    onScavenge: function (durationMin) {
         if (!GameState.curia) this.init();
         const add = durationMin === 0
             ? this.FATIGUE_INSTANT
@@ -182,7 +182,7 @@ const CuriaSystem = {
         GameState.curia.fatigue = Math.min(100, (GameState.curia.fatigue || 0) + add);
     },
 
-    tick: function() {
+    tick: function () {
         if (!GameState.curia) this.init();
         const now = Date.now();
         const last = GameState.curia.lastRegen || 0;
@@ -193,7 +193,7 @@ const CuriaSystem = {
         GameState.curia.lastRegen = last + (steps * this.REGEN_INTERVAL);
     },
 
-    renderIndicator: function() {
+    renderIndicator: function () {
         if (!GameState.curia) this.init();
         const f = GameState.curia.fatigue || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -255,22 +255,22 @@ const MineSystem = {
 
     MINE_ACTIONS: ['quarry_stone', 'mine_iron_ore'],
 
-    isMineAction: function(type) {
+    isMineAction: function (type) {
         return this.MINE_ACTIONS.includes(type);
     },
 
     FATIGUE_RESTED: 20,
-    FATIGUE_TIRED:  50,
+    FATIGUE_TIRED: 50,
 
     FATIGUE_INSTANT: 2,
     // Delší (nominální) těžba je šetrnější k žíle než časté krátké výpravy —
     // stejná filozofie jako Terrain/Curia FATIGUE_TIMED.
     FATIGUE_TIMED: { 2.5: 2, 5: 3, 10: 5, 20: 8, 30: 12 },
 
-    REGEN_AMOUNT:   10,
+    REGEN_AMOUNT: 10,
     REGEN_INTERVAL: 10 * 60 * 1000,
 
-    init: function() {
+    init: function () {
         if (!GameState.mine) {
             GameState.mine = { fatigue: 0, lastRegen: 0 };
         }
@@ -278,21 +278,21 @@ const MineSystem = {
         if (typeof GameState.mine.lastRegen !== 'number') GameState.mine.lastRegen = Date.now();
     },
 
-    getMult: function() {
+    getMult: function () {
         const f = (GameState.mine && GameState.mine.fatigue) || 0;
         if (f <= this.FATIGUE_RESTED) return 1.0;
-        if (f <= this.FATIGUE_TIRED)  return 0.5;
+        if (f <= this.FATIGUE_TIRED) return 0.5;
         return 0.25;
     },
 
     // durationMin: nominální tier (2.5/5/10/20/30) — NE reálný, koňmi zkrácený čas
-    onScavenge: function(durationMin) {
+    onScavenge: function (durationMin) {
         if (!GameState.mine) this.init();
         const add = this.FATIGUE_TIMED[durationMin] || this.FATIGUE_INSTANT;
         GameState.mine.fatigue = Math.min(100, (GameState.mine.fatigue || 0) + add);
     },
 
-    tick: function() {
+    tick: function () {
         if (!GameState.mine) this.init();
         const now = Date.now();
         const last = GameState.mine.lastRegen || 0;
@@ -303,7 +303,7 @@ const MineSystem = {
         GameState.mine.lastRegen = last + (steps * this.REGEN_INTERVAL);
     },
 
-    renderIndicator: function() {
+    renderIndicator: function () {
         if (!GameState.mine) this.init();
         const f = GameState.mine.fatigue || 0;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';

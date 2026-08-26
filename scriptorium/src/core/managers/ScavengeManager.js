@@ -399,19 +399,37 @@ const ScavengeManager = {
             if (this._seasonRoll('bracket_fungus', 0.03)) Game.addItem('bracket_fungus', 1);
         }
         else if (type === 'resin_harvest') {
+            // Honey/beeswax/pollen přesunuty do wild_beekeeping
+            // (brtnictví-scavenge-mrd, 25.8.2026) — vlastní akce místo
+            // vedlejšího produktu. resin_harvest zůstává čistě
+            // dřevo/pryskyřice zaměřený.
             const _resinPick = this._weightedSeasonPick([
                 { id: 'resin', qty: 1, w: 0.5 },
-                { id: 'honey', qty: 1, w: 0.2 },
                 { id: 'bark', qty: 1, w: 0.3 },
             ]);
             Game.addItem(_resinPick.id, _resinPick.qty);
-            if (Math.random() < 0.20) Game.addItem('beeswax', 1);
             if (this._seasonRoll('linden_blossom', 0.05)) Game.addItem('linden_blossom', 1);
-            if (this._seasonRoll('pollen', 0.01)) Game.addItem('pollen', 1);
             if (this._seasonRoll('viticis_baco', 0.03)) Game.addItem('viticis_baco', 1);
             // Kadidlo: smrková a borová pryskyřice
             if (this._seasonRoll('resin_spruce', 0.40)) Game.addItem('resin_spruce', 1);
             if (this._seasonRoll('resin_pine', 0.25)) Game.addItem('resin_pine', 1);
+        }
+        else if (type === 'wild_beekeeping') {
+            // brtnictví (25.8.2026) — divoké/lesní včelařství v dutinách
+            // stromů, historicky doložená slovanská praxe (brť =
+            // vydlabaný kmen jako úl, brtník = lesní včelař, značil
+            // stromy vlastnickým cejchem proti krádeži). Med hlavní
+            // výstup, sdílí seasonCat 'hmyz_teplo' s Apiariem (včely
+            // dormantní v zimě). Pyl VĚDOMĚ VYNECHÁN jako samostatná
+            // surovina — pylové lapače na česně úlu jsou moderní
+            // vynález (19./20. stol.), středověký brtník by pyl
+            // nerozeznal od toho, co včely zpracují přímo v plástu.
+            // bee_bread má na rozdíl od pylu reálnou antickou oporu
+            // (Hippokrates, Plinius — stejné zdůvodnění jako u
+            // pyl/bee_bread splitu, 19.8.2026) — malá šance navíc.
+            if (this._seasonRoll('honey', 0.85)) Game.addItem('honey', Math.random() < 0.3 ? 2 : 1);
+            if (Math.random() < 0.35) Game.addItem('beeswax', 1);
+            if (Math.random() < 0.05) Game.addItem('bee_bread', 1);
         }
         else if (type === 'yard_cleanup') {
             Game.addItem('scraps', Math.random() < 0.5 ? 2 : 1);
@@ -629,7 +647,7 @@ const ScavengeManager = {
             let total = 0;
             for (let i = 0; i < count; i++) {
                 let r = Math.random();
-                if (['hunt', 'nature', 'basic', 'bark', 'fishing', 'foraging', 'wetlands', 'resin_harvest', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'].includes(type)) {
+                if (['hunt', 'nature', 'basic', 'bark', 'fishing', 'foraging', 'wetlands', 'resin_harvest', 'wild_beekeeping', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'].includes(type)) {
                     this._scavengeReward(type, r);
                 }
                 else if (type === 'quarry_stone') {
@@ -719,7 +737,7 @@ const ScavengeManager = {
             const _s0before = {};
             for (const k of Object.keys(GameState.inventory)) _s0before[k] = GameState.inventory[k] || 0;
             let r = Math.random();
-            if (['hunt', 'nature', 'basic', 'bark', 'fishing', 'foraging', 'wetlands', 'resin_harvest', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'].includes(type)) {
+            if (['hunt', 'nature', 'basic', 'bark', 'fishing', 'foraging', 'wetlands', 'resin_harvest', 'wild_beekeeping', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'].includes(type)) {
                 this._scavengeReward(type, r);
             }
             // ── notifyAccum: single scavenge ──

@@ -1,41 +1,51 @@
 const ActionsDB = [
-    { id: 'basic',        cat: 'scavenge', name: 'Průzkum okolí',    name_en: 'Scour the grounds',  icon: '🖐',  desc: 'Suroviny',         desc_en: 'Raw materials',      yield: 1 },
-    { id: 'nature',       cat: 'scavenge', name: 'Sběr bylin',       name_en: 'Gather herbs',       icon: '🌿',  desc: 'Vlákna/Semínka',   desc_en: 'Fibres / Seeds',     yield: 1 },
-    { id: 'hunt',         cat: 'scavenge', name: 'Lov zvěře',        name_en: 'Hunt game',          icon: '🐗',  desc: 'Tuk/Kosti',        desc_en: 'Fat / Bones',        yield: 1, req: [{item:'stone_knife', mult:0.7}, {item:'iron_knife', mult:1.2}] },
-    { id: 'bark',         cat: 'scavenge', name: 'Oloupat strom',    name_en: 'Strip bark',         icon: '🗡️', desc: 'Kůra',             desc_en: 'Bark',               yield: 1, req: [{item:'stone_knife', mult:0.7}, {item:'iron_knife', mult:1.2}] },
-    { id: 'fishing',      cat: 'scavenge', name: 'Rybolov',          name_en: 'Fish',               icon: '🎣',  desc: 'Ryby',             desc_en: 'Fish',               yield: 1, req: 'fishing_rod' },
-    { id: 'foraging',     cat: 'scavenge', name: 'Sběr potravy',     name_en: 'Forage',             icon: '🧺',  desc: 'Houby/Bobule',     desc_en: 'Mushrooms / Berries',yield: 1, req: 'basket' },
-    { id: 'wetlands',     cat: 'scavenge', name: 'Průzkum mokřadu',  name_en: 'Search the wetlands',icon: '🐸',  desc: 'Žáby/Slimáci',    desc_en: 'Frogs / Snails',     yield: 1, req: [{item:'stone_knife', mult:0.7}, {item:'iron_knife', mult:1.2}] },
-    { id: 'resin_harvest',cat: 'scavenge', name: 'Sběr pryskyřice',  name_en: 'Harvest resin',      icon: '🌲',  desc: 'Pryskyřice/Med',   desc_en: 'Resin / Honey',      yield: 1, req: [{item:'stone_knife', mult:0.7}, {item:'iron_knife', mult:1.2}] },
-    { id: 'well_water',   cat: 'scavenge', name: 'Jít pro vodu',        name_en: 'Draw water',          icon: '🚰',  desc: 'Ze studny',           desc_en: 'From the well',       yield: 1 },
-    { id: 'grass_gather', cat: 'scavenge', name: 'Posečení trávy',      name_en: 'Mow grass',           icon: '🌿',  desc: 'Tráva na seno',       desc_en: 'Grass for hay',       yield: 1, req: [{item:'stone_scythe', mult:0.7}, {item:'iron_scythe', mult:1.2}] },
-    { id: 'wood_harvest', cat: 'scavenge', name: 'Těžba dřeva',         name_en: 'Harvest wood',        icon: '🪓',  desc: 'Kulatina/Větve',      desc_en: 'Logs / Branches',     yield: 1, req: [{item:'stone_axe', mult:0.7}, {item:'iron_axe', mult:1.2}] },
-    { id: 'worms_dig',    cat: 'scavenge', name: 'Kopání červů',        name_en: 'Dig for worms',       icon: '🪱',  desc: 'Krmivo pro kapry',    desc_en: 'Feed for carp',       yield: 1, req: [{item:'stone_spade', mult:0.7}, {item:'iron_spade', mult:1.2}] },
-    { id: 'dig_clay',     cat: 'scavenge', name: 'Kopání hlíny',        name_en: 'Dig for clay',        icon: '🟤',  desc: 'Jílovitá hlína',      desc_en: 'Clay from the bank',  yield: 1, req: [{item:'stone_spade', mult:0.7}, {item:'iron_spade', mult:1.2}] },
-    { id: 'yard_cleanup', cat: 'scavenge', name: 'Uklidit hospodářství',name_en: 'Clean the farmyard',  icon: '🧹',  desc: 'Zbytky + bonusy',     desc_en: 'Scraps + bonuses',    yield: 1 },
+    { id: 'basic', cat: 'scavenge', name: 'Průzkum okolí', name_en: 'Scour the grounds', icon: '🖐', desc: 'Suroviny', desc_en: 'Raw materials', yield: 1 },
+    { id: 'nature', cat: 'scavenge', name: 'Sběr bylin', name_en: 'Gather herbs', icon: '🌿', desc: 'Vlákna/Semínka', desc_en: 'Fibres / Seeds', yield: 1 },
+    { id: 'hunt', cat: 'scavenge', name: 'Lov zvěře', name_en: 'Hunt game', icon: '🐗', desc: 'Tuk/Kosti', desc_en: 'Fat / Bones', yield: 1, req: [{ item: 'stone_knife', mult: 0.7 }, { item: 'iron_knife', mult: 1.2 }] },
+    { id: 'bark', cat: 'scavenge', name: 'Oloupat strom', name_en: 'Strip bark', icon: '🗡️', desc: 'Kůra', desc_en: 'Bark', yield: 1, req: [{ item: 'stone_knife', mult: 0.7 }, { item: 'iron_knife', mult: 1.2 }] },
+    { id: 'fishing', cat: 'scavenge', name: 'Rybolov', name_en: 'Fish', icon: '🎣', desc: 'Ryby', desc_en: 'Fish', yield: 1, req: 'fishing_rod' },
+    { id: 'foraging', cat: 'scavenge', name: 'Sběr potravy', name_en: 'Forage', icon: '🧺', desc: 'Houby/Bobule', desc_en: 'Mushrooms / Berries', yield: 1, req: 'basket' },
+    { id: 'wetlands', cat: 'scavenge', name: 'Průzkum mokřadu', name_en: 'Search the wetlands', icon: '🐸', desc: 'Žáby/Slimáci', desc_en: 'Frogs / Snails', yield: 1, req: [{ item: 'stone_knife', mult: 0.7 }, { item: 'iron_knife', mult: 1.2 }] },
+    { id: 'resin_harvest', cat: 'scavenge', name: 'Sběr pryskyřice', name_en: 'Harvest resin', icon: '🌲', desc: 'Pryskyřice/Med', desc_en: 'Resin / Honey', yield: 1, req: [{ item: 'stone_knife', mult: 0.7 }, { item: 'iron_knife', mult: 1.2 }] },
+    // brtnictví-scavenge-mrd (25.8.2026) — divoké/lesní včelařství v
+    // dutinách stromů, historicky doložená slovanská praxe (brť/brtník).
+    // Vrací honey/wax dřív slité do resin_harvest do vlastní akce.
+    { id: 'wild_beekeeping', cat: 'scavenge', name: 'Brtnictví', name_en: 'Wild beekeeping', icon: '🍯', desc: 'Med/Vosk', desc_en: 'Honey / Wax', yield: 1 },
+    { id: 'well_water', cat: 'scavenge', name: 'Jít pro vodu', name_en: 'Draw water', icon: '🚰', desc: 'Ze studny', desc_en: 'From the well', yield: 1 },
+    { id: 'grass_gather', cat: 'scavenge', name: 'Posečení trávy', name_en: 'Mow grass', icon: '🌿', desc: 'Tráva na seno', desc_en: 'Grass for hay', yield: 1, req: [{ item: 'stone_scythe', mult: 0.7 }, { item: 'iron_scythe', mult: 1.2 }] },
+    { id: 'wood_harvest', cat: 'scavenge', name: 'Těžba dřeva', name_en: 'Harvest wood', icon: '🪓', desc: 'Kulatina/Větve', desc_en: 'Logs / Branches', yield: 1, req: [{ item: 'stone_axe', mult: 0.7 }, { item: 'iron_axe', mult: 1.2 }] },
+    { id: 'worms_dig', cat: 'scavenge', name: 'Kopání červů', name_en: 'Dig for worms', icon: '🪱', desc: 'Krmivo pro kapry', desc_en: 'Feed for carp', yield: 1, req: [{ item: 'stone_spade', mult: 0.7 }, { item: 'iron_spade', mult: 1.2 }] },
+    { id: 'dig_clay', cat: 'scavenge', name: 'Kopání hlíny', name_en: 'Dig for clay', icon: '🟤', desc: 'Jílovitá hlína', desc_en: 'Clay from the bank', yield: 1, req: [{ item: 'stone_spade', mult: 0.7 }, { item: 'iron_spade', mult: 1.2 }] },
+    { id: 'yard_cleanup', cat: 'scavenge', name: 'Uklidit hospodářství', name_en: 'Clean the farmyard', icon: '🧹', desc: 'Zbytky + bonusy', desc_en: 'Scraps + bonuses', yield: 1 },
     // ── MINE ──────────────────────────────────────────────────────────────────
-    { id: 'quarry_stone', cat: 'mine', collectMode: true,
-      name: 'Lámání kamene', name_en: 'Quarry Stone',
-      icon: '🪨', desc: 'Kámen + vzácně: tesaný kámen', desc_en: 'Stone + rare: cut stone',
-      yield: 1, req: [{item:'stone_pickaxe', mult:0.7}, {item:'iron_pickaxe', mult:1.2}] },
-    { id: 'mine_iron_ore', cat: 'mine', collectMode: true,
-      name: 'Těžba rudy', name_en: 'Mine Iron Ore',
-      icon: '⛏️', desc: 'Železná ruda + vzácně: dřevěné uhlí', desc_en: 'Iron ore + rare: charcoal',
-      yield: 1, req: [{item:'stone_pickaxe', mult:0.7}, {item:'iron_pickaxe', mult:1.2}] },
-    { id: 'quarry_limestone', cat: 'mine', collectMode: true,
-      name: 'Těžba vápence', name_en: 'Quarry Limestone',
-      icon: '⚪', desc: 'Vápenec — nejlepší výnos', desc_en: 'Limestone — best yield',
-      yield: 1, req: [{item:'palice_kamenna', mult:0.7}, {item:'palice_zelezna', mult:1.2}] },
+    {
+        id: 'quarry_stone', cat: 'mine', collectMode: true,
+        name: 'Lámání kamene', name_en: 'Quarry Stone',
+        icon: '🪨', desc: 'Kámen + vzácně: tesaný kámen', desc_en: 'Stone + rare: cut stone',
+        yield: 1, req: [{ item: 'stone_pickaxe', mult: 0.7 }, { item: 'iron_pickaxe', mult: 1.2 }]
+    },
+    {
+        id: 'mine_iron_ore', cat: 'mine', collectMode: true,
+        name: 'Těžba rudy', name_en: 'Mine Iron Ore',
+        icon: '⛏️', desc: 'Železná ruda + vzácně: dřevěné uhlí', desc_en: 'Iron ore + rare: charcoal',
+        yield: 1, req: [{ item: 'stone_pickaxe', mult: 0.7 }, { item: 'iron_pickaxe', mult: 1.2 }]
+    },
+    {
+        id: 'quarry_limestone', cat: 'mine', collectMode: true,
+        name: 'Těžba vápence', name_en: 'Quarry Limestone',
+        icon: '⚪', desc: 'Vápenec — nejlepší výnos', desc_en: 'Limestone — best yield',
+        yield: 1, req: [{ item: 'palice_kamenna', mult: 0.7 }, { item: 'palice_zelezna', mult: 1.2 }]
+    },
 ];
 
 // FishDB — metadata druhů pro Piscinu (entitní model, viz GameState.piscina.fish[]).
 // kapr = nativní chov (líhne se v rybníce); ostatní se nasazují nákupem
 // (Trh/Clientela, viz Game.stockFish). isPredator připraveno pro Sprint 4 (štika).
 const FishDB = {
-    kapr:   { name: 'Kapr',   name_en: 'Carp',  icon: '🐟', native: true,  isPredator: false },
-    stika:  { name: 'Štika',  name_en: 'Pike',  icon: '🐊', native: false, isPredator: true  },
+    kapr: { name: 'Kapr', name_en: 'Carp', icon: '🐟', native: true, isPredator: false },
+    stika: { name: 'Štika', name_en: 'Pike', icon: '🐊', native: false, isPredator: true },
     pstruh: { name: 'Pstruh', name_en: 'Trout', icon: '🐡', native: false, isPredator: false },
-    uhor:   { name: 'Úhoř',   name_en: 'Eel',   icon: '🐍', native: false, isPredator: false }
+    uhor: { name: 'Úhoř', name_en: 'Eel', icon: '🐍', native: false, isPredator: false }
 };
 
 let audioSys = null;
@@ -50,17 +60,18 @@ const GameState = {
         monasticStart: 0, canonicalStreak: 0, priorNomination: false,
         disciplines: [], rankHistory: []
     },
-    settings: { volume: 0.17, musicEnabled: false, theme: 'default', autoTheme: false,
-    // NEW: Hour chime
-    hourChimeBasic: true,
-    hourChimeMode: 'auto',
-    hourChimeSound: 'avemaria',
-    
-    // NEW: Quiet hours
-    quietHoursEnabled: false,
-    quietHoursStart: 22,
-    quietHoursEnd: 6
-     },
+    settings: {
+        volume: 0.17, musicEnabled: false, theme: 'default', autoTheme: false,
+        // NEW: Hour chime
+        hourChimeBasic: true,
+        hourChimeMode: 'auto',
+        hourChimeSound: 'avemaria',
+
+        // NEW: Quiet hours
+        quietHoursEnabled: false,
+        quietHoursStart: 22,
+        quietHoursEnd: 6
+    },
     candleStart: 0,
     torchStart: 0,
     torchItemId: null,
@@ -141,10 +152,10 @@ const GameState = {
         milestones: [],         // [{id, timestamp, descCs, descEn}]
         influence: {
             benedikt: 0,
-            giacomo:  0,
-            abbot:    0,
-            village:  0,        // Vesnice — Saeculum / Kontakt se Vsí
-            church:   0,        // Církev — inkvizice severity, bishop zakázky
+            giacomo: 0,
+            abbot: 0,
+            village: 0,        // Vesnice — Saeculum / Kontakt se Vsí
+            church: 0,        // Církev — inkvizice severity, bishop zakázky
             scholars: 0,        // Učenci — Prvotisk zákazníci, Knihovna bonusy
         },
         influenceLastDecay: 0,  // timestamp posledního decay ticku
