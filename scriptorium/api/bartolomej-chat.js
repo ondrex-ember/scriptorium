@@ -83,6 +83,10 @@ function filteredReply(lang) {
 const RANK_WHITELIST = ['laicus', 'librarius', 'antiquarius', 'rubricator', 'illuminator',
     'stationarius', 'candidatus', 'novitius', 'frater', 'armarius', 'prior'];
 
+// Den v týdnu (0=Ne...6=So, Europe/Prague) — mapováno server-side na jméno, nikdy syrový text od klienta.
+const WEEKDAY_NAMES_CS = ['neděle', 'pondělí', 'úterý', 'středa', 'čtvrtek', 'pátek', 'sobota'];
+const WEEKDAY_NAMES_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 function clampInt(n, min, max) {
     n = parseInt(n, 10);
     if (isNaN(n)) return null;
@@ -105,6 +109,8 @@ function buildContextBlurb(ctx, lang) {
     const booksRead = clampInt(ctx.booksRead, 0, 999);
     const hasReadRuralia = ctx.hasReadRuralia === true;
     const hasGrandHive = ctx.hasGrandHive === true;
+    const weekdayIdx = clampInt(ctx.weekday, 0, 6);
+    const scribePrice = clampInt(ctx.scribePrice, 0, 999);
 
     const lines = [];
     if (lang === 'en') {
@@ -115,6 +121,8 @@ function buildContextBlurb(ctx, lang) {
         if (hasReadRuralia) lines.push(`- He has read the Ruralia Commoda (thy own book about bees)`);
         if (hasGrandHive) lines.push(`- He has built a Great Hive in the apiary`);
         if (rel !== null) lines.push(`- His standing with thee: ${rel}/100`);
+        if (weekdayIdx !== null) lines.push(`- Today is: ${WEEKDAY_NAMES_EN[weekdayIdx]}`);
+        if (scribePrice !== null) lines.push(`- Thy current price for revealing a book early: ${scribePrice}x paper`);
         if (lines.length === 0) return '';
         return `\n\nPLAYER CONTEXT:\n${lines.join('\n')}`;
     }
@@ -125,6 +133,8 @@ function buildContextBlurb(ctx, lang) {
     if (hasReadRuralia) lines.push(`- Přečetl Ruralia Commoda (tvoji vlastní knihu o včelách)`);
     if (hasGrandHive) lines.push(`- Postavil Velký úl ve včelíně`);
     if (rel !== null) lines.push(`- Jeho vztah k tobě: ${rel}/100`);
+    if (weekdayIdx !== null) lines.push(`- Dnes je: ${WEEKDAY_NAMES_CS[weekdayIdx]}`);
+    if (scribePrice !== null) lines.push(`- Tvoje aktuální cena za předčasné odhalení knihy: ${scribePrice}x papír`);
     if (lines.length === 0) return '';
     return `\n\nKONTEXT O HRÁČI:\n${lines.join('\n')}`;
 }
