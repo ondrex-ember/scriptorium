@@ -499,6 +499,7 @@ const STRINGS_cs = {
         btn_catalog: "Katalog",
         catalog_title: "Katalogizační lístek",
         catalog_signature: "Signatura",
+        catalog_signature_note: "Bartolomějova vlastní desítková soustava — stovka za obor, zbytek za pořadí. Tvrdí, že na tohle jednou přijde ledaskdo jiný. Zatím se mu vysmívá celý klášter.",
         catalog_secundo_folio: "Secundo folio",
         catalog_secundo_note: "Druhá strana listu, první slova — Armarius na to přísahá víc než na pečeť. Padělek se takhle pozná na první pohled.",
         catalog_status_read: "Přečteno a zaevidováno",

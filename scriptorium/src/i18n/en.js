@@ -465,6 +465,7 @@ const STRINGS_en = {
         btn_catalog: "Catalogue",
         catalog_title: "Catalogue Card",
         catalog_signature: "Shelfmark",
+        catalog_signature_note: "Bartoloměj's own decimal scheme — a hundred for the subject, the rest for order. He swears someone else will hit upon it too, one day. For now the whole monastery laughs at him.",
         catalog_secundo_folio: "Secundo Folio",
         catalog_secundo_note: "The second leaf's opening words — the Armarius swears by this more than by any seal. A forgery shows itself at once.",
         catalog_status_read: "Read and recorded",
