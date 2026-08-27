@@ -141,6 +141,7 @@ const CellariumSystem = {
     vademecum:     45,
     florilegium:   70,
     enchiridion:  110,
+    fitted_codex: 160,
     // Jídlo
     bread:          1,
     bread_fine:     2,
@@ -286,7 +287,7 @@ const CellariumSystem = {
   ITEM_CAT: {
     paper: 'lore', ink: 'lore', ink_gallic: 'lore', vellum: 'lore',
     common_codex: 'lore', luxury_codex: 'lore', vellum_codex: 'lore', research: 'lore',
-    adversaria: 'lore', vademecum: 'lore', florilegium: 'lore', enchiridion: 'lore',
+    adversaria: 'lore', vademecum: 'lore', florilegium: 'lore', enchiridion: 'lore', fitted_codex: 'lore',
     bread: 'food', bread_fine: 'food', bread_fine_1: 'food', cooked_meat: 'food', cooked_fish: 'food', stew: 'food',
     mushroom_soup: 'food', berry_pie: 'food', berry_pie_fine: 'food', berry_pie_fine_1: 'food', honey: 'food',
     goat_cheese_fresh: 'food', goat_cheese_mature: 'food', goat_cheese_aged: 'food',
