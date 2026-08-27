@@ -687,6 +687,7 @@ const ItemsDB = {
     "quires": { name: "Složky", name_en: "Quires", icon: "📑", type: "mat", desc: "Popsaný pergamen přehnutý a vložený do sebe — kvaterny, základ knižního bloku.", desc_en: "Written vellum folded and nested — quaternions, the basis of the book block." },
     "sewn_block": { name: "Ušitý blok", name_en: "Sewn Block", icon: "📗", type: "mat", desc: "Složky sešité na kožených vazech lněnou nití. Ještě bez desek.", desc_en: "Quires sewn onto leather cords with linen thread. Still without boards." },
     "unfitted_codex": { name: "Neokovaná kniha", name_en: "Unfitted Codex", icon: "📕", type: "mat", desc: "Ušitý blok mezi dřevěnými deskami, potažený kůží. Čeká na kování.", desc_en: "Sewn block between wooden boards, covered in leather. Awaiting its fittings." },
+    "fitted_codex": { name: "Okovaný kodex", name_en: "Fitted Codex", icon: "📘", type: "mat", desc: "Hotová svázaná kniha — kožené desky, kovové spony a puklice, olejem chráněná proti vlhku. Dílo písaře i knihaře dohromady.", desc_en: "A finished bound book — leather boards, metal clasps and bosses, oiled against damp. The scribe's and bookbinder's work made whole." },
     // ═══════════════════════════════════════════════════════════════════════════
     // DVŮR — Nakupitelná zvířata (Trh)
     // ═══════════════════════════════════════════════════════════════════════════
