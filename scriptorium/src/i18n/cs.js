@@ -510,7 +510,10 @@ const STRINGS_cs = {
             innovation: "Inovace",
             conflict: "Konflikty",
             local: "Praha & Čechy",
-            viticis: "Vinohradnictví"
+            viticis: "Vinohradnictví",
+            technical: "Řemesla & Nauka",
+            coquina: "Kuchařské umění",
+            valetudo: "Zdraví & Péče"
         },
         npc_scribe: {
             name: "Mistr Bartoloměj, Starý Písař",
