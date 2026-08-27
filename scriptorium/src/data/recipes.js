@@ -178,7 +178,8 @@ const RecipesDB = [
     { id: "adversaria", output: "adversaria", qty: 1, req: { "paper": 5, "ink": 2, "rope": 1 }, cat: "codex", locked: true },
     { id: "vademecum", output: "vademecum", qty: 1, req: { "leather": 1, "paper": 10, "ink": 3 }, cat: "codex", locked: true },
     { id: "florilegium", output: "florilegium", qty: 1, req: { "leather": 2, "paper": 15, "ink": 5, "herb_yellow": 3 }, cat: "codex", locked: true },
-    { id: "enchiridion", output: "enchiridion", qty: 1, req: { "unfitted_codex": 1, "metal_clasps": 2, "metal_bosses": 4, "preservation_oil": 1 }, cat: "codex", locked: true },
+    { id: "fitted_codex", output: "fitted_codex", qty: 1, req: { "unfitted_codex": 1, "metal_clasps": 2, "metal_bosses": 4, "preservation_oil": 1 }, cat: "codex", locked: true,
+      desc: "Kování osazeno, kůže napuštěná olejem. Kodex je hotov.", desc_en: "Fittings mounted, leather sealed with oil. The codex is complete." },
     
     // COOKING RECIPES (vyžadují krb + pot)
     { id: "cooked_meat", output: "cooked_meat", qty: 1, req: { "meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },
