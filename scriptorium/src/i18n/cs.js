@@ -496,6 +496,14 @@ const STRINGS_cs = {
         desc: 'Za 3x Papír ti odkryji jednu knihu předčasně...',
         btn_read: "Číst",
         btn_read_again: "Přečíst znovu",
+        btn_catalog: "Katalog",
+        catalog_title: "Katalogizační lístek",
+        catalog_signature: "Signatura",
+        catalog_secundo_folio: "Secundo folio",
+        catalog_secundo_note: "Druhá strana listu, první slova — Armarius na to přísahá víc než na pečeť. Padělek se takhle pozná na první pohled.",
+        catalog_status_read: "Přečteno a zaevidováno",
+        catalog_status_unread: "Ve fondu, dosud nečteno",
+        catalog_close: "Zavřít katalog",
         categories: {
             history: "Historie Tisku",
             innovation: "Inovace",
@@ -1928,6 +1936,10 @@ const STRINGS_cs = {
             title: 'Popeleční středa',
             text: 'Zvony bijí od rána. Opat nařídil půst — žádné maso, žádné víno, žádný přepych. Čtyřicet dní pokání začíná dnes. Skriptorium pracuje dál, ale ruce jsou těžší.',
             notify: '✝️ Popeleční středa. Čtyřicet dní půstu začíná.',
+        },
+        cal_lenten_reading: {
+            notify_assigned: '📖 Postní čtení: opat ti přidělil knihu "{book}". Dočti ji do Velikonoc.',
+            notify_completed: '✝️ Postní čtení dokončeno. "{book}" přečtena celá — opat je spokojen.',
         },
         cal_walpurgis: {
             title: 'Filipojakubská noc',

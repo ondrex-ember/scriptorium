@@ -462,6 +462,14 @@ const STRINGS_en = {
         desc: 'For 3x Paper, I shall reveal one book unto thee prematurely...',
         btn_read: "Read",
         btn_read_again: "Read Anew",
+        btn_catalog: "Catalogue",
+        catalog_title: "Catalogue Card",
+        catalog_signature: "Shelfmark",
+        catalog_secundo_folio: "Secundo Folio",
+        catalog_secundo_note: "The second leaf's opening words — the Armarius swears by this more than by any seal. A forgery shows itself at once.",
+        catalog_status_read: "Read and recorded",
+        catalog_status_unread: "In the holdings, not yet read",
+        catalog_close: "Close catalogue",
         categories: {
             history: "History of the Press",
             innovation: "Innovations",
@@ -2900,6 +2908,10 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
             title: 'Ash Wednesday',
             text: 'The bells have rung since dawn. The Abbot hath decreed a fast — no meat, no wine, no excess. Forty days of penance begin this day. The scriptorium worketh on, but the hands are heavier.',
             notify: '✝️ Ash Wednesday. Forty days of fasting begin.',
+        },
+        cal_lenten_reading: {
+            notify_assigned: '📖 Lenten reading: the Abbot hath assigned thee the book "{book}". Finish it before Easter.',
+            notify_completed: '✝️ Lenten reading fulfilled. "{book}" read whole — the Abbot is pleased.',
         },
         cal_walpurgis: {
             title: 'Walpurgis Night',

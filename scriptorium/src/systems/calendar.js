@@ -848,6 +848,18 @@ const CalendarSystem = {
             NotificationSystem.panel(L('cal_ash_wednesday.notify'), 'system');
             if (!GameState.eventFlags) GameState.eventFlags = {};
             GameState.eventFlags.ashWednesdayUntil = Date.now() + 3 * 24 * 3600 * 1000;
+
+            // Postní čtení — Regula Benedicti 48:14–16 (tech_lenten_reading)
+            if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_lenten_reading')) {
+                const unread = (GameState.library.unlockedBooks || []).filter(id => !(GameState.library.readBooks || []).includes(id));
+                if (unread.length > 0) {
+                    const pickId = unread[Math.floor(Math.random() * unread.length)];
+                    const pickBook = LibraryDB.books.find(b => b.id === pickId);
+                    GameState.library.lentReading = { bookId: pickId, assignedAt: Date.now() };
+                    const bookTitle = pickBook ? (lang === 'en' ? pickBook.title_en : pickBook.title) : pickId;
+                    NotificationSystem.panel(L('cal_lenten_reading.notify_assigned').replace('{book}', bookTitle), 'system');
+                }
+            }
             Game.save();
         }
 
@@ -862,6 +874,21 @@ const CalendarSystem = {
             NotificationSystem.panel(L('cal_easter.notify'), 'system');
             const w = this.getEventWeight('cal_easter').christian;
             if (typeof VigorSystem !== 'undefined') VigorSystem.add(Math.round(30 * w));
+
+            // Postní čtení — vyhodnocení (RB 48:14-16). Bez trestu při nesplnění (48:22-23).
+            if (GameState.library && GameState.library.lentReading) {
+                const lr = GameState.library.lentReading;
+                const done_ = (GameState.library.readBooks || []).includes(lr.bookId);
+                if (done_) {
+                    if (typeof VigorSystem !== 'undefined') VigorSystem.add(Math.round(30 * w));
+                    Game.addItem('research', 30);
+                    const pickBook = LibraryDB.books.find(b => b.id === lr.bookId);
+                    const bookTitle = pickBook ? (lang === 'en' ? pickBook.title_en : pickBook.title) : lr.bookId;
+                    NotificationSystem.panel(L('cal_lenten_reading.notify_completed').replace('{book}', bookTitle), 'system');
+                }
+                delete GameState.library.lentReading;
+            }
+
             if (!GameState.eventFlags) GameState.eventFlags = {};
             GameState.eventFlags.easterToday = true;
             Game.save();

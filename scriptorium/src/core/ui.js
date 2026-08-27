@@ -726,6 +726,78 @@ const UI = {
         }
     },
 
+    // Katalogizační lístek — mirror stylu showItemModal (NotificationSystem.modal
+    // + DOM injekce barevných boxů). Secundo folio i signatura jsou odvozené
+    // z existujících dat (content, pozice v kategorii), žádná nová pole pro
+    // 73 knih. Gate: jen když je vyzkoumán tech_bibliotheca_catalogus (volající
+    // kód v renderLibrary to už ověřuje před vykreslením tlačítka).
+    _toRoman: function (num) {
+        const vals = [10, 9, 5, 4, 1];
+        const syms = ['X', 'IX', 'V', 'IV', 'I'];
+        let out = '';
+        for (let i = 0; i < vals.length; i++) {
+            while (num >= vals[i]) { out += syms[i]; num -= vals[i]; }
+        }
+        return out || 'I';
+    },
+
+    showCatalogModal: function (book) {
+        if (!book) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const dict = lang === 'en' ? STRINGS_en : STRINGS_cs;
+        const bookTitle = dict.library_lore?.books?.[book.id]?.title ||
+            (lang === 'en' && book.title_en) ||
+            STRINGS_cs.library_lore?.books?.[book.id]?.title ||
+            book.title;
+        const bookAuthor = dict.library_lore?.books?.[book.id]?.author ||
+            (lang === 'en' && book.author_en) ||
+            STRINGS_cs.library_lore?.books?.[book.id]?.author ||
+            book.author;
+
+        // Signatura — zkratka kategorie + pořadí v kategorii římsky.
+        // Deterministicky spočtené z existujícího pole knih, ne uložené.
+        const CAT_ABBR = { history: 'Hist', innovation: 'Innov', conflict: 'Confl', local: 'Local', viticis: 'Vitic', technical: 'Techn', coquina: 'Coqu', valetudo: 'Valet' };
+        const catBooks = LibraryDB.books.filter(b => b.category === book.category);
+        const idx = catBooks.findIndex(b => b.id === book.id) + 1;
+        const signature = (CAT_ABBR[book.category] || book.category) + '. ' + this._toRoman(idx || 1);
+
+        // Secundo folio — první slova druhého odstavce obsahu, ne ručně psané pole.
+        const paras = (book.content || '').split('\n\n').map(p => p.trim()).filter(Boolean);
+        let secundoFolio = '';
+        if (paras.length > 1) {
+            const clean = paras[1].replace(/\*\*/g, '').replace(/^[^\wÀ-ž]+/, '');
+            const words = clean.split(/\s+/).slice(0, 6).join(' ');
+            secundoFolio = words + '…';
+        }
+
+        const isRead = GameState.library.readBooks.includes(book.id);
+        const catName = t(`library_lore.categories.${book.category}`);
+
+        NotificationSystem.modal({
+            icon: '📇',
+            title: t('library_lore.catalog_title'),
+            text: `${bookTitle}\n${bookAuthor}${book.year ? ', ' + book.year : ''}\n${catName}`,
+            choices: [{ label: t('library_lore.catalog_close'), type: 'primary', effect: () => { } }]
+        });
+        setTimeout(() => {
+            const body = document.querySelector('.ns-modal-body');
+            if (!body) return;
+            const statusColor = isRead ? '#5a9a5a' : '#c5a059';
+            const statusBg = isRead ? 'rgba(90,154,90,0.08)' : 'rgba(197,160,89,0.08)';
+            const statusText = isRead ? t('library_lore.catalog_status_read') : t('library_lore.catalog_status_unread');
+            let extra = `<div style="margin:10px 0;padding:8px 12px;background:${statusBg};border-radius:6px;border-left:3px solid ${statusColor};font-size:0.85rem;">
+                ${isRead ? '✓' : '📖'} ${statusText}</div>`;
+            extra += `<div style="margin:10px 0;padding:8px 12px;background:rgba(139,111,60,0.08);border-radius:6px;border-left:3px solid var(--accent-gold);font-size:0.85rem;">
+                🏷️ ${t('library_lore.catalog_signature')}: <strong>${signature}</strong></div>`;
+            if (secundoFolio) {
+                extra += `<div style="margin:10px 0;padding:8px 12px;background:rgba(139,111,60,0.08);border-radius:6px;border-left:3px solid var(--accent-gold);font-size:0.85rem;">
+                    📜 ${t('library_lore.catalog_secundo_folio')}: <em>"${secundoFolio}"</em>
+                    <div style="margin-top:6px;font-size:0.78rem;opacity:0.75;font-style:italic;">${t('library_lore.catalog_secundo_note')}</div></div>`;
+            }
+            body.insertAdjacentHTML('afterend', `<div style="padding:0 28px 8px;">${extra}</div>`);
+        }, 20);
+    },
+
     renderActions: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const _terrainF = (GameState.terrain && GameState.terrain.fatigue) || 0;
@@ -2774,6 +2846,7 @@ const UI = {
                                 <strong>${bookTitle}</strong> ${isRead ? '✓' : ''}
                                 <div class="text-sm">${bookAuthor} (${book.year})</div>
                             </div>
+                            ${hasCatalogus ? `<button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;" onclick="UI.showCatalogModal(LibraryDB.books.find(b=>b.id==='${book.id}'))" title="${t('library_lore.btn_catalog')}">📇</button>` : ''}
                             <button class="craft-btn" onclick="LibraryHelpers.readBook('${book.id}')" ${btnDisabled}>
                                 ${btnLabel}
                             </button>

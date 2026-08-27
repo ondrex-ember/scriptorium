@@ -427,9 +427,9 @@ const ScavengeManager = {
             // bee_bread má na rozdíl od pylu reálnou antickou oporu
             // (Hippokrates, Plinius — stejné zdůvodnění jako u
             // pyl/bee_bread splitu, 19.8.2026) — malá šance navíc.
-            if (this._seasonRoll('honey', 0.85)) Game.addItem('honey', Math.random() < 0.3 ? 2 : 1);
-            if (Math.random() < 0.35) Game.addItem('beeswax', 1);
-            if (Math.random() < 0.05) Game.addItem('bee_bread', 1);
+            if (this._seasonRoll('honey', 0.4)) Game.addItem('honey', Math.random() < 0.3 ? 2 : 1);
+            if (Math.random() < 0.16) Game.addItem('beeswax', 1);
+            if (Math.random() < 0.023) Game.addItem('bee_bread', 1);
         }
         else if (type === 'yard_cleanup') {
             Game.addItem('scraps', Math.random() < 0.5 ? 2 : 1);

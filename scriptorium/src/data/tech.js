@@ -113,6 +113,7 @@ const TechTree = [
   { id: "tech_canonical_hours", name: "Kanonické Hodiny", name_en: "Canonical Hours", cost: 10, desc: "Benediktinský denní řád: Vigilie, Laudes, Prima, Sexta, Nona, Vesperae, Completorium. Odemkne systém časových buffů.", desc_en: "The Benedictine daily order: Vigils, Lauds, Prime, Sext, None, Vespers, Compline. Unlocks time-based buffs.", unlocks: ["book_of_hours", "hostia"], requires: ["tech_monastery_wisdom", "tech_codex_luxury"] },
 
   // CELLARIUM
+  { id: "tech_lenten_reading", name: "Postní čtení", name_en: "Lenten Reading", cost: 8, desc: "Regula Benedicti, Caput XLVIII (48:14–16) — na Popeleční středu dostane každý bratr jednu knihu z knihovny a musí ji celou přečíst do Velikonoc.", desc_en: "Rule of St. Benedict, Chapter XLVIII (48:14–16) — on Ash Wednesday each brother receives one book from the library and must read it whole before Easter.", unlocks: [], requires: ["tech_monastery_wisdom"] },
   { id: "tech_cellarium", name: "Celerář — Skladník Kláštera", name_en: "Cellarer — Monastic Steward", cost: 8, desc: "Bratr Celerář každé ráno přiděloval práci a inventář. Automatická organizace zásob.", desc_en: "The Brother Cellarer assigned work and inventory each morning. Automatic supply organisation.", unlocks: [], requires: ["tech_monastery_wisdom"] },
 
   // ECONOMY
