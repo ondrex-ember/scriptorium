@@ -193,6 +193,7 @@ const UI = {
         { elId: 'library-kronika-content', fn: () => UI.renderKronika() },
         { elId: 'library-kraj-content', fn: () => UI.renderChroniconWindow() },
         { elId: 'library-studovna-content', fn: () => { if (typeof StudovnaSystem !== 'undefined') StudovnaSystem.render(); } },
+        { elId: 'library-vypujcky-content', fn: () => UI.renderVypujckyTab() },
         { elId: 'library-opat-content', fn: () => { if (typeof AbbotSystem !== 'undefined') AbbotSystem.render(); } },
         // Home — horní sub-taby
         { elId: 'home-athanor-content', fn: () => { if (typeof AthanorSystem !== 'undefined') AthanorSystem.render('home-athanor-content'); } },
@@ -1719,7 +1720,7 @@ const UI = {
         GameState.ui.libraryTab = tab;
 
         // Hide all library tabs
-        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna', 'opat'];
+        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna', 'vypujcky', 'opat'];
         tabs.forEach(t => {
             const el = document.getElementById('library-' + t + '-content');
             if (el) el.style.display = 'none';
@@ -1752,6 +1753,9 @@ const UI = {
         } else if (tab === 'studovna') {
             const el = document.getElementById('library-studovna-content');
             if (el) { el.style.display = 'block'; if (typeof StudovnaSystem !== 'undefined') StudovnaSystem.render(); }
+        } else if (tab === 'vypujcky') {
+            const el = document.getElementById('library-vypujcky-content');
+            if (el) { el.style.display = 'block'; UI.renderVypujckyTab(); }
         } else if (tab === 'opat') {
             const el = document.getElementById('library-opat-content');
             if (el) { el.style.display = 'block'; if (typeof AbbotSystem !== 'undefined') AbbotSystem.render(); }
@@ -2754,35 +2758,10 @@ const UI = {
                   </div>`;
         }
 
-        // Knižní nemocnice — D2 (cluster-D2-mrd, 28.8.2026). Jen když je
-        // tech vyzkoumaný, jinak by panel ukazoval na nic.
-        if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conservatio')) {
-            const _d2Lang = (GameState.settings && GameState.settings.language) || 'cs';
-            const bc = (GameState.library && GameState.library.bookCondition) || {};
-            const damaged = Object.keys(bc).filter(id => bc[id].condition < LibraryHelpers.DAMAGE_THRESHOLD);
-            const worn = Object.keys(bc).filter(id => bc[id].condition < 100 && bc[id].condition >= LibraryHelpers.DAMAGE_THRESHOLD);
-            h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
-                      <div style="font-weight:bold;font-size:0.85rem;">${_d2Lang === 'en' ? '🏥 Book Infirmary' : '🏥 Knižní nemocnice'}</div>
-                      <button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.maintainLibrary();UI.renderLibrary();">${_d2Lang === 'en' ? 'Air & dust' : 'Vyvětrat a oprášit'} (${GameState.inventory.herb_blue || 0}× 🌿)</button>
-                    </div>
-                    <div style="font-size:0.78rem;opacity:0.8;">
-                      ${damaged.length > 0 ? (_d2Lang === 'en' ? `📕 ${damaged.length} damaged, unreadable until repaired` : `📕 ${damaged.length} poškozeno, nelze číst do opravy`) : ''}
-                      ${worn.length > 0 ? ` · ${_d2Lang === 'en' ? worn.length + ' worn' : worn.length + ' opotřebeno'}` : ''}
-                      ${damaged.length === 0 && worn.length === 0 ? (_d2Lang === 'en' ? '✓ Fond in good order' : '✓ Fond v pořádku') : ''}
-                    </div>
-                    ${damaged.length > 0 ? `<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
-                      ${damaged.slice(0, 5).map(id => {
-                        const b = LibraryDB.books.find(bk => bk.id === id);
-                        const title = b ? (_d2Lang === 'en' ? (b.title_en || b.title) : b.title) : id;
-                        return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.75rem;">
-                          <span>📕 ${title}</span>
-                          <button class="craft-btn" style="font-size:0.7rem;padding:2px 6px;min-width:auto;" onclick="LibraryHelpers.repairBook('${id}');UI.renderLibrary();">${_d2Lang === 'en' ? 'Repair' : 'Opravit'}</button>
-                        </div>`;
-                      }).join('')}
-                    </div>` : ''}
-                  </div>`;
-        }
+        // Knižní nemocnice (D2) + Absenční výpůjčky (C2) — přesunuto do
+        // samostatného subtabu "Výpůjčky" (28.8.2026), ať se hlavní seznam
+        // knih neplní stavovými panely. Viz UI.renderVypujckyTab().
+
 
         const _bartolomejRel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej) || 0;
         const _libLang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -2925,6 +2904,7 @@ const UI = {
                         : _bookProt === 'anathema' ? (currentLang === 'en' ? 'Protected by a curse' : 'Chráněno kletbou') : '';
                     const _bookCond = GameState.library.bookCondition && GameState.library.bookCondition[book.id];
                     const _bookDamaged = _bookCond && LibraryHelpers.DAMAGE_THRESHOLD && _bookCond.condition < LibraryHelpers.DAMAGE_THRESHOLD;
+                    const _bookLoan = GameState.library.loanedBooks && GameState.library.loanedBooks[book.id];
 
                     h += `
                         <div class="card" style="border-color:${isRead ? 'var(--accent-gold)' : 'var(--ink-secondary)'};">
@@ -2932,7 +2912,7 @@ const UI = {
                                 ${book.icon}
                             </div>
                             <div style="flex:1;">
-                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''} ${_bookProt ? `<span title="${_bookProtTitle}">${_bookProtIcon}</span>` : ''} ${_bookDamaged ? '<span title="' + (currentLang === 'en' ? 'Damaged — needs repair' : 'Poškozeno — potřebuje opravu') + '">📕</span>' : ''}
+                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''} ${_bookProt ? `<span title="${_bookProtTitle}">${_bookProtIcon}</span>` : ''} ${_bookDamaged ? '<span title="' + (currentLang === 'en' ? 'Damaged — needs repair' : 'Poškozeno — potřebuje opravu') + '">📕</span>' : ''} ${_bookLoan ? `<span title="${currentLang === 'en' ? 'Out on loan to ' + _bookLoan.borrowerName : 'Zapůjčeno: ' + _bookLoan.borrowerName}">📤</span>` : ''}
                                 <div class="text-sm">${bookAuthor} (${book.year})</div>
                             </div>
                             ${hasCatalogus ? `<button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;" onclick="UI.showCatalogModal(LibraryDB.books.find(b=>b.id==='${book.id}'))" title="${t('library_lore.btn_catalog')}">📇</button>` : ''}
@@ -3178,6 +3158,94 @@ const UI = {
 
 
     // ========== HTML/RENDERING UPDATE pro UI.renderRecords() ==========
+
+    // Subtab "Výpůjčky" (28.8.2026) — konsoliduje Knižní nemocnici (D2) a
+    // Absenční výpůjčky (C2) na jedno místo, ať se hlavní seznam knih
+    // neplní stavovými panely. Přesunuto z renderLibrary() beze změny
+    // logiky, jen onclick reload teď volá renderVypujckyTab() místo
+    // renderLibrary().
+    renderVypujckyTab: function () {
+        const el = document.getElementById('library-vypujcky-content');
+        if (!el) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const hasD2 = GameState.researchedTechs && GameState.researchedTechs.includes('tech_conservatio');
+        const hasC2 = GameState.researchedTechs && GameState.researchedTechs.includes('tech_absentee_lending');
+        let h = '';
+
+        if (!hasD2 && !hasC2) {
+            el.innerHTML = `<p style="opacity:0.7;font-style:italic;padding:12px;">${lang === 'en'
+                ? 'Nothing to manage here yet — research Book Infirmary or Absentee Lending first.'
+                : 'Zatím tu není co spravovat — nejdřív vyzkoumej Knižní nemocnici nebo Výpůjčku mimo klášter.'}</p>`;
+            return;
+        }
+
+        if (hasD2) {
+            const bc = (GameState.library && GameState.library.bookCondition) || {};
+            const damaged = Object.keys(bc).filter(id => bc[id].condition < LibraryHelpers.DAMAGE_THRESHOLD);
+            const worn = Object.keys(bc).filter(id => bc[id].condition < 100 && bc[id].condition >= LibraryHelpers.DAMAGE_THRESHOLD);
+            h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+                      <div style="font-weight:bold;font-size:0.85rem;">${lang === 'en' ? '🏥 Book Infirmary' : '🏥 Knižní nemocnice'}</div>
+                      <button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.maintainLibrary();UI.renderVypujckyTab();">${lang === 'en' ? 'Air & dust' : 'Vyvětrat a oprášit'} (${GameState.inventory.herb_blue || 0}× 🌿)</button>
+                    </div>
+                    <div style="font-size:0.78rem;opacity:0.8;">
+                      ${damaged.length > 0 ? (lang === 'en' ? `📕 ${damaged.length} damaged, unreadable until repaired` : `📕 ${damaged.length} poškozeno, nelze číst do opravy`) : ''}
+                      ${worn.length > 0 ? ` · ${lang === 'en' ? worn.length + ' worn' : worn.length + ' opotřebeno'}` : ''}
+                      ${damaged.length === 0 && worn.length === 0 ? (lang === 'en' ? '✓ Fond in good order' : '✓ Fond v pořádku') : ''}
+                    </div>
+                    ${damaged.length > 0 ? `<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
+                      ${damaged.map(id => {
+                        const b = LibraryDB.books.find(bk => bk.id === id);
+                        const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                        return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.75rem;">
+                          <span>📕 ${title}</span>
+                          <button class="craft-btn" style="font-size:0.7rem;padding:2px 6px;min-width:auto;" onclick="LibraryHelpers.repairBook('${id}');UI.renderVypujckyTab();">${lang === 'en' ? 'Repair' : 'Opravit'}</button>
+                        </div>`;
+                      }).join('')}
+                    </div>` : ''}
+                  </div>`;
+        }
+
+        if (hasC2) {
+            const loans = (GameState.library && GameState.library.loanedBooks) || {};
+            const lostIds = Object.keys(loans).filter(id => loans[id].lost);
+            const outIds = Object.keys(loans).filter(id => !loans[id].lost);
+            const history = ((GameState.library && GameState.library.loanHistory) || []).slice(-10).reverse();
+            h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
+                    <div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '📤 Absentee Loans' : '📤 Výpůjčky mimo klášter'}</div>
+                    <div style="font-size:0.78rem;opacity:0.8;margin-bottom:6px;">
+                      ${outIds.length > 0 ? (lang === 'en' ? `${outIds.length} out on loan` : `${outIds.length} zapůjčeno`) : ''}
+                      ${lostIds.length > 0 ? ` · ${lang === 'en' ? lostIds.length + ' unreturned' : lostIds.length + ' nevráceno'}` : ''}
+                      ${outIds.length === 0 && lostIds.length === 0 ? (lang === 'en' ? 'Nothing out at present' : 'Momentálně nic venku') : ''}
+                    </div>
+                    ${outIds.length > 0 ? `<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
+                      ${outIds.map(id => {
+                        const b = LibraryDB.books.find(bk => bk.id === id);
+                        const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                        const daysLeft = Math.max(0, Math.ceil((loans[id].dueAt - Date.now()) / (24 * 3600000)));
+                        return `<div style="font-size:0.75rem;padding:2px 0;">📤 ${title} — <span style="opacity:0.7;">${loans[id].borrowerName}, ${lang === 'en' ? daysLeft + 'd left' : 'zbývá ' + daysLeft + ' dní'}</span></div>`;
+                      }).join('')}
+                    </div>` : ''}
+                    ${lostIds.length > 0 ? `<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
+                      ${lostIds.map(id => {
+                        const b = LibraryDB.books.find(bk => bk.id === id);
+                        const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                        const cost = ((typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getScribePrice) ? LibraryHelpers.getScribePrice() : 10) * 2;
+                        return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.75rem;">
+                          <span>📕 ${title} <span style="opacity:0.6;">(${loans[id].borrowerName})</span></span>
+                          <button class="craft-btn" style="font-size:0.7rem;padding:2px 6px;min-width:auto;" onclick="LibraryHelpers.buybackLoanedBook('${id}');UI.renderVypujckyTab();">${lang === 'en' ? 'Recover' : 'Vykoupit'} (${cost}× 📜)</button>
+                        </div>`;
+                      }).join('')}
+                    </div>` : ''}
+                    ${history.length > 0 ? `<div style="border-top:1px solid rgba(197,160,89,0.2);padding-top:6px;">
+                      <div style="font-size:0.72rem;opacity:0.6;margin-bottom:4px;">${lang === 'en' ? 'Recent history' : 'Nedávná historie'}</div>
+                      ${history.map(hh => `<div style="font-size:0.7rem;opacity:0.65;padding:1px 0;">${hh.problem ? '⚠️' : '✓'} ${hh.bookTitle} — ${hh.borrowerName}</div>`).join('')}
+                    </div>` : ''}
+                  </div>`;
+        }
+
+        el.innerHTML = h;
+    },
 
     renderGamesTab: function () {
         const el = document.getElementById('library-games-content');

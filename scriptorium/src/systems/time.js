@@ -154,6 +154,7 @@ const TimeSys = {
         if(GameState.library && typeof LibraryHelpers !== 'undefined') {
             LibraryHelpers.checkLibraryUnlocks();
             if (LibraryHelpers.tickBookCondition) LibraryHelpers.tickBookCondition();
+            if (LibraryHelpers.tickLoans) LibraryHelpers.tickLoans();
         }
         
         // ========== NEW: Check canonical hours ==========

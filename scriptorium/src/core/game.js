@@ -331,6 +331,8 @@ const Game = {
                 protection: {},
                 bookCondition: {},
                 conditionLastTick: 0,
+                loanedBooks: {},
+                loanHistory: [],
                 scribeState: {
                     visited: false,
                     totalTrades: 0,

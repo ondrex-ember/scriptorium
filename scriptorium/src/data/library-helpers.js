@@ -510,6 +510,14 @@ const LibraryHelpers = {
             return;
         }
 
+        // Absenční výpůjčka (C2) — kniha, co odešla z kláštera, se logicky
+        // nedá číst tady. unlockedBooks netknuté, jen dočasný zámek.
+        const loan = GameState.library.loanedBooks && GameState.library.loanedBooks[bookId];
+        if (loan) {
+            UI.notify(lang === 'en' ? '📤 The book is out on loan — it is not here to read.' : '📤 Kniha je zapůjčena mimo klášter — není tu ke čtení.', true);
+            return;
+        }
+
         const hasEyeStrain = (typeof HealthSystem !== 'undefined') && HealthSystem.isActive('eye_strain');
         const timer = GameState.library.readingTimer;
 
@@ -854,6 +862,72 @@ const LibraryHelpers = {
         const book = LibraryDB.books.find(b => b.id === bookId);
         const title = book ? (lang === 'en' ? (book.title_en || book.title) : book.title) : bookId;
         UI.notify(lang === 'en' ? `📕 Repaired: "${title}".` : `📕 Opraveno: "${title}".`);
+    },
+
+    // Absenční výpůjčka — vyřešení splatnosti. Denní tick (mirror D2
+    // vzoru), risk-roll podle lossChance uloženého při půjčce (Chronicon
+    // strana). Vrácena → mizí ze zámku úplně. Ztracena → zůstává zamčená
+    // (`lost:true`), NIKDY nemaže unlockedBooks (§7 bod 3) — jen čeká na
+    // vykoupení přes Bartoloměje.
+    tickLoans: function() {
+        const loans = GameState.library.loanedBooks;
+        if (!loans) return;
+        const now = Date.now();
+        Object.keys(loans).forEach(bookId => {
+            const loan = loans[bookId];
+            if (loan.lost || now < loan.dueAt) return; // ještě neni splatné, nebo už vyřešeno
+            const book = LibraryDB.books.find(b => b.id === bookId);
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const title = book ? (lang === 'en' ? (book.title_en || book.title) : book.title) : bookId;
+            const axis = loan.contactId === 'vrchnost' ? 'slechta' : loan.contactId === 'klaster' ? 'cirkev' : 'lidovost';
+            const returned = Math.random() * 100 >= loan.lossChance;
+            if (returned) {
+                if (typeof PersonaSystem !== 'undefined') {
+                    if (PersonaSystem.addInfluence) PersonaSystem.addInfluence(loan.contactId, 3);
+                    if (PersonaSystem.addReputation) PersonaSystem.addReputation(axis, 2);
+                }
+                if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                    Game.addKronikaEntry('minor', `📥 "${title}" se vrací od ${loan.borrowerName}, v pořádku.`, `📥 "${title}" returns from ${loan.borrowerName}, unharmed.`, `📥 Liber restitutus est.`);
+                }
+                delete loans[bookId];
+            } else {
+                if (typeof PersonaSystem !== 'undefined') {
+                    if (PersonaSystem.addInfluence) PersonaSystem.addInfluence(loan.contactId, -6);
+                    if (PersonaSystem.addReputation) PersonaSystem.addReputation(axis, -4);
+                }
+                if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                    Game.addKronikaEntry('important', `📕 "${title}" se od ${loan.borrowerName} nevrátila.`, `📕 "${title}" was never returned by ${loan.borrowerName}.`, `📕 Liber non rediit.`);
+                }
+                loan.lost = true;
+            }
+            if (!GameState.library.loanHistory) GameState.library.loanHistory = [];
+            GameState.library.loanHistory.push({
+                bookId: bookId, bookTitle: title, contactId: loan.contactId, borrowerName: loan.borrowerName,
+                loanedAt: loan.loanedAt, resolvedAt: now, problem: !returned,
+            });
+            if (GameState.library.loanHistory.length > 50) GameState.library.loanHistory.shift();
+        });
+        Game.save();
+    },
+
+    // Vykoupení ztracené knihy přes Bartoloměje — reuse jeho existující
+    // cenové škály a měny (papír, ne groše — jeho vlastní ekonomika).
+    // Dražší tier (×2) než náhodný obchod, protože shání konkrétní ztracený
+    // titul, ne cokoliv volného.
+    buybackLoanedBook: function(bookId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const loan = GameState.library.loanedBooks && GameState.library.loanedBooks[bookId];
+        if (!loan || !loan.lost) return;
+        const cost = (this.getScribePrice ? this.getScribePrice() : 10) * 2;
+        if ((GameState.inventory.paper || 0) < cost) {
+            UI.notify(lang === 'en' ? `Bartoloměj needs ${cost}× Paper to track it down.` : `Bartoloměj potřebuje ${cost}× papír, aby ji sehnal.`, true); return;
+        }
+        Game.removeItem('paper', cost);
+        delete GameState.library.loanedBooks[bookId];
+        Game.save();
+        const book = LibraryDB.books.find(b => b.id === bookId);
+        const title = book ? (lang === 'en' ? (book.title_en || book.title) : book.title) : bookId;
+        UI.notify(lang === 'en' ? `🖋️ Bartoloměj found a replacement: "${title}".` : `🖋️ Bartoloměj sehnal náhradu: "${title}".`);
     },
 
     // NPC Písař - obchod

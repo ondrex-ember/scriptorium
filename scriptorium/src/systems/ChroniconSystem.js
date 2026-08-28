@@ -838,6 +838,46 @@ const ChroniconSystem = {
             }
         }
 
+        // Absenční výpůjčka — Cluster C2 (knihovna-rozsireni-mrd §4C2,
+        // 28.8.2026). Tři přijímací volby (standard/vyšší zástava/odmítnout)
+        // vedle sebe, ne binární accept/decline — Chronicon strana posílá
+        // `kind:'vypujcka'` s choices id `accept_standard`/`accept_higher`/
+        // `decline`. Sdílené soft-bounce kontroly pro obě accept varianty.
+        if ((choiceId === 'accept_standard' || choiceId === 'accept_higher') && p && p.kind === 'vypujcka') {
+            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_absentee_lending'));
+            if (!hasTech) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'No book may yet leave these walls. (Requires: Absentee Lending)'
+                    : 'Zatím žádná kniha nesmí opustit tyto zdi. (Vyžaduje: Výpůjčka mimo klášter)';
+            }
+            const rank = GameState.rank && GameState.rank.monastic;
+            if (rank !== 'prior') {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'Only the Prior may permit a book to leave the monastery.'
+                    : 'Jen Prior smí dovolit, aby kniha opustila klášter.';
+            }
+            const pool = (GameState.library.unlockedBooks || []).filter(id => {
+                if (GameState.library.loanedBooks && GameState.library.loanedBooks[id]) return false;
+                const prot = LibraryHelpers.getBookProtection ? LibraryHelpers.getBookProtection(LibraryDB.books.find(b => b.id === id)) : null;
+                return prot !== 'catena' && prot !== 'secreta';
+            });
+            if (pool.length === 0) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'Nothing in the fond may safely leave — the rest is chained or already lent.'
+                    : 'Nic ve fondu nesmí bezpečně odejít — zbytek je přikován nebo už půjčen.';
+            }
+            const rel = Math.min(100, (GameState.contactRelation || {})[p.contactId] || 0);
+            if (choiceId === 'accept_higher' && rel < 20) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'He does not trust thee enough yet to accept such terms — he simply leaves.'
+                    : 'Ještě ti tolik nedůvěřuje, aby přijal takové podmínky — prostě odejde.';
+            }
+        }
+
         // Pocestný 'accept' — stejný soft-bounce vzor jako hospes/studovna
         // (ubytovna-mrd.md §8c-B, rozšíření): plná Ubytovna nesmí
         // kandidáta ztratit, jen ho odloží. Kapacita živě z
@@ -1019,6 +1059,53 @@ const ChroniconSystem = {
                 ? `He is received in the study room and given "${bookTitle}" to read.`
                 : `Je přijat do Studovny a dostává k přečtení "${bookTitle}".`;
         }
+
+        // Absenční výpůjčka execution — obě accept varianty sdílí výběr
+        // knihy a základ, liší se jen v zástavě/riziku. Cautio historicky
+        // ~třetina nad hodnotu (§9 knihovna-rozsireni-mrd) — deposit =
+        // tier × 1.3. "Vyšší zástava" = +20% k ceně, -30% k riziku ztráty
+        // (víc v sázce pro dlužníka = víc důvodů vrátit).
+        if ((choiceId === 'accept_standard' || choiceId === 'accept_higher') && p && p.kind === 'vypujcka') {
+            const pool = (GameState.library.unlockedBooks || []).filter(id => {
+                if (GameState.library.loanedBooks && GameState.library.loanedBooks[id]) return false;
+                const prot = LibraryHelpers.getBookProtection ? LibraryHelpers.getBookProtection(LibraryDB.books.find(b => b.id === id)) : null;
+                return prot !== 'catena' && prot !== 'secreta';
+            });
+            const bookId = pool[Math.floor(Math.random() * pool.length)];
+            const bookDef = LibraryDB.books.find(b => b.id === bookId);
+            const bookTitle = bookDef ? (lang === 'en' ? (bookDef.title_en || bookDef.title) : bookDef.title) : bookId;
+            const contactId = p.contactId || 'mlynar';
+            const borrowerName = lang === 'en' ? (p.title_en || 'A borrower') : (p.title_cs || 'Vypůjčitel');
+            const rel = Math.min(100, (GameState.contactRelation || {})[contactId] || 0);
+
+            let days = p.durationDays || 7;
+            if (days > 7 && rel < 70) days = 7; // pojistka — nižší vztah si delší půjčku nevyžádá
+
+            const tier = (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getScribePrice) ? LibraryHelpers.getScribePrice() : 10;
+            const higher = choiceId === 'accept_higher';
+            const deposit = Math.round(tier * 1.3 * (higher ? 1.2 : 1));
+            let lossChance = Math.max(0, Math.min(30, (100 - rel) * 0.3));
+            if (higher) lossChance *= 0.7;
+
+            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                CellariumSystem.addGrose(deposit, { title: lang === 'en' ? 'Loan pledge' : 'Zástava za výpůjčku', source: borrowerName, source_en: borrowerName });
+            }
+            if (!GameState.library.loanedBooks) GameState.library.loanedBooks = {};
+            GameState.library.loanedBooks[bookId] = {
+                contactId: contactId, borrowerName: borrowerName, loanedAt: Date.now(),
+                dueAt: Date.now() + days * 24 * 60 * 60 * 1000, lossChance: lossChance, deposit: deposit,
+            };
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('minor',
+                    `📤 "${bookTitle}" zapůjčena ${borrowerName} na ${days} dní.`,
+                    `📤 "${bookTitle}" lent to ${borrowerName} for ${days} days.`,
+                    `📤 Liber commodatus est.`);
+            }
+            Game.save();
+            return lang === 'en'
+                ? `"${bookTitle}" is lent for ${days} days. Pledge received: ${deposit} g.`
+                : `"${bookTitle}" je zapůjčena na ${days} dní. Zástava přijata: ${deposit} g.`;
+        }
         // Sepultura accept/decline zde odstraněno (krok 3c, 27.7.2026) —
         // od kroku 3b (ZAKAZKY_KINDS filtr) sem `kind==='sepultura'` už
         // nikdy nedorazí, tenhle catchall se stal orphan kódem. Logika
@@ -1033,6 +1120,11 @@ const ChroniconSystem = {
             return lang === 'en'
                 ? 'The request is turned down. He seeks his reading elsewhere.'
                 : 'Žádost je odmítnuta. Čtení si najde jinde.';
+        }
+        if (choiceId === 'decline' && p && p.kind === 'vypujcka') {
+            return lang === 'en'
+                ? 'The request is turned down. No book leaves the walls today.'
+                : 'Žádost je odmítnuta. Dnes žádná kniha neopustí zdi.';
         }
         if (choiceId === 'decline' && p && p.kind === 'hospes') {
             return lang === 'en'
