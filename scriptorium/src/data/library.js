@@ -2382,6 +2382,38 @@ The manuscript describes how to clarify wine and beer using fish bladders — th
 *"A cloudy drink clouds the mind as well. Clean glue, clean brew, clear head."*
 
 **GAME EFFECT:** Lore only for now — clarifying beer with isinglass awaits the future Brewery (endgame branch).`
+        },
+
+        {
+            // kronika-nasi-mrd (28.8.2026) — živá kniha. unlockDay: 0 záměrně,
+            // odemyká se mimo obecnou smyčku (viz LibraryHelpers.checkLibraryUnlocks)
+            // přes tech_liber_domesticus + min. dní + min. počet záznamů v
+            // GameState.kronika. isLiveChronicle větví _doReadBook na
+            // UI.showChronicleReader místo obyčejného showBookModal.
+            id: 'book_kronika_domus',
+            title: 'Kronika našeho kláštera',
+            title_en: 'Chronicle of Our Monastery',
+            category: 'local',
+            unlockDay: 0,
+            isLiveChronicle: true,
+            icon: '📖',
+            author: 'Bratři tohoto domu',
+            author_en: 'The brothers of this house',
+            year: null,
+            content: `**Vlastní kniha, ne opis cizí**
+
+Na rozdíl od ostatních svazků v této knihovně nebyla tahle kniha nikdy odjinud opsána ani koupena. Píše se sama, list za listem, z toho, co se v tomto klášteře skutečně odehrálo — svěcení hrobů, dokončené kodexy, dny půstu i dny hodů, vše, co Armarius uznal za hodné zápisu do kroniky domu.
+
+**Otevřená kniha kláštera**
+
+Otevři ji ve Čtecí síni a list po listu projdi vlastní historii tohoto místa, tak jak se doopravdy odehrála.`,
+            content_en: `**Our Own Book, Not a Copy of Another**
+
+Unlike every other volume in this library, this book was never copied from elsewhere nor bought. It writes itself, leaf by leaf, from what has truly happened within these walls — graves consecrated, codices finished, days of fasting and days of feast, everything the Armarius deemed worthy of the house's record.
+
+**The Monastery's Open Book**
+
+Open it in the Reading Room and walk, leaf by leaf, through the real history of this place, exactly as it happened.`
         }
     ],
 

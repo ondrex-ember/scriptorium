@@ -553,6 +553,20 @@ const LibraryHelpers = {
             }
         });
         
+        // Kronika našeho kláštera (kronika-nasi-mrd, 28.8.2026) — vlastní
+        // odemčení mimo obecnou unlockDay smyčku: tech + min. 30 dní + min.
+        // 50 záznamů v kronika (živá historie tohoto konkrétního průchodu).
+        const domesticusId = 'book_kronika_domus';
+        if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_liber_domesticus') &&
+            daysPassed >= 30 &&
+            (GameState.kronika || []).length >= 50 &&
+            !GameState.library.unlockedBooks.includes(domesticusId)) {
+            GameState.library.unlockedBooks.push(domesticusId);
+            if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
+            GameState.library.acquisitionDates[domesticusId] = Date.now();
+            newUnlocks++;
+        }
+
         if (newUnlocks > 0 && !GameState.flags.firstVisit) {
             UI.notifyPanel(t('library_lore.new_book').replace('{count}', newUnlocks), 'system');
         }
@@ -675,8 +689,14 @@ const LibraryHelpers = {
             }
         }
         
-        // Show modal with book content
-        UI.showBookModal(book);
+        // Show modal with book content — live chronicle gets the dedicated
+        // page-turn reader (kronika-nasi-mrd, 28.8.2026), everything else
+        // keeps the existing simple modal.
+        if (book.isLiveChronicle) {
+            UI.showChronicleReader(book);
+        } else {
+            UI.showBookModal(book);
+        }
         
         Game.save();
         

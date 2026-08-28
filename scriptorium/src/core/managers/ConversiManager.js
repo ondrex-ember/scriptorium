@@ -2316,7 +2316,7 @@ const ConversiManager = {
                 };
                 const MANUSCRIPT_NAMES = {
                     anselm: 'Žaltář sv. Anselma', benedict: 'Řehole sv. Benedikta', chronica: 'Kronika kláštera Kladruby',
-                    herbar: 'Herbář a Lékařství', homiliar: 'Homiliář a Kázání', gigas: 'Codex Gigas'
+                    herbar: 'Herbář a Lékařství', homiliar: 'Homiliář a Kázání', gigas: 'Codex Gigas (opis)'
                 };
 
                 const totalFolios = MANUSCRIPTS_DB[ms.activeId] || 10;
