@@ -95,6 +95,29 @@ const StudovnaSystem = {
               </div>`;
 
         h += `</div>`;
+
+        // Registr návštěvníků — Cluster C1 (knihovna-rozsireni-mrd, 28.8.2026).
+        // Plná data se ukládají od začátku (GameState.library.studovnaVisitors:
+        // contactId/name/bookId/bookTitle/date), tady jen prostý výpis
+        // posledních pěti. Pokročilejší dotazování ("kdo si co kdy") je
+        // pozdější sprint — data na to už čekají, UI zatím ne.
+        const visitors = (GameState.library && GameState.library.studovnaVisitors) || [];
+        if (visitors.length > 0) {
+            const recent = visitors.slice(-5).reverse();
+            h += `<div style="margin-top:14px; padding:10px 12px; background:rgba(0,0,0,0.03); border-radius:8px;">
+                    <div style="font-size:0.75rem; font-weight:bold; opacity:0.7; margin-bottom:6px;">
+                        ${lang==='en' ? 'Recent readers' : 'Nedávní návštěvníci'}
+                    </div>`;
+            recent.forEach(v => {
+                const d = new Date(v.date);
+                const monthLat = (typeof CalendarSystem !== 'undefined') ? CalendarSystem.MONTHS_LAT[d.getMonth()] : '';
+                h += `<div style="font-size:0.7rem; opacity:0.65; padding:2px 0;">
+                        ${v.name} — <em>${v.bookTitle}</em> <span style="opacity:0.6;">(${monthLat} ${d.getDate()})</span>
+                      </div>`;
+            });
+            h += `</div>`;
+        }
+
         el.innerHTML = h;
     },
 
