@@ -31,7 +31,25 @@ const EasterEggsDB = {
             reward: { research: 5 },
             secret: false
         },
-		{
+        {
+            // Rota Libraria easter egg (cluster-A/knihovna-rozsireni-mrd §3,
+            // rozhodnuto 27.8.2026) — Ramelliho knižní kolo je z roku 1588,
+            // 123 let po naší hře. Nikdy neexistuje jako reálný předmět —
+            // jen jako pověst, co se skládá dohromady z technických knih.
+            // Mirror scholar_praha vzoru, jiná kategorie.
+            id: 'rota_libraria_legend',
+            name: 'Pověst o kole, které čte',
+            desc: 'Slož si z technických spisů fondu tu podivnou italskou pověst.',
+            icon: '🎡',
+            condition: () => {
+                if (!GameState.library) return false;
+                const techBooks = LibraryDB.books.filter(b => b.category === 'technical').map(b => b.id);
+                return techBooks.every(id => GameState.library.readBooks.includes(id));
+            },
+            reward: { book: 'book_rota_libraria_legend' },
+            secret: true
+        },
+	{
             id: 'defenestrace_detective',
             name: 'Pravda padá z okna',
             desc: 'Zjisti, co se skutečně stalo na Pražském hradě. (Přečti knihu: Apologie stavův)',
@@ -144,6 +162,56 @@ Ne, pokud nevěříte na rohaté bytosti se sirným zápachem. Ale obchodník Jo
 
 **Easter Egg:** Tato prastará kniha plná kacířských myšlenek se v knihovně odemkne pouze těm otrlým jedincům, kteří shromáždili a podrželi přesně 666 bodů zakázaného výzkumu. 
 Gratulujeme, právě jsi pohlédl do temné propasti historie a objevil jedno z největších tajemství hry! Nyní jsi skutečným mistrem Scriptorium.`
+});
+
+// Rota Libraria easter egg — pověst, nikdy reálný předmět (Ramelliho
+// kolo je z 1588, 123 let po naší hře). Odemyká se přečtením celé
+// kategorie 'technical', ne časem.
+LibraryDB.books.push({
+    id: 'book_rota_libraria_legend',
+    title: 'Pověst o kole, které čte',
+    title_en: 'The Legend of the Reading Wheel',
+    category: 'technical',
+    unlockDay: 0, // Neodemkne se časem, jen easter eggem (rota_libraria_legend)
+    icon: '🎡',
+    author: 'Vyprávěno u fortny, zapsal bratr, co tomu nevěřil',
+    author_en: 'Told at the gatehouse, written down by a brother who did not believe it',
+    year: 'bez datace — jen řeč lidí',
+    year_en: 'undated — mere talk',
+    content: `**Co přinesl ten kramář z jihu**
+
+Přišel na fortnu s ranci plnými jehel a stužek, jaké kupci nosívají, ale co ho živilo doopravdy, byly řeči. Vyprávěl o mistrech někde v Lombardii — v Sieně, říkal, možná v Miláně, sám si nebyl jistý —, co prý kreslí na pergamen stroje, jaké svět neviděl. Kola, co čerpají vodu sama od sebe. Mosty, co se složí a zase rozloží. A jedno kolo prý zvláštní ze všech: **kolo, na němž člověk čte mnoho knih najednou, aniž by vstal ze židle.**
+
+Nikdo z bratří to kolo neviděl. Ani sám kramář ne — slyšel o něm od jiného kramáře, ten zas od písaře, co prý ty kresby držel v ruce jen chvíli, na trhu, než mu je vzali zpátky.
+
+**Co na to Bartoloměj**
+
+Když se mu to vyprávělo, odfrkl si nad inkoustem. *"Kolo, co čte za tebe? Ať mi radši někdo vymyslí kolo, co za mě píše — to bych ocenil víc. Italové mají hlavu plnou strojů a prázdnou almaru na chleba, slyšel jsem."* Přesto se druhý den ptal znovu, jestli si kramář nevzpomněl na víc podrobností. Nevzpomněl.
+
+**Proč o tom tenhle spis vůbec mluví**
+
+Klášterní fond má knihy o řemeslech a přírodě — Theofilův spis o barvách a kovech, Lullovy kruhy, Cenniniho barvy, spis o přírodě samé. Kdo je všechny přečte, uslyší v nich ozvěnu stejné horečky: že se dá vymyslet stroj na cokoliv, i na čtení. Possešto se ta pověst do klášterní kroniky vůbec zapsala — ne proto, že by ji někdo viděl, ale proto, že se objevovala pořád dokola, z úst do úst, roky.
+
+---
+
+**Easter Egg:** Tahle "kniha" není opravdová kniha — je to pověst, poskládaná z toho, co zbytek fondu o řemeslech a strojích už říká. Historicky vzato: opravdové "knižní kolo" nakreslil až italský inženýr Agostino Ramelli, a to roku **1588** — celých 123 let po naší 1465. Nikdy v naší hře žádné takové kolo nestojí, nikdo ho nepostavil, nikdo ho neviděl. Jen fáma, co běžela po cestách o sto let dřív, než se cokoliv podobného vůbec nakreslilo.`,
+    content_en: `**What the peddler from the south brought**
+
+He came to the gatehouse with packs full of needles and ribbons, as peddlers carry, but what truly fed him was talk. He spoke of masters somewhere in Lombardy — in Siena, he said, perhaps Milan, he was not certain himself — who draw on parchment machines the like of which the world has not seen. Wheels that draw water by themselves. Bridges that fold and unfold. And one wheel stranger than the rest: **a wheel on which a man reads many books at once, without rising from his chair.**
+
+None of the brothers had seen this wheel. Nor had the peddler himself — he had heard of it from another peddler, who had it from a scribe who supposedly held the drawings in his hand for a moment, at a fair, before they were taken from him again.
+
+**What Bartoloměj made of it**
+
+When told, he snorted over his ink. *"A wheel that reads for you? Better someone invent a wheel that writes for me — that I'd thank them for. The Italians have their heads full of machines and their larders empty of bread, I hear."* Yet the next day he asked again whether the peddler had recalled any more of it. He had not.
+
+**Why this account belongs here at all**
+
+The monastery's holdings include books of craft and nature — Theophilus on colours and metals, Llull's circles, Cennini on pigments, a book on nature itself. Whoever reads them all hears in them the same fever echoed back: that a machine can be devised for anything, even for reading. Perhaps that is why this rumour found its way into the chronicle at all — not because anyone saw it, but because it kept returning, mouth to mouth, year after year.
+
+---
+
+**Easter Egg:** This "book" is no real book — it is a legend, pieced together from what the rest of the craft-and-machine holdings already say. Historically: the real "book wheel" was not drawn until the Italian engineer Agostino Ramelli did so in **1588** — a full 123 years after our 1465. No such wheel ever stands anywhere in this game, built or seen by anyone. Only a rumour that ran the roads a century before anything like it was ever drawn at all.`
 });
 
 // ================================================
