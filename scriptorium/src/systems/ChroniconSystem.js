@@ -905,6 +905,22 @@ const ChroniconSystem = {
         adv.resolvedIds[eventId] = true;
         adv.activeId = null;
         adv.pending  = null;
+
+        // Generický resolve-report zpět do Chronicon repa (28.8.2026,
+        // knihovna-rozsireni-mrd oprava) — nahrazuje trvalé zablokování
+        // single-slot pending stavů (pendingStudovna/pendingCtenar/
+        // pendingVypujcka). Fire-and-forget, tiché selhání, žádný dopad
+        // na hru, pokud endpoint nedoběhne — mirror
+        // _reportVrchnostFavorIfNewDay() vzoru, jen bez denní dedup
+        // (tohle se má poslat přesně jednou za KAŽDÉ vyřešení, ne 1×/den).
+        try {
+            fetch('/api/advisory-resolve-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: eventId }),
+            }).catch(() => {});
+        } catch (e) { /* tiché selhání */ }
+
         if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) {
             NotificationSystem.resolvePendingEvent(eventId);
         }
