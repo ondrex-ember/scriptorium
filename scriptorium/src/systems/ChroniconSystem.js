@@ -809,6 +809,35 @@ const ChroniconSystem = {
             }
         }
 
+        // Čtenář 'accept' — Cluster C1 (knihovna-rozsireni-mrd §4C, 28.8.2026).
+        // Stejný soft-bounce vzor + navíc kontrola, že vůbec něco máš k
+        // přečtení (bez odemčené knihy nemá host co číst). Očekávaný tvar
+        // příchozího `p` z Chronicon strany: { kind:'ctenar', contactId,
+        // icon, title_cs/en, text_cs/en, choices }. `contactId` určuje,
+        // komu se připisuje vztah — na rozdíl od studovna (natvrdo
+        // 'vrchnost') tady žádný default není, Chronicon musí poslat.
+        if (choiceId === 'accept' && p && p.kind === 'ctenar') {
+            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
+            if (!hasTech) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'There is no room yet fit to receive him. (Requires: Studovna)'
+                    : 'Zatím není žádná místnost hodná jeho přijetí. (Vyžaduje: Studovna)';
+            }
+            if (GameState.studovnaGuest && GameState.studovnaGuest.until > Date.now()) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'The study room is already occupied by another guest.'
+                    : 'Studovna je právě obsazená jiným hostem.';
+            }
+            if (!(GameState.library && GameState.library.unlockedBooks && GameState.library.unlockedBooks.length > 0)) {
+                ChroniconSystem._advisoryShownThisSession = false;
+                return lang === 'en'
+                    ? 'There is nothing yet in the library he could read.'
+                    : 'V knihovně zatím není nic, co by mohl číst.';
+            }
+        }
+
         // Pocestný 'accept' — stejný soft-bounce vzor jako hospes/studovna
         // (ubytovna-mrd.md §8c-B, rozšíření): plná Ubytovna nesmí
         // kandidáta ztratit, jen ho odloží. Kapacita živě z
@@ -941,6 +970,55 @@ const ChroniconSystem = {
                 ? "The Lord is received in the study room. The monastery's charters are laid open before him."
                 : 'Vrchnost je přijat do Studovny. Klášterní listiny jsou před ním otevřeny.';
         }
+
+        // Čtenář 'accept' execution — Cluster C1. Kniha se vybere náhodně
+        // z odemčených (host chce jen to, co fond skutečně má). Poplatek
+        // symbolický (§9 knihovna-rozsireni-mrd — NE dle hodnoty knihy),
+        // vztah jde na kontakt, co žádost poslal, ne natvrdo na jednu frakci.
+        // studovnaVisitors: plný záznam (kdo/co/kdy) rovnou od začátku —
+        // UI pro teď jen prostý výpis, pokročilejší dotazování je pozdější
+        // sprint, ale data se nemusí zpětně doplňovat.
+        // TODO(D2): až vznikne stav opotřebení knih, nedbalý host tady má
+        // zrychlit degradaci konkrétní půjčené knihy. Zatím no-op.
+        if (choiceId === 'accept' && p && p.kind === 'ctenar') {
+            const pool = GameState.library.unlockedBooks;
+            const bookId = pool[Math.floor(Math.random() * pool.length)];
+            const bookDef = (typeof LibraryDB !== 'undefined') ? LibraryDB.books.find(b => b.id === bookId) : null;
+            const bookTitle = bookDef ? (lang === 'en' ? (bookDef.title_en || bookDef.title) : bookDef.title) : bookId;
+            const contactId = p.contactId || 'mlynar';
+            const visitorName = lang === 'en' ? (p.title_en || 'A reader') : (p.title_cs || 'Čtenář');
+
+            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence(contactId, 4);
+            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                CellariumSystem.addGrose(4);
+                if (CellariumSystem.recordCommissionIncome) CellariumSystem.recordCommissionIncome(
+                    (lang === 'en' ? 'Study fee' : 'Poplatek za studium'), 4, visitorName, visitorName);
+            }
+            GameState.studovnaGuest = {
+                name: visitorName,
+                until: Date.now() + 24 * 60 * 60 * 1000,
+                bookId: bookId,
+            };
+            if (!GameState.library.studovnaVisitors) GameState.library.studovnaVisitors = [];
+            GameState.library.studovnaVisitors.push({
+                contactId: contactId,
+                name: visitorName,
+                bookId: bookId,
+                bookTitle: bookTitle,
+                date: Date.now(),
+            });
+            if (GameState.library.studovnaVisitors.length > 50) GameState.library.studovnaVisitors.shift();
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('minor',
+                    `📖 ${visitorName} přijat do Studovny — čte "${bookTitle}".`,
+                    `📖 ${visitorName} received in the study room — reading "${bookTitle}".`,
+                    `📖 Lector in studiolo susceptus est.`);
+            }
+            if (typeof Game !== 'undefined' && Game.save) Game.save();
+            return lang === 'en'
+                ? `He is received in the study room and given "${bookTitle}" to read.`
+                : `Je přijat do Studovny a dostává k přečtení "${bookTitle}".`;
+        }
         // Sepultura accept/decline zde odstraněno (krok 3c, 27.7.2026) —
         // od kroku 3b (ZAKAZKY_KINDS filtr) sem `kind==='sepultura'` už
         // nikdy nedorazí, tenhle catchall se stal orphan kódem. Logika
@@ -950,6 +1028,11 @@ const ChroniconSystem = {
             return lang === 'en'
                 ? 'The request is turned down. The Lord takes no offense — but none either.'
                 : 'Žádost je odmítnuta. Vrchnost se neurazí — ale ani nepotěší.';
+        }
+        if (choiceId === 'decline' && p && p.kind === 'ctenar') {
+            return lang === 'en'
+                ? 'The request is turned down. He seeks his reading elsewhere.'
+                : 'Žádost je odmítnuta. Čtení si najde jinde.';
         }
         if (choiceId === 'decline' && p && p.kind === 'hospes') {
             return lang === 'en'
