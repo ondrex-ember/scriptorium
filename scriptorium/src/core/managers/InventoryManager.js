@@ -1024,7 +1024,7 @@ const InventoryManager = {
             }
         }
         for (const [item, amt] of Object.entries(cost)) { InventoryManager.removeItem(item, amt); }
-        if (groseNeeded > 0 && typeof CellariumSystem !== 'undefined') CellariumSystem.addGrose(-groseNeeded);
+        if (groseNeeded > 0 && typeof CellariumSystem !== 'undefined') CellariumSystem.addGrose(-groseNeeded, { title: lang === 'en' ? 'Construction' : 'Stavba', source: type, source_en: type });
         GameState.storage[type].built = true;
         Game.save();
         const names = {

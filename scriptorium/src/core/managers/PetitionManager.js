@@ -570,7 +570,7 @@ const PetitionManager = {
             }
         }
         for (const [item, amt] of Object.entries(cfg.items)) { Game.removeItem(item, amt); }
-        if (cfg.grose > 0 && typeof CellariumSystem !== 'undefined') CellariumSystem.addGrose(-cfg.grose);
+        if (cfg.grose > 0 && typeof CellariumSystem !== 'undefined') CellariumSystem.addGrose(-cfg.grose, { title: lang === 'en' ? 'Construction' : 'Stavba', source: tier, source_en: tier });
         GameState.storage[tier].built = true;
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('🏗️ ' + (lang === 'en'

@@ -410,7 +410,7 @@ const PiscinaManager = {
 
         // Plevelná ryba/drobní — malý vedlejší výnos, prodá se rovnou chudině (charita, dle historického materiálu)
         const smallFishCoin = 2 + Math.floor(Math.random() * 4);
-        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(smallFishCoin);
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(smallFishCoin, { title: lang === 'en' ? 'Small fish' : 'Drobná ryba', source: lang === 'en' ? 'The poor' : 'Chudina', source_en: 'The poor' });
         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
 
         PiscinaManager._piscinaSyncAggregates();

@@ -444,7 +444,7 @@ const FarmyardSystem = {
         if (typeof CellariumSystem !== 'undefined' && CellariumSystem.getGrose) {
             const have = CellariumSystem.getGrose();
             if (have < costG) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.borrowNoGold'), true); return false; }
-            CellariumSystem.addGrose(-costG);
+            CellariumSystem.addGrose(-costG, { title: 'Půjčka samce', source: type, source_en: type });
         }
         GameState.loanMale = { type, returnsAt: Date.now() + 3 * this.DAY_MS, cost: costG };
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('🐏 ' + t('farmyard.borrowDone_' + type));
@@ -2380,7 +2380,7 @@ const FarmyardSystem = {
             GameState.strayCow.resolved = true;
             UI.notify('🔪 ' + (t('farmyard.strayCowSlaughtered') || 'Utracena. Maso a kůže do spižírny.'));
         } else if (choice === 'sell') {
-            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(50);
+            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(50, { title: 'Prodej zaběhlé krávy', source: 'Trh', source_en: 'Market' });
             GameState.strayCow.soldCount = (GameState.strayCow.soldCount || 0) + 1;
             // resolved zůstává false — může se objevit znovu, jen s poloviční šancí
             UI.notify('💰 ' + (t('farmyard.strayCowSold') || 'Prodána za 50 grošů.'));

@@ -283,7 +283,7 @@ const TavernDice = {
 
       if (isNick) {
         const payout = this.bet * 2;
-        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout);
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout, { title: 'Výhra v kostkách', source: 'Hospoda', source_en: 'Tavern' });
         else GameState.coins += payout;
         this.streak++;
         if (typeof AudioSystem !== 'undefined' && AudioSystem.playCink) AudioSystem.playCink(1.2);
@@ -322,7 +322,7 @@ const TavernDice = {
 
       if (sum === chance) {
         const payout = this.bet * 2;
-        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout);
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout, { title: 'Výhra v kostkách', source: 'Hospoda', source_en: 'Tavern' });
         else GameState.coins += payout;
         this.streak++;
         if (typeof AudioSystem !== 'undefined' && AudioSystem.playCink) AudioSystem.playCink(1.2);
@@ -369,7 +369,7 @@ const TavernDice = {
 
     if (isWin) {
       const payout = Math.floor(this.bet * 3.83); // vrchcaby-ekonomika-mrd: 15% house edge (p=22.22%)
-      if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout);
+      if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout, { title: 'Výhra v kostkách', source: 'Hospoda', source_en: 'Tavern' });
       else GameState.coins += payout;
       this.streak++;
       if (typeof AudioSystem !== 'undefined' && AudioSystem.playCink) AudioSystem.playCink(1.2);
@@ -407,7 +407,7 @@ const TavernDice = {
 
     if (sum === target) {
       const payout = Math.floor(this.bet * mult);
-      if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout);
+      if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(payout, { title: 'Výhra v kostkách', source: 'Hospoda', source_en: 'Tavern' });
       else GameState.coins += payout;
       this.streak++;
       if (typeof AudioSystem !== 'undefined' && AudioSystem.playCink) AudioSystem.playCink(1.2);

@@ -250,7 +250,7 @@ const ConversiManager = {
             name = lang === 'en' ? 'Brother' : 'Bratr';
         }
 
-        CellariumSystem.addGrose(-HIRE_COST);
+        CellariumSystem.addGrose(-HIRE_COST, { title: lang === 'en' ? 'Hiring' : 'Najmutí', source: name, source_en: name });
 
         // Duchovní/intelektuální/praktické vlastnosti (monk-attributes-mrd) —
         // start: 0, roste jen prací (viz dormitoriumAddXp). Bez náhodné variace
@@ -568,7 +568,7 @@ const ConversiManager = {
         const available = this.KONVRS_NAMES.filter(n => !usedNames.includes(n));
         const pool = available.length ? available : this.KONVRS_NAMES;
         const name = pool[Math.floor(Math.random() * pool.length)];
-        CellariumSystem.addGrose(-5);
+        CellariumSystem.addGrose(-5, { title: lang === 'en' ? 'Oblate reception' : 'Přijetí obláta', source: name, source_en: name });
         const oblat = { id: 'oblat_' + Date.now(), rosterId: null, name: name, type: 'oblat', hiredAt: Date.now(), fatigue: 0, mood: 60, matureAt: Date.now() + 30 * 24 * 60 * 60 * 1000 };
         GameState.conversi.push(oblat);
         UI.notifyPanel('🌱 ' + (lang === 'en' ? name + ' has been taken in as an oblate.' : name + ' byl přijat jako oblát.'), 'success');
@@ -661,8 +661,7 @@ const ConversiManager = {
         }
 
         GameState.persona.influence.village -= 15;
-        CellariumSystem.addGrose(-10);
-
+        CellariumSystem.addGrose(-10, { title: lang === 'en' ? 'Hiring lay brother' : 'Najmutí konvrše', source: name, source_en: name });
         const konvrs = { id: 'konvrs_' + Date.now(), rosterId, name, hiredAt: Date.now(), fatigue: 0 };
         GameState.conversi.push(konvrs);
 
@@ -1231,7 +1230,7 @@ const ConversiManager = {
                 const due = wageBase + k.wageOwed;
                 const grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
                 if (grose >= due) {
-                    CellariumSystem.addGrose(-due);
+                    CellariumSystem.addGrose(-due, { title: lang === 'en' ? 'Wage payment' : 'Výplata mzdy', source: k.name, source_en: k.name });
                     if (k.wageOwed > 0 && k.type !== 'famulus') k.loyalty = Math.min(100, k.loyalty + 2); // splacený dluh = usmíření
                     k.wageOwed = 0;
                     paidCount++;

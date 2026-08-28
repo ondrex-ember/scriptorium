@@ -218,7 +218,7 @@ const PortaSystem = {
                     }
                 } else if (e.type === 'grose') {
                     if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
-                        CellariumSystem.addGrose(e.amount || 0);
+                        CellariumSystem.addGrose(e.amount || 0, { title: 'Odměna z dopisu', source: 'Porta', source_en: 'Porta' });
                     }
                 } else if (e.type === 'contactRelation' && e.id) {
                     if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) {

@@ -148,7 +148,7 @@ const InfirmariumSystem = {
 
             // Uzdravil se a odchází — dar + influence, mirror sepultura
             const gift = Math.round((p.wealth || 30) * 0.8);
-            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(gift);
+            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(gift, { title: lang === 'en' ? "Healed patient's gift" : 'Dar uzdraveného', source: p.name, source_en: p.name });
             if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', 2);
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
                 Game.addKronikaEntry('important',

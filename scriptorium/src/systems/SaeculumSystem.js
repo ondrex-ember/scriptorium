@@ -231,7 +231,7 @@ const SaeculumSystem = {
         if (typeof UI !== 'undefined') UI.notify(t('saeculum.millNoGold'), true);
         return false;
       }
-      CellariumSystem.addGrose(-orderCost);
+      CellariumSystem.addGrose(-orderCost, { title: 'Mlecí zakázka', source: 'Mlynář', source_en: 'Miller' });
     }
     Game.removeItem(inputId, have);
     GameState.millOrder = { inputId, outputId: inp.outputId, qty: have * (inp.mult || 1), returnsAt: Date.now() + this.MOLA_MS };
@@ -1438,7 +1438,7 @@ const SaeculumSystem = {
     if (ord.minRelation && rel < ord.minRelation) return;
     const deposit = Math.ceil(ord.price / 2);
     if (CellariumSystem.getGrose() < deposit) { UI.notify('⚠️ Non habes sufficiens! Záloha ' + deposit + ' g.', true); return; }
-    CellariumSystem.addGrose(-deposit);
+    CellariumSystem.addGrose(-deposit, { title: 'Záloha na sklo', source: contactId, source_en: contactId });
     GameState.craftOrders[contactId] = { itemId: ord.itemId, price: ord.price, deposit: deposit, readyAt: Date.now() + this.GLASS_ORDER_MS };
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(ord.itemId) : ord.itemId;

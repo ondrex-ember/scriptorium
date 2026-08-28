@@ -572,7 +572,7 @@ const LettersDB = [
     choices: [
       { label_cs: '🩹 Koupit břitvu (−5 grošů)', label_en: '🩹 Buy the razor (−5 groschen)',
         effect: function () {
-          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-5);
+          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-5, { title: 'Břitva', source: 'Chirurgus', source_en: 'Surgeon' });
           if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('chirurgus', 3);
           if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('britva_chirurgus', 1);
         },
@@ -661,7 +661,7 @@ const LettersDB = [
     choices: [
       { label_cs: '🧵 Objednat roucho (−10 grošů)', label_en: '🧵 Order the vestment (−10 groschen)',
         effect: function () {
-          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-10);
+          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-10, { title: 'Roucho', source: 'Tkadlec', source_en: 'Weaver' });
           if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('church', 2);
           if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('tkadlec', 3);
           if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('roucho_zelene', 1);
@@ -739,7 +739,7 @@ const LettersDB = [
     choices: [
       { label_cs: '🎣 Koupit úhoře (−9 grošů, +3 uhor)', label_en: '🎣 Buy the eels (−9 groschen, +3 eel)',
         effect: function () {
-          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-9);
+          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-9, { title: 'Úhoři', source: 'Rybář', source_en: 'Fisherman' });
           if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('uhor', 3);
           if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('rybar', 2);
         },
@@ -757,7 +757,7 @@ const LettersDB = [
     choices: [
       { label_cs: '📚 Koupit pecie (−7 grošů)', label_en: '📚 Buy the peciae (−7 groschen)',
         effect: function () {
-          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-7);
+          if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(-7, { title: 'Pecie', source: 'Stationarius', source_en: 'Stationarius' });
           if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('scholars', 2);
           if (typeof SaeculumSystem !== 'undefined' && SaeculumSystem.addContactRelation) SaeculumSystem.addContactRelation('stationarius', 3);
         },

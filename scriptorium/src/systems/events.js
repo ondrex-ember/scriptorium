@@ -563,7 +563,7 @@ const EventsSystem = {
                     labelKey: 'events.print_malleus.anon_btn',
                     descKey:  'events.print_malleus.anon_desc',
                     action: () => {
-                        CellariumSystem.addGrose(80);
+                        CellariumSystem.addGrose(80, { title: 'Tisk Malleus (anonymně)', source: 'Tiskárna', source_en: 'Print shop' });
                         PersonaSystem.addInfluence('church', -10);
                         if (!GameState.flags) GameState.flags = {};
                         GameState.flags.printed_malleus = true;
@@ -576,7 +576,7 @@ const EventsSystem = {
                     labelKey: 'events.print_malleus.open_btn',
                     descKey:  'events.print_malleus.open_desc',
                     action: () => {
-                        CellariumSystem.addGrose(120);
+                        CellariumSystem.addGrose(120, { title: 'Tisk Malleus (veřejně)', source: 'Tiskárna', source_en: 'Print shop' });
                         PersonaSystem.addInfluence('church', -25);
                         if (!GameState.flags) GameState.flags = {};
                         GameState.flags.printed_malleus = true;
@@ -962,7 +962,7 @@ const EventsSystem = {
                         : 'Pár grošů, a ves si pamatuje laskavost. Ale tribunál si vede vlastní účty.',
                     action: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
-                        CellariumSystem.addGrose(35);
+                        CellariumSystem.addGrose(35, { title: en ? 'Copying the Compacts' : 'Opis kompaktát', source: en ? 'Traveler' : 'Poutník', source_en: 'Traveler' });
                         if (GameState.secrets) GameState.secrets.inquisitionHeat = Math.min(100, (GameState.secrets.inquisitionHeat || 0) + 15);
                         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
                             PersonaSystem.addReputation('lidovost', 2);
@@ -1017,7 +1017,7 @@ const EventsSystem = {
                         : 'Přízeň šlechty a tiché uznání církve — ale ves slyší, na čí stranu ses přiklonil.',
                     action: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
-                        CellariumSystem.addGrose(35);
+                        CellariumSystem.addGrose(35, { title: en ? 'Copying the proclamation' : 'Opis provolání', source: en ? 'Nobility' : 'Šlechta', source_en: 'Nobility' });
                         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) {
                             PersonaSystem.addReputation('slechta', 3);
                             PersonaSystem.addReputation('cirkev', 2);

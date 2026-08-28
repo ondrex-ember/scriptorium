@@ -101,7 +101,7 @@ const OutgoingLettersDB = [
                     text_cs: '„Ctihodný, cesty spravuje ten, kdo má na to lidi a groše — tedy vy, ne já. Ale posílám aspoň pár mincí na dobrou vůli. — Vrchnost"',
                     text_en: '"Reverend, roads are kept by whoever has the men and coin for it — that is you, not I. But I send a few coins for goodwill\'s sake. — The Lord"',
                     effect: function () {
-                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(5);
+                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(5, { title: 'Dar', source: 'Vrchnost', source_en: 'The Lord' });
                     },
                     notify_cs: 'Dorazilo: 5 Grošů od Vrchnosti.',
                     notify_en: 'Arrived: 5 Groschen from the Lord.'
@@ -166,7 +166,7 @@ const OutgoingLettersDB = [
                     text_cs: '„Ctihodný, s klášterem se smlouvat nesluší, ale pár grošů vám vrátím — ať je mezi námi klid. — Kovář"',
                     text_en: '"Reverend, haggling with a monastery is unseemly, but I\'ll return a few groschen — let there be peace between us. — The Blacksmith"',
                     effect: function () {
-                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(3);
+                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(3, { title: 'Dar', source: 'Kovář', source_en: 'The Blacksmith' });
                     },
                     notify_cs: 'Dorazilo: 3 Groše od Kováře.',
                     notify_en: 'Arrived: 3 Groschen from the Blacksmith.'

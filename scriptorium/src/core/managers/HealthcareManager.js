@@ -121,7 +121,7 @@ const HealthCareManager = {
         const due = 3 + (GameState.chirurgus.wageOwed || 0);
         const grose = (typeof CellariumSystem !== 'undefined') ? CellariumSystem.getGrose() : 0;
         if (grose >= due) {
-            CellariumSystem.addGrose(-due);
+            CellariumSystem.addGrose(-due, { title: lang === 'en' ? 'Chirurgus wage' : 'Výplata Chirurga', source: 'Chirurgus', source_en: 'Chirurgus' });
             GameState.chirurgus.wageOwed = 0;
             UI.notifyPanel('💰 ' + (lang === 'en' ? 'Chirurgus paid: ' + due + ' g.' : 'Chirurgus vyplacen: ' + due + ' g.'), 'system');
         } else {

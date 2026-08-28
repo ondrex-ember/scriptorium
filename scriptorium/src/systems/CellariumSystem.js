@@ -53,9 +53,19 @@ const CellariumSystem = {
     return GameState.treasury.grose || 0;
   },
 
-  addGrose: function(amount) {
+  // ledger-audit-mrd (28.8.2026) — druhý parametr nepovinný, zpětně
+  // kompatibilní. Volání beze změny (addGrose(x)) se chová přesně jako
+  // dřív. Kdo pošle ledger:{title,source,source_en}, zapíše se to
+  // rovnou i do Liber Rationum — jedno volání místo dvou, nejde
+  // zapomenout druhou půlku (přesně tahle mezera se předtím opakovala
+  // 32× napříč projektem, viz audit).
+  addGrose: function(amount, ledger) {
     if (!GameState.treasury) GameState.treasury = { grose: 0 };
     GameState.treasury.grose = (GameState.treasury.grose || 0) + amount;
+    if (ledger && ledger.title) {
+      if (amount > 0) this.recordCommissionIncome(ledger.title, amount, ledger.source, ledger.source_en);
+      else if (amount < 0) this.recordCommissionExpense(ledger.title, Math.abs(amount), ledger.source, ledger.source_en);
+    }
     Game.save();
     this.refreshGroseDisplay();
   },
@@ -2340,6 +2350,31 @@ const CellariumSystem = {
       entity: 'commission',
       entityName: sourceName || 'Zakázka',
       entityName_en: sourceName_en || sourceName || 'Commission',
+      total: amount,
+    });
+    if (GameState.treasury.transactions.length > 100) {
+      GameState.treasury.transactions = GameState.treasury.transactions.slice(0, 100);
+    }
+  },
+
+  // Výdajová dvojče recordCommissionIncome — ledger-audit-mrd (28.8.2026).
+  // Stejný tvar, type:'buy' místo 'sell'. Dřív existovala jen jako ruční
+  // transactions.unshift v PetitionManager.js (nákup pozemku) — vytaženo
+  // sem jako sdílená funkce, ať se nekopíruje 13× napříč soubory.
+  recordCommissionExpense: function(title, amount, sourceName, sourceName_en) {
+    if (!GameState.treasury) GameState.treasury = {};
+    if (!GameState.treasury.transactions) GameState.treasury.transactions = [];
+    if (!amount) return;
+    GameState.treasury.transactions.unshift({
+      date: new Date().toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit' }),
+      type: 'buy',
+      itemId: null,
+      name: title,
+      qty: 1,
+      price: amount,
+      entity: 'commission',
+      entityName: sourceName || 'Výdaj',
+      entityName_en: sourceName_en || sourceName || 'Expense',
       total: amount,
     });
     if (GameState.treasury.transactions.length > 100) {

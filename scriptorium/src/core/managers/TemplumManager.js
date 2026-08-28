@@ -35,7 +35,7 @@ const TemplumManager = {
 
         const infl = (GameState.persona && GameState.persona.influence) || {};
         const grose = 3 + Math.floor(Math.random() * 6) + Math.floor((infl.church || 0) / 10);
-        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(grose);
+        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) CellariumSystem.addGrose(grose, { title: lang === 'en' ? 'Pilgrims' : 'Poutníci', source: lang === 'en' ? 'Pilgrims' : 'Poutníci', source_en: 'Pilgrims' });
         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) PersonaSystem.addInfluence('village', 1);
         t.lastPilgrims = { ts: Date.now(), grose: grose };
         TemplumManager._templumLog({ type: 'pilgrims', grose: grose });
@@ -139,7 +139,7 @@ const TemplumManager = {
                         }
                         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) PersonaSystem.addReputation('lidovost', 1);
                         if (type === 'wedding' && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
-                            CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10));
+                            CellariumSystem.addGrose(5 + Math.floor(Math.random() * 10), { title: lang === 'en' ? 'Wedding' : 'Svatba', source: lang === 'en' ? 'Parish' : 'Farnost', source_en: 'Parish' });
                         }
                         if (type === 'funeral') {
                             if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
