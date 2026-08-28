@@ -1230,125 +1230,161 @@ const TemplumManager = {
 
     _getCemGraveSvg: function (cx, cy, built, isRecent, isNight, overallNeglected, cond, ts, slotTilt, idx) {
         let h = '';
+        const index = idx != null ? idx : 0;
+        const timestamp = ts != null ? ts : 0;
         
         // Individual grave neglect logic (authentic medieval variation)
-        const isGraveNeglected = overallNeglected || (idx % 3 === 1) || (cond < 75 && idx % 2 === 0);
-        const tiltAngle = slotTilt != null ? slotTilt : (((ts + (idx || 0)) % 17) - 8);
+        const isGraveNeglected = overallNeglected || (index % 3 === 1) || (cond < 75 && index % 2 === 0);
+        const tiltAngle = slotTilt != null ? slotTilt : (((timestamp + index) % 17) - 8);
 
-        // Grave archetype style: 6 distinct medieval variations
-        const style = ((idx || 0) + Math.abs((ts || 0) % 7)) % 6;
+        // Ground base variation (6 distinct medieval styles)
+        const groundStyle = (index + Math.abs(timestamp % 7)) % 6;
+        // Marker variation (6 distinct cross/headstone styles)
+        const markerStyle = (index * 2 + Math.abs(timestamp % 5)) % 6;
 
-        // Custom mound sizes & earth tones per grave style
-        const moundRx = 16 + ((idx || 0) % 4);
-        const moundColor = isGraveNeglected ? '#3b3122' : ((idx || 0) % 2 === 0 ? '#493725' : '#3f301e');
-        const moundShadow = isGraveNeglected ? '#211c13' : '#271c12';
-        
-        // Ground shadow beneath mound (soft radial shadow on grass)
-        h += `<ellipse cx="${cx + 1}" cy="${cy + 8}" rx="${moundRx + 3}" ry="6" fill="${isNight ? '#050a06' : '#121a0d'}" opacity="0.45"/>`;
-        
-        // 3D Soil Mound
-        h += `<ellipse cx="${cx}" cy="${cy + 6}" rx="${moundRx}" ry="5.5" fill="${moundShadow}"/>`;
-        h += `<ellipse cx="${cx}" cy="${cy + 4.5}" rx="${moundRx - 2}" ry="4.5" fill="${moundColor}"/>`;
-        h += `<ellipse cx="${cx - 2}" cy="${cy + 3.5}" rx="${moundRx - 5}" ry="3" fill="${isGraveNeglected ? '#4d412e' : '#5a4430'}" opacity="0.7"/>`;
+        // Base ground shadow (soft ellipse on grass)
+        h += `<ellipse cx="${cx + 1}" cy="${cy + 7}" rx="18" ry="6" fill="${isNight ? '#050a06' : '#121a0d'}" opacity="0.45"/>`;
 
-        // Flowers, Moss, or Overgrown Wild Grass
-        if (!isGraveNeglected && cond >= 60 && ((idx || 0) % 2 === 0)) {
-            // Tended grave wild flowers
-            h += `<circle cx="${cx - 10}" cy="${cy + 4}" r="1.8" fill="#ef4444"/>`;
-            h += `<circle cx="${cx - 7}" cy="${cy + 6}" r="1.5" fill="#fbbf24"/>`;
-            h += `<circle cx="${cx - 11}" cy="${cy + 6}" r="1.3" fill="#ffffff"/>`;
-            h += `<circle cx="${cx + 8}" cy="${cy + 5}" r="1.8" fill="#60a5fa"/>`;
-            h += `<circle cx="${cx + 11}" cy="${cy + 4}" r="1.5" fill="#f472b6"/>`;
-        } else if (isGraveNeglected) {
-            // Overgrown weeds & wild grass tufts
-            h += `<path d="M ${cx - 12} ${cy + 6} Q ${cx - 10} ${cy - 2} ${cx - 8} ${cy + 4}" stroke="#3d5225" stroke-width="1.3" fill="none"/>`;
-            h += `<path d="M ${cx - 4} ${cy + 7} Q ${cx - 2} ${cy - 1} ${cx} ${cy + 6}" stroke="#2e3f1b" stroke-width="1.2" fill="none"/>`;
-            h += `<path d="M ${cx + 7} ${cy + 5} Q ${cx + 9} ${cy - 2} ${cx + 11} ${cy + 5}" stroke="#3d5225" stroke-width="1.3" fill="none"/>`;
-            h += `<circle cx="${cx - 10}" cy="${cy + 1}" r="1.5" fill="#4d662f"/>`;
-            h += `<circle cx="${cx + 9}" cy="${cy + 2}" r="1.4" fill="#3b5223"/>`;
+        // --- GROUND BASE STYLES ---
+        if (groundStyle === 0) {
+            // Style 0: Stone Frame & Curb (Kamenná obruba)
+            const stoneBorder = isGraveNeglected ? '#302a22' : '#4a4238';
+            const earthFill = isGraveNeglected ? '#261f17' : '#3d3023';
+            h += `<rect x="${cx - 15}" y="${cy + 2}" width="30" height="9" fill="${stoneBorder}" rx="1"/>`;
+            h += `<rect x="${cx - 13}" y="${cy + 3.5}" width="26" height="6" fill="${earthFill}" rx="0.5"/>`;
+            // Subtle stone corner joints
+            h += `<line x1="${cx - 13}" y1="${cy + 2}" x2="${cx - 13}" y2="${cy + 11}" stroke="#1f1a14" stroke-width="0.8"/>`;
+            h += `<line x1="${cx + 13}" y1="${cy + 2}" x2="${cx + 13}" y2="${cy + 11}" stroke="#1f1a14" stroke-width="0.8"/>`;
+        } else if (groundStyle === 1) {
+            // Style 1: Natural Earth Mound with Moss Patch (Přírodní hliněný rov s mechem)
+            const moundColor = isGraveNeglected ? '#382c1e' : '#4a3826';
+            const moundShadow = isGraveNeglected ? '#211810' : '#2d1f14';
+            h += `<ellipse cx="${cx}" cy="${cy + 6}" rx="17" ry="5" fill="${moundShadow}"/>`;
+            h += `<ellipse cx="${cx}" cy="${cy + 4.5}" rx="15" ry="4" fill="${moundColor}"/>`;
+            // Subtle moss or earth highlight on mound
+            if (isGraveNeglected) {
+                h += `<ellipse cx="${cx - 5}" cy="${cy + 4}" rx="4" ry="1.5" fill="#3b4d24" opacity="0.7"/>`;
+            } else {
+                h += `<ellipse cx="${cx + 4}" cy="${cy + 4}" rx="5" ry="1.8" fill="#59432d" opacity="0.6"/>`;
+            }
+        } else if (groundStyle === 2) {
+            // Style 2: Flat Stone Cover Slab (Kamenná krycí deska)
+            const slabColor = isGraveNeglected ? '#3d3730' : '#524a40';
+            const slabSide = isGraveNeglected ? '#24201b' : '#332e28';
+            h += `<polygon points="${cx - 15},${cy + 3} ${cx + 13},${cy + 3} ${cx + 16},${cy + 8} ${cx - 12},${cy + 8}" fill="${slabColor}" stroke="#1e1a16" stroke-width="0.8"/>`;
+            h += `<polygon points="${cx - 12},${cy + 8} ${cx + 16},${cy + 8} ${cx + 16},${cy + 9.5} ${cx - 12},${cy + 9.5}" fill="${slabSide}"/>`;
+            // Engraved cross outline on ground slab
+            h += `<line x1="${cx - 4}" y1="${cy + 5.5}" x2="${cx + 6}" y2="${cy + 5.5}" stroke="#24201b" stroke-width="0.8"/>`;
+            h += `<line x1="${cx + 1}" y1="${cy + 4}" x2="${cx + 1}" y2="${cy + 7}" stroke="#24201b" stroke-width="0.8"/>`;
+        } else if (groundStyle === 3) {
+            // Style 3: Weathered Wooden Board Frame (Dřevěná ohrádka)
+            const woodColor = isGraveNeglected ? '#2b1e13' : '#45301e';
+            const woodStroke = isGraveNeglected ? '#1a110a' : '#291b10';
+            h += `<rect x="${cx - 14}" y="${cy + 2.5}" width="28" height="8" fill="${woodColor}" stroke="${woodStroke}" stroke-width="1.2" rx="0.5"/>`;
+            h += `<rect x="${cx - 12}" y="${cy + 4}" width="24" height="5" fill="#38291a"/>`;
+            // Wooden corner stakes
+            h += `<rect x="${cx - 14}" y="${cy + 1.5}" width="2.5" height="10" fill="#24170d"/>`;
+            h += `<rect x="${cx + 11.5}" y="${cy + 1.5}" width="2.5" height="10" fill="#24170d"/>`;
+        } else if (groundStyle === 4) {
+            // Style 4: Old Sunken / Overgrown Plot (Zarostlý splynutý rov)
+            h += `<ellipse cx="${cx}" cy="${cy + 5.5}" rx="14" ry="3.5" fill="#2d3f1d" opacity="0.6"/>`;
+            h += `<ellipse cx="${cx - 2}" cy="${cy + 5}" rx="10" ry="2.5" fill="#36291c" opacity="0.5"/>`;
+            // Wild grass blades
+            h += `<path d="M ${cx - 8} ${cy + 6} Q ${cx - 6} ${cy + 1} ${cx - 4} ${cy + 5}" stroke="#3b5224" stroke-width="1.2" fill="none"/>`;
+            h += `<path d="M ${cx + 5} ${cy + 6} Q ${cx + 7} ${cy + 1} ${cx + 9} ${cy + 5}" stroke="#3b5224" stroke-width="1.2" fill="none"/>`;
+        } else {
+            // Style 5: Gravel & Fieldstone Border (Štěrkové pole s polními kameny)
+            h += `<ellipse cx="${cx}" cy="${cy + 5.5}" rx="15" ry="4.5" fill="#3b342c"/>`;
+            // Fieldstone pebbles along edge
+            h += `<circle cx="${cx - 13}" cy="${cy + 5}" r="2" fill="#595147"/>`;
+            h += `<circle cx="${cx - 8}" cy="${cy + 8}" r="1.8" fill="#474037"/>`;
+            h += `<circle cx="${cx + 2}" cy="${cy + 8.5}" r="1.6" fill="#524a41"/>`;
+            h += `<circle cx="${cx + 10}" cy="${cy + 7}" r="2.2" fill="#403931"/>`;
+            h += `<circle cx="${cx + 13}" cy="${cy + 4}" r="1.7" fill="#5e554a"/>`;
         }
 
-        // Marker Transform
-        const markerTransform = `transform="rotate(${tiltAngle} ${cx} ${cy + 6})"`;
+        // Tended / Neglected detail overlays (natural medieval greenery, no bright artificial circles)
+        if (isGraveNeglected) {
+            // Wild weed / moss tufts on neglected graves
+            h += `<path d="M ${cx - 9} ${cy + 6} Q ${cx - 7} ${cy - 1} ${cx - 5} ${cy + 5}" stroke="#2e3f1b" stroke-width="1.2" fill="none"/>`;
+            h += `<path d="M ${cx + 6} ${cy + 6} Q ${cx + 8} ${cy} ${cx + 10} ${cy + 5}" stroke="#2e3f1b" stroke-width="1.2" fill="none"/>`;
+        } else if (cond >= 70 && index % 3 === 0) {
+            // Tended quiet wildflower sprig (subtle, natural)
+            h += `<path d="M ${cx + 8} ${cy + 6} Q ${cx + 11} ${cy + 2} ${cx + 12} ${cy + 5}" stroke="#3d5225" stroke-width="1" fill="none"/>`;
+            h += `<circle cx="${cx + 12}" cy="${cy + 2}" r="1.2" fill="#fef08a"/>`;
+        }
+
+        // --- MARKER / CROSS TRANSFORM ---
+        const markerTransform = `transform="rotate(${tiltAngle} ${cx} ${cy + 5})"`;
         h += `<g ${markerTransform}>`;
 
-        // Marker Base Ground Shadow (Clean ground shadow - no vertical ghost post behind cross!)
-        h += `<ellipse cx="${cx + 2}" cy="${cy + 6}" rx="10" ry="3.5" fill="#000000" opacity="0.35"/>`;
+        // Marker Base Ground Shadow
+        h += `<ellipse cx="${cx + 1}" cy="${cy + 5.5}" rx="8" ry="3" fill="#000000" opacity="0.35"/>`;
 
         if (built) {
             // Stone Headstone Variations
             const stoneFill = isGraveNeglected ? '#464038' : 'url(#cemStoneGrad)';
             const stoneStroke = isGraveNeglected ? '#2b2620' : '#453d34';
             
-            if (style % 3 === 0) {
+            if (markerStyle % 3 === 0) {
                 // Style A: Classic Gothic Arched Stone Slab
-                h += `<path d="M ${cx - 8} ${cy + 6} L ${cx - 8} ${cy - 10} A 8 8 0 0 1 ${cx + 8} ${cy - 10} L ${cx + 8} ${cy + 6} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
+                h += `<path d="M ${cx - 8} ${cy + 5} L ${cx - 8} ${cy - 11} A 8 8 0 0 1 ${cx + 8} ${cy - 11} L ${cx + 8} ${cy + 5} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
                 if (!isGraveNeglected) {
-                    h += `<path d="M ${cx - 7} ${cy + 5} L ${cx - 7} ${cy - 9} A 7 7 0 0 1 ${cx + 6} ${cy - 9}" stroke="#c5b9a8" stroke-width="0.8" fill="none" opacity="0.5"/>`;
+                    h += `<path d="M ${cx - 7} ${cy + 4} L ${cx - 7} ${cy - 10} A 7 7 0 0 1 ${cx + 6} ${cy - 10}" stroke="#c5b9a8" stroke-width="0.8" fill="none" opacity="0.5"/>`;
                 }
                 // Engraved Cross Relief
-                h += `<path d="M ${cx} ${cy - 12} L ${cx} ${cy + 1} M ${cx - 4.5} ${cy - 7.5} L ${cx + 4.5} ${cy - 7.5}" stroke="#29241f" stroke-width="1.4" stroke-linecap="round"/>`;
-            } else if (style === 3) {
+                h += `<path d="M ${cx} ${cy - 13} L ${cx} ${cy} M ${cx - 4.5} ${cy - 8.5} L ${cx + 4.5} ${cy - 8.5}" stroke="#29241f" stroke-width="1.4" stroke-linecap="round"/>`;
+            } else if (markerStyle === 3) {
                 // Style B: Peaked / Gabled Stele Stone
-                h += `<path d="M ${cx - 8} ${cy + 6} L ${cx - 8} ${cy - 7} L ${cx} ${cy - 15} L ${cx + 8} ${cy - 7} L ${cx + 8} ${cy + 6} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
-                // Peaked roof outline & engraved initials
-                h += `<path d="M ${cx - 7} ${cy - 6.5} L ${cx} ${cy - 13.5} L ${cx + 7} ${cy - 6.5}" stroke="#363028" stroke-width="0.8" fill="none"/>`;
-                h += `<text x="${cx}" y="${cy - 1}" font-family="serif" font-size="5.5" font-weight="bold" fill="#29241f" text-anchor="middle">R.I.P.</text>`;
+                h += `<path d="M ${cx - 8} ${cy + 5} L ${cx - 8} ${cy - 8} L ${cx} ${cy - 16} L ${cx + 8} ${cy - 8} L ${cx + 8} ${cy + 5} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
+                h += `<path d="M ${cx - 7} ${cy - 7.5} L ${cx} ${cy - 14.5} L ${cx + 7} ${cy - 7.5}" stroke="#363028" stroke-width="0.8" fill="none"/>`;
+                h += `<text x="${cx}" y="${cy - 2}" font-family="serif" font-size="5" font-weight="bold" fill="#29241f" text-anchor="middle">R.I.P.</text>`;
             } else {
-                // Style C: Horizontal Table Tomb / Slab
-                h += `<polygon points="${cx - 12},${cy + 4} ${cx + 10},${cy + 4} ${cx + 14},${cy + 7} ${cx - 8},${cy + 7}" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
-                h += `<polygon points="${cx - 12},${cy + 4} ${cx + 10},${cy + 4} ${cx + 10},${cy + 1} ${cx - 12},${cy + 1}" fill="#5a5248" stroke="${stoneStroke}" stroke-width="0.8"/>`;
-                h += `<line x1="${cx - 4}" y1="${cy + 2.5}" x2="${cx + 4}" y2="${cy + 2.5}" stroke="#29241f" stroke-width="1"/>`;
+                // Style C: Raised Stone Pedestal / Slab
+                h += `<polygon points="${cx - 11},${cy + 3} ${cx + 10},${cy + 3} ${cx + 13},${cy + 6} ${cx - 8},${cy + 6}" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
+                h += `<polygon points="${cx - 11},${cy + 3} ${cx + 10},${cy + 3} ${cx + 10},${cy + 0.5} ${cx - 11},${cy + 0.5}" fill="#5a5248" stroke="${stoneStroke}" stroke-width="0.8"/>`;
+                h += `<line x1="${cx - 4}" y1="${cy + 1.8}" x2="${cx + 4}" y2="${cy + 1.8}" stroke="#29241f" stroke-width="1"/>`;
             }
 
             if (isGraveNeglected) {
-                // Creeping ivy & moss on headstone
-                h += `<path d="M ${cx - 8} ${cy + 4} Q ${cx - 4} ${cy - 3} ${cx - 6} ${cy - 10}" stroke="#4a5d32" stroke-width="1.3" fill="none"/>`;
-                h += `<circle cx="${cx - 6}" cy="${cy - 5}" r="1.6" fill="#5f7a3e"/>`;
-                h += `<circle cx="${cx - 4}" cy="${cy - 8}" r="1.3" fill="#4a5d32"/>`;
+                // Creeping ivy on headstone
+                h += `<path d="M ${cx - 8} ${cy + 3} Q ${cx - 4} ${cy - 4} ${cx - 6} ${cy - 11}" stroke="#4a5d32" stroke-width="1.2" fill="none"/>`;
+                h += `<circle cx="${cx - 6}" cy="${cy - 6}" r="1.5" fill="#5f7a3e"/>`;
             }
         } else {
             // Wooden Cross Styles
             const crossStroke = isGraveNeglected ? '#332418' : '#5c3d20';
             const crossHighlight = isGraveNeglected ? '#453222' : '#80562e';
             
-            if (style === 4) {
+            if (markerStyle === 4) {
                 // Style D: Celtic Ringed Cross
-                // Celtic Halo Ring
-                h += `<circle cx="${cx}" cy="${cy - 6}" r="4.2" fill="none" stroke="${crossStroke}" stroke-width="1.5"/>`;
-                // Vertical beam
-                h += `<line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy - 14}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
-                h += `<line x1="${cx - 0.5}" y1="${cy + 6}" x2="${cx - 0.5}" y2="${cy - 13.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
-                // Horizontal beam
-                h += `<line x1="${cx - 7}" y1="${cy - 6}" x2="${cx + 7}" y2="${cy - 6}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
-            } else if (style === 2) {
-                // Style E: Weathered Timber Cross with Twine / Rope Wrap
-                // Vertical beam
-                h += `<line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy - 13}" stroke="${crossStroke}" stroke-width="3.2" stroke-linecap="square"/>`;
-                // Horizontal beam
-                h += `<line x1="${cx - 6.5}" y1="${cy - 5.5}" x2="${cx + 6.5}" y2="${cy - 5.5}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+                h += `<circle cx="${cx}" cy="${cy - 7}" r="4.2" fill="none" stroke="${crossStroke}" stroke-width="1.5"/>`;
+                h += `<line x1="${cx}" y1="${cy + 6}" x2="${cx}" y2="${cy - 15}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+                h += `<line x1="${cx - 0.5}" y1="${cy + 5}" x2="${cx - 0.5}" y2="${cy - 14.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
+                h += `<line x1="${cx - 7}" y1="${cy - 7}" x2="${cx + 7}" y2="${cy - 7}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+            } else if (markerStyle === 2) {
+                // Style E: Weathered Timber Cross with Twine Binding
+                h += `<line x1="${cx}" y1="${cy + 6}" x2="${cx}" y2="${cy - 14}" stroke="${crossStroke}" stroke-width="3.2" stroke-linecap="square"/>`;
+                h += `<line x1="${cx - 6.5}" y1="${cy - 6.5}" x2="${cx + 6.5}" y2="${cy - 6.5}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
                 // Twine rope cross binding
-                h += `<line x1="${cx - 2.5}" y1="${cy - 8}" x2="${cx + 2.5}" y2="${cy - 3}" stroke="#a38259" stroke-width="1"/>`;
-                h += `<line x1="${cx - 2.5}" y1="${cy - 3}" x2="${cx + 2.5}" y2="${cy - 8}" stroke="#a38259" stroke-width="1"/>`;
+                h += `<line x1="${cx - 2.5}" y1="${cy - 9}" x2="${cx + 2.5}" y2="${cy - 4}" stroke="#a38259" stroke-width="1"/>`;
+                h += `<line x1="${cx - 2.5}" y1="${cy - 4}" x2="${cx + 2.5}" y2="${cy - 9}" stroke="#a38259" stroke-width="1"/>`;
             } else {
                 // Style F: Standard Medieval Oak Cross
-                // Vertical beam
-                h += `<line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy - 13}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
-                h += `<line x1="${cx - 0.5}" y1="${cy + 6}" x2="${cx - 0.5}" y2="${cy - 12.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
-                // Horizontal beam
-                h += `<line x1="${cx - 7}" y1="${cy - 6}" x2="${cx + 7}" y2="${cy - 6}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
-                h += `<line x1="${cx - 6.5}" y1="${cy - 6.5}" x2="${cx + 6.5}" y2="${cy - 6.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
-                // Center nail plate
-                h += `<circle cx="${cx}" cy="${cy - 6}" r="1.2" fill="#1c130b"/>`;
+                h += `<line x1="${cx}" y1="${cy + 6}" x2="${cx}" y2="${cy - 14}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+                h += `<line x1="${cx - 0.5}" y1="${cy + 5}" x2="${cx - 0.5}" y2="${cy - 13.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
+                h += `<line x1="${cx - 7}" y1="${cy - 7}" x2="${cx + 7}" y2="${cy - 7}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+                h += `<line x1="${cx - 6.5}" y1="${cy - 7.5}" x2="${cx + 6.5}" y2="${cy - 7.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
+                h += `<circle cx="${cx}" cy="${cy - 7}" r="1.2" fill="#1c130b"/>`;
             }
         }
         h += `</g>`;
 
         // Votive Candle / Svíčka (lit for recent or tended graves at night)
-        const lit = !isGraveNeglected && (isRecent || (isNight && (ts % 2 === 0)));
+        const lit = !isGraveNeglected && (isRecent || (isNight && (timestamp % 2 === 0)));
         if (lit) {
             const candleX = cx + 11;
-            const candleY = cy + 2;
+            const candleY = cy + 1;
             
             // Soft Radial Outer Glow
             h += `<circle cx="${candleX}" cy="${candleY - 1}" r="14" fill="url(#cemCandleGlow)" opacity="${isNight ? '0.8' : '0.45'}"/>`;
@@ -1642,7 +1678,7 @@ const TemplumManager = {
             const c = coords[i];
             if (!c) return;
             const isRecent = (now - g.ts) < recentMs;
-            gravesSvg += this._getCemGraveSvg(c.x, c.y, !!g.nahrobek, isRecent, env.isNight, neglected, cond, g.ts);
+            gravesSvg += this._getCemGraveSvg(c.x, c.y, !!g.nahrobek, isRecent, env.isNight, neglected, cond, g.ts, c.tilt, i);
         });
 
         // Path (Tapered Perspective Cobblestone Path)
