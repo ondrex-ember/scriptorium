@@ -479,6 +479,8 @@ const LibraryHelpers = {
                 book.unlockDay <= daysPassed && 
                 !GameState.library.unlockedBooks.includes(book.id)) {
                 GameState.library.unlockedBooks.push(book.id);
+                if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
+                GameState.library.acquisitionDates[book.id] = Date.now();
                 newUnlocks++;
             }
         });
@@ -623,6 +625,8 @@ const LibraryHelpers = {
         Game.removeItem('research', book.unlockResearch);
         if (!GameState.library.unlockedBooks.includes(bookId)) {
             GameState.library.unlockedBooks.push(bookId);
+            if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
+            GameState.library.acquisitionDates[bookId] = Date.now();
         }
         Game.save();
         NotificationSystem.panel('📚 ' + (lang === 'en' ? 'Book unlocked: ' : 'Kniha odemčena: ') + book.title, 'system');
@@ -642,6 +646,8 @@ const LibraryHelpers = {
                 // Grant reward
                 if (egg.reward.book) {
                     GameState.library.unlockedBooks.push(egg.reward.book);
+                    if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
+                    GameState.library.acquisitionDates[egg.reward.book] = Date.now();
                     const eggBaseId = egg.id.split('_')[0]; // faust, complete, scholar...
                     const eggName = t(`library_lore.easter_eggs.${eggBaseId}_name`);
                     UI.notifyPanel(t('library_lore.easter_eggs.notify_found').replace('{name}', eggName || egg.name), 'system');
@@ -690,6 +696,8 @@ const LibraryHelpers = {
         if (locked.length > 0) {
             const randomBook = locked[Math.floor(Math.random() * locked.length)];
             GameState.library.unlockedBooks.push(randomBook.id);
+            if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
+            GameState.library.acquisitionDates[randomBook.id] = Date.now();
             
             GameState.library.scribeState.totalTrades++;
             GameState.library.scribeState.lastTrade = Date.now();
@@ -774,6 +782,8 @@ const LibraryHelpers = {
                 effect: function() {
                     Game.removeItem('paper', CHOICE_COST);
                     GameState.library.unlockedBooks.push(book.id);
+                    if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
+                    GameState.library.acquisitionDates[book.id] = Date.now();
                     GameState.library.scribeState.totalTrades++;
                     GameState.library.scribeState.lastTrade = Date.now();
                     if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {

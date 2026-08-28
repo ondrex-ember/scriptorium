@@ -770,6 +770,19 @@ const UI = {
         const isRead = GameState.library.readBooks.includes(book.id);
         const catName = t(`library_lore.categories.${book.category}`);
 
+        // Datum akvizice — údaj služební. Chybí u knih odemčených před
+        // zavedením acquisitionDates (starší savy) — u nich se to nedomýšlí.
+        const acqTs = GameState.library.acquisitionDates && GameState.library.acquisitionDates[book.id];
+        let acqText;
+        if (acqTs) {
+            const d = new Date(acqTs);
+            const monthLat = (typeof CalendarSystem !== 'undefined') ? CalendarSystem.MONTHS_LAT[d.getMonth()] : '';
+            const gameYear = (typeof CalendarSystem !== 'undefined') ? CalendarSystem.GAME_YEAR : '';
+            acqText = `${monthLat} ${d.getDate()}, Anno Domini ${gameYear}`;
+        } else {
+            acqText = t('library_lore.catalog_acq_unknown');
+        }
+
         NotificationSystem.modal({
             icon: '📇',
             title: t('library_lore.catalog_title'),
@@ -792,6 +805,9 @@ const UI = {
                     📜 ${t('library_lore.catalog_secundo_folio')}: <em>"${secundoFolio}"</em>
                     <div style="margin-top:6px;font-size:0.78rem;opacity:0.75;font-style:italic;">${t('library_lore.catalog_secundo_note')}</div></div>`;
             }
+            extra += `<div style="margin:10px 0;padding:8px 12px;background:rgba(139,111,60,0.08);border-radius:6px;border-left:3px solid var(--accent-gold);font-size:0.85rem;">
+                📅 ${t('library_lore.catalog_acquired')}: <strong>${acqText}</strong><br>
+                ✒️ ${t('library_lore.catalog_cataloger')}: <strong>${t('library_lore.catalog_cataloger_name')}</strong></div>`;
             body.insertAdjacentHTML('afterend', `<div style="padding:0 28px 8px;">${extra}</div>`);
         }, 20);
     },

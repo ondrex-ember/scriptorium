@@ -327,6 +327,7 @@ const Game = {
                 startDate: Date.now(),
                 unlockedBooks: [],
                 readBooks: [],
+                acquisitionDates: {},
                 scribeState: {
                     visited: false,
                     totalTrades: 0,
