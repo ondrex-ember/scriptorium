@@ -504,6 +504,7 @@ const STRINGS_cs = {
         catalog_acq_unknown: "Před zavedením evidence",
         catalog_cataloger: "Zapsal",
         catalog_cataloger_name: "Bratr Armarius",
+        catalog_protection: "Ochrana",
         catalog_secundo_folio: "Secundo folio",
         catalog_secundo_note: "Druhá strana listu, první slova — Armarius na to přísahá víc než na pečeť. Padělek se takhle pozná na první pohled.",
         catalog_status_read: "Přečteno a zaevidováno",

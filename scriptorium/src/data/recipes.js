@@ -180,6 +180,13 @@ const RecipesDB = [
     { id: "florilegium", output: "florilegium", qty: 1, req: { "leather": 2, "paper": 15, "ink": 5, "herb_yellow": 3 }, cat: "codex", locked: true },
     { id: "fitted_codex", output: "fitted_codex", qty: 1, req: { "unfitted_codex": 1, "metal_clasps": 2, "metal_bosses": 4, "preservation_oil": 1 }, cat: "codex", locked: true,
       desc: "Kování osazeno, kůže napuštěná olejem. Kodex je hotov.", desc_en: "Fittings mounted, leather sealed with oil. The codex is complete." },
+    // Fyzická ochrana fondu (cluster-A-mrd, 28.8.2026) — Anathema a Catena
+    // jsou levné, opakovatelné řemeslo (Výroba). Libraria Secreta záměrně
+    // NENÍ recept — je to jednorázová zakázka u Kováře (glassOrders vzor).
+    { id: "anathema_ink", output: "anathema_ink", qty: 1, req: { "ink_gallic": 1, "paper": 1 }, cat: "codex", locked: true,
+      desc: "Duběnkový inkoust smíšený s modlitbou proti zlodějům.", desc_en: "Gall ink mixed with a prayer against thieves." },
+    { id: "chain_lock", output: "chain_lock", qty: 1, req: { "iron_ingot": 2, "rope": 1 }, cat: "codex", locked: true,
+      desc: "Řetěz ukován, zámek osazen.", desc_en: "The chain is forged, the lock fitted." },
     
     // COOKING RECIPES (vyžadují krb + pot)
     { id: "cooked_meat", output: "cooked_meat", qty: 1, req: { "meat": 1, "cooking_pot": 0 }, cat: "food", locked: true },

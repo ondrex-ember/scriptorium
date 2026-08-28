@@ -134,6 +134,12 @@ const ContactsDB = {
                 sada_podkov: { price: 14, stock: 2 }
             }
         }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
+        // cluster-A-mrd (28.8.2026) — Libraria Secreta trezor. Jednorázová
+        // zakázka, ne řemeslo Výroby (viz D5 "jednorázovka a složitější" pravidlo).
+        // Sdílí generický SaeculumSystem.orderFromContact() vzor se Sklářem/Kameníkem.
+        glassOrders: {
+            trezor: { itemId: 'libraria_secreta_kit', price: 70, minRelation: 30 }
+        },
         // britva_kovarska: Minutio MRD (25.7.2026) — do budoucna i craftovatelná
         // v klášteře po kovárna-upgrade tech (TODO, samostatný sprint)
         desc: 'Vesnický kovář. Vykoupí přebytečnou rudu, prodá nástroje.',

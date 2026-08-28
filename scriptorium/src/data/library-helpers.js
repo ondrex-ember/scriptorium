@@ -674,6 +674,101 @@ const LibraryHelpers = {
         return 10;
     },
 
+    // Fyzická ochrana fondu — cluster-A-mrd (28.8.2026). Tři tiery, žádná
+    // ukládaná per-knihu data — kdo je chráněný se počítá za běhu
+    // (nejmenší kategorie, 'technical' bucket), stejná filozofie jako
+    // signatura/secundo folio v katalog. modalu. Zuby (skutečné riziko
+    // krádeže/nájezdu) přijdou později s C2/D2 — teď jen instalace.
+    getSmallestCategory: function() {
+        if (typeof LibraryDB === 'undefined' || !LibraryDB.books) return null;
+        const counts = {};
+        LibraryDB.books.forEach(b => { counts[b.category] = (counts[b.category] || 0) + 1; });
+        let best = null, bestN = Infinity;
+        Object.keys(counts).forEach(cat => {
+            if (counts[cat] < bestN) { bestN = counts[cat]; best = cat; }
+        });
+        return best;
+    },
+
+    // Vrátí nejsilnější aktivní tier pro danou knihu, nebo null. Pořadí
+    // síly: secreta (jen 'technical') > catena (nejmenší kategorie) >
+    // anathema (celý fond). Používá se pro badge v seznamu i modalu.
+    getBookProtection: function(book) {
+        if (!book || !GameState.library || !GameState.library.protection) return null;
+        const p = GameState.library.protection;
+        if (p.secreta && book.category === 'technical') return 'secreta';
+        if (p.catena && book.category === this.getSmallestCategory()) return 'catena';
+        if (p.anathema) return 'anathema';
+        return null;
+    },
+
+    applyAnathema: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_anathema')) return;
+        if (GameState.library.protection && GameState.library.protection.anathema) {
+            UI.notify(lang === 'en' ? 'The curse is already written.' : 'Kletba už je napsaná.', true); return;
+        }
+        if ((GameState.inventory.anathema_ink || 0) < 1) {
+            UI.notify(lang === 'en' ? 'Anathema Ink needed.' : 'Potřebuješ Kletebný inkoust.', true); return;
+        }
+        Game.removeItem('anathema_ink', 1);
+        if (!GameState.library.protection) GameState.library.protection = {};
+        GameState.library.protection.anathema = true;
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('minor', '🖋️ Kletba proti zlodějům je vepsána do desek celého fondu.', '🖋️ A curse against thieves is inscribed into the boards of the whole collection.', '🖋️ Anathema scripta est.');
+        }
+        Game.save();
+        UI.notify(lang === 'en' ? 'The curse is written. 🖋️' : 'Kletba je napsána. 🖋️');
+    },
+
+    applyCatena: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_catena')) return;
+        if (!GameState.library.protection || !GameState.library.protection.anathema) {
+            UI.notify(lang === 'en' ? 'The curse must be written first.' : 'Nejdřív musí být napsaná kletba.', true); return;
+        }
+        if (GameState.library.protection.catena) {
+            UI.notify(lang === 'en' ? 'The chains are already fitted.' : 'Řetězy už jsou osazené.', true); return;
+        }
+        if ((GameState.inventory.chain_lock || 0) < 1) {
+            UI.notify(lang === 'en' ? 'A Chain and Lock is needed.' : 'Potřebuješ Řetěz a zámek.', true); return;
+        }
+        Game.removeItem('chain_lock', 1);
+        const cat = this.getSmallestCategory();
+        GameState.library.protection.catena = cat;
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            const catName = t(`library_lore.categories.${cat}`);
+            Game.addKronikaEntry('minor', '⛓️ Nejvzácnější svazky (' + catName + ') jsou přikovány k pultu.', '⛓️ The rarest volumes (' + catName + ') are chained to the lectern.', '⛓️ Catena imposita est.');
+        }
+        Game.save();
+        UI.notify(lang === 'en' ? 'The chains are fitted. ⛓️' : 'Řetězy jsou osazené. ⛓️');
+    },
+
+    applyLibrariaSecreta: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_libraria_secreta')) return;
+        const rank = GameState.rank && GameState.rank.monastic;
+        if (!(rank === 'armarius' || rank === 'prior')) {
+            UI.notify(lang === 'en' ? 'Only the Armarius may seal this vault.' : 'Jen Armarius smí tenhle trezor uzamknout.', true); return;
+        }
+        if (!GameState.library.protection || !GameState.library.protection.catena) {
+            UI.notify(lang === 'en' ? 'The chains must be fitted first.' : 'Nejdřív musí být osazené řetězy.', true); return;
+        }
+        if (GameState.library.protection.secreta) {
+            UI.notify(lang === 'en' ? 'The vault is already sealed.' : 'Trezor už je uzamčen.', true); return;
+        }
+        if ((GameState.inventory.libraria_secreta_kit || 0) < 1) {
+            UI.notify(lang === 'en' ? 'Vault Fittings needed — commission them from the Blacksmith.' : 'Potřebuješ Trezorové okování — objednej u Kováře.', true); return;
+        }
+        Game.removeItem('libraria_secreta_kit', 1);
+        GameState.library.protection.secreta = true;
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('important', '🗝️ Libraria Secreta je uzamčena. Dva klíče, dva strážci.', '🗝️ The Libraria Secreta is sealed. Two keys, two keepers.', '🗝️ Libraria secreta clausa est.');
+        }
+        Game.save();
+        UI.notify(lang === 'en' ? 'The vault is sealed. 🗝️' : 'Trezor je uzamčen. 🗝️');
+    },
+
     // NPC Písař - obchod
     scribeTrade: function() {
         const cost = LibraryHelpers.getScribePrice();

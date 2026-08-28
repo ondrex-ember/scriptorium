@@ -470,6 +470,7 @@ const STRINGS_en = {
         catalog_acq_unknown: "Before records were kept",
         catalog_cataloger: "Catalogued by",
         catalog_cataloger_name: "Brother Armarius",
+        catalog_protection: "Protection",
         catalog_secundo_folio: "Secundo Folio",
         catalog_secundo_note: "The second leaf's opening words — the Armarius swears by this more than by any seal. A forgery shows itself at once.",
         catalog_status_read: "Read and recorded",

@@ -808,6 +808,15 @@ const UI = {
             extra += `<div style="margin:10px 0;padding:8px 12px;background:rgba(139,111,60,0.08);border-radius:6px;border-left:3px solid var(--accent-gold);font-size:0.85rem;">
                 📅 ${t('library_lore.catalog_acquired')}: <strong>${acqText}</strong><br>
                 ✒️ ${t('library_lore.catalog_cataloger')}: <strong>${t('library_lore.catalog_cataloger_name')}</strong></div>`;
+            const _modalProt = (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getBookProtection) ? LibraryHelpers.getBookProtection(book) : null;
+            if (_modalProt) {
+                const _modalProtIcon = _modalProt === 'secreta' ? '🗝️' : _modalProt === 'catena' ? '⛓️' : '🖋️';
+                const _modalProtLabel = _modalProt === 'secreta' ? (lang === 'en' ? 'Libraria Secreta' : 'Libraria Secreta')
+                    : _modalProt === 'catena' ? (lang === 'en' ? 'Chained (Catena)' : 'Přikováno (Catena)')
+                    : (lang === 'en' ? 'Anathema' : 'Anathema');
+                extra += `<div style="margin:10px 0;padding:8px 12px;background:rgba(139,111,60,0.08);border-radius:6px;border-left:3px solid var(--accent-gold);font-size:0.85rem;">
+                    ${_modalProtIcon} ${t('library_lore.catalog_protection')}: <strong>${_modalProtLabel}</strong></div>`;
+            }
             body.insertAdjacentHTML('afterend', `<div style="padding:0 28px 8px;">${extra}</div>`);
         }, 20);
     },
@@ -2717,6 +2726,34 @@ const UI = {
             }
         }
 
+        // Fyzická ochrana fondu — cluster-A-mrd (28.8.2026). Jen když je
+        // aspoň Anathema vyzkoumaná, jinak by panel ukazoval na nic.
+        if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_anathema')) {
+            const _protLang = (GameState.settings && GameState.settings.language) || 'cs';
+            const prot = (GameState.library && GameState.library.protection) || {};
+            const hasCatena = GameState.researchedTechs.includes('tech_catena');
+            const hasSecreta = GameState.researchedTechs.includes('tech_libraria_secreta');
+            const rank = GameState.rank && GameState.rank.monastic;
+            const isArmarius = rank === 'armarius' || rank === 'prior';
+            h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
+                    <div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${_protLang === 'en' ? '🛡️ Protection of the Fond' : '🛡️ Ochrana fondu'}</div>
+                    <div style="display:flex;flex-direction:column;gap:6px;font-size:0.8rem;">
+                      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                        <span>🖋️ ${_protLang === 'en' ? 'Anathema' : 'Anathema'} ${prot.anathema ? '✓' : ''}</span>
+                        ${!prot.anathema ? `<button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.applyAnathema();UI.renderLibrary();">${_protLang === 'en' ? 'Write' : 'Napsat'} (${GameState.inventory.anathema_ink || 0}×)</button>` : ''}
+                      </div>
+                      ${hasCatena ? `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                        <span>⛓️ ${_protLang === 'en' ? 'Catena' : 'Catena'} ${prot.catena ? '✓ (' + t(`library_lore.categories.${prot.catena}`) + ')' : ''}</span>
+                        ${!prot.catena ? `<button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.applyCatena();UI.renderLibrary();">${_protLang === 'en' ? 'Fit' : 'Osadit'} (${GameState.inventory.chain_lock || 0}×)</button>` : ''}
+                      </div>` : ''}
+                      ${hasSecreta ? `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                        <span>🗝️ ${_protLang === 'en' ? 'Libraria Secreta' : 'Libraria Secreta'} ${prot.secreta ? '✓' : ''} ${!isArmarius && !prot.secreta ? '<span style="opacity:0.6;font-style:italic;">(' + (_protLang === 'en' ? 'requires Armarius' : 'vyžaduje Armaria') + ')</span>' : ''}</span>
+                        ${!prot.secreta && isArmarius ? `<button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.applyLibrariaSecreta();UI.renderLibrary();">${_protLang === 'en' ? 'Seal' : 'Uzamknout'} (${GameState.inventory.libraria_secreta_kit || 0}×)</button>` : ''}
+                      </div>` : ''}
+                    </div>
+                  </div>`;
+        }
+
         const _bartolomejRel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej) || 0;
         const _libLang = (GameState.settings && GameState.settings.language) || 'cs';
         const _scribePrice = (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getScribePrice) ? LibraryHelpers.getScribePrice() : 10;
@@ -2851,13 +2888,19 @@ const UI = {
                         }
                     }
 
+                    const _bookProt = (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getBookProtection) ? LibraryHelpers.getBookProtection(book) : null;
+                    const _bookProtIcon = _bookProt === 'secreta' ? '🗝️' : _bookProt === 'catena' ? '⛓️' : _bookProt === 'anathema' ? '🖋️' : '';
+                    const _bookProtTitle = _bookProt === 'secreta' ? (currentLang === 'en' ? 'Sealed in the Libraria Secreta' : 'Uzamčeno v Libraria Secreta')
+                        : _bookProt === 'catena' ? (currentLang === 'en' ? 'Chained to the lectern' : 'Přikováno k pultu')
+                        : _bookProt === 'anathema' ? (currentLang === 'en' ? 'Protected by a curse' : 'Chráněno kletbou') : '';
+
                     h += `
                         <div class="card" style="border-color:${isRead ? 'var(--accent-gold)' : 'var(--ink-secondary)'};">
                             <div class="item-icon" style="background:${isRead ? '#c5a059' : '#e8dec0'}">
                                 ${book.icon}
                             </div>
                             <div style="flex:1;">
-                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''}
+                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''} ${_bookProt ? `<span title="${_bookProtTitle}">${_bookProtIcon}</span>` : ''}
                                 <div class="text-sm">${bookAuthor} (${book.year})</div>
                             </div>
                             ${hasCatalogus ? `<button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;" onclick="UI.showCatalogModal(LibraryDB.books.find(b=>b.id==='${book.id}'))" title="${t('library_lore.btn_catalog')}">📇</button>` : ''}
