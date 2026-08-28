@@ -2754,6 +2754,36 @@ const UI = {
                   </div>`;
         }
 
+        // Knižní nemocnice — D2 (cluster-D2-mrd, 28.8.2026). Jen když je
+        // tech vyzkoumaný, jinak by panel ukazoval na nic.
+        if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_conservatio')) {
+            const _d2Lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const bc = (GameState.library && GameState.library.bookCondition) || {};
+            const damaged = Object.keys(bc).filter(id => bc[id].condition < LibraryHelpers.DAMAGE_THRESHOLD);
+            const worn = Object.keys(bc).filter(id => bc[id].condition < 100 && bc[id].condition >= LibraryHelpers.DAMAGE_THRESHOLD);
+            h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+                      <div style="font-weight:bold;font-size:0.85rem;">${_d2Lang === 'en' ? '🏥 Book Infirmary' : '🏥 Knižní nemocnice'}</div>
+                      <button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.maintainLibrary();UI.renderLibrary();">${_d2Lang === 'en' ? 'Air & dust' : 'Vyvětrat a oprášit'} (${GameState.inventory.herb_blue || 0}× 🌿)</button>
+                    </div>
+                    <div style="font-size:0.78rem;opacity:0.8;">
+                      ${damaged.length > 0 ? (_d2Lang === 'en' ? `📕 ${damaged.length} damaged, unreadable until repaired` : `📕 ${damaged.length} poškozeno, nelze číst do opravy`) : ''}
+                      ${worn.length > 0 ? ` · ${_d2Lang === 'en' ? worn.length + ' worn' : worn.length + ' opotřebeno'}` : ''}
+                      ${damaged.length === 0 && worn.length === 0 ? (_d2Lang === 'en' ? '✓ Fond in good order' : '✓ Fond v pořádku') : ''}
+                    </div>
+                    ${damaged.length > 0 ? `<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
+                      ${damaged.slice(0, 5).map(id => {
+                        const b = LibraryDB.books.find(bk => bk.id === id);
+                        const title = b ? (_d2Lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                        return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.75rem;">
+                          <span>📕 ${title}</span>
+                          <button class="craft-btn" style="font-size:0.7rem;padding:2px 6px;min-width:auto;" onclick="LibraryHelpers.repairBook('${id}');UI.renderLibrary();">${_d2Lang === 'en' ? 'Repair' : 'Opravit'}</button>
+                        </div>`;
+                      }).join('')}
+                    </div>` : ''}
+                  </div>`;
+        }
+
         const _bartolomejRel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej) || 0;
         const _libLang = (GameState.settings && GameState.settings.language) || 'cs';
         const _scribePrice = (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getScribePrice) ? LibraryHelpers.getScribePrice() : 10;
@@ -2893,6 +2923,8 @@ const UI = {
                     const _bookProtTitle = _bookProt === 'secreta' ? (currentLang === 'en' ? 'Sealed in the Libraria Secreta' : 'Uzamčeno v Libraria Secreta')
                         : _bookProt === 'catena' ? (currentLang === 'en' ? 'Chained to the lectern' : 'Přikováno k pultu')
                         : _bookProt === 'anathema' ? (currentLang === 'en' ? 'Protected by a curse' : 'Chráněno kletbou') : '';
+                    const _bookCond = GameState.library.bookCondition && GameState.library.bookCondition[book.id];
+                    const _bookDamaged = _bookCond && LibraryHelpers.DAMAGE_THRESHOLD && _bookCond.condition < LibraryHelpers.DAMAGE_THRESHOLD;
 
                     h += `
                         <div class="card" style="border-color:${isRead ? 'var(--accent-gold)' : 'var(--ink-secondary)'};">
@@ -2900,7 +2932,7 @@ const UI = {
                                 ${book.icon}
                             </div>
                             <div style="flex:1;">
-                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''} ${_bookProt ? `<span title="${_bookProtTitle}">${_bookProtIcon}</span>` : ''}
+                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''} ${_bookProt ? `<span title="${_bookProtTitle}">${_bookProtIcon}</span>` : ''} ${_bookDamaged ? '<span title="' + (currentLang === 'en' ? 'Damaged — needs repair' : 'Poškozeno — potřebuje opravu') + '">📕</span>' : ''}
                                 <div class="text-sm">${bookAuthor} (${book.year})</div>
                             </div>
                             ${hasCatalogus ? `<button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;" onclick="UI.showCatalogModal(LibraryDB.books.find(b=>b.id==='${book.id}'))" title="${t('library_lore.btn_catalog')}">📇</button>` : ''}

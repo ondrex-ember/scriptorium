@@ -329,6 +329,8 @@ const Game = {
                 readBooks: [],
                 acquisitionDates: {},
                 protection: {},
+                bookCondition: {},
+                conditionLastTick: 0,
                 scribeState: {
                     visited: false,
                     totalTrades: 0,

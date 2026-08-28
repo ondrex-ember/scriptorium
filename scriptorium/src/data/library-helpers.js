@@ -502,6 +502,14 @@ const LibraryHelpers = {
         if (!book) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
+        // Knižní nemocnice (D2, cluster-D2-mrd 28.8.2026) — poškozená kniha
+        // se nedá číst, dokud se neopraví. Soft-lock, unlockedBooks netknuté.
+        const cond = GameState.library.bookCondition && GameState.library.bookCondition[bookId];
+        if (cond && cond.condition < this.DAMAGE_THRESHOLD) {
+            UI.notify(lang === 'en' ? '📕 The pages are too damaged to read — repair it first.' : '📕 Stránky jsou příliš poškozené ke čtení — nejdřív oprav.', true);
+            return;
+        }
+
         const hasEyeStrain = (typeof HealthSystem !== 'undefined') && HealthSystem.isActive('eye_strain');
         const timer = GameState.library.readingTimer;
 
@@ -767,6 +775,85 @@ const LibraryHelpers = {
         }
         Game.save();
         UI.notify(lang === 'en' ? 'The vault is sealed. 🗝️' : 'Trezor je uzamčen. 🗝️');
+    },
+
+    // Knižní nemocnice — D2 (cluster-D2-mrd, 28.8.2026). Vlhkost/prach jsou
+    // hlavní hrozba pergamenu (§4D2 historický research), zima nejhorší.
+    // Vlastní [jaro,léto,podzim,zima] mapování — Game._getApiarySeason()
+    // vrací STRING ('winter' apod.), ne číselný index. POZOR: existující
+    // ScavengeManager._seasonMult() dělá `arr[Game._getApiarySeason()]` na
+    // plain poli — to je arr['winter'], vrací undefined, tichý no-op bug
+    // (multiplikátor vždy 1). Nekopíruju to, tady je mapování přes
+    // SEASON_IDX explicitně, ať D2 skutečně funguje.
+    DAMAGE_THRESHOLD: 20,
+    DEGRADE_BASE_RATE: 1.1, // %/den při neutrálním multiplikátoru (~90 dní plný rozpad)
+    DEGRADE_SEASON_MOD: [0.7, 0.5, 1.0, 1.8], // jaro, léto, podzim, zima
+    SEASON_IDX: { spring: 0, summer: 1, autumn: 2, winter: 3 },
+
+    tickBookCondition: function() {
+        if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_conservatio')) return;
+        const now = Date.now();
+        if (now - (GameState.library.conditionLastTick || 0) < 24 * 60 * 60 * 1000) return;
+        GameState.library.conditionLastTick = now;
+
+        if (!GameState.library.bookCondition) GameState.library.bookCondition = {};
+        const prot = GameState.library.protection || {};
+        const seasonStr = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'summer';
+        const seasonIdx = this.SEASON_IDX[seasonStr] ?? 1;
+        const seasonMult = this.DEGRADE_SEASON_MOD[seasonIdx];
+
+        (GameState.library.unlockedBooks || []).forEach(bookId => {
+            if (!GameState.library.bookCondition[bookId]) {
+                GameState.library.bookCondition[bookId] = { condition: 100, lastMaintained: now };
+                return; // nová kniha ve fondu, tenhle den ještě nedegraduje
+            }
+            const book = LibraryDB.books.find(b => b.id === bookId);
+            const cat = book ? book.category : null;
+            // Libraria Secreta — uzamčeno, nečte se ledabyle, žádné opotřebení.
+            if (prot.secreta && cat === 'technical') return;
+            // Catena — přikováno, čte se opatrně na místě, pomalejší opotřebení.
+            const catMod = (prot.catena && cat === prot.catena) ? 0.5 : 1.0;
+            const c = GameState.library.bookCondition[bookId];
+            c.condition = Math.max(0, c.condition - this.DEGRADE_BASE_RATE * seasonMult * catMod);
+        });
+        Game.save();
+    },
+
+    maintainLibrary: function() {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_conservatio')) return;
+        if ((GameState.inventory.herb_blue || 0) < 2) {
+            UI.notify(lang === 'en' ? 'Needs 2× Lavender.' : 'Potřebuješ 2× levandule.', true); return;
+        }
+        Game.removeItem('herb_blue', 2);
+        const now = Date.now();
+        let count = 0;
+        Object.keys(GameState.library.bookCondition || {}).forEach(bookId => {
+            const c = GameState.library.bookCondition[bookId];
+            if (c.condition < 100) count++;
+            c.condition = Math.min(100, c.condition + 30);
+            c.lastMaintained = now;
+        });
+        Game.save();
+        UI.notify(lang === 'en' ? `🌿 Fond aired and dusted. ${count} volumes eased.` : `🌿 Fond vyvětrán a oprášen. ${count} svazků ulehčeno.`);
+    },
+
+    repairBook: function(bookId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_conservatio')) return;
+        const c = GameState.library.bookCondition && GameState.library.bookCondition[bookId];
+        if (!c || c.condition >= 100) return;
+        if ((GameState.inventory.leather_cords || 0) < 1 || (GameState.inventory.linen_thread || 0) < 1) {
+            UI.notify(lang === 'en' ? 'Needs Leather Cords + Linen Thread.' : 'Potřebuješ kožené řemínky + lněnou nit.', true); return;
+        }
+        Game.removeItem('leather_cords', 1);
+        Game.removeItem('linen_thread', 1);
+        c.condition = 100;
+        c.lastMaintained = Date.now();
+        Game.save();
+        const book = LibraryDB.books.find(b => b.id === bookId);
+        const title = book ? (lang === 'en' ? (book.title_en || book.title) : book.title) : bookId;
+        UI.notify(lang === 'en' ? `📕 Repaired: "${title}".` : `📕 Opraveno: "${title}".`);
     },
 
     // NPC Písař - obchod
