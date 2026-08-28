@@ -3230,6 +3230,10 @@ const UI = {
             const lostIds = Object.keys(loans).filter(id => loans[id].lost);
             const outIds = Object.keys(loans).filter(id => !loans[id].lost && !loans[id].internal);
             const history = ((GameState.library && GameState.library.loanHistory) || []).slice(-10).reverse();
+            // Bez hasC2 se sekce ukazuje jen když je fakt co (historie z
+            // interních půjček) — jinak prázdný orámovaný box (28.8.2026 fix,
+            // nahlásil Bouvard — hasInternal samo o sobě netvoří obsah).
+            if (hasC2 || history.length > 0) {
             h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
                     ${hasC2 ? `<div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '📤 Absentee Loans' : '📤 Výpůjčky mimo klášter'}</div>
                     <div style="font-size:0.78rem;opacity:0.8;margin-bottom:6px;">
@@ -3261,6 +3265,17 @@ const UI = {
                       ${history.map(hh => `<div style="font-size:0.7rem;opacity:0.65;padding:1px 0;">${hh.problem ? '⚠️' : (hh.internal ? '📖' : '✓')} ${hh.bookTitle} — ${hh.borrowerName}</div>`).join('')}
                     </div>` : ''}
                   </div>`;
+            }
+        }
+
+        // Fallback (28.8.2026 fix) — pokud vůbec nic výš nepřidalo obsah
+        // (typicky: jen tech_lenten_reading vyzkoumaný, žádná interní půjčka
+        // ještě nenastala, žádná historie), ukázat aspoň vysvětlující text
+        // místo prázdného orámovaného boxu.
+        if (!h) {
+            h = `<p style="opacity:0.7;font-style:italic;padding:12px;">${lang === 'en'
+                ? 'Nothing to report yet — the brothers have not yet reached for a book on their own.'
+                : 'Zatím není co hlásit — bratři si ještě sami od sebe žádnou knihu nevzali.'}</p>`;
         }
 
         el.innerHTML = h;
