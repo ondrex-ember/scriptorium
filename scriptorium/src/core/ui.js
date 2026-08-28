@@ -2912,7 +2912,7 @@ const UI = {
                                 ${book.icon}
                             </div>
                             <div style="flex:1;">
-                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''} ${_bookProt ? `<span title="${_bookProtTitle}">${_bookProtIcon}</span>` : ''} ${_bookDamaged ? '<span title="' + (currentLang === 'en' ? 'Damaged — needs repair' : 'Poškozeno — potřebuje opravu') + '">📕</span>' : ''} ${_bookLoan ? `<span title="${currentLang === 'en' ? 'Out on loan to ' + _bookLoan.borrowerName : 'Zapůjčeno: ' + _bookLoan.borrowerName}">📤</span>` : ''}
+                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''} ${_bookProt ? `<span title="${_bookProtTitle}">${_bookProtIcon}</span>` : ''} ${_bookDamaged ? '<span title="' + (currentLang === 'en' ? 'Damaged — needs repair' : 'Poškozeno — potřebuje opravu') + '">📕</span>' : ''} ${_bookLoan ? (_bookLoan.internal ? `<span title="${currentLang === 'en' ? 'Being read by ' + _bookLoan.borrowerName : 'Čte si ji ' + _bookLoan.borrowerName}">📖</span>` : `<span title="${currentLang === 'en' ? 'Out on loan to ' + _bookLoan.borrowerName : 'Zapůjčeno: ' + _bookLoan.borrowerName}">📤</span>`) : ''}
                                 <div class="text-sm">${bookAuthor} (${book.year})</div>
                             </div>
                             ${hasCatalogus ? `<button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;" onclick="UI.showCatalogModal(LibraryDB.books.find(b=>b.id==='${book.id}'))" title="${t('library_lore.btn_catalog')}">📇</button>` : ''}
@@ -3170,9 +3170,10 @@ const UI = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const hasD2 = GameState.researchedTechs && GameState.researchedTechs.includes('tech_conservatio');
         const hasC2 = GameState.researchedTechs && GameState.researchedTechs.includes('tech_absentee_lending');
+        const hasInternal = GameState.researchedTechs && GameState.researchedTechs.includes('tech_lenten_reading');
         let h = '';
 
-        if (!hasD2 && !hasC2) {
+        if (!hasD2 && !hasC2 && !hasInternal) {
             el.innerHTML = `<p style="opacity:0.7;font-style:italic;padding:12px;">${lang === 'en'
                 ? 'Nothing to manage here yet — research Book Infirmary or Absentee Lending first.'
                 : 'Zatím tu není co spravovat — nejdřív vyzkoumej Knižní nemocnici nebo Výpůjčku mimo klášter.'}</p>`;
@@ -3206,13 +3207,31 @@ const UI = {
                   </div>`;
         }
 
-        if (hasC2) {
+        if (hasInternal) {
+            const loans = (GameState.library && GameState.library.loanedBooks) || {};
+            const internalIds = Object.keys(loans).filter(id => loans[id].internal);
+            if (internalIds.length > 0) {
+                h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
+                        <div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '📖 In the Monastery' : '📖 V klášteře'}</div>
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                          ${internalIds.map(id => {
+                            const b = LibraryDB.books.find(bk => bk.id === id);
+                            const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                            const daysLeft = Math.max(0, Math.ceil((loans[id].dueAt - Date.now()) / (24 * 3600000)));
+                            return `<div style="font-size:0.75rem;padding:2px 0;">📖 ${title} — <span style="opacity:0.7;">${loans[id].borrowerName}, ${lang === 'en' ? daysLeft + 'd left' : 'zbývá ' + daysLeft + ' dní'}</span></div>`;
+                          }).join('')}
+                        </div>
+                      </div>`;
+            }
+        }
+
+        if (hasC2 || hasInternal) {
             const loans = (GameState.library && GameState.library.loanedBooks) || {};
             const lostIds = Object.keys(loans).filter(id => loans[id].lost);
-            const outIds = Object.keys(loans).filter(id => !loans[id].lost);
+            const outIds = Object.keys(loans).filter(id => !loans[id].lost && !loans[id].internal);
             const history = ((GameState.library && GameState.library.loanHistory) || []).slice(-10).reverse();
             h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
-                    <div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '📤 Absentee Loans' : '📤 Výpůjčky mimo klášter'}</div>
+                    ${hasC2 ? `<div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '📤 Absentee Loans' : '📤 Výpůjčky mimo klášter'}</div>
                     <div style="font-size:0.78rem;opacity:0.8;margin-bottom:6px;">
                       ${outIds.length > 0 ? (lang === 'en' ? `${outIds.length} out on loan` : `${outIds.length} zapůjčeno`) : ''}
                       ${lostIds.length > 0 ? ` · ${lang === 'en' ? lostIds.length + ' unreturned' : lostIds.length + ' nevráceno'}` : ''}
@@ -3236,10 +3255,10 @@ const UI = {
                           <button class="craft-btn" style="font-size:0.7rem;padding:2px 6px;min-width:auto;" onclick="LibraryHelpers.buybackLoanedBook('${id}');UI.renderVypujckyTab();">${lang === 'en' ? 'Recover' : 'Vykoupit'} (${cost}× 📜)</button>
                         </div>`;
                       }).join('')}
-                    </div>` : ''}
+                    </div>` : ''}` : ''}
                     ${history.length > 0 ? `<div style="border-top:1px solid rgba(197,160,89,0.2);padding-top:6px;">
                       <div style="font-size:0.72rem;opacity:0.6;margin-bottom:4px;">${lang === 'en' ? 'Recent history' : 'Nedávná historie'}</div>
-                      ${history.map(hh => `<div style="font-size:0.7rem;opacity:0.65;padding:1px 0;">${hh.problem ? '⚠️' : '✓'} ${hh.bookTitle} — ${hh.borrowerName}</div>`).join('')}
+                      ${history.map(hh => `<div style="font-size:0.7rem;opacity:0.65;padding:1px 0;">${hh.problem ? '⚠️' : (hh.internal ? '📖' : '✓')} ${hh.bookTitle} — ${hh.borrowerName}</div>`).join('')}
                     </div>` : ''}
                   </div>`;
         }

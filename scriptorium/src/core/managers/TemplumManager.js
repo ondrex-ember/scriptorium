@@ -1163,20 +1163,27 @@ const TemplumManager = {
     CEMETERY_RECENT_DAYS: 30,
     CEMETERY_CHAPEL_RATIO: 0.5,
 
-    // Souřadnice 17 slotů v 3 řadách pro rozbalené zobrazení
+    // Souřadnice 17 slotů v organických medieval řadách pro rozbalené zobrazení
     CEMETERY_MAP_COORDS_EXPANDED: [
-        { x: 80, y: 115 }, { x: 160, y: 115 }, { x: 240, y: 115 },
-        { x: 420, y: 115 }, { x: 500, y: 115 }, { x: 580, y: 115 },
-        { x: 80, y: 155 }, { x: 160, y: 155 }, { x: 240, y: 155 },
-        { x: 420, y: 155 }, { x: 500, y: 155 }, { x: 580, y: 155 },
-        { x: 80, y: 195 }, { x: 160, y: 195 }, { x: 240, y: 195 },
-        { x: 440, y: 195 }, { x: 540, y: 195 }
+        // Levá strana (organické medieval rozložení)
+        { x: 72,  y: 110, tilt: -6 }, { x: 158, y: 118, tilt: 4 },  { x: 242, y: 112, tilt: -9 },
+        { x: 88,  y: 152, tilt: 7 },  { x: 172, y: 144, tilt: -5 }, { x: 232, y: 158, tilt: 8 },
+        { x: 68,  y: 198, tilt: -11 },{ x: 152, y: 190, tilt: 6 },  { x: 244, y: 202, tilt: -4 },
+        
+        // Pravá strana (organické medieval rozložení)
+        { x: 418, y: 112, tilt: 5 },  { x: 504, y: 116, tilt: -7 }, { x: 588, y: 108, tilt: 8 },
+        { x: 428, y: 156, tilt: -8 }, { x: 512, y: 146, tilt: 6 },  { x: 582, y: 160, tilt: -10 },
+        { x: 412, y: 194, tilt: 9 },  { x: 498, y: 204, tilt: -5 }
     ],
 
-    // Souřadnice 6 slotů pro náhledové (sbalené) zobrazení
+    // Souřadnice 6 slotů pro náhledové (sbalené) zobrazení - organické rozložení
     CEMETERY_MAP_COORDS_COLLAPSED: [
-        { x: 80, y: 88 }, { x: 160, y: 88 }, { x: 240, y: 88 },
-        { x: 420, y: 88 }, { x: 500, y: 88 }, { x: 580, y: 88 }
+        { x: 75,  y: 86,  tilt: -5 }, 
+        { x: 162, y: 92,  tilt: 6 }, 
+        { x: 238, y: 84,  tilt: -8 },
+        { x: 422, y: 90,  tilt: 7 }, 
+        { x: 508, y: 83,  tilt: -4 }, 
+        { x: 582, y: 93,  tilt: 8 }
     ],
 
     _getCemeteryEnv: function () {
@@ -1221,80 +1228,124 @@ const TemplumManager = {
         return { timeSlot, weatherCode, condition, isNight, isSnow, isCloudy, isFog };
     },
 
-    _getCemGraveSvg: function (cx, cy, built, isRecent, isNight, neglected, cond, ts) {
+    _getCemGraveSvg: function (cx, cy, built, isRecent, isNight, overallNeglected, cond, ts, slotTilt, idx) {
         let h = '';
-        const moundColor = neglected ? '#3d3424' : '#4a3826';
-        const moundShadow = neglected ? '#241e15' : '#2b1f14';
         
-        // Ground shadow beneath mound
-        h += `<ellipse cx="${cx + 1}" cy="${cy + 8}" rx="20" ry="6" fill="${isNight ? '#050a06' : '#141d0f'}" opacity="0.4"/>`;
+        // Individual grave neglect logic (authentic medieval variation)
+        const isGraveNeglected = overallNeglected || (idx % 3 === 1) || (cond < 75 && idx % 2 === 0);
+        const tiltAngle = slotTilt != null ? slotTilt : (((ts + (idx || 0)) % 17) - 8);
+
+        // Grave archetype style: 6 distinct medieval variations
+        const style = ((idx || 0) + Math.abs((ts || 0) % 7)) % 6;
+
+        // Custom mound sizes & earth tones per grave style
+        const moundRx = 16 + ((idx || 0) % 4);
+        const moundColor = isGraveNeglected ? '#3b3122' : ((idx || 0) % 2 === 0 ? '#493725' : '#3f301e');
+        const moundShadow = isGraveNeglected ? '#211c13' : '#271c12';
+        
+        // Ground shadow beneath mound (soft radial shadow on grass)
+        h += `<ellipse cx="${cx + 1}" cy="${cy + 8}" rx="${moundRx + 3}" ry="6" fill="${isNight ? '#050a06' : '#121a0d'}" opacity="0.45"/>`;
         
         // 3D Soil Mound
-        h += `<ellipse cx="${cx}" cy="${cy + 6}" rx="18" ry="5.5" fill="${moundShadow}"/>`;
-        h += `<ellipse cx="${cx}" cy="${cy + 4.5}" rx="16" ry="4.5" fill="${moundColor}"/>`;
-        h += `<ellipse cx="${cx - 2}" cy="${cy + 3.5}" rx="12" ry="3" fill="${neglected ? '#4e4330' : '#5c4632'}" opacity="0.7"/>`;
+        h += `<ellipse cx="${cx}" cy="${cy + 6}" rx="${moundRx}" ry="5.5" fill="${moundShadow}"/>`;
+        h += `<ellipse cx="${cx}" cy="${cy + 4.5}" rx="${moundRx - 2}" ry="4.5" fill="${moundColor}"/>`;
+        h += `<ellipse cx="${cx - 2}" cy="${cy + 3.5}" rx="${moundRx - 5}" ry="3" fill="${isGraveNeglected ? '#4d412e' : '#5a4430'}" opacity="0.7"/>`;
 
-        // Flowers or Weeds on mound
-        if (!neglected && cond >= 70 && (ts % 2 === 0)) {
+        // Flowers, Moss, or Overgrown Wild Grass
+        if (!isGraveNeglected && cond >= 60 && ((idx || 0) % 2 === 0)) {
             // Tended grave wild flowers
             h += `<circle cx="${cx - 10}" cy="${cy + 4}" r="1.8" fill="#ef4444"/>`;
             h += `<circle cx="${cx - 7}" cy="${cy + 6}" r="1.5" fill="#fbbf24"/>`;
             h += `<circle cx="${cx - 11}" cy="${cy + 6}" r="1.3" fill="#ffffff"/>`;
             h += `<circle cx="${cx + 8}" cy="${cy + 5}" r="1.8" fill="#60a5fa"/>`;
             h += `<circle cx="${cx + 11}" cy="${cy + 4}" r="1.5" fill="#f472b6"/>`;
-        } else if (neglected) {
-            // Overgrown weeds / moss tufts
-            h += `<path d="M ${cx - 12} ${cy + 6} Q ${cx - 10} ${cy - 2} ${cx - 8} ${cy + 4}" stroke="#3d5225" stroke-width="1.2" fill="none"/>`;
-            h += `<path d="M ${cx + 7} ${cy + 5} Q ${cx + 9} ${cy - 1} ${cx + 11} ${cy + 5}" stroke="#3d5225" stroke-width="1.2" fill="none"/>`;
+        } else if (isGraveNeglected) {
+            // Overgrown weeds & wild grass tufts
+            h += `<path d="M ${cx - 12} ${cy + 6} Q ${cx - 10} ${cy - 2} ${cx - 8} ${cy + 4}" stroke="#3d5225" stroke-width="1.3" fill="none"/>`;
+            h += `<path d="M ${cx - 4} ${cy + 7} Q ${cx - 2} ${cy - 1} ${cx} ${cy + 6}" stroke="#2e3f1b" stroke-width="1.2" fill="none"/>`;
+            h += `<path d="M ${cx + 7} ${cy + 5} Q ${cx + 9} ${cy - 2} ${cx + 11} ${cy + 5}" stroke="#3d5225" stroke-width="1.3" fill="none"/>`;
             h += `<circle cx="${cx - 10}" cy="${cy + 1}" r="1.5" fill="#4d662f"/>`;
+            h += `<circle cx="${cx + 9}" cy="${cy + 2}" r="1.4" fill="#3b5223"/>`;
         }
 
-        if (built) {
-            // Stone Headstone
-            const stoneFill = neglected ? '#544e45' : 'url(#cemStoneGrad)';
-            const stoneStroke = neglected ? '#332f29' : '#453d34';
-            const shadowX = isNight ? cx + 3 : cx + 2;
-            
-            // Stone Drop Shadow
-            h += `<path d="M ${cx - 7 + 2} ${cy + 6 + 1} L ${cx - 7 + 2} ${cy - 10 + 1} A 7 7 0 0 1 ${cx + 7 + 2} ${cy - 10 + 1} L ${cx + 7 + 2} ${cy + 6 + 1} Z" fill="#000000" opacity="0.3"/>`;
-            
-            // Main Headstone Slab
-            h += `<path d="M ${cx - 8} ${cy + 6} L ${cx - 8} ${cy - 10} A 8 8 0 0 1 ${cx + 8} ${cy - 10} L ${cx + 8} ${cy + 6} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
-            // Bevel highlight line
-            h += `<path d="M ${cx - 7} ${cy + 5} L ${cx - 7} ${cy - 9} A 7 7 0 0 1 ${cx + 6} ${cy - 9}" stroke="#c5b9a8" stroke-width="0.8" fill="none" opacity="0.5"/>`;
-            
-            // Engraved Cross Relief
-            h += `<path d="M ${cx} ${cy - 12} L ${cx} ${cy + 1} M ${cx - 4.5} ${cy - 7.5} L ${cx + 4.5} ${cy - 7.5}" stroke="#29241f" stroke-width="1.4" stroke-linecap="round"/>`;
-            h += `<path d="M ${cx + 0.5} ${cy - 11.5} L ${cx + 0.5} ${cy + 0.5} M ${cx - 4} ${cy - 7} L ${cx + 4} ${cy - 7}" stroke="#6e6255" stroke-width="0.6" stroke-linecap="round"/>`;
+        // Marker Transform
+        const markerTransform = `transform="rotate(${tiltAngle} ${cx} ${cy + 6})"`;
+        h += `<g ${markerTransform}>`;
 
-            if (neglected) {
-                // Creeping ivy on headstone
+        // Marker Base Ground Shadow (Clean ground shadow - no vertical ghost post behind cross!)
+        h += `<ellipse cx="${cx + 2}" cy="${cy + 6}" rx="10" ry="3.5" fill="#000000" opacity="0.35"/>`;
+
+        if (built) {
+            // Stone Headstone Variations
+            const stoneFill = isGraveNeglected ? '#464038' : 'url(#cemStoneGrad)';
+            const stoneStroke = isGraveNeglected ? '#2b2620' : '#453d34';
+            
+            if (style % 3 === 0) {
+                // Style A: Classic Gothic Arched Stone Slab
+                h += `<path d="M ${cx - 8} ${cy + 6} L ${cx - 8} ${cy - 10} A 8 8 0 0 1 ${cx + 8} ${cy - 10} L ${cx + 8} ${cy + 6} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
+                if (!isGraveNeglected) {
+                    h += `<path d="M ${cx - 7} ${cy + 5} L ${cx - 7} ${cy - 9} A 7 7 0 0 1 ${cx + 6} ${cy - 9}" stroke="#c5b9a8" stroke-width="0.8" fill="none" opacity="0.5"/>`;
+                }
+                // Engraved Cross Relief
+                h += `<path d="M ${cx} ${cy - 12} L ${cx} ${cy + 1} M ${cx - 4.5} ${cy - 7.5} L ${cx + 4.5} ${cy - 7.5}" stroke="#29241f" stroke-width="1.4" stroke-linecap="round"/>`;
+            } else if (style === 3) {
+                // Style B: Peaked / Gabled Stele Stone
+                h += `<path d="M ${cx - 8} ${cy + 6} L ${cx - 8} ${cy - 7} L ${cx} ${cy - 15} L ${cx + 8} ${cy - 7} L ${cx + 8} ${cy + 6} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
+                // Peaked roof outline & engraved initials
+                h += `<path d="M ${cx - 7} ${cy - 6.5} L ${cx} ${cy - 13.5} L ${cx + 7} ${cy - 6.5}" stroke="#363028" stroke-width="0.8" fill="none"/>`;
+                h += `<text x="${cx}" y="${cy - 1}" font-family="serif" font-size="5.5" font-weight="bold" fill="#29241f" text-anchor="middle">R.I.P.</text>`;
+            } else {
+                // Style C: Horizontal Table Tomb / Slab
+                h += `<polygon points="${cx - 12},${cy + 4} ${cx + 10},${cy + 4} ${cx + 14},${cy + 7} ${cx - 8},${cy + 7}" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
+                h += `<polygon points="${cx - 12},${cy + 4} ${cx + 10},${cy + 4} ${cx + 10},${cy + 1} ${cx - 12},${cy + 1}" fill="#5a5248" stroke="${stoneStroke}" stroke-width="0.8"/>`;
+                h += `<line x1="${cx - 4}" y1="${cy + 2.5}" x2="${cx + 4}" y2="${cy + 2.5}" stroke="#29241f" stroke-width="1"/>`;
+            }
+
+            if (isGraveNeglected) {
+                // Creeping ivy & moss on headstone
                 h += `<path d="M ${cx - 8} ${cy + 4} Q ${cx - 4} ${cy - 3} ${cx - 6} ${cy - 10}" stroke="#4a5d32" stroke-width="1.3" fill="none"/>`;
                 h += `<circle cx="${cx - 6}" cy="${cy - 5}" r="1.6" fill="#5f7a3e"/>`;
                 h += `<circle cx="${cx - 4}" cy="${cy - 8}" r="1.3" fill="#4a5d32"/>`;
             }
         } else {
-            // Wooden Cross
-            const crossStroke = neglected ? '#362617' : '#5c3d20';
-            const crossHighlight = neglected ? '#4d3722' : '#80562e';
-            const leanAngle = neglected && (ts % 3 === 0) ? 'transform="rotate(9 ' + cx + ' ' + (cy + 6) + ')"' : '';
+            // Wooden Cross Styles
+            const crossStroke = isGraveNeglected ? '#332418' : '#5c3d20';
+            const crossHighlight = isGraveNeglected ? '#453222' : '#80562e';
             
-            h += `<g ${leanAngle}>`;
-            // Cross shadow
-            h += `<line x1="${cx + 2}" y1="${cy + 7}" x2="${cx + 5}" y2="${cy - 12}" stroke="#000000" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>`;
-            // Vertical beam
-            h += `<line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy - 13}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
-            h += `<line x1="${cx - 0.5}" y1="${cy + 6}" x2="${cx - 0.5}" y2="${cy - 12.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
-            // Horizontal beam
-            h += `<line x1="${cx - 7}" y1="${cy - 6}" x2="${cx + 7}" y2="${cy - 6}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
-            h += `<line x1="${cx - 6.5}" y1="${cy - 6.5}" x2="${cx + 6.5}" y2="${cy - 6.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
-            // Center nail plate
-            h += `<circle cx="${cx}" cy="${cy - 6}" r="1.2" fill="#1c130b"/>`;
-            h += `</g>`;
+            if (style === 4) {
+                // Style D: Celtic Ringed Cross
+                // Celtic Halo Ring
+                h += `<circle cx="${cx}" cy="${cy - 6}" r="4.2" fill="none" stroke="${crossStroke}" stroke-width="1.5"/>`;
+                // Vertical beam
+                h += `<line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy - 14}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+                h += `<line x1="${cx - 0.5}" y1="${cy + 6}" x2="${cx - 0.5}" y2="${cy - 13.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
+                // Horizontal beam
+                h += `<line x1="${cx - 7}" y1="${cy - 6}" x2="${cx + 7}" y2="${cy - 6}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+            } else if (style === 2) {
+                // Style E: Weathered Timber Cross with Twine / Rope Wrap
+                // Vertical beam
+                h += `<line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy - 13}" stroke="${crossStroke}" stroke-width="3.2" stroke-linecap="square"/>`;
+                // Horizontal beam
+                h += `<line x1="${cx - 6.5}" y1="${cy - 5.5}" x2="${cx + 6.5}" y2="${cy - 5.5}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+                // Twine rope cross binding
+                h += `<line x1="${cx - 2.5}" y1="${cy - 8}" x2="${cx + 2.5}" y2="${cy - 3}" stroke="#a38259" stroke-width="1"/>`;
+                h += `<line x1="${cx - 2.5}" y1="${cy - 3}" x2="${cx + 2.5}" y2="${cy - 8}" stroke="#a38259" stroke-width="1"/>`;
+            } else {
+                // Style F: Standard Medieval Oak Cross
+                // Vertical beam
+                h += `<line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy - 13}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+                h += `<line x1="${cx - 0.5}" y1="${cy + 6}" x2="${cx - 0.5}" y2="${cy - 12.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
+                // Horizontal beam
+                h += `<line x1="${cx - 7}" y1="${cy - 6}" x2="${cx + 7}" y2="${cy - 6}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+                h += `<line x1="${cx - 6.5}" y1="${cy - 6.5}" x2="${cx + 6.5}" y2="${cy - 6.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
+                // Center nail plate
+                h += `<circle cx="${cx}" cy="${cy - 6}" r="1.2" fill="#1c130b"/>`;
+            }
         }
+        h += `</g>`;
 
-        // Votive Candle / Svíčka
-        const lit = isRecent || (isNight && (ts % 3 === 0));
+        // Votive Candle / Svíčka (lit for recent or tended graves at night)
+        const lit = !isGraveNeglected && (isRecent || (isNight && (ts % 2 === 0)));
         if (lit) {
             const candleX = cx + 11;
             const candleY = cy + 2;
@@ -1419,58 +1470,67 @@ const TemplumManager = {
             `).join('');
         }
 
-        // Chapel Architecture
+        // Chapel Architecture (Positioned with proper upper edge padding & distinct window/door separation)
         const windowGlow = (env.isNight || env.condition === 'rain' || env.timeSlot === 'evening') ? `
             <!-- Light Spill Cone -->
-            <polygon points="340,42 315,80 365,80" fill="url(#cemWindowSpill)" opacity="0.6"/>
+            <polygon points="340,49 310,78 370,78" fill="url(#cemWindowSpill)" opacity="0.6"/>
             <!-- Window Glow -->
-            <circle cx="340" cy="42" r="14" fill="#f59e0b" opacity="0.4"/>
-            <path d="M 334 48 V 38 A 6 6 0 0 1 346 38 V 48 Z" fill="#fbbf24"/>
+            <circle cx="340" cy="46" r="12" fill="#f59e0b" opacity="0.4"/>
+            <path d="M 334 50 V 43 A 6 6 0 0 1 346 43 V 50 Z" fill="#fbbf24"/>
         ` : `
-            <path d="M 334 48 V 38 A 6 6 0 0 1 346 38 V 48 Z" fill="#60a5fa" opacity="0.75"/>
+            <path d="M 334 50 V 43 A 6 6 0 0 1 346 43 V 50 Z" fill="#60a5fa" opacity="0.75"/>
         `;
 
         const chapelSvg = `
             <g id="cemChapel">
-                <!-- Main Chapel Body -->
-                <rect x="306" y="34" width="68" height="46" fill="${env.isNight ? '#1e1814' : '#473d34'}" stroke="${env.isNight ? '#100c09' : '#2b231c'}" stroke-width="1"/>
+                <!-- Main Chapel Body (Wider & Taller stone facade) -->
+                <rect x="296" y="38" width="88" height="40" fill="${env.isNight ? '#1e1814' : '#473d34'}" stroke="${env.isNight ? '#100c09' : '#2b231c'}" stroke-width="1"/>
                 <!-- Quoins / Corner stones -->
-                <rect x="306" y="34" width="4" height="6" fill="#2d261f"/>
-                <rect x="306" y="46" width="4" height="6" fill="#2d261f"/>
-                <rect x="306" y="58" width="4" height="6" fill="#2d261f"/>
-                <rect x="370" y="34" width="4" height="6" fill="#2d261f"/>
-                <rect x="370" y="46" width="4" height="6" fill="#2d261f"/>
-                <rect x="370" y="58" width="4" height="6" fill="#2d261f"/>
+                <rect x="296" y="38" width="4" height="6" fill="#2d261f"/>
+                <rect x="296" y="48" width="4" height="6" fill="#2d261f"/>
+                <rect x="296" y="58" width="4" height="6" fill="#2d261f"/>
+                <rect x="296" y="68" width="4" height="6" fill="#2d261f"/>
+                <rect x="380" y="38" width="4" height="6" fill="#2d261f"/>
+                <rect x="380" y="48" width="4" height="6" fill="#2d261f"/>
+                <rect x="380" y="58" width="4" height="6" fill="#2d261f"/>
+                <rect x="380" y="68" width="4" height="6" fill="#2d261f"/>
 
                 <!-- Roof -->
-                <path d="M 300 34 L 340 10 L 380 34 Z" fill="${env.isNight ? '#140f0c' : '#2d231a'}"/>
+                <path d="M 288 38 L 340 14 L 392 38 Z" fill="${env.isNight ? '#140f0c' : '#2d231a'}"/>
                 <!-- Roof shingle lines -->
-                <path d="M 310 28 L 370 28 M 320 20 L 360 20 M 330 14 L 350 14" stroke="${env.isNight ? '#0a0806' : '#1c1510'}" stroke-width="0.8"/>
-                ${env.isSnow ? `<path d="M 298 34 L 340 9 L 382 34 Q 340 16 298 34 Z" fill="#f8fafc"/>` : ''}
+                <path d="M 300 32 L 380 32 M 312 25 L 368 25 M 325 19 L 355 19" stroke="${env.isNight ? '#0a0806' : '#1c1510'}" stroke-width="0.8"/>
+                ${env.isSnow ? `<path d="M 286 38 L 340 13 L 394 38 Q 340 22 286 38 Z" fill="#f8fafc"/>` : ''}
 
                 <!-- Spire Bell Tower & Cross -->
-                <rect x="334" y="10" width="12" height="14" fill="${env.isNight ? '#17120e' : '#382f28'}"/>
-                <path d="M 332 10 L 340 2 L 348 10 Z" fill="${env.isNight ? '#100c09' : '#241d18'}"/>
-                <line x1="340" y1="-2" x2="340" y2="7" stroke="#c5a059" stroke-width="2"/>
-                <line x1="335" y1="1" x2="345" y2="1" stroke="#c5a059" stroke-width="2"/>
+                <rect x="333" y="14" width="14" height="11" fill="${env.isNight ? '#17120e' : '#382f28'}"/>
+                <path d="M 330 14 L 340 5 L 350 14 Z" fill="${env.isNight ? '#100c09' : '#241d18'}"/>
+                <!-- Golden Spire Cross (Proper Christian proportions with longer upward/downward heading post) -->
+                <line x1="340" y1="0" x2="340" y2="12" stroke="#c5a059" stroke-width="2.2" stroke-linecap="square"/>
+                <line x1="334" y1="4" x2="346" y2="4" stroke="#c5a059" stroke-width="2.2" stroke-linecap="square"/>
 
                 <!-- Bell in belfry -->
-                <ellipse cx="340" cy="17" rx="2.5" ry="3" fill="#d97706" opacity="0.8"/>
+                <ellipse cx="340" cy="19" rx="2.5" ry="3" fill="#d97706" opacity="0.8"/>
 
-                <!-- Door Arch -->
-                <path d="M 328 80 V 56 A 12 12 0 0 1 352 56 V 80 Z" fill="${env.isNight ? '#0a0806' : '#1f160f'}"/>
-                <path d="M 330 80 V 58 A 10 10 0 0 1 350 58 V 80 Z" fill="${env.isNight ? '#140f0b' : '#332419'}"/>
-                <!-- Iron door strap hinges -->
-                <line x1="330" y1="62" x2="340" y2="62" stroke="#000000" stroke-width="1"/>
-                <line x1="330" y1="74" x2="340" y2="74" stroke="#000000" stroke-width="1"/>
-                <circle cx="347" cy="69" r="1" fill="#c5a059"/>
-
-                <!-- Gothic Window -->
+                <!-- Gothic Window on Wall Facade -->
                 ${windowGlow}
                 <!-- Window Tracery -->
-                <path d="M 334 48 V 38 A 6 6 0 0 1 346 38 V 48 Z" stroke="#241d18" stroke-width="1" fill="none"/>
-                <line x1="340" y1="32" x2="340" y2="48" stroke="#241d18" stroke-width="1"/>
-                <line x1="334" y1="42" x2="346" y2="42" stroke="#241d18" stroke-width="1"/>
+                <path d="M 334 50 V 43 A 6 6 0 0 1 346 43 V 50 Z" stroke="#241d18" stroke-width="1" fill="none"/>
+                <line x1="340" y1="37" x2="340" y2="50" stroke="#241d18" stroke-width="1"/>
+                <line x1="334" y1="45" x2="346" y2="45" stroke="#241d18" stroke-width="1"/>
+
+                <!-- Ground Level Double Wooden Door (Positioned cleanly below the window) -->
+                <path d="M 328 78 V 60 A 12 12 0 0 1 352 60 V 78 Z" fill="${env.isNight ? '#0a0806' : '#1f160f'}"/>
+                <path d="M 330 78 V 62 A 10 10 0 0 1 350 62 V 78 Z" fill="${env.isNight ? '#140f0b' : '#332419'}"/>
+                <!-- Seam line between double doors -->
+                <line x1="340" y1="62" x2="340" y2="78" stroke="${env.isNight ? '#0a0806' : '#1a120c'}" stroke-width="0.8"/>
+                <!-- Iron door strap hinges -->
+                <line x1="330" y1="65" x2="338" y2="65" stroke="#000000" stroke-width="1"/>
+                <line x1="342" y1="65" x2="350" y2="65" stroke="#000000" stroke-width="1"/>
+                <line x1="330" y1="74" x2="338" y2="74" stroke="#000000" stroke-width="1"/>
+                <line x1="342" y1="74" x2="350" y2="74" stroke="#000000" stroke-width="1"/>
+                <!-- Brass door knobs -->
+                <circle cx="338" cy="70" r="1" fill="#c5a059"/>
+                <circle cx="342" cy="70" r="1" fill="#c5a059"/>
             </g>
         `;
 
@@ -1489,20 +1549,20 @@ const TemplumManager = {
                 ${env.isSnow ? `<rect x="0" y="66" width="680" height="3" fill="#f8fafc"/>` : ''}
 
                 <!-- Gate Pillars -->
-                <rect x="296" y="63" width="10" height="21" fill="${env.isNight ? '#120e0a' : '#3d342b'}"/>
-                <rect x="294" y="61" width="14" height="3" fill="${env.isNight ? '#211a13' : '#574a3e'}"/>
+                <rect x="294" y="63" width="10" height="21" fill="${env.isNight ? '#120e0a' : '#3d342b'}"/>
+                <rect x="292" y="61" width="14" height="3" fill="${env.isNight ? '#211a13' : '#574a3e'}"/>
                 
-                <rect x="374" y="63" width="10" height="21" fill="${env.isNight ? '#120e0a' : '#3d342b'}"/>
-                <rect x="372" y="61" width="14" height="3" fill="${env.isNight ? '#211a13' : '#574a3e'}"/>
+                <rect x="376" y="63" width="10" height="21" fill="${env.isNight ? '#120e0a' : '#3d342b'}"/>
+                <rect x="374" y="61" width="14" height="3" fill="${env.isNight ? '#211a13' : '#574a3e'}"/>
 
                 <!-- Wrought Iron Gate Arch & Scrollwork over central path -->
-                <path d="M 301 62 Q 340 46 379 62" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="2" fill="none"/>
-                <line x1="312" y1="62" x2="312" y2="57" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
-                <line x1="324" y1="62" x2="324" y2="53" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
-                <line x1="336" y1="62" x2="336" y2="50" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
-                <line x1="344" y1="62" x2="344" y2="50" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
-                <line x1="356" y1="62" x2="356" y2="53" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
-                <line x1="368" y1="62" x2="368" y2="57" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <path d="M 299 62 Q 340 46 381 62" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="2" fill="none"/>
+                <line x1="310" y1="62" x2="310" y2="57" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="322" y1="62" x2="322" y2="53" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="334" y1="62" x2="334" y2="50" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="346" y1="62" x2="346" y2="50" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="358" y1="62" x2="358" y2="53" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="370" y1="62" x2="370" y2="57" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
                 <!-- Iron Cross in center of arch -->
                 <line x1="340" y1="44" x2="340" y2="52" stroke="#c5a059" stroke-width="1.5"/>
                 <line x1="336" y1="47" x2="344" y2="47" stroke="#c5a059" stroke-width="1.5"/>
@@ -1527,30 +1587,33 @@ const TemplumManager = {
         const treesSvg = `
             <g id="cemTrees">
                 <!-- Background Left Cypress (Smaller/Darker for depth) -->
-                <path d="M 28 80 Q 22 50 32 26 Q 42 50 36 80 Z" fill="${treeNight ? '#08120b' : '#1d3318'}"/>
+                <path d="M 28 84 Q 22 50 32 26 Q 42 50 36 84 Z" fill="${treeNight ? '#08120b' : '#1d3318'}"/>
 
-                <!-- Main Left Cypress (Tall, multi-swelled Evergreen) -->
+                <!-- Main Left Pine/Cypress Tree (With solid visible trunk connecting to ground) -->
                 <g id="leftCypress">
-                    <!-- Trunk -->
-                    <rect x="58" y="74" width="8" height="12" fill="#2d1e12"/>
-                    <!-- Layer 1 (Bottom Crown) -->
-                    <path d="M 40 78 Q 62 60 62 48 Q 62 60 84 78 Q 62 82 40 78 Z" fill="${cypressGrad}"/>
-                    <!-- Layer 2 (Middle Crown) -->
-                    <path d="M 44 62 Q 62 44 62 30 Q 62 44 80 62 Q 62 66 44 62 Z" fill="${cypressGrad}"/>
-                    <!-- Layer 3 (Top Spire) -->
-                    <path d="M 48 44 Q 62 20 62 10 Q 62 20 76 44 Q 62 48 48 44 Z" fill="${cypressGrad}"/>
-                    <!-- Highlight Edge -->
-                    <path d="M 48 44 Q 62 20 62 10 Q 56 26 44 62" stroke="${treeNight ? '#2a4a38' : '#6b8e4e'}" stroke-width="1.2" fill="none" opacity="0.6"/>
-                    ${env.isSnow ? `<path d="M 48 44 Q 62 30 76 44 Q 62 38 48 44 Z" fill="#f8fafc"/>` : ''}
+                    <!-- Solid Wooden Trunk extending down behind stone wall to ground -->
+                    <path d="M 57 84 L 57 32 L 67 32 L 67 84 Z" fill="${treeNight ? '#140d07' : '#3b2513'}"/>
+                    <line x1="60" y1="84" x2="60" y2="32" stroke="${treeNight ? '#211409' : '#57361b'}" stroke-width="1.2"/>
+                    
+                    <!-- Overlapping Foliage Canopy Tiers (Seamless overlap, zero gaps!) -->
+                    <!-- Tier 1 (Bottom Crown) -->
+                    <path d="M 36 78 Q 62 56 88 78 Q 62 82 36 78 Z" fill="${cypressGrad}"/>
+                    <!-- Tier 2 (Middle Crown) -->
+                    <path d="M 40 64 Q 62 44 84 64 Q 62 68 40 64 Z" fill="${cypressGrad}"/>
+                    <!-- Tier 3 (Upper Crown) -->
+                    <path d="M 45 48 Q 62 26 79 48 Q 62 52 45 48 Z" fill="${cypressGrad}"/>
+                    <!-- Tier 4 (Top Spire) -->
+                    <path d="M 50 30 Q 62 10 74 30 Q 62 33 50 30 Z" fill="${cypressGrad}"/>
+                    ${env.isSnow ? `<path d="M 50 30 Q 62 10 74 30 Q 62 24 50 30 Z" fill="#f8fafc" opacity="0.85"/>` : ''}
                 </g>
 
                 <!-- Bushy Yew / Shrub near left wall -->
-                <path d="M 80 82 Q 72 65 88 62 Q 95 55 105 65 Q 115 72 108 82 Z" fill="${treeNight ? '#0d1a0f' : '#284220'}"/>
+                <path d="M 80 84 Q 72 65 88 62 Q 95 55 105 65 Q 115 72 108 84 Z" fill="${treeNight ? '#0d1a0f' : '#284220'}"/>
 
                 <!-- Right Perimeter: Ancient Weeping Oak / Yew -->
                 <g id="rightOak">
-                    <!-- Trunk -->
-                    <path d="M 622 82 Q 625 65 628 50 Q 640 45 648 42" stroke="#2b1c10" stroke-width="7" fill="none" stroke-linecap="round"/>
+                    <!-- Trunk extending down to ground -->
+                    <path d="M 622 84 Q 625 65 628 50 Q 640 45 648 42" stroke="#2b1c10" stroke-width="7" fill="none" stroke-linecap="round"/>
                     <path d="M 628 56 Q 615 48 605 45" stroke="#2b1c10" stroke-width="4" fill="none" stroke-linecap="round"/>
                     
                     <!-- Foliage Clusters -->
@@ -1565,7 +1628,7 @@ const TemplumManager = {
                 </g>
 
                 <!-- Background Right Cypress -->
-                <path d="M 565 80 Q 558 52 568 32 Q 578 52 571 80 Z" fill="${treeNight ? '#09140c' : '#1f381a'}"/>
+                <path d="M 565 84 Q 558 52 568 32 Q 578 52 571 84 Z" fill="${treeNight ? '#09140c' : '#1f381a'}"/>
             </g>
         `;
 

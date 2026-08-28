@@ -510,11 +510,16 @@ const LibraryHelpers = {
             return;
         }
 
-        // Absenční výpůjčka (C2) — kniha, co odešla z kláštera, se logicky
-        // nedá číst tady. unlockedBooks netknuté, jen dočasný zámek.
+        // Výpůjčka (C2 absenční, nebo interní mnišská) — kniha se nedá
+        // číst, dokud ji drží někdo jiný. unlockedBooks netknuté, jen
+        // dočasný zámek.
         const loan = GameState.library.loanedBooks && GameState.library.loanedBooks[bookId];
         if (loan) {
-            UI.notify(lang === 'en' ? '📤 The book is out on loan — it is not here to read.' : '📤 Kniha je zapůjčena mimo klášter — není tu ke čtení.', true);
+            if (loan.internal) {
+                UI.notify(lang === 'en' ? `📖 ${loan.borrowerName} is reading it right now.` : `📖 Právě si ji čte ${loan.borrowerName}.`, true);
+            } else {
+                UI.notify(lang === 'en' ? '📤 The book is out on loan — it is not here to read.' : '📤 Kniha je zapůjčena mimo klášter — není tu ke čtení.', true);
+            }
             return;
         }
 
@@ -869,6 +874,12 @@ const LibraryHelpers = {
     // strana). Vrácena → mizí ze zámku úplně. Ztracena → zůstává zamčená
     // (`lost:true`), NIKDY nemaže unlockedBooks (§7 bod 3) — jen čeká na
     // vykoupení přes Bartoloměje.
+    //
+    // Interní půjčky (mniši, 28.8.2026) sdílí STEJNOU `loanedBooks`
+    // strukturu (`internal:true` místo `contactId`/`deposit`/`lossChance`)
+    // — reuse soft-locku v readBook() beze změny. Větev tady: garantované
+    // vrácení (žádné riziko, žádná ekonomika, žádný Chronicon), erudition
+    // boost bratrovi místo influence/reputation.
     tickLoans: function() {
         const loans = GameState.library.loanedBooks;
         if (!loans) return;
@@ -879,6 +890,26 @@ const LibraryHelpers = {
             const book = LibraryDB.books.find(b => b.id === bookId);
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
             const title = book ? (lang === 'en' ? (book.title_en || book.title) : book.title) : bookId;
+
+            if (loan.internal) {
+                const brother = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(b => b.id === loan.brotherId);
+                if (brother && brother.traits) {
+                    if (typeof brother.traits.erudition === 'number') brother.traits.erudition = Math.min(100, brother.traits.erudition + 2);
+                    if (typeof brother.traits.focus === 'number') brother.traits.focus = Math.min(100, brother.traits.focus + 1);
+                }
+                if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                    Game.addKronikaEntry('minor', `📖 ${loan.borrowerName} vrací "${title}" do knihovny.`, `📖 ${loan.borrowerName} returns "${title}" to the library.`, `📖 Frater librum reddidit.`);
+                }
+                if (!GameState.library.loanHistory) GameState.library.loanHistory = [];
+                GameState.library.loanHistory.push({
+                    bookId: bookId, bookTitle: title, contactId: null, borrowerName: loan.borrowerName,
+                    loanedAt: loan.loanedAt, resolvedAt: now, problem: false, internal: true,
+                });
+                if (GameState.library.loanHistory.length > 50) GameState.library.loanHistory.shift();
+                delete loans[bookId];
+                return;
+            }
+
             const axis = loan.contactId === 'vrchnost' ? 'slechta' : loan.contactId === 'klaster' ? 'cirkev' : 'lidovost';
             const returned = Math.random() * 100 >= loan.lossChance;
             if (returned) {
@@ -908,6 +939,50 @@ const LibraryHelpers = {
             if (GameState.library.loanHistory.length > 50) GameState.library.loanHistory.shift();
         });
         Game.save();
+    },
+
+    // Interní půjčky (mniši) — hák z CanonicalHours.triggerHour(), NE
+    // Chronicon (čistě klášterní, 7×/den nezávislé kontroly namísto
+    // týdenního tiku). Šance váží erudition traitem — motivovaně, ne
+    // arbitrárně: učenější bratr sahá po knize častěji. Jen přiřazení
+    // bratři (assignedTab != null) bez už běžící interní půjčky.
+    checkInternalLoanInterest: function() {
+        if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_lenten_reading')) return;
+        if (!GameState.dormitorium || !GameState.dormitorium.brothers) return;
+        if (!GameState.library || !GameState.library.unlockedBooks || GameState.library.unlockedBooks.length === 0) return;
+        if (!GameState.library.loanedBooks) GameState.library.loanedBooks = {};
+        const loans = GameState.library.loanedBooks;
+        const busyBrotherIds = new Set(Object.values(loans).filter(l => l.internal).map(l => l.brotherId));
+
+        GameState.dormitorium.brothers.forEach(brother => {
+            if (!brother.assignedTab) return;
+            if (busyBrotherIds.has(brother.id)) return;
+            const erudition = (brother.traits && brother.traits.erudition) || 0;
+            const chance = 0.02 + (erudition / 100) * 0.15;
+            if (Math.random() >= chance) return;
+
+            const pool = GameState.library.unlockedBooks.filter(id => {
+                if (loans[id]) return false; // uz nekym pujceno (interne nebo externe)
+                const prot = LibraryHelpers.getBookProtection ? LibraryHelpers.getBookProtection(LibraryDB.books.find(b => b.id === id)) : null;
+                return prot !== 'catena' && prot !== 'secreta';
+            });
+            if (pool.length === 0) return;
+
+            const bookId = pool[Math.floor(Math.random() * pool.length)];
+            const book = LibraryDB.books.find(b => b.id === bookId);
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const title = book ? (lang === 'en' ? (book.title_en || book.title) : book.title) : bookId;
+            const days = 1 + Math.floor(Math.random() * 3); // 1-3 dny
+
+            loans[bookId] = {
+                internal: true, brotherId: brother.id, borrowerName: brother.name,
+                loanedAt: Date.now(), dueAt: Date.now() + days * 24 * 60 * 60 * 1000,
+            };
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('minor', `📖 ${brother.name} si bere "${title}" ke čtení.`, `📖 ${brother.name} takes "${title}" to read.`, `📖 Frater librum sumpsit.`);
+            }
+            Game.save();
+        });
     },
 
     // Vykoupení ztracené knihy přes Bartoloměje — reuse jeho existující

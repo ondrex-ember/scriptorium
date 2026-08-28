@@ -166,6 +166,13 @@ const CanonicalHours = {
         if (typeof NotificationSystem !== 'undefined') NotificationSystem.panel(`🔔 ${hourName} — ${desc}`, 'system');
         this.renderPill();
 
+        // Interní půjčky (mniši, 28.8.2026) — nezávislé na Chronicon,
+        // čistě klášterní. 7 kontrol/den místo 1 týdenní, mirror
+        // "různé časové bloky" požadavku.
+        if (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.checkInternalLoanInterest) {
+            LibraryHelpers.checkInternalLoanInterest();
+        }
+
         // Special actions per hour
         switch(hour.buff) {
             case 'dailyQuest':
