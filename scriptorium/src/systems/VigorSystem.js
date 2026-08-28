@@ -24,9 +24,20 @@ const VigorSystem = {
     // abbot-persona-mrd (9.8.2026) — konečně zapojený vigorRegenBonus,
     // dřív jen dekorativní pilulka (potvrzeno 2× nezávisle, 2.8. a 9.8.
     // session). ±15% podle napětí kraje, mirror storageReduction stylu.
+    //
+    // tech_ars_recreationis (28.8.2026, Statuta de Minutione) — triduum
+    // po minuci = rychlejší zotavení, 2× multiplikátor. Stejný hook,
+    // ne nové místo — funguje online i offline i v hora-tick díky
+    // 3 existujícím volání _regenMult() níž v souboru.
     _regenMult: function () {
-        if (typeof ChroniconSystem === 'undefined' || !ChroniconSystem.getBuffs) return 1.0;
-        return 1.0 + (ChroniconSystem.getBuffs().vigorRegenBonus || 0);
+        let mult = 1.0;
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getBuffs) {
+            mult += (ChroniconSystem.getBuffs().vigorRegenBonus || 0);
+        }
+        if (GameState.researchedTechs && GameState.researchedTechs.includes('tech_ars_recreationis')) {
+            mult *= 2.0;
+        }
+        return mult;
     },
 
     // svitidla-mrd (16.8.2026) — voskavka snižuje únavu z craftu (jasné,
