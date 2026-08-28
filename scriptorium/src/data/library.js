@@ -2257,25 +2257,34 @@ Infirmarius reads and wonders how many of those twenty-four would take root here
         {
             // TODO: text/zdroj dodá Ondrex — nahradit content/content_en, případně author/year/icon
             id: 'liber_de_recreatione',
-            title: 'Liber de Recreatione',
+            title: 'Statuta de Minutione et Recreatione Fratrum',
+            title_en: 'Statutes on Bloodletting and the Recovery of the Brethren',
             category: 'valetudo',
             unlockDay: 160,
             unlockResearch: 140,
             unlocksTech: ['tech_ars_recreationis'],
             icon: '🛌',
-            author: 'Neznámý bratr, klášterní tradice',
-            author_en: 'An unknown brother, monastic tradition',
+            author: 'Opis melckých zvyklostí, upraveno pro tento dům',
+            author_en: 'A copy of the Melk customs, adapted for this house',
             year: 1465,
-            content: `**[PLACEHOLDER — čeká na dodání textu]**
+            content: `Tělo lidské jest nádoba křehká. Šťávy se v něm kazí, krev houstne a melancholie leptá mysl toho, kdo ve dne v noci sedí, modlí se a mlčí. Proto galénovští mistři učí, a otcové naši to potvrzují: krev se musí čtyřikrát až pětkrát do roka pustit, aby tělo neztěžklo a duše nezhořkla.
 
-Tento zápis zatím nemá finální znění.
+Kdo podstoupí minucí, ať po tři dny (triduum) odpočine v infirmáři. Po ten čas ať je zproštěn matutina i práce rukou; ať smí hovořit, kde jinde mlčí; ať jí maso a pije víno silnější, neb Řehole (kap. 36) to nemocným dovoluje — a minutus jest po ty tři dny nemocným před zákonem, byť ne před Bohem.
 
-**HERNÍ EFEKT:** Přečtením této knihy odemkneš tech *Ars Recreationis* — únava (Fatigue) se odbourává 2× rychleji.`,
-            content_en: `**[PLACEHOLDER — text pending]**
+Ale slyš i toto, bratře, a važ to dobře: ďábel nespí ani v infirmáři. Triduum jest dáno k obnově sil pro chór a modlitbu, ne k hodování a hazardu. Kdo se v těch dnech oddá hlasitému smíchu, kostkám nebo řečem prostopášným, ať se stydí — neb zotavení, jež se zvrhne v zahálku, jest znovu tím, před čím Řehole varuje (kap. 48): *Otiositas inimica est animae.* Zahálka jest nepřítel duše.
 
-This entry does not yet have its final wording.
+---
 
-**GAME EFFECT:** Reading this book unlocks the *Ars Recreationis* tech — Fatigue recovers 2× faster.`
+*Historická poznámka: Triduum, zproštění chóru a práce i povolení masa jsou pevně doložené (Lanfrankovy Decreta pro anglické benediktiny, 11. stol.; clunyjské zvyklosti). Napětí mezi lékařskou nutností a řeholní přísností reálně vyostřila Melčká reforma, co se po husitských válkách šířila i na Moravu a do Čech. Tenhle konkrétní svitek jako artefakt je herní konstrukce — ale přesně v duchu dobové praxe místních kapitulárních statut, ne fabulace.*`,
+            content_en: `The human body is a fragile vessel. Its humours turn foul, the blood thickens, and melancholy eats at the mind of one who sits, prays, and keeps silence day and night. So the masters of Galen teach, and our own fathers confirm it: the blood must be let four or five times a year, lest the body grow heavy and the soul grow bitter.
+
+Whoever undergoes bloodletting shall rest three days (a triduum) in the infirmary. For that time he shall be excused from Matins and from the labour of the hands; he may speak where elsewhere silence is kept; he may eat meat and drink stronger wine, for the Rule (ch. 36) permits this to the sick — and the one let of blood is, for those three days, sick before the law, if not before God.
+
+But hear this too, brother, and weigh it well: the devil does not sleep even in the infirmary. The triduum is given to restore strength for choir and prayer, not for feasting and games of chance. Whoever in those days gives himself to loud laughter, to dice, or to unchaste talk, let him be ashamed — for a recovery that curdles into idleness is once more the very thing the Rule warns against (ch. 48): *Otiositas inimica est animae.* Idleness is the enemy of the soul.
+
+---
+
+*Historical note: The triduum, the exemption from choir and labour, and the permission to eat meat are all firmly documented (Lanfranc's Decreta for the English Benedictines, 11th c.; the Cluniac customaries). The real tension between medical necessity and monastic strictness was sharpened by the Melk Reform, which spread into Moravia and Bohemia after the Hussite Wars. This particular scroll, as a game artefact, is a construction — but one made squarely in the spirit of period local capitular statutes, not invention out of nothing.*`
         },
         {
             id: 'book_buch_der_natur',
