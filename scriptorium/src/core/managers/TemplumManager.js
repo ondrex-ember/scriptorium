@@ -1223,39 +1223,90 @@ const TemplumManager = {
 
     _getCemGraveSvg: function (cx, cy, built, isRecent, isNight, neglected, cond, ts) {
         let h = '';
-        const moundColor = neglected ? '#3f382a' : '#4a3728';
-        h += `<ellipse cx="${cx}" cy="${cy + 6}" rx="18" ry="5" fill="${moundColor}" opacity="0.8"/>`;
+        const moundColor = neglected ? '#3d3424' : '#4a3826';
+        const moundShadow = neglected ? '#241e15' : '#2b1f14';
+        
+        // Ground shadow beneath mound
+        h += `<ellipse cx="${cx + 1}" cy="${cy + 8}" rx="20" ry="6" fill="${isNight ? '#050a06' : '#141d0f'}" opacity="0.4"/>`;
+        
+        // 3D Soil Mound
+        h += `<ellipse cx="${cx}" cy="${cy + 6}" rx="18" ry="5.5" fill="${moundShadow}"/>`;
+        h += `<ellipse cx="${cx}" cy="${cy + 4.5}" rx="16" ry="4.5" fill="${moundColor}"/>`;
+        h += `<ellipse cx="${cx - 2}" cy="${cy + 3.5}" rx="12" ry="3" fill="${neglected ? '#4e4330' : '#5c4632'}" opacity="0.7"/>`;
+
+        // Flowers or Weeds on mound
+        if (!neglected && cond >= 70 && (ts % 2 === 0)) {
+            // Tended grave wild flowers
+            h += `<circle cx="${cx - 10}" cy="${cy + 4}" r="1.8" fill="#ef4444"/>`;
+            h += `<circle cx="${cx - 7}" cy="${cy + 6}" r="1.5" fill="#fbbf24"/>`;
+            h += `<circle cx="${cx - 11}" cy="${cy + 6}" r="1.3" fill="#ffffff"/>`;
+            h += `<circle cx="${cx + 8}" cy="${cy + 5}" r="1.8" fill="#60a5fa"/>`;
+            h += `<circle cx="${cx + 11}" cy="${cy + 4}" r="1.5" fill="#f472b6"/>`;
+        } else if (neglected) {
+            // Overgrown weeds / moss tufts
+            h += `<path d="M ${cx - 12} ${cy + 6} Q ${cx - 10} ${cy - 2} ${cx - 8} ${cy + 4}" stroke="#3d5225" stroke-width="1.2" fill="none"/>`;
+            h += `<path d="M ${cx + 7} ${cy + 5} Q ${cx + 9} ${cy - 1} ${cx + 11} ${cy + 5}" stroke="#3d5225" stroke-width="1.2" fill="none"/>`;
+            h += `<circle cx="${cx - 10}" cy="${cy + 1}" r="1.5" fill="#4d662f"/>`;
+        }
 
         if (built) {
-            const stoneFill = neglected ? '#5c564c' : '#8c8275';
-            const stoneStroke = neglected ? '#3a362e' : '#524b42';
-            h += `<path d="M ${cx - 8} ${cy + 6} L ${cx - 8} ${cy - 8} A 8 8 0 0 1 ${cx + 8} ${cy - 8} L ${cx + 8} ${cy + 6} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="0.8"/>`;
-            h += `<path d="M ${cx} ${cy - 10} L ${cx} ${cy + 2} M ${cx - 4} ${cy - 6} L ${cx + 4} ${cy - 6}" stroke="#38332c" stroke-width="1.2" stroke-linecap="round"/>`;
+            // Stone Headstone
+            const stoneFill = neglected ? '#544e45' : 'url(#cemStoneGrad)';
+            const stoneStroke = neglected ? '#332f29' : '#453d34';
+            const shadowX = isNight ? cx + 3 : cx + 2;
+            
+            // Stone Drop Shadow
+            h += `<path d="M ${cx - 7 + 2} ${cy + 6 + 1} L ${cx - 7 + 2} ${cy - 10 + 1} A 7 7 0 0 1 ${cx + 7 + 2} ${cy - 10 + 1} L ${cx + 7 + 2} ${cy + 6 + 1} Z" fill="#000000" opacity="0.3"/>`;
+            
+            // Main Headstone Slab
+            h += `<path d="M ${cx - 8} ${cy + 6} L ${cx - 8} ${cy - 10} A 8 8 0 0 1 ${cx + 8} ${cy - 10} L ${cx + 8} ${cy + 6} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
+            // Bevel highlight line
+            h += `<path d="M ${cx - 7} ${cy + 5} L ${cx - 7} ${cy - 9} A 7 7 0 0 1 ${cx + 6} ${cy - 9}" stroke="#c5b9a8" stroke-width="0.8" fill="none" opacity="0.5"/>`;
+            
+            // Engraved Cross Relief
+            h += `<path d="M ${cx} ${cy - 12} L ${cx} ${cy + 1} M ${cx - 4.5} ${cy - 7.5} L ${cx + 4.5} ${cy - 7.5}" stroke="#29241f" stroke-width="1.4" stroke-linecap="round"/>`;
+            h += `<path d="M ${cx + 0.5} ${cy - 11.5} L ${cx + 0.5} ${cy + 0.5} M ${cx - 4} ${cy - 7} L ${cx + 4} ${cy - 7}" stroke="#6e6255" stroke-width="0.6" stroke-linecap="round"/>`;
 
-            if (cond >= 70 && (ts % 2 === 0)) {
-                h += `<circle cx="${cx - 9}" cy="${cy + 5}" r="2" fill="#ef4444"/>`;
-                h += `<circle cx="${cx - 6}" cy="${cy + 7}" r="1.8" fill="#f59e0b"/>`;
-                h += `<circle cx="${cx + 8}" cy="${cy + 6}" r="2" fill="#3b82f6"/>`;
-            }
             if (neglected) {
-                h += `<path d="M ${cx - 8} ${cy + 4} Q ${cx - 4} ${cy - 2} ${cx - 6} ${cy - 8}" stroke="#4a5d32" stroke-width="1.2" fill="none"/>`;
-                h += `<circle cx="${cx - 6}" cy="${cy - 4}" r="1.5" fill="#5f7a3e"/>`;
+                // Creeping ivy on headstone
+                h += `<path d="M ${cx - 8} ${cy + 4} Q ${cx - 4} ${cy - 3} ${cx - 6} ${cy - 10}" stroke="#4a5d32" stroke-width="1.3" fill="none"/>`;
+                h += `<circle cx="${cx - 6}" cy="${cy - 5}" r="1.6" fill="#5f7a3e"/>`;
+                h += `<circle cx="${cx - 4}" cy="${cy - 8}" r="1.3" fill="#4a5d32"/>`;
             }
         } else {
-            const crossStroke = neglected ? '#3a2a1a' : '#5c3a1e';
-            const leanAngle = neglected && (ts % 3 === 0) ? 'transform="rotate(8 ' + cx + ' ' + (cy + 6) + ')"' : '';
+            // Wooden Cross
+            const crossStroke = neglected ? '#362617' : '#5c3d20';
+            const crossHighlight = neglected ? '#4d3722' : '#80562e';
+            const leanAngle = neglected && (ts % 3 === 0) ? 'transform="rotate(9 ' + cx + ' ' + (cy + 6) + ')"' : '';
+            
             h += `<g ${leanAngle}>`;
-            h += `<line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy - 12}" stroke="${crossStroke}" stroke-width="2.5" stroke-linecap="round"/>`;
-            h += `<line x1="${cx - 7}" y1="${cy - 5}" x2="${cx + 7}" y2="${cy - 5}" stroke="${crossStroke}" stroke-width="2.5" stroke-linecap="round"/>`;
+            // Cross shadow
+            h += `<line x1="${cx + 2}" y1="${cy + 7}" x2="${cx + 5}" y2="${cy - 12}" stroke="#000000" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>`;
+            // Vertical beam
+            h += `<line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy - 13}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+            h += `<line x1="${cx - 0.5}" y1="${cy + 6}" x2="${cx - 0.5}" y2="${cy - 12.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
+            // Horizontal beam
+            h += `<line x1="${cx - 7}" y1="${cy - 6}" x2="${cx + 7}" y2="${cy - 6}" stroke="${crossStroke}" stroke-width="3" stroke-linecap="square"/>`;
+            h += `<line x1="${cx - 6.5}" y1="${cy - 6.5}" x2="${cx + 6.5}" y2="${cy - 6.5}" stroke="${crossHighlight}" stroke-width="1" stroke-linecap="square"/>`;
+            // Center nail plate
+            h += `<circle cx="${cx}" cy="${cy - 6}" r="1.2" fill="#1c130b"/>`;
             h += `</g>`;
         }
 
+        // Votive Candle / Svíčka
         const lit = isRecent || (isNight && (ts % 3 === 0));
         if (lit) {
-            h += `<circle cx="${cx + 12}" cy="${cy + 2}" r="10" fill="#f59e0b" opacity="0.25"/>`;
-            h += `<rect x="${cx + 11}" y="${cy + 2}" width="2.5" height="6" fill="#fef3c7" rx="0.5"/>`;
-            h += `<ellipse cx="${cx + 12.25}" cy="${cy}" rx="1.5" ry="2.5" fill="#fbbf24"/>`;
-            h += `<ellipse cx="${cx + 12.25}" cy="${cy}" rx="0.7" ry="1.2" fill="#ffffff"/>`;
+            const candleX = cx + 11;
+            const candleY = cy + 2;
+            
+            // Soft Radial Outer Glow
+            h += `<circle cx="${candleX}" cy="${candleY - 1}" r="14" fill="url(#cemCandleGlow)" opacity="${isNight ? '0.8' : '0.45'}"/>`;
+            // Glass Votive Jar
+            h += `<rect x="${candleX - 2.5}" y="${candleY + 1}" width="5" height="6.5" fill="#dc2626" opacity="0.85" rx="1"/>`;
+            h += `<rect x="${candleX - 2}" y="${candleY + 1.5}" width="1.5" height="5.5" fill="#fca5a5" opacity="0.4" rx="0.5"/>`;
+            // Candle Flame
+            h += `<ellipse cx="${candleX}" cy="${candleY - 1}" rx="1.6" ry="2.8" fill="#fbbf24"/>`;
+            h += `<ellipse cx="${candleX}" cy="${candleY - 1}" rx="0.8" ry="1.6" fill="#ffffff"/>`;
         }
 
         return h;
@@ -1274,118 +1325,248 @@ const TemplumManager = {
         const viewBoxHeight = isExpanded ? 230 : 120;
 
         // Sky colors
-        let skyTop = '#1d4ed8', skyBottom = '#93c5fd';
-        if (env.isNight) { skyTop = '#070b19'; skyBottom = '#131d2e'; }
-        else if (env.timeSlot === 'morning') { skyTop = '#210b1a'; skyBottom = '#f3c06d'; }
-        else if (env.timeSlot === 'evening') { skyTop = '#1a1640'; skyBottom = '#f97316'; }
-        else if (env.condition === 'rain') { skyTop = '#1b2430'; skyBottom = '#414f60'; }
-        else if (env.isSnow) { skyTop = '#2d3748'; skyBottom = '#cbd5e1'; }
-        else if (env.isCloudy) { skyTop = '#334155'; skyBottom = '#808ea0'; }
+        let skyTop = '#13284c', skyMid = '#1e3a8a', skyBottom = '#93c5fd';
+        if (env.isNight) { skyTop = '#050b1a'; skyMid = '#0d182e'; skyBottom = '#1a273c'; }
+        else if (env.timeSlot === 'morning') { skyTop = '#1a0927'; skyMid = '#6b1c43'; skyBottom = '#f59e0b'; }
+        else if (env.timeSlot === 'evening') { skyTop = '#0f0c29'; skyMid = '#4a154b'; skyBottom = '#ea580c'; }
+        else if (env.condition === 'rain') { skyTop = '#111827'; skyMid = '#1f2937'; skyBottom = '#4b5563'; }
+        else if (env.isSnow) { skyTop = '#1e293b'; skyMid = '#334155'; skyBottom = '#94a3b8'; }
+        else if (env.isCloudy) { skyTop = '#1e293b'; skyMid = '#475569'; skyBottom = '#94a3b8'; }
 
         // Ground colors
-        let ground1 = '#415f2b', ground2 = '#2f461e';
-        if (env.isNight) { ground1 = '#142217'; ground2 = '#0d170f'; }
+        let ground1 = '#385723', ground2 = '#233b15';
+        if (env.isNight) { ground1 = '#101d13'; ground2 = '#08110a'; }
         else if (env.isSnow) { ground1 = '#e2e8f0'; ground2 = '#cbd5e1'; }
-        else if (env.timeSlot === 'morning' || env.timeSlot === 'evening') { ground1 = '#2e4320'; ground2 = '#1e2f15'; }
+        else if (env.timeSlot === 'morning' || env.timeSlot === 'evening') { ground1 = '#283b1c'; ground2 = '#172710'; }
 
         // Path colors
-        let pathColor = env.isNight ? '#332b23' : (env.isSnow ? '#9ca3af' : '#857255');
+        let pathColor = env.isNight ? '#2a221b' : (env.isSnow ? '#94a3b8' : '#736048');
 
-        // Celestial
+        // Celestial (Sun / Moon)
         let celestialSvg = '';
         if (env.isNight) {
             celestialSvg = `
-                <circle cx="560" cy="35" r="22" fill="#f8fafc" opacity="0.08"/>
-                <circle cx="560" cy="35" r="14" fill="#f8fafc" opacity="0.15"/>
-                <circle cx="560" cy="35" r="10" fill="#f1f5f9"/>
-                <circle cx="564" cy="33" r="8.5" fill="url(#cemSky)"/>
+                <!-- Moon Glow -->
+                <circle cx="560" cy="32" r="28" fill="#f8fafc" opacity="0.06"/>
+                <circle cx="560" cy="32" r="18" fill="#f8fafc" opacity="0.12"/>
+                <circle cx="560" cy="32" r="11" fill="#f1f5f9"/>
+                <circle cx="565" cy="29" r="9.5" fill="url(#cemSky)"/>
             `;
         } else if (env.timeSlot === 'morning') {
-            celestialSvg = `<circle cx="110" cy="65" r="28" fill="#fde047" opacity="0.15"/><circle cx="110" cy="65" r="14" fill="#fef08a"/>`;
+            celestialSvg = `
+                <circle cx="110" cy="62" r="35" fill="#fde047" opacity="0.18"/>
+                <circle cx="110" cy="62" r="20" fill="#fef08a" opacity="0.35"/>
+                <circle cx="110" cy="62" r="12" fill="#fef9c3"/>
+            `;
         } else if (env.timeSlot === 'evening') {
-            celestialSvg = `<circle cx="570" cy="65" r="28" fill="#f97316" opacity="0.2"/><circle cx="570" cy="65" r="14" fill="#fdba74"/>`;
+            celestialSvg = `
+                <circle cx="570" cy="62" r="38" fill="#f97316" opacity="0.22"/>
+                <circle cx="570" cy="62" r="22" fill="#fdba74" opacity="0.4"/>
+                <circle cx="570" cy="62" r="13" fill="#ffedd5"/>
+            `;
         } else if (env.condition !== 'rain' && !env.isCloudy) {
-            celestialSvg = `<circle cx="580" cy="32" r="30" fill="#fde047" opacity="0.2"/><circle cx="580" cy="32" r="15" fill="#fef08a"/>`;
+            celestialSvg = `
+                <circle cx="580" cy="28" r="36" fill="#fde047" opacity="0.2"/>
+                <circle cx="580" cy="28" r="20" fill="#fef08a" opacity="0.4"/>
+                <circle cx="580" cy="28" r="12" fill="#ffffff"/>
+            `;
         }
 
-        // Stars
+        // Stars Field (Night only)
         const starCoords = [
-            { x: 30, y: 12 }, { x: 80, y: 25 }, { x: 140, y: 15 }, { x: 210, y: 30 },
-            { x: 270, y: 10 }, { x: 320, y: 22 }, { x: 390, y: 14 }, { x: 450, y: 28 },
-            { x: 500, y: 12 }, { x: 530, y: 32 }, { x: 590, y: 18 }, { x: 640, y: 25 }
+            { x: 25, y: 10 }, { x: 75, y: 22 }, { x: 135, y: 12 }, { x: 195, y: 28 },
+            { x: 255, y: 8 },  { x: 315, y: 18 }, { x: 385, y: 10 }, { x: 445, y: 24 },
+            { x: 495, y: 8 },  { x: 525, y: 28 }, { x: 595, y: 14 }, { x: 645, y: 22 },
+            { x: 160, y: 34 }, { x: 410, y: 35 }, { x: 620, y: 38 }
         ];
         const starsSvg = env.isNight ? starCoords.map((s, idx) =>
-            `<circle cx="${s.x}" cy="${s.y}" r="${(idx % 3 === 0 ? 1.5 : 1)}" fill="#ffffff" opacity="${0.4 + (idx % 5) * 0.12}"/>`
+            `<circle cx="${s.x}" cy="${s.y}" r="${(idx % 4 === 0 ? 1.5 : 1)}" fill="#ffffff" opacity="${0.35 + (idx % 5) * 0.14}"/>`
         ).join('') : '';
 
         // Clouds
         const cloudsSvg = (!env.isNight && (env.isCloudy || env.condition === 'rain' || env.timeSlot === 'day')) ? `
-            <path d="M 120 30 Q 135 18 155 25 Q 170 18 185 28 Q 200 25 205 35 Q 210 45 195 48 H 115 Q 105 40 120 30 Z" fill="${env.condition === 'rain' ? 'rgba(51, 65, 85, 0.7)' : 'rgba(255, 255, 255, 0.7)'}"/>
-            <path d="M 440 22 Q 455 12 475 18 Q 490 10 505 20 Q 520 18 525 28 Q 530 38 515 42 H 435 Q 425 32 440 22 Z" fill="${env.condition === 'rain' ? 'rgba(51, 65, 85, 0.6)' : 'rgba(255, 255, 255, 0.6)'}"/>
+            <path d="M 110 32 Q 130 18 155 24 Q 175 16 195 26 Q 215 22 220 34 Q 225 46 205 48 H 105 Q 95 38 110 32 Z" fill="${env.condition === 'rain' ? 'rgba(30, 41, 59, 0.75)' : 'rgba(255, 255, 255, 0.65)'}"/>
+            <path d="M 430 24 Q 450 12 475 18 Q 495 8 515 20 Q 535 16 540 28 Q 545 40 525 44 H 425 Q 415 32 430 24 Z" fill="${env.condition === 'rain' ? 'rgba(30, 41, 59, 0.65)' : 'rgba(255, 255, 255, 0.55)'}"/>
         ` : '';
 
-        // Weather effects
+        // Atmospheric Weather Overlays & Particles
         let weatherOverlay = '';
         if (env.condition === 'rain') {
-            for (let r = 0; r < 24; r++) {
-                const rx = (r * 29) % 670 + 5;
-                const ry = (r * 11) % 180 + 10;
-                weatherOverlay += `<line x1="${rx}" y1="${ry}" x2="${rx - 6}" y2="${ry + 18}" stroke="rgba(186, 230, 253, 0.45)" stroke-width="1.2"/>`;
+            for (let r = 0; r < 28; r++) {
+                const rx = (r * 25) % 670 + 5;
+                const ry = (r * 13) % 180 + 8;
+                weatherOverlay += `<line x1="${rx}" y1="${ry}" x2="${rx - 7}" y2="${ry + 20}" stroke="rgba(186, 230, 253, 0.4)" stroke-width="1.2"/>`;
             }
         } else if (env.isSnow) {
-            for (let s = 0; s < 28; s++) {
-                const sx = (s * 23) % 670 + 5;
-                const sy = (s * 13) % 180 + 10;
-                weatherOverlay += `<circle cx="${sx}" cy="${sy}" r="${(s % 2 === 0 ? 1.8 : 1.2)}" fill="#ffffff" opacity="0.85"/>`;
+            for (let s = 0; s < 32; s++) {
+                const sx = (s * 21) % 670 + 5;
+                const sy = (s * 15) % 180 + 8;
+                weatherOverlay += `<circle cx="${sx}" cy="${sy}" r="${(s % 3 === 0 ? 2 : 1.2)}" fill="#ffffff" opacity="0.85"/>`;
             }
         } else if (env.isFog) {
-            weatherOverlay += `<rect x="0" y="60" width="680" height="60" fill="#e2e8f0" opacity="0.25"/>`;
+            weatherOverlay += `
+                <rect x="0" y="55" width="680" height="70" fill="url(#cemFogGrad)" opacity="0.65"/>
+            `;
+        } else if (env.isNight) {
+            // Fireflies on clear warm nights
+            const fireflyCoords = [
+                { x: 120, y: 95 }, { x: 220, y: 110 }, { x: 450, y: 100 },
+                { x: 530, y: 115 }, { x: 180, y: 140 }, { x: 490, y: 150 }
+            ];
+            weatherOverlay += fireflyCoords.map(f => `
+                <circle cx="${f.x}" cy="${f.y}" r="6" fill="#fbbf24" opacity="0.15"/>
+                <circle cx="${f.x}" cy="${f.y}" r="1.5" fill="#fef08a"/>
+            `).join('');
         }
 
-        // Chapel
-        const windowGlow = (env.isNight || env.condition === 'rain') ? `
-            <circle cx="340" cy="42" r="16" fill="#f59e0b" opacity="0.35"/>
-            <rect x="334" y="32" width="12" height="20" rx="6" fill="#fbbf24"/>
+        // Chapel Architecture
+        const windowGlow = (env.isNight || env.condition === 'rain' || env.timeSlot === 'evening') ? `
+            <!-- Light Spill Cone -->
+            <polygon points="340,42 315,80 365,80" fill="url(#cemWindowSpill)" opacity="0.6"/>
+            <!-- Window Glow -->
+            <circle cx="340" cy="42" r="14" fill="#f59e0b" opacity="0.4"/>
+            <path d="M 334 48 V 38 A 6 6 0 0 1 346 38 V 48 Z" fill="#fbbf24"/>
         ` : `
-            <rect x="334" y="32" width="12" height="20" rx="6" fill="#60a5fa" opacity="0.7"/>
+            <path d="M 334 48 V 38 A 6 6 0 0 1 346 38 V 48 Z" fill="#60a5fa" opacity="0.75"/>
         `;
 
         const chapelSvg = `
             <g id="cemChapel">
-                <!-- Chapel base structure -->
-                <rect x="308" y="38" width="64" height="42" fill="${env.isNight ? '#221b15' : '#4a423a'}" stroke="${env.isNight ? '#14100c' : '#2e2924'}"/>
+                <!-- Main Chapel Body -->
+                <rect x="306" y="34" width="68" height="46" fill="${env.isNight ? '#1e1814' : '#473d34'}" stroke="${env.isNight ? '#100c09' : '#2b231c'}" stroke-width="1"/>
+                <!-- Quoins / Corner stones -->
+                <rect x="306" y="34" width="4" height="6" fill="#2d261f"/>
+                <rect x="306" y="46" width="4" height="6" fill="#2d261f"/>
+                <rect x="306" y="58" width="4" height="6" fill="#2d261f"/>
+                <rect x="370" y="34" width="4" height="6" fill="#2d261f"/>
+                <rect x="370" y="46" width="4" height="6" fill="#2d261f"/>
+                <rect x="370" y="58" width="4" height="6" fill="#2d261f"/>
+
                 <!-- Roof -->
-                <path d="M 302 38 L 340 14 L 378 38 Z" fill="${env.isNight ? '#17130f' : '#2b2520'}"/>
-                ${env.isSnow ? `<path d="M 300 38 L 340 12 L 380 38 Q 340 18 300 38 Z" fill="#f8fafc"/>` : ''}
-                <!-- Spire cross -->
-                <line x1="340" y1="5" x2="340" y2="14" stroke="#c5a059" stroke-width="2"/>
-                <line x1="335" y1="8" x2="345" y2="8" stroke="#c5a059" stroke-width="2"/>
-                <!-- Door -->
-                <path d="M 330 80 V 58 A 10 10 0 0 1 350 58 V 80 Z" fill="${env.isNight ? '#0d0a08' : '#241b14'}"/>
-                <!-- Window -->
+                <path d="M 300 34 L 340 10 L 380 34 Z" fill="${env.isNight ? '#140f0c' : '#2d231a'}"/>
+                <!-- Roof shingle lines -->
+                <path d="M 310 28 L 370 28 M 320 20 L 360 20 M 330 14 L 350 14" stroke="${env.isNight ? '#0a0806' : '#1c1510'}" stroke-width="0.8"/>
+                ${env.isSnow ? `<path d="M 298 34 L 340 9 L 382 34 Q 340 16 298 34 Z" fill="#f8fafc"/>` : ''}
+
+                <!-- Spire Bell Tower & Cross -->
+                <rect x="334" y="10" width="12" height="14" fill="${env.isNight ? '#17120e' : '#382f28'}"/>
+                <path d="M 332 10 L 340 2 L 348 10 Z" fill="${env.isNight ? '#100c09' : '#241d18'}"/>
+                <line x1="340" y1="-2" x2="340" y2="7" stroke="#c5a059" stroke-width="2"/>
+                <line x1="335" y1="1" x2="345" y2="1" stroke="#c5a059" stroke-width="2"/>
+
+                <!-- Bell in belfry -->
+                <ellipse cx="340" cy="17" rx="2.5" ry="3" fill="#d97706" opacity="0.8"/>
+
+                <!-- Door Arch -->
+                <path d="M 328 80 V 56 A 12 12 0 0 1 352 56 V 80 Z" fill="${env.isNight ? '#0a0806' : '#1f160f'}"/>
+                <path d="M 330 80 V 58 A 10 10 0 0 1 350 58 V 80 Z" fill="${env.isNight ? '#140f0b' : '#332419'}"/>
+                <!-- Iron door strap hinges -->
+                <line x1="330" y1="62" x2="340" y2="62" stroke="#000000" stroke-width="1"/>
+                <line x1="330" y1="74" x2="340" y2="74" stroke="#000000" stroke-width="1"/>
+                <circle cx="347" cy="69" r="1" fill="#c5a059"/>
+
+                <!-- Gothic Window -->
                 ${windowGlow}
-                <!-- Window grid -->
-                <line x1="340" y1="32" x2="340" y2="52" stroke="#2e2924" stroke-width="1"/>
-                <line x1="334" y1="42" x2="346" y2="42" stroke="#2e2924" stroke-width="1"/>
+                <!-- Window Tracery -->
+                <path d="M 334 48 V 38 A 6 6 0 0 1 346 38 V 48 Z" stroke="#241d18" stroke-width="1" fill="none"/>
+                <line x1="340" y1="32" x2="340" y2="48" stroke="#241d18" stroke-width="1"/>
+                <line x1="334" y1="42" x2="346" y2="42" stroke="#241d18" stroke-width="1"/>
             </g>
         `;
 
-        // Wall & Trees
+        // Stone Wall & Creeping Ivy
         const wallSvg = `
-            <rect x="0" y="72" width="680" height="12" fill="${env.isNight ? '#1d1712' : '#574d42'}"/>
-            <rect x="0" y="70" width="680" height="3" fill="${env.isNight ? '#2e251d' : '#73675a'}"/>
-            <rect x="302" y="66" width="8" height="20" fill="${env.isNight ? '#14100c' : '#423a31'}"/>
-            <rect x="370" y="66" width="8" height="20" fill="${env.isNight ? '#14100c' : '#423a31'}"/>
-            <path d="M 312 72 V 86 M 318 70 V 86 M 324 72 V 86 M 356 72 V 86 M 362 70 V 86 M 368 72 V 86" stroke="${env.isNight ? '#0a0806' : '#26201a'}" stroke-width="1.5"/>
+            <g id="cemWall">
+                <!-- Main Stone Wall -->
+                <rect x="0" y="70" width="680" height="14" fill="${env.isNight ? '#16120d' : '#54493d'}"/>
+                <!-- Wall Coping Top -->
+                <rect x="0" y="67" width="680" height="4" fill="${env.isNight ? '#261f18' : '#706354'}"/>
+                <line x1="0" y1="71" x2="680" y2="71" stroke="${env.isNight ? '#0c0a07' : '#3b3228'}" stroke-width="0.8"/>
+                
+                <!-- Masonry mortar texture -->
+                <path d="M 0 77 H 680 M 50 71 V 77 M 120 77 V 84 M 190 71 V 77 M 260 77 V 84 M 420 71 V 77 M 490 77 V 84 M 560 71 V 77 M 630 77 V 84" stroke="${env.isNight ? '#0d0b08' : '#383027'}" stroke-width="0.8"/>
+
+                ${env.isSnow ? `<rect x="0" y="66" width="680" height="3" fill="#f8fafc"/>` : ''}
+
+                <!-- Gate Pillars -->
+                <rect x="296" y="63" width="10" height="21" fill="${env.isNight ? '#120e0a' : '#3d342b'}"/>
+                <rect x="294" y="61" width="14" height="3" fill="${env.isNight ? '#211a13' : '#574a3e'}"/>
+                
+                <rect x="374" y="63" width="10" height="21" fill="${env.isNight ? '#120e0a' : '#3d342b'}"/>
+                <rect x="372" y="61" width="14" height="3" fill="${env.isNight ? '#211a13' : '#574a3e'}"/>
+
+                <!-- Wrought Iron Gate Arch & Scrollwork over central path -->
+                <path d="M 301 62 Q 340 46 379 62" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="2" fill="none"/>
+                <line x1="312" y1="62" x2="312" y2="57" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="324" y1="62" x2="324" y2="53" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="336" y1="62" x2="336" y2="50" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="344" y1="62" x2="344" y2="50" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="356" y1="62" x2="356" y2="53" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <line x1="368" y1="62" x2="368" y2="57" stroke="${env.isNight ? '#0a0806' : '#261e16'}" stroke-width="1.2"/>
+                <!-- Iron Cross in center of arch -->
+                <line x1="340" y1="44" x2="340" y2="52" stroke="#c5a059" stroke-width="1.5"/>
+                <line x1="336" y1="47" x2="344" y2="47" stroke="#c5a059" stroke-width="1.5"/>
+
+                <!-- Creeping Ivy on Wall -->
+                <path d="M 20 84 Q 30 72 45 76 Q 60 70 75 80" stroke="#364b22" stroke-width="1.5" fill="none"/>
+                <circle cx="32" cy="74" r="1.5" fill="#4d6b30"/>
+                <circle cx="48" cy="74" r="1.5" fill="#4d6b30"/>
+                <circle cx="62" cy="72" r="1.5" fill="#4d6b30"/>
+
+                <path d="M 600 84 Q 615 70 635 75 Q 650 68 665 82" stroke="#364b22" stroke-width="1.5" fill="none"/>
+                <circle cx="612" cy="72" r="1.5" fill="#4d6b30"/>
+                <circle cx="638" cy="72" r="1.5" fill="#4d6b30"/>
+            </g>
         `;
 
+        // Beautiful Multi-layered Trees & Cypresses
+        const treeNight = env.isNight;
+        const leafGrad = treeNight ? 'url(#cemTreeDark)' : 'url(#cemTreeGrad)';
+        const cypressGrad = treeNight ? 'url(#cemCypressDark)' : 'url(#cemCypressGrad)';
+        
         const treesSvg = `
-            <path d="M 65 82 L 68 30 Q 52 48 42 82 Z" fill="${env.isNight ? '#0f1c12' : '#2d4520'}"/>
-            <path d="M 68 30 Q 82 48 74 82 Z" fill="${env.isNight ? '#0a140c' : '#223818'}"/>
-            <rect x="64" y="78" width="8" height="16" fill="#38281a"/>
-            
-            <path d="M 615 82 Q 598 52 620 25 Q 645 52 635 82 Z" fill="${env.isNight ? '#0f1c12' : '#2d4520'}"/>
-            <rect x="622" y="78" width="8" height="16" fill="#38281a"/>
+            <g id="cemTrees">
+                <!-- Background Left Cypress (Smaller/Darker for depth) -->
+                <path d="M 28 80 Q 22 50 32 26 Q 42 50 36 80 Z" fill="${treeNight ? '#08120b' : '#1d3318'}"/>
+
+                <!-- Main Left Cypress (Tall, multi-swelled Evergreen) -->
+                <g id="leftCypress">
+                    <!-- Trunk -->
+                    <rect x="58" y="74" width="8" height="12" fill="#2d1e12"/>
+                    <!-- Layer 1 (Bottom Crown) -->
+                    <path d="M 40 78 Q 62 60 62 48 Q 62 60 84 78 Q 62 82 40 78 Z" fill="${cypressGrad}"/>
+                    <!-- Layer 2 (Middle Crown) -->
+                    <path d="M 44 62 Q 62 44 62 30 Q 62 44 80 62 Q 62 66 44 62 Z" fill="${cypressGrad}"/>
+                    <!-- Layer 3 (Top Spire) -->
+                    <path d="M 48 44 Q 62 20 62 10 Q 62 20 76 44 Q 62 48 48 44 Z" fill="${cypressGrad}"/>
+                    <!-- Highlight Edge -->
+                    <path d="M 48 44 Q 62 20 62 10 Q 56 26 44 62" stroke="${treeNight ? '#2a4a38' : '#6b8e4e'}" stroke-width="1.2" fill="none" opacity="0.6"/>
+                    ${env.isSnow ? `<path d="M 48 44 Q 62 30 76 44 Q 62 38 48 44 Z" fill="#f8fafc"/>` : ''}
+                </g>
+
+                <!-- Bushy Yew / Shrub near left wall -->
+                <path d="M 80 82 Q 72 65 88 62 Q 95 55 105 65 Q 115 72 108 82 Z" fill="${treeNight ? '#0d1a0f' : '#284220'}"/>
+
+                <!-- Right Perimeter: Ancient Weeping Oak / Yew -->
+                <g id="rightOak">
+                    <!-- Trunk -->
+                    <path d="M 622 82 Q 625 65 628 50 Q 640 45 648 42" stroke="#2b1c10" stroke-width="7" fill="none" stroke-linecap="round"/>
+                    <path d="M 628 56 Q 615 48 605 45" stroke="#2b1c10" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    
+                    <!-- Foliage Clusters -->
+                    <path d="M 590 52 Q 575 35 595 24 Q 615 15 635 25 Q 655 18 668 35 Q 675 52 650 62 Q 625 68 590 52 Z" fill="${leafGrad}"/>
+                    <path d="M 605 42 Q 590 28 610 20 Q 630 14 645 24 Q 660 30 648 45 Z" fill="${treeNight ? '#162e1c' : '#4d7036'}" opacity="0.6"/>
+                    <circle cx="600" cy="38" r="14" fill="${treeNight ? '#0f2113' : '#2c471f'}"/>
+                    <circle cx="640" cy="32" r="16" fill="${treeNight ? '#0f2113' : '#2c471f'}"/>
+
+                    ${env.isSnow ? `
+                        <path d="M 595 24 Q 615 15 635 25 Q 655 18 668 35 Q 630 22 595 24 Z" fill="#f8fafc"/>
+                    ` : ''}
+                </g>
+
+                <!-- Background Right Cypress -->
+                <path d="M 565 80 Q 558 52 568 32 Q 578 52 571 80 Z" fill="${treeNight ? '#09140c' : '#1f381a'}"/>
+            </g>
         `;
 
         // Mounds & Grave Markers
@@ -1401,20 +1582,66 @@ const TemplumManager = {
             gravesSvg += this._getCemGraveSvg(c.x, c.y, !!g.nahrobek, isRecent, env.isNight, neglected, cond, g.ts);
         });
 
-        // Path
-        const pathSvg = `<polygon points="325,78 355,78 ${isExpanded ? '380,230 300,230' : '370,120 310,120'}" fill="${pathColor}" opacity="0.8"/>`;
+        // Path (Tapered Perspective Cobblestone Path)
+        const pathEndY = isExpanded ? 230 : 120;
+        const pathSvg = `
+            <g id="cemPath">
+                <polygon points="328,78 352,78 385,${pathEndY} 295,${pathEndY}" fill="${pathColor}"/>
+                <!-- Cobblestone / Gravel detail lines -->
+                <path d="M 320,${pathEndY - 20} Q 340,${pathEndY - 22} 360,${pathEndY - 20} M 315,${pathEndY - 45} Q 340,${pathEndY - 47} 365,${pathEndY - 45} M 325,100 Q 340,99 355,100" stroke="${env.isNight ? '#17120e' : '#574836'}" stroke-width="1" stroke-dasharray="3,3" fill="none" opacity="0.6"/>
+                <!-- Path Edge Shadow -->
+                <line x1="328" y1="78" x2="295" y2="${pathEndY}" stroke="#000000" stroke-width="1.5" opacity="0.3"/>
+                <line x1="352" y1="78" x2="385" y2="${pathEndY}" stroke="#000000" stroke-width="1.5" opacity="0.3"/>
+            </g>
+        `;
 
         return `
             <svg width="100%" viewBox="0 0 680 ${viewBoxHeight}" role="img" style="display:block; border-radius:8px 8px 0 0;">
                 <defs>
                     <linearGradient id="cemSky" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stop-color="${skyTop}"/>
+                        <stop offset="50%" stop-color="${skyMid}"/>
                         <stop offset="100%" stop-color="${skyBottom}"/>
                     </linearGradient>
                     <linearGradient id="cemGround" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stop-color="${ground1}"/>
                         <stop offset="100%" stop-color="${ground2}"/>
                     </linearGradient>
+                    <linearGradient id="cemTreeGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="${env.timeSlot==='morning'||env.timeSlot==='evening'?'#4d6e2a':'#3b5c23'}"/>
+                        <stop offset="100%" stop-color="#1b3310"/>
+                    </linearGradient>
+                    <linearGradient id="cemTreeDark" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#1a3322"/>
+                        <stop offset="100%" stop-color="#09140b"/>
+                    </linearGradient>
+                    <linearGradient id="cemCypressGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#4d7036"/>
+                        <stop offset="40%" stop-color="#2d4a1f"/>
+                        <stop offset="100%" stop-color="#192e10"/>
+                    </linearGradient>
+                    <linearGradient id="cemCypressDark" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#264733"/>
+                        <stop offset="100%" stop-color="#0b170f"/>
+                    </linearGradient>
+                    <linearGradient id="cemStoneGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#9e9384"/>
+                        <stop offset="100%" stop-color="#6e6456"/>
+                    </linearGradient>
+                    <linearGradient id="cemFogGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.0"/>
+                        <stop offset="50%" stop-color="#e2e8f0" stop-opacity="0.5"/>
+                        <stop offset="100%" stop-color="#cbd5e1" stop-opacity="0.0"/>
+                    </linearGradient>
+                    <radialGradient id="cemWindowSpill" cx="50%" cy="0%" r="100%">
+                        <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.4"/>
+                        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
+                    </radialGradient>
+                    <radialGradient id="cemCandleGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fef08a" stop-opacity="0.9"/>
+                        <stop offset="40%" stop-color="#f59e0b" stop-opacity="0.4"/>
+                        <stop offset="100%" stop-color="#d97706" stop-opacity="0.0"/>
+                    </radialGradient>
                 </defs>
 
                 <!-- Sky Background -->
@@ -1422,16 +1649,18 @@ const TemplumManager = {
                 ${starsSvg}
                 ${celestialSvg}
                 ${cloudsSvg}
-                ${weatherOverlay}
 
-                <!-- Architecture & Wall -->
+                <!-- Architecture & Wall & Background Trees -->
+                ${treesSvg}
                 ${wallSvg}
                 ${chapelSvg}
-                ${treesSvg}
 
                 <!-- Ground -->
                 <rect x="0" y="78" width="680" height="${viewBoxHeight - 78}" fill="url(#cemGround)"/>
                 ${pathSvg}
+
+                <!-- Atmospheric Overlays -->
+                ${weatherOverlay}
 
                 <!-- Graves -->
                 ${gravesSvg}
