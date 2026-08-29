@@ -244,6 +244,14 @@ const UI = {
         const _vapeniceBtn = document.getElementById('home-sub-vapenice');
         if (_vapeniceBtn) _vapeniceBtn.style.display = (GameState.storage && GameState.storage.vapenice && GameState.storage.vapenice.built) ? '' : 'none';
 
+        // Opisování rukopisů — tech-gate (A5 audit fix, 28.8.2026). Mirror
+        // Sušárna vzoru přesně. Grandfather klauzule přes
+        // _ensureScriptoriumArsMigration(): hráč, co už mechaniku používal
+        // (progress/copies/auto), tech dostane automaticky, ať mu funkční
+        // věc nezmizí ze savegame pod rukama.
+        const _msBtn = document.getElementById('lore-tab-manuscripts');
+        if (_msBtn) _msBtn.style.display = UI._ensureScriptoriumArsMigration() ? '' : 'none';
+
         // Vodní mlýn — gate na tier >= 2 (Mechanismus dokončen), mirror Vápenice.
         // mlynar-vlastni-mlyn-mrd.md §4.7, 16.8.2026.
         const _millBtn = document.getElementById('home-sub-mill');
@@ -2021,7 +2029,7 @@ const UI = {
         const MANUSCRIPTS_DB = [
             { id: 'anselm', name: 'Žaltář sv. Anselma', name_en: 'Psalter of St. Anselm', folios: 10 },
             { id: 'benedict', name: 'Řehole sv. Benedikta', name_en: 'Rule of St. Benedict', folios: 20 },
-            { id: 'chronica', name: 'Kronika kláštera Kladruby', name_en: 'Chronicle of Kladruby Monastery', folios: 35 },
+            { id: 'chronica', name: 'Zbraslavská kronika', name_en: 'Zbraslav Chronicle', folios: 35 },
             { id: 'herbar', name: 'Herbář a Lékařství', name_en: 'Herbal & Medicine Codex', folios: 50 },
             { id: 'homiliar', name: 'Homiliář a Kázání', name_en: 'Homiliary & Sermons', folios: 75 },
             { id: 'gigas', name: 'Codex Gigas (opis)', name_en: 'Codex Gigas (a Copy)', folios: 120 }
@@ -2191,7 +2199,31 @@ const UI = {
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
+    // Grandfather klauzule pro A5 gate (28.8.2026) — samostatná funkce, ne
+    // jen inline v renderAll(), aby ji mohly volat i copyFolium/
+    // toggleManuscriptAutomation přímo a nespoléhaly na to, že renderAll()
+    // už proběhl dřív (automatika běží na vlastním setInterval).
+    _ensureScriptoriumArsMigration: function () {
+        if (!GameState.researchedTechs) return false;
+        if (GameState.researchedTechs.includes('tech_scriptorium_ars')) return true;
+        const ms = GameState.manuscriptsState;
+        if (ms) {
+            const hasUsed = (ms.progress > 0) || (ms.auto === true) ||
+                (ms.copies && Object.values(ms.copies).some(c => c > 0));
+            if (hasUsed) {
+                GameState.researchedTechs.push('tech_scriptorium_ars');
+                return true;
+            }
+        }
+        return false;
+    },
+
     copyFolium: function (count = 1) {
+        if (!UI._ensureScriptoriumArsMigration()) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            UI.notify(lang === 'en' ? '🔒 Research "Art of the Copy" first.' : '🔒 Nejprve vyzkoumej "Umění opisu".', true);
+            return false;
+        }
         if (!GameState.manuscriptsState) {
             GameState.manuscriptsState = { activeId: 'anselm', progress: 0, auto: false, copies: {} };
         }
@@ -2274,6 +2306,11 @@ const UI = {
     },
 
     toggleManuscriptAutomation: function () {
+        if (!UI._ensureScriptoriumArsMigration()) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            UI.notify(lang === 'en' ? '🔒 Research "Art of the Copy" first.' : '🔒 Nejprve vyzkoumej "Umění opisu".', true);
+            return;
+        }
         if (!GameState.manuscriptsState) {
             GameState.manuscriptsState = { activeId: 'anselm', progress: 0, auto: false, copies: {} };
         }

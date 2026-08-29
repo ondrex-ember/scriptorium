@@ -2315,7 +2315,7 @@ const ConversiManager = {
                     anselm: 10, benedict: 20, chronica: 35, herbar: 50, homiliar: 75, gigas: 120
                 };
                 const MANUSCRIPT_NAMES = {
-                    anselm: 'Žaltář sv. Anselma', benedict: 'Řehole sv. Benedikta', chronica: 'Kronika kláštera Kladruby',
+                    anselm: 'Žaltář sv. Anselma', benedict: 'Řehole sv. Benedikta', chronica: 'Zbraslavská kronika',
                     herbar: 'Herbář a Lékařství', homiliar: 'Homiliář a Kázání', gigas: 'Codex Gigas (opis)'
                 };
 
