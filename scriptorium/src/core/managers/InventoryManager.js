@@ -44,11 +44,17 @@ const InventoryManager = {
             if (!ScavengeManager._scavenging) UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
         }
 
+        // perf fix 29.8.2026 (scavenge-claim-freeze): checkAchievements()
+        // procházelo celou AchievementsDB při KAŽDÉM addItem() volání, i
+        // během hromadného scavenge-claimu (desítky/stovky volání v jedné
+        // smyčce — viz ScavengeManager claim blok). Teď respektuje stejnou
+        // dávkovou bránu jako save/render — jednorázový check doplněn na
+        // konci claim smyčky (ScavengeManager.js).
         if (!ScavengeManager._scavenging) {
             Game.save(); Game.checkEnvironment(); UI.renderAll();
             if (typeof PersonaSystem !== 'undefined' && PersonaSystem.render) PersonaSystem.render();
+            Game.checkAchievements();
         }
-        Game.checkAchievements();
     },
     removeItem: function (id, qty) {
         if (GameState.inventory[id] >= qty) {

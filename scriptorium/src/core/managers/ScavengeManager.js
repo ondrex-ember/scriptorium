@@ -704,6 +704,7 @@ const ScavengeManager = {
             }
             ScavengeManager._scavenging = false;
             if (_usedToolId) Game.useToolCharge(_usedToolId);
+            Game.checkAchievements();
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction && (type === 'basic' || type === 'nature')) {
@@ -729,6 +730,7 @@ const ScavengeManager = {
             if (Object.keys(_qgains).length > 0) UI.notifyAccum(_qgains);
             else UI.notify(t('game.quickScavenge'));
             ScavengeManager._scavenging = false;
+            Game.checkAchievements();
             Game.save(); UI.renderAll(); return;
         }
         if (GameState.activeAction) { UI.notify(t('game.busy'), true); return; }
@@ -799,6 +801,7 @@ const ScavengeManager = {
             }
             ScavengeManager._scavenging = false;
             if (_usedToolId) Game.useToolCharge(_usedToolId);
+            Game.checkAchievements();
             Game.save(); UI.renderAll(); return;
         } else {
             // TIMED scavenge — tabulka výnosů dle délky. Přepočítáno, aby delší
