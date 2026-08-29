@@ -3361,19 +3361,24 @@ const UI = {
         if (hasInternal) {
             const loans = (GameState.library && GameState.library.loanedBooks) || {};
             const internalIds = Object.keys(loans).filter(id => loans[id].internal);
-            if (internalIds.length > 0) {
-                h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
-                        <div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '📖 In the Monastery' : '📖 V klášteře'}</div>
-                        <div style="display:flex;flex-direction:column;gap:4px;">
-                          ${internalIds.map(id => {
-                            const b = LibraryDB.books.find(bk => bk.id === id);
-                            const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
-                            const daysLeft = Math.max(0, Math.ceil((loans[id].dueAt - Date.now()) / (24 * 3600000)));
-                            return `<div style="font-size:0.75rem;padding:2px 0;">📖 ${title} — <span style="opacity:0.7;">${loans[id].borrowerName}, ${lang === 'en' ? daysLeft + 'd left' : 'zbývá ' + daysLeft + ' dní'}</span></div>`;
-                          }).join('')}
-                        </div>
-                      </div>`;
-            }
+            // konzistence-vypujcky-mrd (29.8.2026) — sekce se dřív schovala
+            // úplně, když zrovna nikdo nic nepůjčoval, na rozdíl od "Výpůjčky
+            // mimo klášter", co vždy ukazuje "Momentálně nic venku". Teď
+            // hlavička + stavový řádek vždy, mirror stejného vzoru.
+            h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
+                    <div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '📖 In the Monastery' : '📖 V klášteře'}</div>
+                    <div style="font-size:0.78rem;opacity:0.8;${internalIds.length > 0 ? 'margin-bottom:6px;' : ''}">
+                      ${internalIds.length > 0 ? (lang === 'en' ? `${internalIds.length} being read` : `${internalIds.length} zapůjčeno`) : (lang === 'en' ? 'No one has borrowed anything at present' : 'Momentálně si nikdo nic nepůjčil')}
+                    </div>
+                    ${internalIds.length > 0 ? `<div style="display:flex;flex-direction:column;gap:4px;">
+                      ${internalIds.map(id => {
+                        const b = LibraryDB.books.find(bk => bk.id === id);
+                        const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                        const daysLeft = Math.max(0, Math.ceil((loans[id].dueAt - Date.now()) / (24 * 3600000)));
+                        return `<div style="font-size:0.75rem;padding:2px 0;">📖 ${title} — <span style="opacity:0.7;">${loans[id].borrowerName}, ${lang === 'en' ? daysLeft + 'd left' : 'zbývá ' + daysLeft + ' dní'}</span></div>`;
+                      }).join('')}
+                    </div>` : ''}
+                  </div>`;
         }
 
         if (hasC2 || hasInternal) {
