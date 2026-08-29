@@ -1268,6 +1268,25 @@ const ChroniconSystem = {
         } catch (e) { /* tiché selhání */ }
     },
 
+    // Fond knihovny — 1×/den nahlásí počet odemčených knih (vypujcky-
+    // gradient-mrd §C, 29.8.2026). Mirror _reportActorFavorIfNewDay,
+    // volá se z LibraryHelpers.checkLibraryUnlocks() (běží při každém
+    // otevření Knihovny), žádný nový hák netřeba.
+    _reportLibraryFondIfNewDay: function() {
+        const today = new Date().toISOString().slice(0, 10);
+        if (GameState.libraryFondReportSent === today) return;
+        if (!GameState.library || !GameState.library.unlockedBooks) return;
+        GameState.libraryFondReportSent = today;
+
+        try {
+            fetch('/api/library-fond-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ count: GameState.library.unlockedBooks.length, day: today }),
+            }).catch(() => {});
+        } catch (e) { /* tiché selhání */ }
+    },
+
     // Vlna 1 — Ubytovna: hosté odcházejí po uplynutí plannedDays, self-
     // guarded 24h (mirror InfirmariumSystem.hospesDailyTick vzoru,
     // ubytovna-mrd.md §8c-B rozšíření).
