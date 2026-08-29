@@ -630,15 +630,15 @@ const RecipesDB = [
       desc:"Kovářské kleště. Nezbytné pro opravy v Kovárně.", desc_en:"Blacksmith tongs. Essential for repairs at the Smithy." },
 
     // ── OPRAVA OPOTŘEBENÝCH NÁSTROJŮ (Fabrica — vyžaduje iron_tongs) ─────────
-    { id:"repair_iron_axe",    output:"iron_axe",    qty:1, req:{worn_iron_axe:1,     iron_tongs:1}, cat:"iron", locked:true, desc:"Překování a nabroušení sekerky.", desc_en:"Reforge and sharpen the axe." },
-    { id:"repair_iron_knife",  output:"iron_knife",  qty:1, req:{worn_iron_knife:1,   iron_tongs:1}, cat:"iron", locked:true, desc:"Překování a nabroušení nože.", desc_en:"Reforge and sharpen the knife." },
-    { id:"repair_iron_spade",  output:"iron_spade",  qty:1, req:{worn_iron_spade:1,   iron_tongs:1}, cat:"iron", locked:true, desc:"Vyrovnání a oprava rýče.", desc_en:"Straighten and repair the spade." },
-    { id:"repair_iron_scythe", output:"iron_scythe", qty:1, req:{worn_iron_scythe:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Nabroušení kosy na bruse.", desc_en:"Sharpen the scythe on the grindstone." },
-    { id:"repair_iron_sickle", output:"iron_sickle", qty:1, req:{worn_iron_sickle:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Nabroušení a překování srpu.", desc_en:"Sharpen and reforge the sickle." },
-    { id:"repair_iron_flail",  output:"iron_flail",  qty:1, req:{worn_iron_flail:1,   iron_tongs:1}, cat:"iron", locked:true, desc:"Utažení závaží, nové spojení.", desc_en:"Tighten the weight, new joint." },
-    { id:"repair_iron_shovel", output:"iron_shovel", qty:1, req:{worn_iron_shovel:1,  iron_tongs:1}, cat:"iron", locked:true, desc:"Narovnání čepele lopaty.", desc_en:"Straighten the shovel blade." },
-    { id:"repair_iron_saw",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1,     iron_tongs:1}, cat:"iron", locked:true, desc:"Přebroušení zubů pily.", desc_en:"Re-sharpen the saw teeth." },
-    { id:"repair_iron_pickaxe", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1, iron_tongs:1}, cat:"iron", locked:true, desc:"Překování hrotu krumpáče.", desc_en:"Reforge the pickaxe head." },
+    { id:"repair_iron_axe",    output:"iron_axe",    qty:1, req:{worn_iron_axe:1}, toolReq:[{item:"iron_tongs"}], cat:"iron", locked:true, desc:"Překování a nabroušení sekerky.", desc_en:"Reforge and sharpen the axe." },
+    { id:"repair_iron_knife",  output:"iron_knife",  qty:1, req:{worn_iron_knife:1}, toolReq:[{item:"iron_tongs"}], cat:"iron", locked:true, desc:"Překování a nabroušení nože.", desc_en:"Reforge and sharpen the knife." },
+    { id:"repair_iron_spade",  output:"iron_spade",  qty:1, req:{worn_iron_spade:1}, toolReq:[{item:"iron_tongs"}], cat:"iron", locked:true, desc:"Vyrovnání a oprava rýče.", desc_en:"Straighten and repair the spade." },
+    { id:"repair_iron_scythe", output:"iron_scythe", qty:1, req:{worn_iron_scythe:1}, toolReq:[{item:"iron_tongs"}], cat:"iron", locked:true, desc:"Nabroušení kosy na bruse.", desc_en:"Sharpen the scythe on the grindstone." },
+    { id:"repair_iron_sickle", output:"iron_sickle", qty:1, req:{worn_iron_sickle:1}, toolReq:[{item:"iron_tongs"}], cat:"iron", locked:true, desc:"Nabroušení a překování srpu.", desc_en:"Sharpen and reforge the sickle." },
+    { id:"repair_iron_flail",  output:"iron_flail",  qty:1, req:{worn_iron_flail:1}, toolReq:[{item:"iron_tongs"}], cat:"iron", locked:true, desc:"Utažení závaží, nové spojení.", desc_en:"Tighten the weight, new joint." },
+    { id:"repair_iron_shovel", output:"iron_shovel", qty:1, req:{worn_iron_shovel:1}, toolReq:[{item:"iron_tongs"}], cat:"iron", locked:true, desc:"Narovnání čepele lopaty.", desc_en:"Straighten the shovel blade." },
+    { id:"repair_iron_saw",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1}, toolReq:[{item:"iron_tongs"}], cat:"iron", locked:true, desc:"Přebroušení zubů pily.", desc_en:"Re-sharpen the saw teeth." },
+    { id:"repair_iron_pickaxe", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1}, toolReq:[{item:"iron_tongs"}], cat:"iron", locked:true, desc:"Překování hrotu krumpáče.", desc_en:"Reforge the pickaxe head." },
 
     // Whetstone — craft + alternativní oprava železných nástrojů (nespotřebovává iron_tongs, vlastní pool 3 použití)
     { id:"whetstone", output:"whetstone", qty:4, req:{whetstone_rock:1}, cat:"stone", desc:"Z brusného kamene vybroušeny čtyři brousky.", desc_en:"Four whetstones honed from the rock." },

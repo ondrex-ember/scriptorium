@@ -5,8 +5,12 @@
 // souvislý blok. Chování beze změny — pouze přesun + přepsání self-referencí
 // this.removeItem/addItem/useToolCharge -> InventoryManager.* (stěhují se
 // spolu). Zbylé Game.* odkazy (_checkSaveHint/_saveHint z D1,
-// addKronikaEntry/kronikaCraftFlushBuffer z D9, _scavenging/checkEnvironment
-// z D7 ještě needitovaného) zůstávají správně jako externí závislosti.
+// addKronikaEntry/kronikaCraftFlushBuffer z D9, checkEnvironment z D7)
+// zůstávají správně jako externí závislosti. OPRAVENO 29.8.2026:
+// _scavenging NEbyl správnou externí závislostí — Game._scavenging nikdy
+// neexistoval (ScavengeManager je od D7 extrakce vlastní objekt, ne
+// Game.*), potlačení toastu při hromadném scavengi tiše nefungovalo. Teď
+// čte ScavengeManager._scavenging přímo (addItem.js, scavenge-toast-fix).
 // POZNÁMKA (ne bug, jen pozorování): GardenSystem.js má vlastní živý
 // useToolCharge (voliván z fellTree) a VigorSystem.js vlastní živý eat
 // (voliván z Game.eat níže) — jiné, ne duplicity, netknuto.
@@ -33,10 +37,14 @@ const InventoryManager = {
             Game.addKronikaEntry('important', '📜 Nový zápis v Codexu.', '📜 New entry in the Codex.', '📜 Nova inscriptio in Codice.');
             setTimeout(() => UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id))), 500);
         } else {
-            if (!Game._scavenging) UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
+            // bug fix 29.8.2026: kontrolovalo se Game._scavenging, který
+            // nikdy neexistoval (ScavengeManager je od D7 extrakce vlastní
+            // objekt, ne Game.*) — potlačení obecného toastu při hromadném
+            // scavengi nikdy nefungovalo (duplicitní toasty, mj. u vody).
+            if (!ScavengeManager._scavenging) UI.notify(t('game.itemAdded').replace('{qty}', qty).replace('{item}', iName(id)));
         }
 
-        if (!Game._scavenging) {
+        if (!ScavengeManager._scavenging) {
             Game.save(); Game.checkEnvironment(); UI.renderAll();
             if (typeof PersonaSystem !== 'undefined' && PersonaSystem.render) PersonaSystem.render();
         }

@@ -870,8 +870,13 @@ const UI = {
                 // NORMAL REQUIREMENT CHECK - ONLY FOR NON-WELL ACTIONS
                 if (act.req) {
                     if (Array.isArray(act.req)) {
-                        // Pole req — zobrazit pokud hráč má alespoň jeden nástroj
-                        const hasAny = act.req.some(r => GameState.inventory[r.item] > 0);
+                        // Pole req — zobrazit pokud hráč má alespoň jeden nástroj,
+                        // ČERSTVÝ NEBO OPOTŘEBENÝ (worn_ varianta) — mirror fallback
+                        // logiky v samotném provedení akce (viz ScavengeManager
+                        // execute, worn_ + 20% výtěž). Bug fix 29.8.2026: dřív
+                        // tlačítko zmizelo úplně, i když worn_ nástroj by akci
+                        // reálně umožnil spustit (jen s nižší výtěží).
+                        const hasAny = act.req.some(r => (GameState.inventory[r.item] || 0) > 0 || (GameState.inventory['worn_' + r.item] || 0) > 0);
                         if (!hasAny) return;
                     } else {
                         if (!(GameState.inventory[act.req] > 0)) return;
@@ -1279,10 +1284,17 @@ const UI = {
         // Seskupení receptů se stejným výstupem (a stejnou kategorií) do jedné
         // "rodiny" — např. Šrot z různých obilovin. RecipesDB se nemění,
         // jde jen o zobrazení. Rodina s 1 receptem = beze změny chování.
+        // fix 29.8.2026 (repair-craft-separation): klíč navíc rozlišuje
+        // repair_ vs craft — dřív se "Vykovat sekerku ze surovin" a "Opravit
+        // sekerku kleštěmi/brouskem" slily do JEDNÉ karty s jedním tlačítkem,
+        // co si samo vybralo variantu (první splnitelnou) — hráč si nemohl
+        // vybrat, jestli chce craftit novou, nebo opravit starou. Teď craft
+        // a repair(y) dostanou oddělené karty; repair varianty (kleště NEBO
+        // brousek) zůstávají spolu jako dřív, protože obě dělají totéž.
         const groupByOutput = (arr) => {
             const map = new Map();
             arr.forEach(r => {
-                const key = r.output + '|' + r.cat;
+                const key = r.output + '|' + r.cat + '|' + (r.id.startsWith('repair_') ? 'repair' : 'craft');
                 if (!map.has(key)) map.set(key, []);
                 map.get(key).push(r);
             });
