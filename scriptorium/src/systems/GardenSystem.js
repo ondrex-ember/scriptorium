@@ -1246,6 +1246,9 @@ const GardenSystem = {
             if (f.strawBonus === undefined) f.strawBonus = false;
             if (f.wateredPhases === undefined) f.wateredPhases = 0;
             if (f.type === undefined) f.type = i < 11 ? 'normal' : 'fallow';
+            // fields-winter-mrd (29.8.2026): staré savy bez per-plodina timing/frost stavu
+            if (f.phaseMs === undefined) f.phaseMs = null;
+            if (f.lastFrostCheckDate === undefined) f.lastFrostCheckDate = null;
         });
         this._syncFieldLocks();
     },
@@ -1384,23 +1387,36 @@ const GardenSystem = {
         UI.notify('🌱 Semínka sklizena.');
     },
 
-    // Délka jedné fáze v ms (3 reálné dny)
+    // Délka jedné fáze v ms (3 reálné dny) — fallback/default, používá se
+    // jen pro staré savy bez field.phaseMs (viz sowField/checkFieldGrowth).
     FIELD_PHASE_MS: 3 * 24 * 60 * 60 * 1000,
+
+    // fields-winter-mrd (29.8.2026): per-plodina doba růstu (dny, léto=1.0×
+    // baseline) + mrazuvzdornost. Žito/pšenice = anchor 9 dní (beze změny
+    // proti dřívějšímu flat baseline), zbytek škáluje relativně dolů podle
+    // reálný rychlosti dozrávání (luštěniny/pohanka nejrychlejší).
+    // hardy = tvrdost vůči mrazu (viz FIELD_FREEZE_KILL_CHANCE níž) —
+    // historicky obilí (zvlášť žito) přežívá mráz nejlíp (ozimá tradice),
+    // teplomilné plodiny (proso/pohanka/luštěniny) umíraj skoro jistě.
+    // Sezónní tempo/výnos: FIELD_SEASON_GROWTH_MULT / FIELD_SEASON_YIELD_MULT.
+    FIELD_SEASON_GROWTH_MULT: { spring: 1.2, summer: 1.0, autumn: 1.3, winter: 2.0 },
+    FIELD_SEASON_YIELD_MULT:  { spring: 0.9, summer: 1.0, autumn: 0.85, winter: 0.7 },
+    FIELD_FREEZE_KILL_CHANCE: { hardy: 0.20, medium: 0.60, fragile: 1.0 },
 
     // Plodiny DB
     CROPS_DB: {
-        rye:    { id:'rye_grain',   icon:'🌾', name:'Žito',    name_en:'Rye',     seeds:'seeds_rye',    yield:3, strawYield:2, feedVal:1 },
-        wheat:  { id:'wheat_grain', icon:'🌾', name:'Pšenice', name_en:'Wheat',   seeds:'seeds_wheat',  yield:3, strawYield:1, feedVal:0 },
-        barley: { id:'barley',      icon:'🌾', name:'Ječmen',  name_en:'Barley',  seeds:'seeds_barley', yield:3, strawYield:2, feedVal:0 },
-        oats:   { id:'oats',        icon:'🌾', name:'Oves',    name_en:'Oats',    seeds:'seeds_oats',   yield:3, strawYield:2, feedVal:2 },
-        millet: { id:'millet',      icon:'🌾', name:'Proso',   name_en:'Millet',  seeds:'seeds_millet', yield:4, strawYield:1, feedVal:2 },
+        rye:    { id:'rye_grain',   icon:'🌾', name:'Žito',    name_en:'Rye',     seeds:'seeds_rye',    yield:3, strawYield:2, feedVal:1, growDays:9, hardy:'hardy' },
+        wheat:  { id:'wheat_grain', icon:'🌾', name:'Pšenice', name_en:'Wheat',   seeds:'seeds_wheat',  yield:3, strawYield:1, feedVal:0, growDays:9, hardy:'hardy' },
+        barley: { id:'barley',      icon:'🌾', name:'Ječmen',  name_en:'Barley',  seeds:'seeds_barley', yield:3, strawYield:2, feedVal:0, growDays:7, hardy:'medium' },
+        oats:   { id:'oats',        icon:'🌾', name:'Oves',    name_en:'Oats',    seeds:'seeds_oats',   yield:3, strawYield:2, feedVal:2, growDays:7, hardy:'medium' },
+        millet: { id:'millet',      icon:'🌾', name:'Proso',   name_en:'Millet',  seeds:'seeds_millet', yield:4, strawYield:1, feedVal:2, growDays:6, hardy:'fragile' },
         // coquina-tier1-mrd (7.8.2026): nová plodina, dostupná od začátku
         // hry přes sloty 0-1 (proměnlivé množství semen, viz pole-mala-policka-mrd)
-        pohanka: { id:'pohanka',    icon:'🌾', name:'Pohanka', name_en:'Buckwheat', seeds:'seeds_pohanka', yield:3, strawYield:1, feedVal:1 },
-        peas:   { id:'peas',        icon:'🫛', name:'Hrách',   name_en:'Peas',    seeds:'seeds_peas',   yield:4, strawYield:0, feedVal:1 },
-        lentils: { id:'lentils',    icon:'🟤', name:'Čočka',   name_en:'Lentils', seeds:'seeds_lentils', yield:4, strawYield:0, feedVal:1 },
-        vetch:  { id:'vikev',       icon:'🌸', name:'Vikev',   name_en:'Vetch',   seeds:'seeds_vikev',  yield:3, strawYield:0, feedVal:2, fallow:true },
-        flax:   { id:'flax_fiber',  icon:'🧵', name:'Len',     name_en:'Flax',    seeds:'seeds_flax',   yield:2, strawYield:1, feedVal:0 },
+        pohanka: { id:'pohanka',    icon:'🌾', name:'Pohanka', name_en:'Buckwheat', seeds:'seeds_pohanka', yield:3, strawYield:1, feedVal:1, growDays:5, hardy:'fragile' },
+        peas:   { id:'peas',        icon:'🫛', name:'Hrách',   name_en:'Peas',    seeds:'seeds_peas',   yield:4, strawYield:0, feedVal:1, growDays:5, hardy:'fragile' },
+        lentils: { id:'lentils',    icon:'🟤', name:'Čočka',   name_en:'Lentils', seeds:'seeds_lentils', yield:4, strawYield:0, feedVal:1, growDays:5, hardy:'fragile' },
+        vetch:  { id:'vikev',       icon:'🌸', name:'Vikev',   name_en:'Vetch',   seeds:'seeds_vikev',  yield:3, strawYield:0, feedVal:2, fallow:true, growDays:5, hardy:'fragile' },
+        flax:   { id:'flax_fiber',  icon:'🧵', name:'Len',     name_en:'Flax',    seeds:'seeds_flax',   yield:2, strawYield:1, feedVal:0, growDays:7, hardy:'medium' },
     },
 
     // ── VINOHRAD (Vinea) — databáze odrůd ────────────────────────────────────
@@ -1951,9 +1967,10 @@ const GardenSystem = {
                 // Výběr plodiny — úhorný slot nabízí jen úhorné plodiny
                 const cropOpts = Object.entries(this.CROPS_DB)
                     .filter(([key, c]) => field.type !== 'fallow' || c.fallow)
-                    .map(([key, c]) =>
-                    `<option value="${key}">${lang==='en'?c.name_en:c.name}</option>`
-                ).join('');
+                    .map(([key, c]) => {
+                        const seedQty = GameState.inventory[c.seeds] || 0;
+                        return `<option value="${key}">${lang==='en'?c.name_en:c.name} (${seedQty})</option>`;
+                    }).join('');
                 // pole-mala-policka-mrd (7.8.2026): sloty 0-1 mají navíc
                 // volbu množství semen (2-10), zbytek Pole seje pevně 30 (beze změny).
                 const amtSelector = idx < 2
@@ -1970,10 +1987,13 @@ const GardenSystem = {
                 const crop = this.CROPS_DB[field.crop];
                 const cropIcon = crop ? crop.icon : '🌱';
                 const phaseIdx = Math.min(field.phase, 3);
-                const phaseEnd = field.phaseStart + phaseMs;
+                // fields-winter-mrd (29.8.2026): field.phaseMs je per-plodina/
+                // sezóna, zamčené při zasetí (sowField). Fallback pro starý sav.
+                const fieldPhaseMs = field.phaseMs || phaseMs;
+                const phaseEnd = field.phaseStart + fieldPhaseMs;
                 const remaining = Math.max(0, phaseEnd - now);
                 const hoursLeft = Math.ceil(remaining / (1000*60*60));
-                const progressPct = Math.min(100, Math.round((1 - remaining/phaseMs)*100));
+                const progressPct = Math.min(100, Math.round((1 - remaining/fieldPhaseMs)*100));
                 const overallPct = Math.min(1, (phaseIdx + progressPct / 100) / 4);
                 const iconSize = (1.0 + overallPct * 1.0).toFixed(2);
 
@@ -1999,9 +2019,14 @@ const GardenSystem = {
         html += '</div>';
 
         // Info panel
+        // fields-winter-mrd (29.8.2026): "Délka fáze: 3 dny" bylo zavádějící
+        // (teď se liší per plodina/sezóna) — nahrazeno sezónním tempem růstu.
+        const seasonNow = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'summer';
+        const seasonNames = { spring: lang==='en'?'Spring':'Jaro', summer: lang==='en'?'Summer':'Léto', autumn: lang==='en'?'Autumn':'Podzim', winter: lang==='en'?'Winter':'Zima' };
+        const growthMultNow = this.FIELD_SEASON_GROWTH_MULT[seasonNow] || 1.0;
         html += `<div style="font-size:0.78rem; opacity:0.65; padding:8px 12px; background:rgba(0,0,0,0.04); border-radius:6px; border-left:3px solid rgba(197,160,89,0.3);">
             💧 ${lang==='en'?'Water per irrigation':'Voda na závlahu'}: ${waterCost} | 
-            🌾 ${lang==='en'?'Phase duration':'Délka fáze'}: 3 ${lang==='en'?'days':'dny'} | 
+            🌾 ${lang==='en'?'Growth pace':'Tempo růstu'}: ${seasonNames[seasonNow]} (${growthMultNow}×) | 
             ${hasHumno ? '✅ Humno: +sláma' : `🏗️ ${lang==='en'?'Build Humno for +straw':'Postav Humno pro +slámu'}`}
         </div>`;
 
@@ -2054,6 +2079,15 @@ const GardenSystem = {
         field.watered = false;
         field.wateredPhases = 0;
         field.sownSeedCost = seedCost;
+        // fields-winter-mrd (29.8.2026): doba růstu se zamkne podle plodiny
+        // a sezóny V MOMENTĚ zasetí (crop.growDays × sezónní tempo, / 3 fáze).
+        // Fallback FIELD_PHASE_MS pro crop bez growDays (nemělo by nastat).
+        const seasonAtSow = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'summer';
+        const growthMult = this.FIELD_SEASON_GROWTH_MULT[seasonAtSow] || 1.0;
+        field.phaseMs = crop.growDays
+            ? (crop.growDays * growthMult / 3) * 24 * 60 * 60 * 1000
+            : this.FIELD_PHASE_MS;
+        field.lastFrostCheckDate = null;
         Game.save();
         this.renderFieldTab();
     },
@@ -2093,6 +2127,12 @@ const GardenSystem = {
         // Fallback na FIELD_SEED_COST pro staré savy bez sownSeedCost.
         let yieldAmt = crop.yield * (field.sownSeedCost || this.FIELD_SEED_COST);
         if (hasRotation) yieldAmt = Math.round(yieldAmt * 1.25);
+
+        // fields-winter-mrd (29.8.2026): sezónní výnos — podle sezóny V
+        // MOMENTĚ SKLIZNĚ (ne zasetí). Léto beze změny, zima -30 %.
+        const seasonAtHarvest = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'summer';
+        const seasonYieldMult = this.FIELD_SEASON_YIELD_MULT[seasonAtHarvest] || 1.0;
+        yieldAmt = Math.max(1, Math.round(yieldAmt * seasonYieldMult));
 
         // Sucho penalizace (žito je vůči suchu odolné — neuplatňuje se)
         // Zalévání ve všech 3 fázích cyklu kompenzuje sucho, jako by pršelo
@@ -2150,10 +2190,44 @@ const GardenSystem = {
         if (!GameState.fields) return;
         const now = Date.now();
         const phaseMs = this.FIELD_PHASE_MS;
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         let changed = false;
         GameState.fields.forEach(field => {
-            if (field.state !== 'growing' || field.phase >= 3) return;
-            const phaseEnd = field.phaseStart + phaseMs;
+            if (field.state !== 'growing') return;
+
+            // fields-winter-mrd (29.8.2026): freeze-kill — max 1× za den, jen
+            // pokud WeatherSystem hlásí mrazový den (denní minimum ≤ -10°C).
+            // Šance na zničení podle mrazuvzdornosti plodiny (hardy/medium/
+            // fragile, viz FIELD_FREEZE_KILL_CHANCE). Zničené pole → 'ploughed'
+            // (zorané, ale prázdné — hráč rovnou zasívá znovu).
+            if (field.lastFrostCheckDate !== todayStr) {
+                field.lastFrostCheckDate = todayStr;
+                const cropDef = this.CROPS_DB[field.crop];
+                if (cropDef && typeof WeatherSystem !== 'undefined' && WeatherSystem.isFrostDay && WeatherSystem.isFrostDay()) {
+                    const killChance = this.FIELD_FREEZE_KILL_CHANCE[cropDef.hardy] || 0;
+                    if (Math.random() < killChance) {
+                        const cropName = lang === 'en' ? cropDef.name_en : cropDef.name;
+                        field.state = 'ploughed';
+                        field.crop = null;
+                        field.phase = 0;
+                        field.phaseStart = 0;
+                        field.watered = false;
+                        field.wateredPhases = 0;
+                        field.phaseMs = null;
+                        if (typeof UI !== 'undefined') UI.notify(`❄️ ${lang==='en'?'Frost killed the':'Mráz zničil'} ${cropName}!`, true);
+                        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                            Game.addKronikaEntry('important', `❄️ Mráz zničil úrodu: ${cropName}`, `❄️ Frost destroyed the crop: ${cropName}`, `❄️ Gelu perit seges: ${cropName}`);
+                        }
+                        changed = true;
+                        return; // pole zničeno, přeskoč fázový posun
+                    }
+                }
+            }
+
+            if (field.phase >= 3) return;
+            const fieldPhaseMs = field.phaseMs || phaseMs;
+            const phaseEnd = field.phaseStart + fieldPhaseMs;
             if (now >= phaseEnd) {
                 field.phase++;
                 field.phaseStart = now;

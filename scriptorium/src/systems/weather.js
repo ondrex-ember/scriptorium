@@ -189,6 +189,20 @@ const WeatherSystem = {
         return out;
     },
 
+    // Mrazový den — denní minimum ≤ threshold (°C). Mirror countDryDays
+    // vzoru, jen jeden den (dnešek). fields-winter-mrd (29.8.2026) — Pole
+    // freeze-kill mechanika.
+    isFrostDay: function (threshold = -10) {
+        try {
+            const tmin = this.cache && this.cache.daily && this.cache.daily.temperature_2m_min;
+            if (!Array.isArray(tmin) || !tmin.length) return false;
+            const todayIdx = this.getDailyIndex(0);
+            if (todayIdx < 0 || todayIdx >= tmin.length) return false;
+            return (typeof tmin[todayIdx] === 'number') && tmin[todayIdx] <= threshold;
+        } catch (e) { }
+        return false;
+    },
+
     init: function () {
         // Try to load from cache first (instant display)
         try {
