@@ -213,19 +213,10 @@ const DecaySystem = {
         straw: { rate: 0.005, mice: true },
         couch_grass_flour: { rate: 0.005, mice: true },
         feed_meal: { rate: 0.005, mice: true },
-        // preserve_slow (0.01)
-        beeswax: { rate: 0.01 },
-        propolis: { rate: 0.01 },
-        propolis_tinktura: { rate: 0.01 },
-        propolis_tinktura_vyzrala: { rate: 0.01 },
-        resin_spruce: { rate: 0.01 },
-        resin_pine: { rate: 0.01 },
-        smola: { rate: 0.01 },
-        resin_styrax: { rate: 0.01 },
-        resin_olibanum: { rate: 0.01 },
-        glue: { rate: 0.01 },
-        klih: { rate: 0.01 },
-        salt: { rate: 0.01 },
+        // preserve_slow (0.01) — decay-mice-flies-audit (29.8.2026): vosk/
+        // propolis/pryskyřice/lepidlo/sůl přesunuty do DURABLE_DECAY_RATES.
+        // Historicky proslulý svou nezkazitelností (sůl je sama konzervant),
+        // ne "kažením" jako maso/sýr — viz DURABLE_DECAY_RATES mineral_glass.
         hops: { rate: 0.01 },
         linseed_oil: { rate: 0.01 },
         // wood_organic (0.008)
@@ -463,6 +454,22 @@ const DecaySystem = {
         whetstone_rock: { rate: 0.00002 },
         window_roundel: { rate: 0.00002 },
         zlaty_prut: { rate: 0.00002 },
+        // decay-mice-flies-audit (29.8.2026): vosk/propolis/pryskyřice/
+        // lepidlo/sůl — z DECAY_RATES (kažení, mirror maso/sýr, nesmyslné).
+        // Reálně proslulý nezkazitelností (sůl = konzervant sám o sobě,
+        // pryskyřice/vosk se historicky používaly ke konzervaci jiných věcí).
+        beeswax: { rate: 0.00002 },
+        propolis: { rate: 0.00002 },
+        propolis_tinktura: { rate: 0.00002 },
+        propolis_tinktura_vyzrala: { rate: 0.00002 },
+        resin_spruce: { rate: 0.00002 },
+        resin_pine: { rate: 0.00002 },
+        smola: { rate: 0.00002 },
+        resin_styrax: { rate: 0.00002 },
+        resin_olibanum: { rate: 0.00002 },
+        glue: { rate: 0.00002 },
+        klih: { rate: 0.00002 },
+        salt: { rate: 0.00002 },
         // iron_tool (0.0003)
         anvil: { rate: 0.0003 },
         britva_chirurgus: { rate: 0.0003 },
