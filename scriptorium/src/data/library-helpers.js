@@ -570,6 +570,12 @@ const LibraryHelpers = {
         if (newUnlocks > 0 && !GameState.flags.firstVisit) {
             UI.notifyPanel(t('library_lore.new_book').replace('{count}', newUnlocks), 'system');
         }
+
+        // vypujcky-gradient-mrd §C (29.8.2026) — 1×/den nahlásí velikost
+        // fondu do Chronicon (community fond bonus na ctenar/vypujcka).
+        if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportLibraryFondIfNewDay) {
+            ChroniconSystem._reportLibraryFondIfNewDay();
+        }
     },
     
     // Přečtení knihy
