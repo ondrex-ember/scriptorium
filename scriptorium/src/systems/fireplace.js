@@ -88,8 +88,14 @@ const FireplaceSystem = {
     FUEL_VALUES: {
         'stick': 1 * 60 * 60 * 1000,   // Větev: +1 hodina
         'log': 4 * 60 * 60 * 1000,     // Poleno: +4 hodiny
-        'charcoal': 8 * 60 * 60 * 1000 // Dřevěné uhlí: +8 hodin
+        'charcoal': 8 * 60 * 60 * 1000, // Dřevěné uhlí: +8 hodin
+        'wood': 2 * 60 * 60 * 1000     // Dřevo (svazek): +2 hodiny
     },
+
+    // focarius-mrd (29.8.2026) — pořadí, ve kterém Focarius (konvrší úkol)
+    // spotřebovává palivo při auto-doplňování: nejdřív to nejméně univerzální
+    // (větev = jen palivo), naposled to, co se hodí i jinam (dřevo → Athanor).
+    FOCARIUS_FUEL_ORDER: ['stick', 'charcoal', 'log', 'wood'],
 
     // ── Čajový rituál (Foculus) ──────────────────────────────────────────
     TEA_BREW_MS: 43 * 1000, // 43 s reálného času
@@ -165,9 +171,36 @@ const FireplaceSystem = {
 
         if (GameState.fire.fuelMs <= 0) {
             this.dieOut();
-        } else {
-            this.render();
+            return;
         }
+
+        // focarius-mrd (29.8.2026) — konvrš na úkolu 'focarius' přiživí Krb
+        // sám, když palivo klesne pod 10 %. Doplňuje jen do 90 % (rezerva na
+        // gauge) a ve skladu nechává 10 % z každého paliva nedotčené.
+        if (GameState.fire.fuelMs < this.MAX_FUEL_MS * 0.10) {
+            const hasFocarius = (GameState.conversi || []).some(k => k.task === 'focarius');
+            if (hasFocarius) this._focariusRefuel();
+        }
+
+        this.render();
+    },
+
+    _focariusRefuel: function() {
+        const target = this.MAX_FUEL_MS * 0.90;
+        for (let i = 0; i < this.FOCARIUS_FUEL_ORDER.length && GameState.fire.fuelMs < target; i++) {
+            const itemId = this.FOCARIUS_FUEL_ORDER[i];
+            const fuelAmount = this.FUEL_VALUES[itemId];
+            if (!fuelAmount) continue;
+            let stock = GameState.inventory[itemId] || 0;
+            let usable = stock - Math.floor(stock * 0.10); // 10% rezerva skladu
+            while (usable > 0 && GameState.fire.fuelMs < target && GameState.fire.fuelMs + fuelAmount <= this.MAX_FUEL_MS) {
+                Game.removeItem(itemId, 1);
+                GameState.fire.fuelMs += fuelAmount;
+                GameState.fire.lastFuelType = itemId;
+                usable--;
+            }
+        }
+        Game.save();
     },
 
     dieOut: function() {
@@ -985,9 +1018,11 @@ const FireplaceSystem = {
             const hasStick = (GameState.inventory['stick'] || 0) > 0;
             const hasLog = (GameState.inventory['log'] || 0) > 0;
             const hasCharcoal = (GameState.inventory['charcoal'] || 0) > 0;
+            const hasWood = (GameState.inventory['wood'] || 0) > 0;
             const canFitStick = (GameState.fire.fuelMs + this.FUEL_VALUES['stick']) <= this.MAX_FUEL_MS;
             const canFitLog = (GameState.fire.fuelMs + this.FUEL_VALUES['log']) <= this.MAX_FUEL_MS;
             const canFitCharcoal = (GameState.fire.fuelMs + this.FUEL_VALUES['charcoal']) <= this.MAX_FUEL_MS;
+            const canFitWood = (GameState.fire.fuelMs + this.FUEL_VALUES['wood']) <= this.MAX_FUEL_MS;
 
             if (btnStick) {
                 btnStick.disabled = !hasStick || !canFitStick;
@@ -1007,6 +1042,13 @@ const FireplaceSystem = {
                 btnCharcoal.style.opacity = (!hasCharcoal || !canFitCharcoal) ? '0.5' : '1';
                 const cQty = GameState.inventory['charcoal'] || 0;
                 btnCharcoal.textContent = `+ ${iName('charcoal')} (${cQty})`;
+            }
+            const btnWood = document.getElementById('btn-fuel-wood');
+            if (btnWood) {
+                btnWood.disabled = !hasWood || !canFitWood;
+                btnWood.style.opacity = (!hasWood || !canFitWood) ? '0.5' : '1';
+                const wQty = GameState.inventory['wood'] || 0;
+                btnWood.textContent = `+ ${iName('wood')} (${wQty})`;
             }
         } else {
             panel.style.display = 'block';

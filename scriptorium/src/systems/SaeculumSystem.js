@@ -812,7 +812,8 @@ const SaeculumSystem = {
         const full = !isCur && taken >= Game.CONVERSI_TASK_SLOTS;
         const label = ({
           dvur: lang === 'en' ? 'Farmyard' : 'Dvůr', zahony: lang === 'en' ? 'Garden' : 'Záhony', sad: lang === 'en' ? 'Orchard' : 'Sad', apiarium: lang === 'en' ? 'Apiary' : 'Apiarium', piscina: lang === 'en' ? 'Fishpond' : 'Piscina', pole: lang === 'en' ? 'Field' : 'Pole', vinohrad: lang === 'en' ? 'Vineyard' : 'Vinohrad', scavenge: 'Scavenge', doly: lang === 'en' ? 'Mine' : 'Doly', kostel: lang === 'en' ? 'Church' : 'Kostel', hrbitov: lang === 'en' ? 'Cemetery' : 'Hřbitov',
-          servitor: lang === 'en' ? 'Servitor' : 'Ošetřovatel', coquus: lang === 'en' ? 'Coquus' : 'Kuchař', hortulanus: lang === 'en' ? 'Hortulanus' : 'Bylinář', balneator: lang === 'en' ? 'Balneator' : 'Topič'
+          servitor: lang === 'en' ? 'Servitor' : 'Ošetřovatel', coquus: lang === 'en' ? 'Coquus' : 'Kuchař', hortulanus: lang === 'en' ? 'Hortulanus' : 'Bylinář', balneator: lang === 'en' ? 'Balneator' : 'Topič',
+          focarius: 'Focarius'
         })[taskId];
         let hint = '';
         if (gate.locked) {
@@ -820,7 +821,8 @@ const SaeculumSystem = {
             : gate.reasonKey === 'gate_fodina_approval' ? (lang === 'en' ? "needs Abbot's approval" : 'chybí schválení opata')
               : gate.reasonKey === 'gate_frater' ? (lang === 'en' ? 'needs Frater+' : 'chybí Frater+')
                 : gate.reasonKey === 'gate_infirmarium_tech' ? (lang === 'en' ? 'needs tech: Infirmarium' : 'chybí tech: Infirmarium')
-                  : '';
+                  : gate.reasonKey === 'gate_focarius_tech' ? (lang === 'en' ? 'needs tech: Focarius' : 'chybí tech: Focarius')
+                    : '';
         } else if (full) {
           hint = lang === 'en' ? 'slots full' : 'plno';
         } else {

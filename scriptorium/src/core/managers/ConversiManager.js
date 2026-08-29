@@ -332,6 +332,7 @@ const ConversiManager = {
         coquus: { icon: '🍲', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
         hortulanus: { icon: '🌿', away: false, dailyRiskPct: 2, injuryKind: 'physical' },
         balneator: { icon: '🔥', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
+        focarius: { icon: '🔥', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
     },
     CONVERSI_TASK_SLOTS: 2,
 
@@ -349,6 +350,12 @@ const ConversiManager = {
         if (taskId === 'kostel') {
             if (!(typeof TemplumSystem !== 'undefined' && TemplumSystem.isUnlocked())) {
                 return { locked: true, reasonKey: 'gate_frater' };
+            }
+            return { locked: false };
+        }
+        if (taskId === 'focarius') {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_focarius'))) {
+                return { locked: true, reasonKey: 'gate_focarius_tech' };
             }
             return { locked: false };
         }

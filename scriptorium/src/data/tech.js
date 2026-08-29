@@ -523,6 +523,17 @@ TechTree.push({
   unlocks: ["incense_spruce", "incense_pine", "incense_styrax", "incense_olibanum"],
   requires: ["tech_meteorologica"]
 });
+// ── FOCARIUS ──────────────────────────────────────────────────────────────
+TechTree.push({
+  id: "tech_focarius",
+  name: "Focarius",
+  name_en: "Focarius",
+  cost: 12,
+  desc: "Focarius, doloženě \"hearthman\" středověkých panství — staral se o oheň ve velké síni od Michaelmas (29. září) do Velikonoc. Odemyká: konvrší úkol Focarius, který automaticky přiživuje Krb ve Foculu, když palivo klesne pod 10 % (doplní do 90 %, ve skladu nechá 10% rezervu paliva). Pořadí spotřeby: větev → uhlí → kulatina → dřevo.",
+  desc_en: "Focarius, the attested \"hearthman\" of medieval households — tended the hall fire from Michaelmas (29 September) to Easter. Unlocks: the Focarius lay-brother task, which automatically feeds the Foculus hearth when fuel drops below 10% (refuels to 90%, leaves a 10% reserve in fuel stores). Consumption order: branch → charcoal → log → wood.",
+  unlocks: [],
+  requires: ["tech_meteorologica"]
+});
 // ── ČERVEC (Karmín) ──────────────────────────────────────────────────────
 TechTree.push({
   id: "tech_cervec",
@@ -588,11 +599,11 @@ TechTree.push({
 });
 TechTree.push({
   id: "tech_infirmarium_balneator",
-  name: "Balneator / Focarius",
-  name_en: "Balneator / Focarius",
+  name: "Balneator",
+  name_en: "Balneator",
   cost: 12,
-  desc: "Topič a koupelník — udržuje oheň a teplou vodu pro léčebné koupele. Odemyká: konvrší úkol Topič.",
-  desc_en: "The stoker and bath-keeper — tends the fire and warm water for healing baths. Unlocks: the Balneator lay-brother task.",
+  desc: "Koupelník — připravuje teplou vodu pro léčebné koupele. Odemyká: konvrší úkol Topič.",
+  desc_en: "The bath-keeper — prepares warm water for healing baths. Unlocks: the Balneator lay-brother task.",
   unlocks: [],
   requires: ["tech_infirmarium"]
 });
