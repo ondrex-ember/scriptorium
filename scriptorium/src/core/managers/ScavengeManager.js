@@ -63,15 +63,22 @@ const ScavengeManager = {
         zimuvzdorna_zelenina: [0.3, 0.5, 1.2, 0.9],
     },
 
+    // SEASON_IDX mirror D2 vzoru (library-helpers.js) — _getApiarySeason()
+    // vrací STRING ('winter' apod.), SEASON_MODS je pole indexované číslem.
+    // Bez tohoto mappingu arr['winter'] = undefined -> multiplikátor vždy 1
+    // (tichý no-op bug, live od zavedení SEASON_MODS 13.8.2026, opraveno 29.8.2026).
+    SEASON_IDX: { spring: 0, summer: 1, autumn: 2, winter: 3 },
+
     // Sezónní multiplikátor pro daný item (1 = beze změny, pro netagované
     // položky vždy 1 — bezpečný no-op). Sdílí zdroj sezóny s Apiáriem.
     _seasonMult: function (itemId) {
         const def = typeof ItemsDB !== 'undefined' ? ItemsDB[itemId] : null;
         const cat = def && def.seasonCat;
         if (!cat || !this.SEASON_MODS[cat]) return 1;
-        const idx = Game._getApiarySeason();
+        const seasonStr = Game._getApiarySeason();
+        const idx = this.SEASON_IDX[seasonStr];
         const arr = this.SEASON_MODS[cat];
-        return (typeof arr[idx] === 'number') ? arr[idx] : 1;
+        return (typeof idx === 'number' && typeof arr[idx] === 'number') ? arr[idx] : 1;
     },
 
     // Nahrazuje `Math.random() < P` u nezávislých bonusových dropů —
