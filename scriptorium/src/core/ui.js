@@ -2993,13 +2993,20 @@ const UI = {
         el.innerHTML = h;
     },
     // ─────────────────────────────────────────────────────────────
-    // Chronicle Reader (kronika-nasi-mrd, 28.8.2026) — dvoustrana s
-    // listováním pro Kroniku našeho kláštera. Čte přímo GameState.kronika
-    // (existující pole, 120+ volacích míst po hře, viz ChronicleManager),
-    // žádný nový obsah negeneruje. Zatím SVG rám + HTML textová vrstva
-    // (stejný duch jako TemplumManager.renderCemeteryScene), skin-ready —
-    // budoucí ilustrovaný podklad nahradí jen rámovou SVG, textová vrstva
-    // se nemění.
+    // Chronicle Reader (kronika-nasi-mrd, 28.8.2026; přeformátováno
+    // 29.8.2026 — mobil oprava) — dvoustrana s listováním pro Kroniku
+    // našeho kláštera. Čte přímo GameState.kronika (existující pole,
+    // 120+ volacích míst po hře, viz ChronicleManager), žádný nový
+    // obsah negeneruje.
+    // Původní verze měla SVG rám s pevným viewBox 900×560 a HTML
+    // textovou vrstvu na pevných px souřadnicích nad ním — na úzkém
+    // mobilu se SVG zmenšilo, ale text ne, takže přetékal mimo
+    // stránky. Teď čisté CSS flexbox (flex-wrap) — obě stránky mají
+    // flex-basis, na širokém displeji sedí vedle sebe (spread), na
+    // úzkém se samy zalomí pod sebe, žádná JS detekce šířky netřeba.
+    // Skin-ready stejně jako předtím — budoucí ilustrovaný podklad
+    // jde vyměnit jen za background na .chron-page, textová vrstva
+    // (fmtEntry) se nemění.
     // ─────────────────────────────────────────────────────────────
     _chronicleSpread: 0,
     _chronicleEntriesPerPage: 6,
@@ -3009,7 +3016,7 @@ const UI = {
         UI._chronicleReaderBookId = book.id;
         const overlay = document.createElement('div');
         overlay.id = 'chronicle-reader-overlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
         overlay.innerHTML = UI._renderChronicleSpreadHTML(book);
         document.body.appendChild(overlay);
     },
@@ -3071,37 +3078,30 @@ const UI = {
         const prevLabel = lang === 'en' ? '‹ Previous' : '‹ Zpět';
         const nextLabel = lang === 'en' ? 'Next ›' : 'Dál ›';
 
+        const pageStyle = 'flex:1 1 300px;min-width:240px;max-width:420px;box-sizing:border-box;' +
+            'background:linear-gradient(180deg,#fbf7ee,#f3ecd9);border-radius:6px;' +
+            'border:1px solid rgba(197,160,89,0.4);padding:16px 18px;position:relative;' +
+            'max-height:52vh;overflow-y:auto;font-family:\'Cinzel\',serif,Georgia;color:#2c3e50;';
+
         return `
         <div style="position:relative;max-width:900px;width:100%;">
-            <button onclick="UI._closeChronicleReader()" style="position:absolute;top:-42px;right:0;background:var(--accent-wax);color:#fff;border:none;padding:6px 14px;cursor:pointer;border-radius:4px;">✕ ${closeLabel}</button>
-            <svg viewBox="0 0 900 560" style="width:100%;height:auto;display:block;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.5));">
-                <defs>
-                    <linearGradient id="chronBg" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#fbf7ee"/>
-                        <stop offset="100%" stop-color="#f3ecd9"/>
-                    </linearGradient>
-                </defs>
-                <rect x="0" y="0" width="900" height="560" fill="#2c1810" rx="10"/>
-                <rect x="20" y="20" width="420" height="520" fill="url(#chronBg)" rx="4"/>
-                <rect x="460" y="20" width="420" height="520" fill="url(#chronBg)" rx="4"/>
-                <rect x="440" y="10" width="20" height="540" fill="#1a0f08"/>
-                <path d="M30,30 Q40,20 55,30" stroke="#c5a059" stroke-width="1.5" fill="none"/>
-                <path d="M870,30 Q860,20 845,30" stroke="#c5a059" stroke-width="1.5" fill="none"/>
-                <path d="M30,530 Q40,540 55,530" stroke="#c5a059" stroke-width="1.5" fill="none"/>
-                <path d="M870,530 Q860,540 845,530" stroke="#c5a059" stroke-width="1.5" fill="none"/>
-            </svg>
-            <div style="position:absolute;top:50px;left:50px;width:360px;height:460px;overflow-y:auto;font-family:'Cinzel',serif,Georgia;color:#2c3e50;">
-                ${leftPageIdx === 0 ? `<div style="text-align:center;font-weight:bold;margin-bottom:14px;color:#8b4513;">${title}</div>` : ''}
-                ${leftEntries.length ? leftEntries.map(fmtEntry).join('') : (leftPageIdx === 0 ? '' : emptyState)}
-                ${custos ? `<div style="position:absolute;bottom:6px;right:6px;font-size:0.68rem;opacity:0.4;font-style:italic;">${custos}</div>` : ''}
-            </div>
-            <div style="position:absolute;top:50px;right:50px;width:360px;height:460px;overflow-y:auto;font-family:'Cinzel',serif,Georgia;color:#2c3e50;">
-                ${rightEntries.length ? rightEntries.map(fmtEntry).join('') : emptyState}
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
-                <button onclick="UI._chronicleSpread=Math.max(0,(UI._chronicleSpread||0)-1);UI._refreshChronicleReader();" style="background:linear-gradient(180deg,#8b4513,#5a2a0a);color:#fff;border:1px solid #d4af37;padding:8px 18px;border-radius:4px;cursor:pointer;">${prevLabel}</button>
-                <span style="color:#c5a059;font-size:0.8rem;">${spread + 1} / ${totalSpreads}</span>
-                <button onclick="UI._chronicleSpread=Math.min(${totalSpreads - 1},(UI._chronicleSpread||0)+1);UI._refreshChronicleReader();" style="background:linear-gradient(180deg,#8b4513,#5a2a0a);color:#fff;border:1px solid #d4af37;padding:8px 18px;border-radius:4px;cursor:pointer;">${nextLabel}</button>
+            <button onclick="UI._closeChronicleReader()" style="position:sticky;top:0;float:right;margin-bottom:8px;background:var(--accent-wax);color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;z-index:1;">✕ ${closeLabel}</button>
+            <div style="background:#2c1810;border-radius:10px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,0.5);clear:both;">
+                <div style="display:flex;flex-wrap:wrap;gap:12px;">
+                    <div style="${pageStyle}">
+                        ${leftPageIdx === 0 ? `<div style="text-align:center;font-weight:bold;margin-bottom:14px;color:#8b4513;">${title}</div>` : ''}
+                        ${leftEntries.length ? leftEntries.map(fmtEntry).join('') : (leftPageIdx === 0 ? '' : emptyState)}
+                        ${custos ? `<div style="text-align:right;margin-top:10px;font-size:0.68rem;opacity:0.4;font-style:italic;">${custos}</div>` : ''}
+                    </div>
+                    <div style="${pageStyle}">
+                        ${rightEntries.length ? rightEntries.map(fmtEntry).join('') : emptyState}
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
+                    <button onclick="UI._chronicleSpread=Math.max(0,(UI._chronicleSpread||0)-1);UI._refreshChronicleReader();" style="background:linear-gradient(180deg,#8b4513,#5a2a0a);color:#fff;border:1px solid #d4af37;padding:8px 18px;border-radius:4px;cursor:pointer;">${prevLabel}</button>
+                    <span style="color:#c5a059;font-size:0.8rem;">${spread + 1} / ${totalSpreads}</span>
+                    <button onclick="UI._chronicleSpread=Math.min(${totalSpreads - 1},(UI._chronicleSpread||0)+1);UI._refreshChronicleReader();" style="background:linear-gradient(180deg,#8b4513,#5a2a0a);color:#fff;border:1px solid #d4af37;padding:8px 18px;border-radius:4px;cursor:pointer;">${nextLabel}</button>
+                </div>
             </div>
         </div>`;
     },
