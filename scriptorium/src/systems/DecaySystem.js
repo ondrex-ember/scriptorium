@@ -107,13 +107,15 @@ const DecaySystem = {
         mouse: { rate: 0.18, flies: true },
         caught_small_game: { rate: 0.18, flies: true },
         cervec: { rate: 0.18, flies: true },
-        quill_premium: { rate: 0.18, flies: true },
         rennet: { rate: 0.18, flies: true },
         scraps: { rate: 0.18, flies: true },
-        // fresh_fish_small (0.15)
-        fry: { rate: 0.15, flies: true },
-        carp_young: { rate: 0.15, flies: true },
-        worms: { rate: 0.15, flies: true },
+        // fresh_fish_small (0.15) — fry/carp_young jsou ŽIVÉ ryby v rybníce
+        // (viz items.js "Vyrůstá v rybníce"/"z výtažníku, potřebuje čas"),
+        // worms jsou krmná zásoba žížal — flies odstraněno (decay-mice-
+        // flies-audit, 29.8.2026), base rate zůstává.
+        fry: { rate: 0.15 },
+        carp_young: { rate: 0.15 },
+        worms: { rate: 0.15 },
         // fresh_produce (0.13)
         herb_red: { rate: 0.13 },
         herb_yellow: { rate: 0.13 },
@@ -278,16 +280,20 @@ const DecaySystem = {
         pstruh: { rate: 0.2, flies: true },
         uhor: { rate: 0.2, flies: true },
         vyza_maso: { rate: 0.2, flies: true },
-        kapr_sadky_fresh: { rate: 0.2, flies: true },
-        stika_sadky_fresh: { rate: 0.2, flies: true },
-        vyza_sadky_fresh: { rate: 0.2, flies: true },
+        // decay-mice-flies-audit (29.8.2026): sádky/rybník drží RYBY ŽIVÉ
+        // (viz items.js popis "drží se živá v sádce"/"vyrůstá v rybníce") —
+        // mouchy nekazí živou rybu ve vodě. flies odstraněno, base rate
+        // zůstává (přirozená ztráta/péče, ne mouchový mechanismus).
+        kapr_sadky_fresh: { rate: 0.2 },
+        stika_sadky_fresh: { rate: 0.2 },
+        vyza_sadky_fresh: { rate: 0.2 },
         stika: { rate: 0.2, flies: true },
         morel: { rate: 0.2, flies: true },
         porcini: { rate: 0.2, flies: true },
         saffron_milk_cap: { rate: 0.2, flies: true },
         quince: { rate: 0.2, flies: true },
-        kapr_sadky_purified: { rate: 0.2, flies: true },
-        stika_sadky_purified: { rate: 0.2, flies: true },
+        kapr_sadky_purified: { rate: 0.2 },
+        stika_sadky_purified: { rate: 0.2 },
         // cooked_dish (0.15)
         braised_beef: { rate: 0.15, flies: true },
         cooked_beef: { rate: 0.15, flies: true },
@@ -517,6 +523,10 @@ const DecaySystem = {
         playing_cards: { rate: 0.0005 },
         primero_deck: { rate: 0.0005 },
         quill: { rate: 0.0005 },
+        // decay-mice-flies-audit (29.8.2026): quill_premium byl omylem v
+        // DECAY_RATES "fresh_animal" (flies:true, 0.18/den) — je to hotovej
+        // psací brk, ne syrová surovina. Mirror quill/goose_quill.
+        quill_premium: { rate: 0.0005 },
         rithmomachia_board: { rate: 0.0005 },
         sack: { rate: 0.0005 },
         senet_board: { rate: 0.0005 },

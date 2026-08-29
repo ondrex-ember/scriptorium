@@ -1108,17 +1108,24 @@ const LibraryHelpers = {
             UI.notify(t('library_lore.npc_scribe.err_paper'), true);
             return;
         }
-        
-        // Remove items
-        Game.removeItem('paper', cost);
-        
-        // Unlock random book
+
+        // Unlock random book — kontrola dostupnosti PŘED odebráním papíru
+        // (bug fix 29.8.2026: dřív se papír odečetl vždy, i když už žádná
+        // kniha nezbývala, a hráč nedostal nic zpátky).
         const locked = LibraryDB.books.filter(b => 
             !GameState.library.unlockedBooks.includes(b.id) &&
             b.unlockDay > 0 // Not special books
         );
+
+        if (locked.length === 0) {
+            UI.notify(t('library_lore.npc_scribe.notify_empty'));
+            return;
+        }
+
+        // Remove items
+        Game.removeItem('paper', cost);
         
-        if (locked.length > 0) {
+        {
             const randomBook = locked[Math.floor(Math.random() * locked.length)];
             GameState.library.unlockedBooks.push(randomBook.id);
             if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
@@ -1162,9 +1169,7 @@ const LibraryHelpers = {
                     effect: _loyaltyReady ? function() { LibraryHelpers._showBartolomejLoyalty(); } : function() {}
                 }]
             });
-        } else {
-            UI.notify(t('library_lore.npc_scribe.notify_empty'));
-        }
+        } // end randomBook block
         
         Game.save();
         if (typeof UI.renderLibrary === 'function') {
