@@ -3052,10 +3052,14 @@ const UI = {
         const leftEntries = getPageEntries(leftPageIdx);
         const rightEntries = getPageEntries(rightPageIdx);
 
+        // _toGameDate — rok natvrdo 1465, měsíc/den z reálného timestampu.
+        // Mirror vzoru z core/ui.js:2515, PetitionManager.js a 5 dalších
+        // souborů (přehlédnuto při prvním psaní readeru, 29.8.2026 fix —
+        // hlásil Bouvard, kronika ukazovala reálný rok 2026 místo 1465).
+        const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
         const fmtEntry = (e) => {
-            const d = new Date(e.ts);
+            const dateStr = _toGameDate(e.ts).toLocaleDateString(lang === 'en' ? 'en-GB' : 'cs-CZ');
             const txt = (lang === 'en' ? (e.en || e.cs) : e.cs) || '';
-            const dateStr = d.toLocaleDateString(lang === 'en' ? 'en-GB' : 'cs-CZ');
             return '<div style="margin-bottom:10px;font-size:0.82rem;line-height:1.4;">' +
                 '<span style="opacity:0.5;font-size:0.7rem;">' + dateStr + '</span><br>' + txt +
                 '</div>';
