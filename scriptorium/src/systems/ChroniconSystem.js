@@ -1095,15 +1095,23 @@ const ChroniconSystem = {
             const rel = Math.min(100, (GameState.contactRelation || {})[contactId] || 0);
 
             let days = p.durationDays || 7;
-            if (days > 7 && rel < 70) days = 7; // pojistka — nižší vztah si delší půjčku nevyžádá
+            const isAbbot = contactId === 'klaster';
+            if (!isAbbot && days > 7 && rel < 70) days = 7; // pojistka — nižší vztah si delší půjčku nevyžádá (Opat má 14 dní vždy, viz engine.js)
 
             const tier = (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getScribePrice) ? LibraryHelpers.getScribePrice() : 10;
             const higher = choiceId === 'accept_higher';
-            const deposit = Math.round(tier * 1.3 * (higher ? 1.2 : 1));
+            const deposit = isAbbot ? 0 : Math.round(tier * 1.3 * (higher ? 1.2 : 1));
             let lossChance = Math.max(0, Math.min(30, (100 - rel) * 0.3));
             if (higher) lossChance *= 0.7;
+            if (isAbbot) lossChance = 0; // vlastní klášter, kniha se neztratí
 
-            if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+            // vypujcky-gradient-mrd (29.8.2026) — Opat neplatí zástavu sám
+            // sobě, místo toho drobný abbotFavor bonus za důvěru, se kterou
+            // mu klášter knihu svěřuje na cesty.
+            if (isAbbot) {
+                if (!GameState.secrets) GameState.secrets = {};
+                GameState.secrets.abbotFavor = (GameState.secrets.abbotFavor || 0) + 2;
+            } else if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
                 CellariumSystem.addGrose(deposit, { title: lang === 'en' ? 'Loan pledge' : 'Zástava za výpůjčku', source: borrowerName, source_en: borrowerName });
             }
             if (!GameState.library.loanedBooks) GameState.library.loanedBooks = {};
@@ -1112,15 +1120,26 @@ const ChroniconSystem = {
                 dueAt: Date.now() + days * 24 * 60 * 60 * 1000, lossChance: lossChance, deposit: deposit,
             };
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
-                Game.addKronikaEntry('minor',
-                    `📤 "${bookTitle}" zapůjčena ${borrowerName} na ${days} dní.`,
-                    `📤 "${bookTitle}" lent to ${borrowerName} for ${days} days.`,
-                    `📤 Liber commodatus est.`);
+                if (isAbbot) {
+                    Game.addKronikaEntry('minor',
+                        `📤 Opat si vzal "${bookTitle}" s sebou na cestu, na ${days} dní.`,
+                        `📤 The Abbot took "${bookTitle}" with him on his journey, for ${days} days.`,
+                        `📤 Abbas librum secum tulit.`);
+                } else {
+                    Game.addKronikaEntry('minor',
+                        `📤 "${bookTitle}" zapůjčena ${borrowerName} na ${days} dní.`,
+                        `📤 "${bookTitle}" lent to ${borrowerName} for ${days} days.`,
+                        `📤 Liber commodatus est.`);
+                }
             }
             Game.save();
-            return lang === 'en'
-                ? `"${bookTitle}" is lent for ${days} days. Pledge received: ${deposit} g.`
-                : `"${bookTitle}" je zapůjčena na ${days} dní. Zástava přijata: ${deposit} g.`;
+            return isAbbot
+                ? (lang === 'en'
+                    ? `"${bookTitle}" travels with the Abbot for ${days} days.`
+                    : `"${bookTitle}" cestuje s Opatem na ${days} dní.`)
+                : (lang === 'en'
+                    ? `"${bookTitle}" is lent for ${days} days. Pledge received: ${deposit} g.`
+                    : `"${bookTitle}" je zapůjčena na ${days} dní. Zástava přijata: ${deposit} g.`);
         }
         // Sepultura accept/decline zde odstraněno (krok 3c, 27.7.2026) —
         // od kroku 3b (ZAKAZKY_KINDS filtr) sem `kind==='sepultura'` už
