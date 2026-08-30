@@ -60,4 +60,17 @@ const LandParcelsDB = {
         desc: 'Klidný dvorek při zadní zdi, dost daleko od skriptoria, aby kouř z pece nevadil opisovačům, a dost blízko kuchyně, aby se mouka nemusela nosit přes půl kláštera.',
         desc_en: "A quiet yard by the back wall, far enough from the scriptorium that oven smoke won't trouble the copyists, close enough to the kitchen that flour needn't be carried across half the monastery.",
     },
+    // kovarna-dilna-mrd.md v0.5 (30.8.2026) — druhá dílna, mirror
+    // dvur_pekarsky, ale 2 sloty. Sousedí popisem s Pekařským dvorem
+    // (kouř a rány kladiva stejně daleko od skriptoria), 2. slot je
+    // rezerva na budoucí dílnu, žádná mechanická vazba na Furnus.
+    u_hradby: {
+        name: 'Dvůr u hradební zdi', name_en: 'The Wall-side Yard',
+        tags: [],
+        slotsCapacity: 2,
+        price: 225,
+        phase: 4,
+        desc: 'Dvorek při hradební zdi, kousek od pekařského dvora — kouř a rány kladiva sem nedolehnou k opisovačům, a dvě dílny blízko sebe šetří cestu s materiálem.',
+        desc_en: "A yard by the outer wall, close to the bakers' yard — smoke and hammer-blows stay far from the copyists, and two workshops side by side save a trip with materials.",
+    },
 };

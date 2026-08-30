@@ -415,6 +415,18 @@ const TechTree = [
   },
 
   {
+    // kovarna-dilna-mrd.md v0.5 (30.8.2026) — druhá dílna, mirror
+    // tech_furnus přesně. NENÍ totéž co tech_kovarina (ta odemyká
+    // samotný kovářský řemeslo/recepty, dávno existuje) — tenhle tech
+    // odemyká jen petici o STAVBU Kovárny jako budovy.
+    id: "tech_kovarna", name: "Kovárna — Řemeslo Podkováře", name_en: "The Smithy — The Farrier's Craft",
+    cost: 30,
+    desc: "Okovat koně nestačí kladivem od ohniště — pořádná kovárna s pevnou kovadlinou a stálým žárem umožní i opravu opotřebených podkov, ne jen jejich nákup. S tímto věděním lze požádat opata o stavbu Kovárny. Odemkne: možnost žádat opata o stavbu Kovárny.",
+    desc_en: "Shoeing a horse takes more than a hammer by the hearth — a proper smithy with a firm anvil and steady heat allows worn horseshoes to be repaired, not merely bought anew. With this knowledge the monastery may petition the Abbot to build a Kovárna (smithy). Unlocks: the ability to petition the Abbot for the Kovárna.",
+    unlocks: ["kovarna"], requires: ["tech_kovarina"]
+  },
+
+  {
     id: "tech_malleatura", name: "Malleatura — Hamernické Řemeslo", name_en: "Malleatura — The Hammer Craft",
     cost: 45,
     desc: "Vodní hamr buší na žhavou lupu tak dlouho, dokud struska nevyteče a nevznikne pevný ingot vyšší čistoty. Tento upgrade Fornaxu výrazně zvýší výtěžnost tavení. Odemkne: upgrade Malleatura (vyšší výtěžnost ingotů).",
