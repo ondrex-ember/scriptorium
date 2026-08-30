@@ -424,16 +424,21 @@ const FarmyardSystem = {
     },
 
     // ── Okování koní (Kovář-reference MRD, 2.8.2026) ────────────────────
-    shoeHorse: function (idx) {
+    // kovarna-dilna-mrd.md v0.6 (30.8.2026) — setType volitelnej param,
+    // 'sada_podkov' (default) nebo 'sada_podkov_premium'. Zpětně kompatibilní,
+    // stará volání bez druhýho argumentu se chovaj přesně jako dřív.
+    shoeHorse: function (idx, setType) {
         this._ensureAnimals();
         const st = GameState.stable;
         if (!st || !st.animals || !st.animals[idx]) return;
-        if ((GameState.inventory['sada_podkov'] || 0) < 1) {
+        const type = setType || 'sada_podkov';
+        if ((GameState.inventory[type] || 0) < 1) {
             if (typeof UI !== 'undefined' && UI.notify) UI.notify(t('farmyard.needShoes'), true);
             return;
         }
-        GameState.inventory['sada_podkov'] -= 1;
+        GameState.inventory[type] -= 1;
         st.animals[idx].shoeDurability = 100;
+        st.animals[idx].shoePremium = (type === 'sada_podkov_premium');
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('🧲 ' + t('farmyard.shoeHorseDone'));
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         this.renderFarmyard();
@@ -1524,9 +1529,22 @@ const FarmyardSystem = {
                 var mi = _selfAct.MOOD_ICON(stableMood);
                 var sx = a.sex === 'm' ? (lang === 'en' ? '♂ Stallion' : '♂ Hřebec') : (lang === 'en' ? '♀ Mare' : '♀ Klisna');
                 var shod = a.shoeDurability > 0;
-                var shoeLabel = shod ? ('🧲 ' + a.shoeDurability + '/100') : ('🧲 ' + t('farmyard.unshod'));
-                var canShoe = (GameState.inventory['sada_podkov'] || 0) > 0;
-                h += '<div style="padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><span style="font-size:1.3rem;">🐎</span><div style="flex:1;"><strong>' + (a.name || sx) + '</strong> <span style="opacity:0.6;">' + mi + ' ' + stableMood + '/100</span> <span style="opacity:0.6;">' + shoeLabel + '</span></div><button class="craft-btn" style="font-size:0.72rem;padding:4px 8px;" onclick="FarmyardSystem.shoeHorse(' + idx + ')" ' + (canShoe ? '' : 'disabled') + '>' + t('farmyard.shoeHorse') + '</button></div>';
+                var shoeLabel = shod ? ('🧲' + (a.shoePremium ? '✨' : '') + ' ' + a.shoeDurability + '/100') : ('🧲 ' + t('farmyard.unshod'));
+                // kovarna-dilna-mrd.md v0.6 (30.8.2026) — když má hráč obě
+                // sady (obyčejnou i prémiovou), nabídnout výběr dvěma
+                // tlačítky místo jednoho. Jinak jedno tlačítko na to, co má.
+                var hasStd = (GameState.inventory['sada_podkov'] || 0) > 0;
+                var hasPrem = (GameState.inventory['sada_podkov_premium'] || 0) > 0;
+                var shoeBtns;
+                if (hasStd && hasPrem) {
+                    shoeBtns = '<button class="craft-btn" style="font-size:0.66rem;padding:4px 6px;" onclick="FarmyardSystem.shoeHorse(' + idx + ',\'sada_podkov\')" title="' + t('farmyard.shoeHorse') + '">🧲</button>'
+                        + '<button class="craft-btn" style="font-size:0.66rem;padding:4px 6px;" onclick="FarmyardSystem.shoeHorse(' + idx + ',\'sada_podkov_premium\')" title="' + t('farmyard.shoeHorse') + ' (premium)">🧲✨</button>';
+                } else {
+                    var onlyType = hasPrem ? 'sada_podkov_premium' : 'sada_podkov';
+                    var canShoe = hasStd || hasPrem;
+                    shoeBtns = '<button class="craft-btn" style="font-size:0.72rem;padding:4px 8px;" onclick="FarmyardSystem.shoeHorse(' + idx + ',\'' + onlyType + '\')" ' + (canShoe ? '' : 'disabled') + '>' + (hasPrem ? '🧲✨ ' : '') + t('farmyard.shoeHorse') + '</button>';
+                }
+                h += '<div style="padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:0.8rem;"><span style="font-size:1.3rem;">🐎</span><div style="flex:1;"><strong>' + (a.name || sx) + '</strong> <span style="opacity:0.6;">' + mi + ' ' + stableMood + '/100</span> <span style="opacity:0.6;">' + shoeLabel + '</span></div>' + shoeBtns + '</div>';
             });
             h += '</div>';
             var hasMale = st.animals.some(function (a) { return a.sex === 'm'; });
