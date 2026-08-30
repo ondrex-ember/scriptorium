@@ -71,6 +71,28 @@ const TemplumManager = {
     // ── TEMPLUM Probošt: životní události farních rodin (endgame-branches-reference.md sekce 4.3) ──
     PARISH_SURNAMES: ['Novák', 'Dvořák', 'Král', 'Procházka', 'Sedlák', 'Novotný', 'Malý', 'Kovář', 'Krejčí'],
 
+    // ── NEKROLOGIUM (Ars Moriendi): rodová příjmení v mužském/ženském tvaru a
+    // křestní jména pro generátor detailu farního hrobu (_farniDetailFor).
+    // Samostatné od PARISH_SURNAMES výše — to zůstává beze změny (Chronicon +
+    // seed ho čtou přímo). Zadáno 30.8.2026, sedí i s existujícím Procházka.
+    FARNI_SURNAMES: [
+        ['Novák', 'Nováková'], ['Dvořák', 'Dvořáková'], ['Král', 'Králová'],
+        ['Procházka', 'Procházková'], ['Sedlák', 'Sedláková'], ['Novotný', 'Novotná'],
+        ['Malý', 'Malá'], ['Kovář', 'Kovářová'], ['Krejčí', 'Krejčí'],
+        ['Hašek', 'Hašková'], ['Panuška', 'Panušková'], ['Slavětínský', 'Slavětínská'],
+        ['Kunc', 'Kuncová'], ['Švehla', 'Švehlová'], ['Brzoň', 'Brzoňová'],
+        ['Majer', 'Majerová'], ['Honzátko', 'Honzátková'], ['Růžička', 'Růžičková'],
+        ['Černý', 'Černá'], ['Karel', 'Karlová'], ['Melichar', 'Melicharová'],
+        ['Jeřábek', 'Jeřábková'], ['Klíma', 'Klímová'], ['Landa', 'Landová'],
+        ['Harmat', 'Harmatová'], ['Janovský', 'Janovská'], ['Špaček', 'Špačková'],
+        ['Singer', 'Singerová']
+    ],
+    FARNI_FIRST_NAMES_M: ['Jan', 'Václav', 'Petr', 'Jakub', 'Ondřej', 'Matěj', 'Mikuláš', 'Bartoloměj', 'Vít',
+        'David', 'Jaromír', 'Radovan', 'Martin', 'Tomáš', 'Ivo', 'Štěpán', 'Jiří', 'Jaroslav',
+        'Josef', 'Rudolf', 'Oldřich', 'Aleš', 'Filip', 'Robert'],
+    FARNI_FIRST_NAMES_F: ['Anna', 'Kateřina', 'Dorota', 'Markéta', 'Barbora', 'Alžběta', 'Zuzana', 'Kunhuta',
+        'Dagmar', 'Drahuše', 'Martina', 'Karolína', 'Inna'],
+
     parishEventTick: function () {
         if (!(GameState.rank && GameState.rank.probost)) return;
         if (!GameState.templum) GameState.templum = {};
