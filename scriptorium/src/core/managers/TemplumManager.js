@@ -1237,10 +1237,13 @@ const TemplumManager = {
         const isGraveNeglected = overallNeglected || (index % 3 === 1) || (cond < 75 && index % 2 === 0);
         const tiltAngle = slotTilt != null ? slotTilt : (((timestamp + index) % 17) - 8);
 
-        // Ground base variation (6 distinct medieval styles)
-        const groundStyle = (index + Math.abs(timestamp % 7)) % 6;
-        // Marker variation (6 distinct cross/headstone styles)
-        const markerStyle = (index * 2 + Math.abs(timestamp % 5)) % 6;
+        // Ground base variation (6 distinct medieval styles) — derived from the grave's own
+        // timestamp only (NOT array index), so the style stays stable as new graves are added
+        // and older graves shift position in the displayed list (bugfix 30.8.2026).
+        const groundStyle = Math.abs(timestamp) % 6;
+        // Marker variation (6 distinct cross/headstone styles) — same stability fix, different
+        // divisor to decorrelate from groundStyle.
+        const markerStyle = Math.abs(Math.floor(timestamp / 7)) % 6;
 
         // Base ground shadow (soft ellipse on grass)
         h += `<ellipse cx="${cx + 1}" cy="${cy + 7}" rx="18" ry="6" fill="${isNight ? '#050a06' : '#121a0d'}" opacity="0.45"/>`;
@@ -1326,7 +1329,7 @@ const TemplumManager = {
             const stoneFill = isGraveNeglected ? '#464038' : 'url(#cemStoneGrad)';
             const stoneStroke = isGraveNeglected ? '#2b2620' : '#453d34';
             
-            if (markerStyle % 3 === 0) {
+            if (markerStyle === 0 || markerStyle === 1) {
                 // Style A: Classic Gothic Arched Stone Slab
                 h += `<path d="M ${cx - 8} ${cy + 5} L ${cx - 8} ${cy - 11} A 8 8 0 0 1 ${cx + 8} ${cy - 11} L ${cx + 8} ${cy + 5} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
                 if (!isGraveNeglected) {
@@ -1334,7 +1337,7 @@ const TemplumManager = {
                 }
                 // Engraved Cross Relief
                 h += `<path d="M ${cx} ${cy - 13} L ${cx} ${cy} M ${cx - 4.5} ${cy - 8.5} L ${cx + 4.5} ${cy - 8.5}" stroke="#29241f" stroke-width="1.4" stroke-linecap="round"/>`;
-            } else if (markerStyle === 3) {
+            } else if (markerStyle === 2 || markerStyle === 3) {
                 // Style B: Peaked / Gabled Stele Stone
                 h += `<path d="M ${cx - 8} ${cy + 5} L ${cx - 8} ${cy - 8} L ${cx} ${cy - 16} L ${cx + 8} ${cy - 8} L ${cx + 8} ${cy + 5} Z" fill="${stoneFill}" stroke="${stoneStroke}" stroke-width="1"/>`;
                 h += `<path d="M ${cx - 7} ${cy - 7.5} L ${cx} ${cy - 14.5} L ${cx + 7} ${cy - 7.5}" stroke="#363028" stroke-width="0.8" fill="none"/>`;
