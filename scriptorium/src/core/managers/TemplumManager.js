@@ -1086,6 +1086,61 @@ const TemplumManager = {
         if (el && typeof TemplumSystem !== 'undefined') el.innerHTML = TemplumSystem.renderTemplumTab();
     },
 
+    // Nekrologium (tech_ars_moriendi) — detail hrobu na klik, farni hrbitov
+    // (source='cemetery', data generovana _farniDetailFor) i Rajsky dvur
+    // (source='cloister', skutecna data z grave.name/cause). Zadano 30.8.2026.
+    showGraveDetail: function (ts, source) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_ars_moriendi'))) {
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.toast) {
+                NotificationSystem.toast(lang === 'en' ? 'Requires: Ars Moriendi' : 'Vyžaduje: Ars Moriendi', 'warn');
+            }
+            return;
+        }
+        if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
+
+        const isCloister = source === 'cloister';
+        const grave = isCloister
+            ? ((GameState.rajskyDvur && GameState.rajskyDvur.graves) || []).find(g => g.ts === ts)
+            : ((GameState.cemetery && GameState.cemetery.graves) || []).find(g => g.ts === ts);
+        if (!grave) return;
+
+        let icon, title, bodyHtml;
+        const restLabel = (typeof TemplumSystem !== 'undefined') ? TemplumSystem._timeAgo(grave.ts, lang) : '';
+
+        if (isCloister) {
+            const causeDef = (typeof HealthConditionsDB !== 'undefined') ? HealthConditionsDB[grave.cause] : null;
+            const causeName = causeDef ? (lang === 'en' ? causeDef.name_en : causeDef.name) : grave.cause;
+            const roleLabel = grave.wasBrother ? (lang === 'en' ? 'Brother' : 'Bratr') : (lang === 'en' ? 'Lay brother' : 'Konvrš');
+            icon = grave.wasBrother ? '📿' : '✝️';
+            title = grave.name || '';
+            bodyHtml = `<div style="font-size:0.85rem; line-height:1.8;">
+                    <div><strong>${lang === 'en' ? 'Standing' : 'Postavení'}:</strong> ${roleLabel}</div>
+                    <div><strong>${lang === 'en' ? 'Cause' : 'Příčina'}:</strong> ${causeName}</div>
+                    <div><strong>${lang === 'en' ? 'At rest' : 'Odpočívá'}:</strong> ${restLabel}</div>
+                    <div style="margin-top:10px; font-style:italic; opacity:0.7; font-size:0.78rem;">Requiescat in pace.</div>
+                </div>`;
+        } else {
+            const d = this._farniDetailFor(grave);
+            icon = d.ageIcon;
+            title = d.fullName;
+            bodyHtml = `<div style="font-size:0.85rem; line-height:1.8;">
+                    <div><strong>${lang === 'en' ? 'Age' : 'Věk'}:</strong> ${d.ageLabel}</div>
+                    <div><strong>${lang === 'en' ? 'Cause' : 'Příčina'}:</strong> ${d.causeLabel}</div>
+                    ${d.familyValue ? `<div><strong>${d.familyLabel}:</strong> ${d.familyValue}</div>` : ''}
+                    <div><strong>${lang === 'en' ? 'At rest' : 'Odpočívá'}:</strong> ${restLabel}</div>
+                    <div style="margin-top:10px; font-style:italic; opacity:0.7; font-size:0.78rem;">Requiescat in pace.</div>
+                </div>`;
+        }
+
+        NotificationSystem.modal({
+            icon: icon,
+            title: title,
+            text: bodyHtml,
+            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default' }]
+        });
+    },
+
     repairFabrica: function () {
         if (typeof CellariumSystem === 'undefined') return;
         if (!GameState.templum) GameState.templum = {};
@@ -1808,7 +1863,8 @@ const TemplumManager = {
             const c = coords[i];
             if (!c) return;
             const isRecent = (now - g.ts) < recentMs;
-            gravesSvg += this._getCemGraveSvg(c.x, c.y, !!g.nahrobek, isRecent, env.isNight, neglected, cond, g.ts, c.tilt, i);
+            const graveSvg = this._getCemGraveSvg(c.x, c.y, !!g.nahrobek, isRecent, env.isNight, neglected, cond, g.ts, c.tilt, i);
+            gravesSvg += `<g onclick="Game.showGraveDetail(${g.ts}, 'cemetery')" style="cursor:pointer;">${graveSvg}</g>`;
         });
 
         // Path (Tapered Perspective Cobblestone Path)

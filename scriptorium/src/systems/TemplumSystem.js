@@ -217,7 +217,7 @@ const TemplumSystem = {
 
         const gravesCount = (cem.graves || []).length;
 
-        h += `<div onclick="TemplumSystem.toggleCemeteryMap()" style="cursor:pointer; margin-bottom:16px; border:1px solid rgba(197,160,89,0.3); border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.25); box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:all 0.25s ease;">
+        h += `<div style="margin-bottom:16px; border:1px solid rgba(197,160,89,0.3); border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.25); box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:all 0.25s ease;">
                 <div style="position:relative;">
                     ${mapSvg}
                 </div>
@@ -227,7 +227,7 @@ const TemplumSystem = {
                         <span style="opacity:0.4;">|</span>
                         <span style="color:${condColor}; font-weight:bold;">${condLabel} (${Math.round(cond)}%)</span>
                     </div>
-                    <div style="color:var(--accent-gold); font-weight:bold; font-size:0.72rem;">
+                    <div onclick="TemplumSystem.toggleCemeteryMap()" style="cursor:pointer; color:var(--accent-gold); font-weight:bold; font-size:0.72rem;">
                         ${mapExpanded 
                             ? (lang==='en' ? '▲ Collapse map' : '▲ Sbalit hřbitov') 
                             : (lang==='en' ? '▼ Show full map (' + gravesCount + ')' : '▼ Zobrazit celý hřbitov (' + gravesCount + ' hrobů)')}
@@ -244,8 +244,8 @@ const TemplumSystem = {
             const haveStone = (GameState.inventory['nahrobek'] || 0) >= 1;
             h += graves.slice(0, 15).map(g => {
                 const mark = g.nahrobek ? '🪦' : '⬜';
-                const btn = g.nahrobek ? '' : `<button class="craft-btn" style="padding:1px 6px; font-size:0.62rem; margin-left:6px;" ${haveStone ? '' : 'disabled'} onclick="Game.buildNahrobek(${g.ts})">${lang==='en'?'Set gravestone':'Postavit náhrobek'}</button>`;
-                return `<div style="font-size:0.72rem; opacity:0.7; margin-top:3px; display:flex; align-items:center; justify-content:space-between;">
+                const btn = g.nahrobek ? '' : `<button class="craft-btn" style="padding:1px 6px; font-size:0.62rem; margin-left:6px;" ${haveStone ? '' : 'disabled'} onclick="event.stopPropagation(); Game.buildNahrobek(${g.ts})">${lang==='en'?'Set gravestone':'Postavit náhrobek'}</button>`;
+                return `<div onclick="Game.showGraveDetail(${g.ts}, 'cemetery')" style="cursor:pointer; font-size:0.72rem; opacity:0.7; margin-top:3px; display:flex; align-items:center; justify-content:space-between;">
                           <span>${mark} ${g.surname} · ${this._timeAgo(g.ts, lang)}</span>${btn}
                         </div>`;
             }).join('');
@@ -258,13 +258,13 @@ const TemplumSystem = {
         const cloisterExpanded = !!(GameState.ui && GameState.ui.cloisterMapExpanded);
         const cloisterSvg = (typeof TemplumManager !== 'undefined') ? TemplumManager.renderCloisterScene(GameState.rajskyDvur, lang, cloisterExpanded) : '';
         const cloisterSlots = (typeof TemplumManager !== 'undefined') ? TemplumManager.CLOISTER_MAP_SLOTS : 10;
-        h += `<div onclick="TemplumSystem.toggleCloisterMap()" style="cursor:pointer; margin-top:16px; border:1px solid rgba(122,150,122,0.35); border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.2); box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:all 0.25s ease;">
+        h += `<div style="margin-top:16px; border:1px solid rgba(122,150,122,0.35); border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.2); box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:all 0.25s ease;">
                 <div style="position:relative;">
                     ${cloisterSvg}
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(18,24,18,0.9); border-top:1px solid rgba(122,150,122,0.25); font-size:0.72rem; color:#dce8dc;">
                     <span>🕊️ ${lang==='en'?'Cloister Garth':'Rajský dvůr'}</span>
-                    <span style="color:#8bb98b; font-weight:bold; font-size:0.7rem;">
+                    <span onclick="TemplumSystem.toggleCloisterMap()" style="cursor:pointer; color:#8bb98b; font-weight:bold; font-size:0.7rem;">
                         ${cloisterExpanded
                             ? (lang==='en' ? '▲ Collapse' : '▲ Sbalit dvůr')
                             : (lang==='en' ? '▼ Show full garth (' + cloisterSlots + ')' : '▼ Zobrazit celý dvůr (' + cloisterSlots + ')')}
@@ -281,7 +281,7 @@ const TemplumSystem = {
                 const icon = g.wasBrother ? '📿' : '✝️';
                 const causeDef = (typeof HealthConditionsDB !== 'undefined') ? HealthConditionsDB[g.cause] : null;
                 const causeName = causeDef ? (lang==='en' ? causeDef.name_en : causeDef.name) : g.cause;
-                return `<div style="font-size:0.72rem; opacity:0.8; margin-top:6px;">
+                return `<div onclick="Game.showGraveDetail(${g.ts}, 'cloister')" style="cursor:pointer; font-size:0.72rem; opacity:0.8; margin-top:6px;">
                           ${icon} <strong>${g.name}</strong> <span style="opacity:0.65;">— ${causeName} · ${this._timeAgo(g.ts, lang)}</span>
                           <div style="font-size:0.62rem; opacity:0.5; font-style:italic;">Requiescat in pace.</div>
                         </div>`;

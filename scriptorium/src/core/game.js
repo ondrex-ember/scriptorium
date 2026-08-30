@@ -1195,6 +1195,7 @@ const Game = {
 
     // ═══ D11 (3/3) ═══
     buildNahrobek: function (ts) { return TemplumManager.buildNahrobek(ts); },
+    showGraveDetail: function (ts, source) { return TemplumManager.showGraveDetail(ts, source); },
     repairFabrica: function () { return TemplumManager.repairFabrica(); },
     templumDailyTick: function () { return TemplumManager.templumDailyTick(); },
 
