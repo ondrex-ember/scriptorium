@@ -1822,6 +1822,84 @@ const CellariumSystem = {
   // Mirror LimeSystem.render() stylově, ale jednodušší — jeden recept
   // (bread_fine), žádné vícefázové zrání. §8 MRD — trvalá cechovní
   // připomínka musí být VIDĚT tady, ne schovaná jinde.
+  //
+  // Vlastní pec (pekarna-audit v2, 30.8.2026) — mirror Kovárna furnace
+  // principu 1:1, jen jiná ilustrace (kulatá klenutá pec, ne kovářská
+  // výheň) a standardní palivový hodnoty (žádná "delší hoření" výjimka —
+  // ta byla specifická pro kovářskou výheň).
+  FURNUS_FUEL_VALUES: {
+    stick: 1 * 60 * 60 * 1000,
+    wood: 2 * 60 * 60 * 1000,
+    log: 4 * 60 * 60 * 1000,
+    charcoal: 8 * 60 * 60 * 1000,
+  },
+  FURNUS_MAX_FUEL_MS: 24 * 60 * 60 * 1000,
+
+  _ensureFurnusFurnace: function() {
+    if (!GameState.storage) GameState.storage = {};
+    if (!GameState.storage.furnus) GameState.storage.furnus = { built: false };
+    if (!GameState.storage.furnus.furnace) {
+      GameState.storage.furnus.furnace = { fuelMs: 0, lastFuelType: null, lastUpdate: Date.now() };
+    }
+  },
+
+  furnusAddFuel: function(itemId) {
+    this._ensureFurnusFurnace();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (!(GameState.storage.furnus && GameState.storage.furnus.built)) return;
+    const fuelAmount = this.FURNUS_FUEL_VALUES[itemId];
+    if (!fuelAmount) return;
+    if ((GameState.inventory[itemId] || 0) < 1) {
+      const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+      UI.notify((lang === 'en' ? 'Not enough: ' : 'Nedostatek: ') + itemName, true);
+      return;
+    }
+    const f = GameState.storage.furnus.furnace;
+    if (f.fuelMs + fuelAmount > this.FURNUS_MAX_FUEL_MS) {
+      UI.notify(lang === 'en' ? 'The oven is full.' : 'Pec je plná.', true);
+      return;
+    }
+    InventoryManager.removeItem(itemId, 1);
+    f.fuelMs += fuelAmount;
+    f.lastFuelType = itemId;
+    Game.save();
+    const el = document.getElementById('home-furnus-content');
+    if (el) el.innerHTML = this.renderFurnusTab();
+    UI.notify(lang === 'en' ? '🔥 Fuel added.' : '🔥 Palivo přiloženo.');
+  },
+
+  // Volané z hlavního game loopu (core/game.js setInterval), mirror
+  // kovarnaFurnaceTick() přesně.
+  furnusFurnaceTick: function() {
+    if (!(GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built)) return;
+    this._ensureFurnusFurnace();
+    const f = GameState.storage.furnus.furnace;
+    if (f.fuelMs <= 0) return;
+    const now = Date.now();
+    const delta = now - (f.lastUpdate || now);
+    f.lastUpdate = now;
+    f.fuelMs = Math.max(0, f.fuelMs - delta);
+    if (f.fuelMs <= 0) f.lastFuelType = null;
+  },
+
+  _furnusOvenSvg: function(active) {
+    const glow = active ? `
+      <ellipse cx="70" cy="80" rx="18" ry="8" fill="#ff8c3a" opacity="0.6">
+        <animate attributeName="opacity" values="0.45;0.8;0.45" dur="1.8s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="70" cy="78" rx="9" ry="4.5" fill="#ffd27a" opacity="0.75">
+        <animate attributeName="opacity" values="0.55;0.95;0.55" dur="1.2s" repeatCount="indefinite"/>
+      </ellipse>` : '';
+    return `<svg viewBox="0 0 140 130" width="100%" height="120" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+      <ellipse cx="70" cy="122" rx="52" ry="6" fill="rgba(8,6,3,0.4)"/>
+      <path d="M 20 106 Q 20 30 70 25 Q 120 30 120 106 Z" fill="#c9a877" stroke="#7a5c3a" stroke-width="2"/>
+      <path d="M 20 106 Q 20 30 70 25 Q 120 30 120 106 Z" fill="none" stroke="#a8875f" stroke-width="1" opacity="0.45"/>
+      <path d="M 52 106 L 52 80 Q 52 68 70 68 Q 88 68 88 80 L 88 106 Z" fill="#1a1310"/>
+      ${glow}
+      <rect x="15" y="101" width="110" height="10" rx="2" fill="#8a6f4e" stroke="#5c4530" stroke-width="1"/>
+    </svg>`;
+  },
+
   renderFurnusTab: function() {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     let h = `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">
@@ -1830,6 +1908,37 @@ const CellariumSystem = {
         ${lang === 'en'
           ? "The clay vault holds heat evenly through the whole batch — flour and water go in, fine bread comes out."
           : 'Hliněná klenba drží žár rovnoměrně po celou várku — dovnitř jde mouka a voda, ven jde bílý chléb.'}
+      </div>
+    </div>`;
+
+    if (!(GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built)) {
+      h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'Furnus not yet built.' : 'Furnus ještě není postaven.'}</div>`;
+      return h;
+    }
+
+    this._ensureFurnusFurnace();
+    const furnace = GameState.storage.furnus.furnace;
+    const fPct = Math.max(0, Math.min(100, Math.round((furnace.fuelMs / this.FURNUS_MAX_FUEL_MS) * 100)));
+    const fActive = furnace.fuelMs > 0;
+    const fHoursLeft = Math.floor(furnace.fuelMs / 3600000);
+    const fFuelTypeName = furnace.lastFuelType ? ((typeof iName === 'function') ? iName(furnace.lastFuelType) : furnace.lastFuelType) : null;
+
+    h += `<div style="background:rgba(0,0,0,0.03); padding:14px; border-radius:8px; margin-bottom:12px;">
+      <div style="text-align:center; margin-bottom:8px;">${this._furnusOvenSvg(fActive)}</div>
+      <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7; margin-bottom:3px;">
+        <span>${fActive ? (lang === 'en' ? 'Oven hot' : 'Pec vyhřátá') + (fFuelTypeName ? ' (' + fFuelTypeName + ')' : '') : (lang === 'en' ? 'Oven cold — light it before baking' : 'Pec studená — než můžeš péct, musíš zatopit')}</span>
+        <span>${fActive ? fHoursLeft + 'h' : ''}</span>
+      </div>
+      <div style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:10px; border:1px solid rgba(197,160,89,0.3);">
+        <div style="height:100%; width:${fPct}%; background:#ffbd40; transition:width 0.5s;"></div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        ${['stick', 'wood', 'log', 'charcoal'].map(fid => {
+          const have = GameState.inventory[fid] || 0;
+          const fname = (typeof iName === 'function') ? iName(fid) : fid;
+          const hrs = this.FURNUS_FUEL_VALUES[fid] / 3600000;
+          return `<button class="filter-btn" style="flex:1; min-width:80px;" ${have < 1 ? 'disabled' : ''} onclick="CellariumSystem.furnusAddFuel('${fid}')" title="+${hrs}h">+ ${fname} (${have})</button>`;
+        }).join('')}
       </div>
     </div>`;
 
@@ -1853,23 +1962,63 @@ const CellariumSystem = {
       </div>`;
     }
 
-    // Craft panel — bread_fine
-    const r = (typeof RecipesDB !== 'undefined') ? RecipesDB.find(x => x.id === 'bread_fine') : null;
-    h += `<div style="background:rgba(0,0,0,0.03); padding:14px; border-radius:8px;">`;
-    if (!(GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built)) {
-      h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'Furnus not yet built.' : 'Furnus ještě není postaven.'}</div>`;
-    } else if (r) {
-      let can = true; let reqStr = '';
-      Object.entries(r.req).forEach(([id, amt]) => {
-        const has = GameState.inventory[id] || 0;
-        const missing = (amt > 0 && has < amt) || (amt === 0 && !has);
+    // Craft/cook list — pekarna-audit (30.8.2026), mirror Kovárna craft listu.
+    // Moukový recepty (bread_fine/bread_fine_1/berry_pie_fine/berry_pie_fine_1)
+    // jsou COOK_TYPES (přesměrujou na CookingSystem.startCooking, timed
+    // proces s needsBuild:'furnus' gate) — hostia je cat:"craft" (instant
+    // Game.craft). Rozlišeno automaticky podle přítomnosti v COOK_TYPES.
+    const FURNUS_RECIPE_IDS = ['bread', 'bread_fine', 'bread_fine_1', 'berry_pie', 'berry_pie_koreni', 'berry_pie_fine', 'berry_pie_fine_1', 'hostia'];
+    h += `<div style="display:grid; grid-template-columns:1fr; gap:6px;">`;
+    FURNUS_RECIPE_IDS.forEach(id => {
+      const r = (typeof RecipesDB !== 'undefined') ? RecipesDB.find(x => x.id === id) : null;
+      if (!r) return;
+      if (r.locked && !(GameState.unlockedRecipes && GameState.unlockedRecipes.includes(id))) return;
+      const prod = ItemsDB[r.output];
+      if (!prod) return;
+      const isCooked = (typeof CookingSystem !== 'undefined' && CookingSystem.COOK_TYPES && CookingSystem.COOK_TYPES[id]);
+      let can = true;
+      let reqStr = '';
+      if (isCooked) {
+        const def = CookingSystem.COOK_TYPES[id];
+        const has = GameState.inventory[def.input] || 0;
+        const missing = has < def.inputQty;
         if (missing) can = false;
-        const iN = (typeof iName === 'function') ? iName(id) : id;
-        reqStr += `<span style="color:${missing ? '#b05a3c' : 'inherit'};">${iN} ${amt > 0 ? has + '/' + amt : ''}</span> `;
-      });
-      h += `<div style="font-size:0.8rem; margin-bottom:8px;">${reqStr}</div>`;
-      h += `<button onclick="Game.craft('bread_fine')" ${can ? '' : 'disabled'} style="padding:8px 16px; border-radius:6px; cursor:pointer; font-size:0.85rem;">🍞 ${lang === 'en' ? 'Bake bread' : 'Upéct chléb'}</button>`;
-    }
+        const iN = (typeof iName === 'function') ? iName(def.input) : def.input;
+        reqStr += `<span style="${missing ? 'color:#b05a3c;' : ''}">${iN} ${has}/${def.inputQty}</span> `;
+        if (def.extraInputs) {
+          Object.entries(def.extraInputs).forEach(([eid, eqty]) => {
+            const ehas = GameState.inventory[eid] || 0;
+            const emissing = ehas < eqty;
+            if (emissing) can = false;
+            const eN = (typeof iName === 'function') ? iName(eid) : eid;
+            reqStr += `<span style="${emissing ? 'color:#b05a3c;' : ''}">${eN} ${ehas}/${eqty}</span> `;
+          });
+        }
+        if (def.needsTool) {
+          def.needsTool.forEach(tid => {
+            const hasT = (GameState.inventory[tid] || 0) > 0;
+            if (!hasT) can = false;
+            const tN = (typeof iName === 'function') ? iName(tid) : tid;
+            reqStr += `<span style="${hasT ? '' : 'color:#b05a3c;'}">+ 🔧 ${tN}</span>`;
+          });
+        }
+      } else {
+        Object.entries(r.req || {}).forEach(([iid, amt]) => {
+          const has = GameState.inventory[iid] || 0;
+          const missing = (amt > 0 && has < amt) || (amt === 0 && !has);
+          if (missing) can = false;
+          const iN = (typeof iName === 'function') ? iName(iid) : iid;
+          reqStr += `<span style="${missing ? 'color:#b05a3c;' : ''}">${iN}${amt > 0 ? ' ' + has + '/' + amt : ''}</span> `;
+        });
+      }
+      const onclickCall = isCooked ? `CookingSystem.startCooking('${id}')` : `Game.craft('${id}')`;
+      const label = lang === 'en' ? 'Bake' : 'Péct';
+      h += `<div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:6px;">
+        <div style="font-size:1.3rem;">${prod.icon}</div>
+        <div style="flex:1; font-size:0.8rem;"><strong>${lang === 'en' ? (prod.name_en || prod.name) : prod.name}</strong><div style="font-size:0.68rem; opacity:0.75;">${reqStr}</div></div>
+        <button class="craft-btn" onclick="${onclickCall}" ${can ? '' : 'disabled'}>${label}</button>
+      </div>`;
+    });
     h += `</div>`;
     return h;
   },

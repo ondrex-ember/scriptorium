@@ -717,6 +717,7 @@ const Game = {
                 TimeSys.update();
                 if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.tick();
                 if (typeof CellariumSystem !== 'undefined') CellariumSystem.kovarnaFurnaceTick();
+                if (typeof CellariumSystem !== 'undefined') CellariumSystem.furnusFurnaceTick();
                 if (typeof ScriptoriumCat !== 'undefined') ScriptoriumCat.warmthTick();
                 if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.localWorldTick) ChroniconSystem.localWorldTick();
                 Game.checkEnvironment();

@@ -117,14 +117,12 @@ const InventoryManager = {
             }
         }
 
-        // Gate: bread_fine vyžaduje Furnus (dilny-pozemky-mrd.md v0.3, 25.8.2026)
-        if (r.id === 'bread_fine') {
-            if (!(GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built)) {
-                const _gl = (GameState.settings && GameState.settings.language) || 'cs';
-                UI.notify(_gl === 'en' ? '❌ Requires Furnus (bakery oven).' : '❌ Vyžaduje Furnus (pekařská pec).', true);
-                return;
-            }
-        }
+        // Gate: bread_fine vyžaduje Furnus — SKUTEČNEJ gate žije v
+        // CookingSystem.COOK_TYPES.bread_fine.needsBuild (pekarna-audit,
+        // 30.8.2026). Tenhle check tady byl od 25.8.2026 mrtvej kód —
+        // bread_fine je cat:"food" + má COOK_TYPES záznam, takže se
+        // přesměruje na CookingSystem.startCooking() hned na začátku
+        // craft() (viz výš), dřív než by sem vůbec došlo.
 
         // Gate: podkovy vyžadují Kovárnu a odpovídající tier (kovarna-dilna-mrd.md v0.5, 30.8.2026)
         if (r.id === 'repair_sada_podkov') {
@@ -170,6 +168,19 @@ const InventoryManager = {
                 return;
             }
             _usedKovarnaFire = true;
+        }
+
+        // Gate: hostia (instant craft, ne CookingSystem) — jakmile Furnus
+        // stojí, potřebuje taky hořící pec. Mirror Kovárna vzoru, jen bez
+        // charcoal-only prémiový výjimky. pekarna-audit v2 (30.8.2026).
+        if (r.id === 'hostia' && GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built) {
+            if (typeof CellariumSystem !== 'undefined') CellariumSystem._ensureFurnusFurnace();
+            const _fFurnace = GameState.storage.furnus.furnace;
+            const _gl2 = (GameState.settings && GameState.settings.language) || 'cs';
+            if (!_fFurnace || _fFurnace.fuelMs <= 0) {
+                UI.notify(_gl2 === 'en' ? '❌ The oven has gone cold. Add fuel in the Pekárna.' : '❌ Pec vychladla. Přilož palivo v Pekárně.', true);
+                return;
+            }
         }
 
         // maxStack check — iron nástroje max 1 ks (repair_ recepty vyjmuty, ty vlastnictví worn_ verze vyžadují)

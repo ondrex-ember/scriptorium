@@ -174,19 +174,25 @@ const CookingSystem = {
         // trvá nejdéle. bread/bread_fine/bread_fine_1 mají outputQty:2
         // (stejné jako stávající recepty). 7 variant, ne 6 (dodatečně
         // nalezené berry_pie_koreni při auditu).
+        // kovarna-dilna-mrd.md v0.6 / pekarna-audit (30.8.2026) — needsBuild:
+        // 'furnus' doplněn na VŠECHNY moukový (flour_1/flour_2) recepty.
+        // Předtím furnus-gate v InventoryManager.craft() byl mrtvej kód —
+        // tyhle recepty se přesměrujou na startCooking() ještě před tím, než
+        // by na tamní check vůbec došlo. Tohle je jedinej skutečně funkční
+        // gate mechanismus pro COOK_TYPES recepty (viz startCooking() výš).
         bread: { input: 'fiber', inputQty: 3, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
             output: 'bread', outputQty: 2, durationH: 2 },
-        bread_fine: { input: 'flour_2', inputQty: 3, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+        bread_fine: { input: 'flour_2', inputQty: 3, extraInputs: { water: 1 }, needsTool: ['cooking_pot'], needsBuild: 'furnus',
             output: 'bread_fine', outputQty: 2, durationH: 2 },
-        bread_fine_1: { input: 'flour_1', inputQty: 3, extraInputs: { water: 1 }, needsTool: ['cooking_pot'],
+        bread_fine_1: { input: 'flour_1', inputQty: 3, extraInputs: { water: 1 }, needsTool: ['cooking_pot'], needsBuild: 'furnus',
             output: 'bread_fine_1', outputQty: 2, durationH: 2 },
         berry_pie: { input: 'berries', inputQty: 3, extraInputs: { honey: 1 }, needsTool: ['cooking_pot'],
             output: 'berry_pie', durationH: 1.5 },
         berry_pie_koreni: { input: 'berries', inputQty: 3, extraInputs: { honey: 1, skorice: 1 }, needsTool: ['cooking_pot'],
             output: 'berry_pie_koreni', durationH: 1.5 },
-        berry_pie_fine: { input: 'flour_2', inputQty: 2, extraInputs: { berries: 3, honey: 1 }, needsTool: ['cooking_pot'],
+        berry_pie_fine: { input: 'flour_2', inputQty: 2, extraInputs: { berries: 3, honey: 1 }, needsTool: ['cooking_pot'], needsBuild: 'furnus',
             output: 'berry_pie_fine', durationH: 1.5 },
-        berry_pie_fine_1: { input: 'flour_1', inputQty: 2, extraInputs: { berries: 3, honey: 1 }, needsTool: ['cooking_pot'],
+        berry_pie_fine_1: { input: 'flour_1', inputQty: 2, extraInputs: { berries: 3, honey: 1 }, needsTool: ['cooking_pot'], needsBuild: 'furnus',
             output: 'berry_pie_fine_1', durationH: 1.5 },
     },
 
@@ -261,6 +267,19 @@ const CookingSystem = {
         if (def.needsTech && !(GameState.researchedTechs && GameState.researchedTechs.includes(def.needsTech))) {
             if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Requires further research.' : 'Vyžaduje další výzkum.', true);
             return;
+        }
+        // Gate: pekařský recepty (celej FURNUS_RECIPE_IDS seznam, ne jen ty
+        // s needsBuild:'furnus') potřebujou hořící pec, jakmile Furnus stojí
+        // — mirror Kovárna principu (pekarna-audit v2, 30.8.2026). Furnace
+        // stav žije v CellariumSystem, sdílenej přes storage.furnus.furnace.
+        if (this.FURNUS_RECIPE_IDS && this.FURNUS_RECIPE_IDS.includes(typeKey)
+            && GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built) {
+            if (typeof CellariumSystem !== 'undefined') CellariumSystem._ensureFurnusFurnace();
+            const furnace = GameState.storage.furnus.furnace;
+            if (!furnace || furnace.fuelMs <= 0) {
+                if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'The oven has gone cold. Add fuel in the Pekárna.' : 'Pec vychladla. Přilož palivo v Pekárně.', true);
+                return;
+            }
         }
         if (def.needsBuild && !(GameState.storage && GameState.storage[def.needsBuild] && GameState.storage[def.needsBuild].built)) {
             if (typeof UI !== 'undefined') UI.notify(lang === 'en' ? 'Needs the Smokehouse built first.' : 'Nejdřív je třeba postavit Udírnu.', true);
@@ -480,7 +499,19 @@ const CookingSystem = {
         if (lines.length === 0) return '';
         return `<div style="font-size:0.68rem; opacity:0.75; line-height:1.5; margin-bottom:8px; padding:0 2px;">${lines.map(l => `<div>${l}</div>`).join('')}</div>`;
     },
-    _stationKey: function(def) {
+    // pekarna-audit (30.8.2026) — jakmile Furnus stojí, VŠECHNY pekařský
+    // COOK_TYPES recepty (i ty, co Furnus k craftu nevyžadujou, jako
+    // bread/berry_pie/berry_pie_koreni) se z Ohniště přesunou výhradně do
+    // Pekárna tabu — mirror Kovárna principu "jakmile budova stojí,
+    // všechno příbuzný se stěhuje tam". Před postavením Furnusu beze
+    // změny (bread/berry_pie/berry_pie_koreni furnus nepotřebujou,
+    // zůstávaj dostupný v Ohništi jako dřív).
+    FURNUS_RECIPE_IDS: ['bread', 'bread_fine', 'bread_fine_1', 'berry_pie', 'berry_pie_koreni', 'berry_pie_fine', 'berry_pie_fine_1'],
+
+    _stationKey: function(def, key) {
+        if (key && this.FURNUS_RECIPE_IDS.includes(key) && GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built) {
+            return 'furnus'; // přestěhováno — nezobrazí se v žádný Coquina stanici, žije jen v Pekárna tabu
+        }
         if (!def.needsBuild) return 'ohniste';
         if (def.needsBuild === 'cerna_kuchyne') return 'cerna_kuchyne';
         if (def.needsBuild === 'udirna') return 'udirna';
@@ -513,7 +544,7 @@ const CookingSystem = {
         const buildInProgressHtml = (stationKey) => {
             const items = list.filter(inst => {
                 const def = this.COOK_TYPES[inst.type];
-                return def && this._stationKey(def) === stationKey;
+                return def && this._stationKey(def, inst.type) === stationKey;
             });
             if (items.length === 0) return { count: 0, html: '' };
             let h = '';
@@ -575,7 +606,7 @@ const CookingSystem = {
             const meta = this.STATIONS[stationKey];
             const recipeKeys = Object.keys(this.COOK_TYPES).filter(key => {
                 const def = this.COOK_TYPES[key];
-                if (this._stationKey(def) !== stationKey) return false;
+                if (this._stationKey(def, key) !== stationKey) return false;
                 const hasTech = !def.needsTech || (GameState.researchedTechs && GameState.researchedTechs.includes(def.needsTech));
                 return hasTech;
             });

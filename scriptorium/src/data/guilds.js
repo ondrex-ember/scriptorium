@@ -134,7 +134,7 @@ const GuildsDB = {
                 privilegeType: 'A',
                 privilegeLabel: 'Právo prodeje chleba na Trhu bez fušerství (průběžný poplatek 10%)',
                 privilegeLabel_en: 'Right to sell bread at Market without botching (10% ongoing fee)',
-                affectedGoods: ['bread', 'berry_pie', 'berry_pie_koreni', 'berry_pie_fine', 'berry_pie_fine_1', 'hostia'],
+                affectedGoods: ['bread', 'bread_fine', 'bread_fine_1', 'berry_pie', 'berry_pie_koreni', 'berry_pie_fine', 'berry_pie_fine_1', 'hostia'],
             },
         ],
     },
