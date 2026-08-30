@@ -1191,11 +1191,23 @@ const TemplumManager = {
         if (typeof HeaderImageSystem !== 'undefined' && HeaderImageSystem.getTimeSlot) {
             timeSlot = HeaderImageSystem.getTimeSlot();
         } else {
-            const h = new Date().getHours();
+            const h = (typeof TimeSys !== 'undefined' && TimeSys.gameHour) ? TimeSys.gameHour() : new Date().getHours();
             if (h >= 5 && h <= 9) timeSlot = 'morning';
             else if (h >= 10 && h <= 17) timeSlot = 'day';
             else if (h >= 18 && h <= 20) timeSlot = 'evening';
             else timeSlot = 'night';
+        }
+
+        // Desetinna herni hodina (Europe/Prague, TimeSys — dle kanonickeho pravidla
+        // hodin) pro plynulou drahu slunce/mesice po obloze (bugfix 30.8.2026 —
+        // driv 4 pevne pozice dle hruby timeSlot kosiku, v poledne sedelo slunce
+        // u prave zdi misto uprostred).
+        let hourFrac;
+        if (typeof TimeSys !== 'undefined' && TimeSys.gameHour) {
+            hourFrac = TimeSys.gameHour(true);
+        } else {
+            const now = new Date();
+            hourFrac = now.getHours() + now.getMinutes() / 60;
         }
 
         let weatherCode = null;
@@ -1225,7 +1237,7 @@ const TemplumManager = {
         const isCloudy = weatherCode === 2 || weatherCode === 3;
         const isFog = weatherCode >= 45 && weatherCode <= 48;
 
-        return { timeSlot, weatherCode, condition, isNight, isSnow, isCloudy, isFog };
+        return { timeSlot, hourFrac, weatherCode, condition, isNight, isSnow, isCloudy, isFog };
     },
 
     _getCemGraveSvg: function (cx, cy, built, isRecent, isNight, overallNeglected, cond, ts, slotTilt, idx) {
@@ -1432,33 +1444,36 @@ const TemplumManager = {
         // Path colors
         let pathColor = env.isNight ? '#2a221b' : (env.isSnow ? '#94a3b8' : '#736048');
 
-        // Celestial (Sun / Moon)
+        // Celestial (Sun / Moon) — plynula draha po obloze dle presne herni
+        // hodiny (env.hourFrac), NE 4 pevne pozice dle hruby timeSlot kosiku
+        // (bugfix 30.8.2026 — v poledne sedelo slunce u prave zdi misto
+        // uprostred nad kapli). Vychod ~5h, poledne ~12:30 (vrchol uprostred),
+        // zapad ~20h.
         let celestialSvg = '';
+        const sunriseH = 5, sunsetH = 20, dayLen = sunsetH - sunriseH, nightLen = 24 - dayLen;
         if (env.isNight) {
+            const nightHour = env.hourFrac >= sunsetH ? env.hourFrac - sunsetH : env.hourFrac + (24 - sunsetH);
+            const tn = Math.max(0, Math.min(1, nightHour / nightLen));
+            const moonX = 60 + tn * 560;
+            const moonY = 15 + (1 - Math.sin(tn * Math.PI)) * 53;
             celestialSvg = `
                 <!-- Moon Glow -->
-                <circle cx="560" cy="32" r="28" fill="#f8fafc" opacity="0.06"/>
-                <circle cx="560" cy="32" r="18" fill="#f8fafc" opacity="0.12"/>
-                <circle cx="560" cy="32" r="11" fill="#f1f5f9"/>
-                <circle cx="565" cy="29" r="9.5" fill="url(#cemSky)"/>
-            `;
-        } else if (env.timeSlot === 'morning') {
-            celestialSvg = `
-                <circle cx="110" cy="62" r="35" fill="#fde047" opacity="0.18"/>
-                <circle cx="110" cy="62" r="20" fill="#fef08a" opacity="0.35"/>
-                <circle cx="110" cy="62" r="12" fill="#fef9c3"/>
-            `;
-        } else if (env.timeSlot === 'evening') {
-            celestialSvg = `
-                <circle cx="570" cy="62" r="38" fill="#f97316" opacity="0.22"/>
-                <circle cx="570" cy="62" r="22" fill="#fdba74" opacity="0.4"/>
-                <circle cx="570" cy="62" r="13" fill="#ffedd5"/>
+                <circle cx="${moonX}" cy="${moonY}" r="28" fill="#f8fafc" opacity="0.06"/>
+                <circle cx="${moonX}" cy="${moonY}" r="18" fill="#f8fafc" opacity="0.12"/>
+                <circle cx="${moonX}" cy="${moonY}" r="11" fill="#f1f5f9"/>
+                <circle cx="${moonX + 5}" cy="${moonY - 3}" r="9.5" fill="url(#cemSky)"/>
             `;
         } else if (env.condition !== 'rain' && !env.isCloudy) {
+            const t = Math.max(0, Math.min(1, (env.hourFrac - sunriseH) / dayLen));
+            const sunX = 60 + t * 560;
+            const sunY = 15 + (1 - Math.sin(t * Math.PI)) * 53;
+            let core = '#ffffff', glowOuter = '#fde047', glowMid = '#fef08a';
+            if (env.timeSlot === 'morning') { core = '#fef9c3'; glowOuter = '#fde047'; glowMid = '#fef08a'; }
+            else if (env.timeSlot === 'evening') { core = '#ffedd5'; glowOuter = '#f97316'; glowMid = '#fdba74'; }
             celestialSvg = `
-                <circle cx="580" cy="28" r="36" fill="#fde047" opacity="0.2"/>
-                <circle cx="580" cy="28" r="20" fill="#fef08a" opacity="0.4"/>
-                <circle cx="580" cy="28" r="12" fill="#ffffff"/>
+                <circle cx="${sunX}" cy="${sunY}" r="36" fill="${glowOuter}" opacity="0.2"/>
+                <circle cx="${sunX}" cy="${sunY}" r="20" fill="${glowMid}" opacity="0.4"/>
+                <circle cx="${sunX}" cy="${sunY}" r="12" fill="${core}"/>
             `;
         }
 
@@ -1766,6 +1781,180 @@ const TemplumManager = {
 
                 <!-- Graves -->
                 ${gravesSvg}
+            </svg>
+        `;
+    },
+
+    // ── RAJSKY DVUR: mapova vizualizace (mirror Hrbitov V1, ale bez znacek —
+    // bezejmenne hroby prostych mnichu, ctvercovy dvur s krizovymi cestickami,
+    // kasnou a lavatoriem, zadna kaple/brana). Zadano 30.8.2026. ──
+    CLOISTER_MAP_SLOTS: 10,
+    CLOISTER_MAP_COORDS_EXPANDED: [
+        { x: 95,  y: 60 },  { x: 170, y: 75 },  { x: 250, y: 62 },
+        { x: 430, y: 62 },  { x: 510, y: 75 },  { x: 585, y: 60 },
+        { x: 120, y: 155 }, { x: 220, y: 165 },
+        { x: 460, y: 165 }, { x: 560, y: 155 }
+    ],
+    CLOISTER_MAP_COORDS_COLLAPSED: [
+        { x: 150, y: 40 }, { x: 520, y: 40 },
+        { x: 150, y: 82 }, { x: 520, y: 82 }
+    ],
+
+    // Bezejmenny hrob prosteho mnicha — jen hlina/drn, zadny kriz ani nahrobek
+    // (visitatio-reference: "hroby byly u prostych bratru velmi casto zcela
+    // bezejmenne"). Styl odvozen z timestamp hrobu, NE z pozice/indexu —
+    // stejna stabilita jako oprava Hrbitova 30.8.2026.
+    _getCloisterGraveSvg: function (cx, cy, isNight, ts) {
+        let h = '';
+        const timestamp = ts != null ? ts : 0;
+        const groundStyle = Math.abs(timestamp) % 6;
+
+        h += `<ellipse cx="${cx + 1}" cy="${cy + 7}" rx="16" ry="5" fill="${isNight ? '#050a06' : '#121a0d'}" opacity="0.4"/>`;
+
+        if (groundStyle === 0) {
+            const stoneBorder = isNight ? '#221d17' : '#4a4238';
+            const earthFill = isNight ? '#1c1712' : '#3d3023';
+            h += `<rect x="${cx - 13}" y="${cy + 2}" width="26" height="8" fill="${stoneBorder}" rx="1"/>`;
+            h += `<rect x="${cx - 11}" y="${cy + 3.2}" width="22" height="5.5" fill="${earthFill}" rx="0.5"/>`;
+        } else if (groundStyle === 1) {
+            const moundColor = isNight ? '#2e2517' : '#4a3826';
+            const moundShadow = isNight ? '#181209' : '#2d1f14';
+            h += `<ellipse cx="${cx}" cy="${cy + 5.5}" rx="15" ry="4.5" fill="${moundShadow}"/>`;
+            h += `<ellipse cx="${cx}" cy="${cy + 4}" rx="13" ry="3.5" fill="${moundColor}"/>`;
+        } else if (groundStyle === 2) {
+            const slabColor = isNight ? '#332e28' : '#524a40';
+            const slabSide = isNight ? '#1e1a16' : '#332e28';
+            h += `<polygon points="${cx - 13},${cy + 3} ${cx + 11},${cy + 3} ${cx + 14},${cy + 7} ${cx - 10},${cy + 7}" fill="${slabColor}" stroke="#1e1a16" stroke-width="0.7"/>`;
+            h += `<polygon points="${cx - 10},${cy + 7} ${cx + 14},${cy + 7} ${cx + 14},${cy + 8.3} ${cx - 10},${cy + 8.3}" fill="${slabSide}"/>`;
+        } else if (groundStyle === 3) {
+            const woodColor = isNight ? '#241a10' : '#45301e';
+            const woodStroke = isNight ? '#160e08' : '#291b10';
+            h += `<rect x="${cx - 12}" y="${cy + 2.5}" width="24" height="7" fill="${woodColor}" stroke="${woodStroke}" stroke-width="1" rx="0.5"/>`;
+            h += `<rect x="${cx - 10.5}" y="${cy + 3.8}" width="21" height="4.5" fill="#38291a"/>`;
+        } else if (groundStyle === 4) {
+            h += `<ellipse cx="${cx}" cy="${cy + 5}" rx="12" ry="3" fill="#2d3f1d" opacity="0.55"/>`;
+            h += `<ellipse cx="${cx - 2}" cy="${cy + 4.5}" rx="8" ry="2" fill="#36291c" opacity="0.45"/>`;
+        } else {
+            h += `<ellipse cx="${cx}" cy="${cy + 5}" rx="13" ry="4" fill="#3b342c"/>`;
+            h += `<circle cx="${cx - 11}" cy="${cy + 4.5}" r="1.6" fill="#595147"/>`;
+            h += `<circle cx="${cx + 9}" cy="${cy + 6}" r="1.8" fill="#403931"/>`;
+        }
+
+        // Vzacna tise rostouci travina — deterministicky z timestamp, zadna
+        // individualni oznaceni (svicka/vyznameni), to sem nepatri.
+        if (Math.abs(Math.floor(timestamp / 11)) % 5 === 0) {
+            h += `<path d="M ${cx + 7} ${cy + 5} Q ${cx + 9} ${cy + 1} ${cx + 10} ${cy + 4}" stroke="#3d5225" stroke-width="1" fill="none"/>`;
+        }
+
+        return h;
+    },
+
+    renderCloisterScene: function (cem, lang, isExpanded) {
+        const env = this._getCemeteryEnv();
+        const graves = (cem && cem.graves) || [];
+        const viewBoxHeight = isExpanded ? 230 : 120;
+        const w = 680, hgt = viewBoxHeight, border = 40;
+
+        let stoneMain = '#54493d', stoneDark = '#3b3228', grassMain = '#385723', grassDark = '#233b15';
+        if (env.isNight) { stoneMain = '#221d17'; stoneDark = '#100c09'; grassMain = '#101d13'; grassDark = '#08110a'; }
+        else if (env.isSnow) { grassMain = '#e2e8f0'; grassDark = '#cbd5e1'; }
+        else if (env.timeSlot === 'morning' || env.timeSlot === 'evening') { grassMain = '#283b1c'; grassDark = '#172710'; }
+        let pathColor = env.isNight ? '#2a221b' : (env.isSnow ? '#94a3b8' : '#736048');
+
+        // Atmosfericke prekryvy — sdileno s Hrbitovem po vzoru, ale zadna obloha/
+        // hvezdy/celestialni telesa: Rajsky dvur je uzavreny vnitrni prostor.
+        let weatherOverlay = '';
+        if (env.condition === 'rain') {
+            for (let r = 0; r < 16; r++) {
+                const rx = (r * 30) % (w - border * 2) + border + 5;
+                const ry = (r * 11) % (hgt - border * 2 - 10) + border + 5;
+                weatherOverlay += `<line x1="${rx}" y1="${ry}" x2="${rx - 6}" y2="${ry + 16}" stroke="rgba(186, 230, 253, 0.35)" stroke-width="1"/>`;
+            }
+        } else if (env.isSnow) {
+            for (let s = 0; s < 18; s++) {
+                const sx = (s * 24) % (w - border * 2) + border + 5;
+                const sy = (s * 13) % (hgt - border * 2 - 10) + border + 5;
+                weatherOverlay += `<circle cx="${sx}" cy="${sy}" r="${(s % 3 === 0 ? 1.8 : 1)}" fill="#ffffff" opacity="0.8"/>`;
+            }
+        } else if (env.isFog) {
+            weatherOverlay += `<rect x="${border}" y="${border}" width="${w - border * 2}" height="${hgt - border * 2}" fill="url(#cloisterFogGrad)" opacity="0.4"/>`;
+        }
+
+        const coords = isExpanded ? this.CLOISTER_MAP_COORDS_EXPANDED : this.CLOISTER_MAP_COORDS_COLLAPSED;
+        const slotsCount = isExpanded ? this.CLOISTER_MAP_SLOTS : 4;
+        const shown = graves.slice().reverse().slice(0, slotsCount);
+        let gravesSvg = '';
+        shown.forEach((g, i) => {
+            const c = coords[i];
+            if (!c) return;
+            gravesSvg += this._getCloisterGraveSvg(c.x, c.y, env.isNight, g.ts);
+        });
+
+        // Ambit — krizova chodba rami dvur ze vsech 4 stran, sloupky po obvodu
+        let ambitSvg = `<rect x="0" y="0" width="${w}" height="${hgt}" fill="${stoneMain}"/>`;
+        ambitSvg += `<rect x="${border}" y="${border}" width="${w - border * 2}" height="${hgt - border * 2}" fill="url(#cloisterGrass)"/>`;
+        const colSpacing = 42;
+        for (let cx0 = border + 14; cx0 < w - border; cx0 += colSpacing) {
+            ambitSvg += `<rect x="${cx0}" y="${border - 10}" width="5" height="10" fill="${stoneDark}"/>`;
+            ambitSvg += `<rect x="${cx0}" y="${hgt - border}" width="5" height="10" fill="${stoneDark}"/>`;
+        }
+        for (let cy0 = border + 14; cy0 < hgt - border; cy0 += colSpacing) {
+            ambitSvg += `<rect x="${border - 10}" y="${cy0}" width="10" height="5" fill="${stoneDark}"/>`;
+            ambitSvg += `<rect x="${w - border}" y="${cy0}" width="10" height="5" fill="${stoneDark}"/>`;
+        }
+
+        // Krizove cesticky
+        const pathW = 26;
+        let pathSvg = `<rect x="${w / 2 - pathW / 2}" y="${border}" width="${pathW}" height="${hgt - border * 2}" fill="${pathColor}"/>`;
+        pathSvg += `<rect x="${border}" y="${hgt / 2 - pathW / 2}" width="${w - border * 2}" height="${pathW}" fill="${pathColor}"/>`;
+
+        // Kasna uprostred, kde se cesticky krizi
+        const fx = w / 2, fy = hgt / 2;
+        const fountainSvg = `
+            <ellipse cx="${fx + 1}" cy="${fy + 9}" rx="20" ry="6" fill="#000000" opacity="0.25"/>
+            <ellipse cx="${fx}" cy="${fy}" rx="19" ry="10" fill="${stoneDark}"/>
+            <ellipse cx="${fx}" cy="${fy - 1.5}" rx="15" ry="7.5" fill="#3d7a9e" opacity="0.75"/>
+            <ellipse cx="${fx}" cy="${fy - 3}" rx="8" ry="4" fill="#7fb8d6" opacity="0.5"/>
+            <rect x="${fx - 2.5}" y="${fy - 14}" width="5" height="12" fill="${stoneDark}"/>
+            <circle cx="${fx}" cy="${fy - 15}" r="3" fill="${stoneDark}"/>
+        `;
+
+        // Lavatorium — kamenna mušle ve zdi jizni chodby, mimo stred
+        const lx = border + 90, ly = hgt - border;
+        const lavatoriumSvg = `
+            <path d="M ${lx - 14} ${ly} Q ${lx} ${ly + 14} ${lx + 14} ${ly} Z" fill="${stoneDark}"/>
+            <ellipse cx="${lx}" cy="${ly + 4}" rx="9" ry="4" fill="#3d7a9e" opacity="0.6"/>
+        `;
+
+        return `
+            <svg width="100%" viewBox="0 0 ${w} ${hgt}" role="img" style="display:block; border-radius:8px 8px 0 0;">
+                <defs>
+                    <linearGradient id="cloisterGrass" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="${grassMain}"/>
+                        <stop offset="100%" stop-color="${grassDark}"/>
+                    </linearGradient>
+                    <linearGradient id="cloisterFogGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.0"/>
+                        <stop offset="50%" stop-color="#e2e8f0" stop-opacity="0.5"/>
+                        <stop offset="100%" stop-color="#cbd5e1" stop-opacity="0.0"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- Ambit + travnik -->
+                ${ambitSvg}
+
+                <!-- Krizove cesticky -->
+                ${pathSvg}
+
+                <!-- Atmosfericke prekryvy -->
+                ${weatherOverlay}
+
+                <!-- Hroby -->
+                ${gravesSvg}
+
+                <!-- Kasna a lavatorium -->
+                ${fountainSvg}
+                ${lavatoriumSvg}
             </svg>
         `;
     },
