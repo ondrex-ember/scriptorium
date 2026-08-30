@@ -171,6 +171,13 @@ const TemplumSystem = {
         if (el) el.innerHTML = this.renderTemplumTab();
     },
 
+    toggleCloisterMap: function() {
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.cloisterMapExpanded = !GameState.ui.cloisterMapExpanded;
+        const el = document.getElementById('home-templum-content');
+        if (el) el.innerHTML = this.renderTemplumTab();
+    },
+
     _renderCemeteryPanel: function(lang) {
         if (!GameState.cemetery) GameState.cemetery = { condition: 100, graves: [] };
         const cem = GameState.cemetery;
@@ -248,7 +255,23 @@ const TemplumSystem = {
         // Rajský dvůr — vnitřní pohřebiště komunity (bratři/konvrši), odděleno
         // od farního Hřbitova (ten je jen pro farní rodiny přes parishEventTick).
         const cloister = ((GameState.rajskyDvur && GameState.rajskyDvur.graves) || []).slice().reverse();
-        h += `<div style="padding:14px 16px; margin-top:16px; background:rgba(122,150,122,0.08); border:1px solid rgba(122,150,122,0.35); border-radius:8px;">
+        const cloisterExpanded = !!(GameState.ui && GameState.ui.cloisterMapExpanded);
+        const cloisterSvg = (typeof TemplumManager !== 'undefined') ? TemplumManager.renderCloisterScene(GameState.rajskyDvur, lang, cloisterExpanded) : '';
+        const cloisterSlots = (typeof TemplumManager !== 'undefined') ? TemplumManager.CLOISTER_MAP_SLOTS : 10;
+        h += `<div onclick="TemplumSystem.toggleCloisterMap()" style="cursor:pointer; margin-top:16px; border:1px solid rgba(122,150,122,0.35); border-radius:10px; overflow:hidden; background:rgba(0,0,0,0.2); box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:all 0.25s ease;">
+                <div style="position:relative;">
+                    ${cloisterSvg}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(18,24,18,0.9); border-top:1px solid rgba(122,150,122,0.25); font-size:0.72rem; color:#dce8dc;">
+                    <span>🕊️ ${lang==='en'?'Cloister Garth':'Rajský dvůr'}</span>
+                    <span style="color:#8bb98b; font-weight:bold; font-size:0.7rem;">
+                        ${cloisterExpanded
+                            ? (lang==='en' ? '▲ Collapse' : '▲ Sbalit dvůr')
+                            : (lang==='en' ? '▼ Show full garth (' + cloisterSlots + ')' : '▼ Zobrazit celý dvůr (' + cloisterSlots + ')')}
+                    </span>
+                </div>
+              </div>`;
+        h += `<div style="padding:14px 16px; margin-top:10px; background:rgba(122,150,122,0.08); border:1px solid rgba(122,150,122,0.35); border-radius:8px;">
                 <div style="font-weight:bold; font-size:0.9rem; margin-bottom:4px; color:#5a7a5a;">🕊️ ${lang==='en'?'Cloister Garth':'Rajský dvůr'} (${cloister.length})</div>
                 <div style="font-size:0.68rem; opacity:0.6; font-style:italic; margin-bottom:8px;">${lang==='en' ? 'Where the brothers who have gone before us rest, within these walls.' : 'Kde odpočívají bratři, kteří odešli před námi, uvnitř těchto zdí.'}</div>`;
         if (!cloister.length) {
