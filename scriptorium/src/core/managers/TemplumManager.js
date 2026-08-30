@@ -93,6 +93,96 @@ const TemplumManager = {
     FARNI_FIRST_NAMES_F: ['Anna', 'Kateřina', 'Dorota', 'Markéta', 'Barbora', 'Alžběta', 'Zuzana', 'Kunhuta',
         'Dagmar', 'Drahuše', 'Martina', 'Karolína', 'Inna'],
 
+    // Jednoduchy retezcovy hash (stejny vzor jako CommitmentsSystem._pickSurname)
+    // — pro deterministicke generovani z libovolneho vstupu.
+    _hashStr: function (str) {
+        let hash = 0;
+        const s = String(str);
+        for (let i = 0; i < s.length; i++) hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+        return hash;
+    },
+
+    // Deterministicky vygenerovany detail farniho hrobu (Nekrologium, tech_ars_
+    // moriendi) — jmeno, vekova kategorie, pricina, rodina. Nic se neuklada do
+    // save (stejny hrob = vzdy stejny vysledek). Stary hrob bez ulozenych dat
+    // funguje bez migrace. Gate na tech hlida volajici UI, ne tahle funkce.
+    _farniDetailFor: function (grave) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const seed = this._hashStr((grave.surname || '') + '|' + (grave.ts || 0));
+        const isFemale = (seed % 2) === 1;
+
+        const firstNames = isFemale ? this.FARNI_FIRST_NAMES_F : this.FARNI_FIRST_NAMES_M;
+        const firstName = firstNames[Math.floor(seed / 7) % firstNames.length];
+
+        const pair = this.FARNI_SURNAMES.find(function (p) { return p[0] === grave.surname; });
+        const surname = pair ? (isFemale ? pair[1] : pair[0]) : (grave.surname || '');
+
+        // Vekova kategorie — dobove vazene (vyssi detska/mladicka umrtnost, ale
+        // hrob s vlastnim nahrobkem castejsi u dospelych/starcu).
+        const ageRoll = Math.floor(seed / 13) % 10;
+        let ageId;
+        if (ageRoll < 2) ageId = 'child';
+        else if (ageRoll < 4) ageId = 'young';
+        else if (ageRoll < 7) ageId = 'middle';
+        else ageId = 'old';
+
+        const ageDefs = {
+            child: { icon: '🧒', cs: 'dítě', en: 'a child' },
+            young: { icon: isFemale ? '👧' : '🧑', cs: isFemale ? 'dívka' : 'mladík', en: isFemale ? 'a young woman' : 'a young man' },
+            middle: { icon: '🧔', cs: 'v středních letech', en: 'in the middle of life' },
+            old: { icon: isFemale ? '👵' : '👴', cs: isFemale ? 'stařena' : 'stařec', en: 'an elder' }
+        };
+        const age = ageDefs[ageId];
+
+        // Pricina — jen podmnozina HealthConditionsDB co sedi na venkov + par
+        // obecnych (stari, pri porodu jen u zen v plodnem veku, pracovni nehoda).
+        const ruralConditions = ['water_sickness', 'dysentery', 'scurvy', 'ergot_fire', 'cold', 'rheumatism'];
+        const causeRoll = Math.floor(seed / 29) % 100;
+        let causeCs, causeEn;
+        if (ageId === 'old' && causeRoll < 40) {
+            causeCs = 'stáří'; causeEn = 'old age';
+        } else if (isFemale && (ageId === 'young' || ageId === 'middle') && causeRoll < 15) {
+            causeCs = 'při porodu'; causeEn = 'in childbirth';
+        } else if (causeRoll < 55) {
+            causeCs = 'pracovní nehoda'; causeEn = 'a work accident';
+        } else {
+            const cid = ruralConditions[Math.floor(seed / 41) % ruralConditions.length];
+            const def = (typeof HealthConditionsDB !== 'undefined') ? HealthConditionsDB[cid] : null;
+            causeCs = def ? def.name : cid;
+            causeEn = def ? def.name_en : cid;
+        }
+
+        // Easter eggy — vzacne (~2 % celkem, kazdy ~0.5 %), prepisuji jen
+        // poznamku/pricinu; jmeno se generuje normalne dal (krome kramare,
+        // ktery nema mistni rodinu).
+        const eggRoll = Math.floor(seed / 53) % 200;
+        let eggCs = null, eggEn = null, noFamily = false;
+        if (eggRoll === 0) {
+            eggCs = 'Udávil se peckou při hodech v kapli.';
+            eggEn = 'Choked on a fruit pit during the chapel feast.';
+        } else if (eggRoll === 1) {
+            eggCs = 'Vesničané o něm dodnes šuškají jako o kacíři.';
+            eggEn = 'Villagers still whisper that he was a heretic.';
+        } else if (eggRoll === 2) {
+            eggCs = 'Rodina trvala na tom, že s ním pohřbili jeho poklad — nikdy žádný nenašli.';
+            eggEn = "The family insisted his treasure was buried with him — none was ever found.";
+        } else if (eggRoll === 3) {
+            eggCs = 'Potulný kramář, zemřel na cestě přes kraj. Pohřben z křesťanského milosrdenství.';
+            eggEn = 'A wandering peddler who died passing through. Buried out of Christian charity.';
+            noFamily = true;
+        }
+
+        return {
+            fullName: firstName + ' ' + surname,
+            ageIcon: age.icon,
+            ageLabel: lang === 'en' ? age.en : age.cs,
+            causeLabel: eggCs ? (lang === 'en' ? eggEn : eggCs) : (lang === 'en' ? causeEn : causeCs),
+            familyLabel: lang === 'en' ? 'Family' : 'Rodina',
+            familyValue: noFamily ? null : surname,
+            isEasterEgg: !!eggCs
+        };
+    },
+
     parishEventTick: function () {
         if (!(GameState.rank && GameState.rank.probost)) return;
         if (!GameState.templum) GameState.templum = {};
