@@ -382,6 +382,9 @@ const Game = {
         // dilny-pozemky-mrd.md v0.3 — Furnus, první ze čtyř dílen (25.8.2026)
         if (!GameState.abbotPetition.furnus) GameState.abbotPetition.furnus = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.abbotPetition.land_dvur_pekarsky) GameState.abbotPetition.land_dvur_pekarsky = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        // kovarna-dilna-mrd.md v0.5 (30.8.2026) — Kovárna, druhá dílna
+        if (!GameState.abbotPetition.kovarna) GameState.abbotPetition.kovarna = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        if (!GameState.abbotPetition.land_u_hradby) GameState.abbotPetition.land_u_hradby = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.ubytovnaPetition) GameState.ubytovnaPetition = {};
         // Vyhodnotit čekající žádosti po načtení
         Game.checkAbbotPetitions();
@@ -713,6 +716,7 @@ const Game = {
             try {
                 TimeSys.update();
                 if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.tick();
+                if (typeof CellariumSystem !== 'undefined') CellariumSystem.kovarnaFurnaceTick();
                 if (typeof ScriptoriumCat !== 'undefined') ScriptoriumCat.warmthTick();
                 if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.localWorldTick) ChroniconSystem.localWorldTick();
                 Game.checkEnvironment();
@@ -1195,7 +1199,6 @@ const Game = {
 
     // ═══ D11 (3/3) ═══
     buildNahrobek: function (ts) { return TemplumManager.buildNahrobek(ts); },
-    showGraveDetail: function (ts, source) { return TemplumManager.showGraveDetail(ts, source); },
     repairFabrica: function () { return TemplumManager.repairFabrica(); },
     templumDailyTick: function () { return TemplumManager.templumDailyTick(); },
 

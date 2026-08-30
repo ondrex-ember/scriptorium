@@ -131,7 +131,11 @@ const ContactsDB = {
                 hrebiky: { price: 2.5, stock: 5 }, // kovani-rozsireni-mrd (7.8.2026): nejlevnější kanál, ale nejvíc omezený
                 brass_rivet: { price: 4, stock: 2 }, // athanor-research-mrd: mosaz je dražší a vzácnější než železo
                 britva_kovarska: { price: 12, stock: 1 },
-                sada_podkov: { price: 14, stock: 2 }
+                sada_podkov: { price: 14, stock: 2 },
+                // kovarna-dilna-mrd.md v0.5 (30.8.2026) — vybavení Kovárny,
+                // levnější kanál než Trh (mirror hrebiky/kovani vzoru).
+                podkovarske_kladivo: { price: 25, stock: 2 },
+                raspa_kopytni: { price: 15, stock: 1 },
             }
         }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
         // cluster-A-mrd (28.8.2026) — Libraria Secreta trezor. Jednorázová

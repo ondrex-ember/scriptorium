@@ -493,9 +493,13 @@ const DecaySystem = {
         metal_bosses: { rate: 0.0003 },
         metal_clasps: { rate: 0.0003 },
         palice_zelezna: { rate: 0.0003 },
+        // kovarna-dilna-mrd.md v0.5 (30.8.2026)
+        podkovarske_kladivo: { rate: 0.0003 },
         printing_type: { rate: 0.0003 },
+        raspa_kopytni: { rate: 0.0003 },
         repair_kit: { rate: 0.0003 },
         sada_podkov: { rate: 0.0003 },
+        sada_podkov_premium: { rate: 0.0003 },
         tea_kettle: { rate: 0.0003 },
         worn_iron_axe: { rate: 0.0003 },
         worn_iron_flail: { rate: 0.0003 },
@@ -506,6 +510,7 @@ const DecaySystem = {
         worn_iron_sickle: { rate: 0.0003 },
         worn_iron_spade: { rate: 0.0003 },
         worn_iron_tongs: { rate: 0.0003 },
+        worn_sada_podkov: { rate: 0.0003 },
         worn_type: { rate: 0.0003 },
         // wood_tool (0.0005)
         backgammon_board: { rate: 0.0005 },

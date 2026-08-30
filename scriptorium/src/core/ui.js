@@ -209,6 +209,7 @@ const UI = {
         { elId: 'home-vapenice-content', fn: () => { const el = document.getElementById('home-vapenice-content'); if (el && typeof LimeSystem !== 'undefined') el.innerHTML = LimeSystem.render(); } },
         { elId: 'home-mill-content', fn: () => { const el = document.getElementById('home-mill-content'); if (el && typeof MillSystem !== 'undefined') el.innerHTML = MillSystem.render(); } },
         { elId: 'home-furnus-content', fn: () => { const el = document.getElementById('home-furnus-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderFurnusTab(); } },
+        { elId: 'home-kovarna-content', fn: () => { const el = document.getElementById('home-kovarna-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderKovarnaTab(); } },
         // Zahrada (screen 'garden') — zahony pokrývá renderGarden() přímo
         { elId: 'garden-tab-dvur', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard(); } },
         { elId: 'garden-tab-sad', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderOrchard(); } },
@@ -261,6 +262,10 @@ const UI = {
         // dilny-pozemky-mrd.md v0.3, 25.8.2026.
         const _furnusBtn = document.getElementById('home-sub-furnus');
         if (_furnusBtn) _furnusBtn.style.display = (GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built) ? '' : 'none';
+
+        // Kovárna — gate na built, mirror Furnus přesně. kovarna-dilna-mrd.md v0.6, 30.8.2026.
+        const _kovarnaBtn = document.getElementById('home-sub-kovarna');
+        if (_kovarnaBtn) _kovarnaBtn.style.display = (GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.built) ? '' : 'none';
 
         this.renderResourceTracker();
 
@@ -2384,6 +2389,7 @@ const UI = {
         const vapenice = document.getElementById('home-vapenice-content');
         const mill = document.getElementById('home-mill-content');
         const furnus = document.getElementById('home-furnus-content');
+        const kovarna = document.getElementById('home-kovarna-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
@@ -2391,6 +2397,7 @@ const UI = {
         if (vapenice) vapenice.style.display = tab === 'vapenice' ? 'block' : 'none';
         if (mill) mill.style.display = tab === 'mill' ? 'block' : 'none';
         if (furnus) furnus.style.display = tab === 'furnus' ? 'block' : 'none';
+        if (kovarna) kovarna.style.display = tab === 'kovarna' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
@@ -2415,6 +2422,10 @@ const UI = {
         // Furnus (Pekárna) — dilny-pozemky-mrd.md v0.3, 25.8.2026, mirror vapenice dispatch.
         if (tab === 'furnus' && furnus && typeof CellariumSystem !== 'undefined') {
             furnus.innerHTML = CellariumSystem.renderFurnusTab();
+        }
+        // Kovárna — kovarna-dilna-mrd.md v0.6, 30.8.2026, mirror furnus dispatch.
+        if (tab === 'kovarna' && kovarna && typeof CellariumSystem !== 'undefined') {
+            kovarna.innerHTML = CellariumSystem.renderKovarnaTab();
         }
     },
 

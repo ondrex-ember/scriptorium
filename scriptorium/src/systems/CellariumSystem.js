@@ -684,6 +684,9 @@ const CellariumSystem = {
       { itemId: 'iron_flail',    basePrice: 60,  dailyStock: 2,  req_tech: 'tech_kovarina' },
       { itemId: 'iron_shovel',   basePrice: 55,  dailyStock: 2,  req_tech: 'tech_kovarina' },
       { itemId: 'iron_saw',      basePrice: 65,  dailyStock: 2,  req_tech: 'tech_kovarina' },
+      // kovarna-dilna-mrd.md v0.5 (30.8.2026) — vybavení pro Kovárnu
+      { itemId: 'podkovarske_kladivo', basePrice: 35, dailyStock: 2, req_tech: 'tech_kovarina' },
+      { itemId: 'raspa_kopytni',       basePrice: 20, dailyStock: 1, req_tech: 'tech_kovarina' },
       // Kadidlo — vzácné arabské olibanum přes Giacoma (Thuribulum)
       { itemId: 'resin_olibanum',  basePrice: 45, dailyStock: 1,  req_tech: 'tech_thuribulum' },
     ],
@@ -1755,6 +1758,66 @@ const CellariumSystem = {
   // §6.1, 16.8.2026). Fáze 1: jen mlynsky_nahon. Tři stavy per parcela:
   // available (koupit), pending (čeká na Zemské desky, 24h), owned
   // (koupena — stavba Mlýna samotná je samostatnej, budoucí krok).
+  // ── Kovárna — vlastní pec (kovarna-dilna-mrd.md v0.6, 30.8.2026) ────────
+  // Mirror FireplaceSystem (fireplace.js) principu, ale vlastní, nezávislý
+  // stav — Kovárna NENÍ domácí Foculus, dvě oddělený ohniště. Jakmile
+  // Kovárna stojí, VŠECHNO kovářský kování (starejch 33 receptů + nový 3
+  // podkovářský) potřebuje hořící pec — gate žije v InventoryManager.craft().
+  KOVARNA_FUEL_VALUES: {
+    stick: 1 * 60 * 60 * 1000,
+    wood: 2 * 60 * 60 * 1000,
+    log: 4 * 60 * 60 * 1000,
+    charcoal: 16 * 60 * 60 * 1000, // mnohem delší hoření než v domácím Foculusu (8h)
+  },
+  KOVARNA_MAX_FUEL_MS: 24 * 60 * 60 * 1000,
+
+  _ensureKovarnaFurnace: function() {
+    if (!GameState.storage) GameState.storage = {};
+    if (!GameState.storage.kovarna) GameState.storage.kovarna = { built: false, tier: 0 };
+    if (!GameState.storage.kovarna.furnace) {
+      GameState.storage.kovarna.furnace = { fuelMs: 0, lastFuelType: null, lastUpdate: Date.now(), craftCount: 0 };
+    }
+  },
+
+  kovarnaAddFuel: function(itemId) {
+    this._ensureKovarnaFurnace();
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (!(GameState.storage.kovarna && GameState.storage.kovarna.built)) return;
+    const fuelAmount = this.KOVARNA_FUEL_VALUES[itemId];
+    if (!fuelAmount) return;
+    if ((GameState.inventory[itemId] || 0) < 1) {
+      const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+      UI.notify((lang === 'en' ? 'Not enough: ' : 'Nedostatek: ') + itemName, true);
+      return;
+    }
+    const f = GameState.storage.kovarna.furnace;
+    if (f.fuelMs + fuelAmount > this.KOVARNA_MAX_FUEL_MS) {
+      UI.notify(lang === 'en' ? 'The furnace is full.' : 'Pec je plná.', true);
+      return;
+    }
+    InventoryManager.removeItem(itemId, 1);
+    f.fuelMs += fuelAmount;
+    f.lastFuelType = itemId;
+    Game.save();
+    const el = document.getElementById('home-kovarna-content');
+    if (el) el.innerHTML = this.renderKovarnaTab();
+    UI.notify(lang === 'en' ? '🔥 Fuel added.' : '🔥 Palivo přiloženo.');
+  },
+
+  // Volané z hlavního game loopu (core/game.js setInterval), mirror
+  // FireplaceSystem.tick() — počítá i reálný čas offline.
+  kovarnaFurnaceTick: function() {
+    if (!(GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.built)) return;
+    this._ensureKovarnaFurnace();
+    const f = GameState.storage.kovarna.furnace;
+    if (f.fuelMs <= 0) return;
+    const now = Date.now();
+    const delta = now - (f.lastUpdate || now);
+    f.lastUpdate = now;
+    f.fuelMs = Math.max(0, f.fuelMs - delta);
+    if (f.fuelMs <= 0) f.lastFuelType = null;
+  },
+
   // Furnus (Pekárna) — obsah sub-tabu (dilny-pozemky-mrd.md v0.3, 25.8.2026).
   // Mirror LimeSystem.render() stylově, ale jednodušší — jeden recept
   // (bread_fine), žádné vícefázové zrání. §8 MRD — trvalá cechovní
@@ -1808,6 +1871,205 @@ const CellariumSystem = {
       h += `<button onclick="Game.craft('bread_fine')" ${can ? '' : 'disabled'} style="padding:8px 16px; border-radius:6px; cursor:pointer; font-size:0.85rem;">🍞 ${lang === 'en' ? 'Bake bread' : 'Upéct chléb'}</button>`;
     }
     h += `</div>`;
+    return h;
+  },
+
+  // ── Kovárna — tab obsah (kovarna-dilna-mrd.md v0.6, 30.8.2026) ──────────
+  KOVARNA_TIERS: [
+    { name: 'Oprava podkov', name_en: 'Horseshoe Repair', cost: 0, req: null },
+    { name: 'Kování nových podkov', name_en: 'Forging New Horseshoes', cost: 40, req: { materials: { iron_ingot: 4, plank: 5, hrebiky: 6 } } },
+    { name: 'Prémiové podkovy', name_en: 'Premium Horseshoes', cost: 90, req: { materials: { iron_ingot: 8, plank: 8, hrebiky: 10, wild_leather: 3 } } },
+  ],
+
+  _kovarnaMeetsRequirements: function(req) {
+    if (!req) return true;
+    if (req.materials) {
+      for (const matId in req.materials) {
+        if ((GameState.inventory[matId] || 0) < req.materials[matId]) return false;
+      }
+    }
+    return true;
+  },
+
+  upgradeKovarna: function() {
+    if (!GameState.storage || !GameState.storage.kovarna) return;
+    const kov = GameState.storage.kovarna;
+    const tier = kov.tier || 0;
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (tier >= this.KOVARNA_TIERS.length) return;
+    const next = this.KOVARNA_TIERS[tier];
+    if (!next) return;
+    if (!this._kovarnaMeetsRequirements(next.req)) { UI.notify('⚠️ ' + (lang === 'en' ? 'Requirements not met.' : 'Podmínky nesplněny.'), true); return; }
+    if (this.getGrose() < next.cost) { UI.notify('⚠️ ' + (lang === 'en' ? 'Not enough groschen.' : 'Nedostatek grošů.'), true); return; }
+    this.addGrose(-next.cost);
+    const mats = (next.req && next.req.materials) || {};
+    for (const matId in mats) InventoryManager.removeItem(matId, mats[matId]);
+    kov.tier = tier + 1;
+    Game.save();
+    const name = lang === 'en' ? next.name_en : next.name;
+    UI.notifyPanel('🔨 ' + (lang === 'en' ? 'The smithy advances: ' : 'Kovárna postoupila: ') + name + '.', 'success');
+    Game.addKronikaEntry('important',
+      '🔨 Kovárna povýšena na stupeň ' + (tier + 1) + ' — ' + name + '.',
+      '🔨 The Kovárna advanced to Tier ' + (tier + 1) + ' — ' + name + '.',
+      '🔨 Officina fabrilis aucta est.');
+    const el = document.getElementById('home-kovarna-content');
+    if (el) el.innerHTML = this.renderKovarnaTab();
+  },
+
+  _kovarnaFurnaceSvg: function(active) {
+    const glow = active ? `
+      <ellipse cx="70" cy="88" rx="22" ry="10" fill="#ff8c3a" opacity="0.55">
+        <animate attributeName="opacity" values="0.4;0.75;0.4" dur="1.6s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="70" cy="86" rx="12" ry="6" fill="#ffd27a" opacity="0.7">
+        <animate attributeName="opacity" values="0.5;0.9;0.5" dur="1.1s" repeatCount="indefinite"/>
+      </ellipse>` : '';
+    return `<svg viewBox="0 0 140 130" width="100%" height="120" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+      <ellipse cx="70" cy="122" rx="55" ry="6" fill="rgba(8,6,3,0.4)"/>
+      <rect x="20" y="30" width="100" height="80" rx="4" fill="#4a4038" stroke="#0a0806" stroke-width="1.5"/>
+      <path d="M 45 110 L 45 70 Q 45 55 70 55 Q 95 55 95 70 L 95 110 Z" fill="#161310"/>
+      ${glow}
+      <rect x="55" y="95" width="30" height="8" rx="2" fill="#2e2822" stroke="#0a0806" stroke-width="1"/>
+      <rect x="50" y="103" width="40" height="6" rx="1" fill="#1a1712"/>
+    </svg>`;
+  },
+
+  _renderKovarnaTierPanel: function(tier, lang) {
+    const cur = this.KOVARNA_TIERS[tier - 1];
+    const next = this.KOVARNA_TIERS[tier];
+    const curName = cur ? (lang === 'en' ? cur.name_en : cur.name) : '?';
+    let h = `<div style="padding:12px 15px; margin-bottom:12px; background:rgba(197,160,89,0.05); border:1px solid rgba(197,160,89,0.25); border-radius:8px;">
+      <div style="font-weight:bold; font-size:0.9rem; margin-bottom:8px;">🔨 ${lang === 'en' ? 'Tier' : 'Stupeň'} ${tier} — ${curName}</div>`;
+    if (next) {
+      const nextName = lang === 'en' ? next.name_en : next.name;
+      const req = next.req || {};
+      const rows = [];
+      if (req.materials) {
+        Object.keys(req.materials).forEach(matId => {
+          const need = req.materials[matId];
+          const have = GameState.inventory[matId] || 0;
+          const matName = (typeof iName === 'function') ? iName(matId) : matId;
+          rows.push([have >= need, matName + ' ' + have + '/' + need]);
+        });
+      }
+      const met = rows.every(r => r[0]);
+      h += rows.map(r => `<div style="font-size:0.68rem; ${r[0] ? 'opacity:0.7;' : 'color:#c0392b;'}">${r[0] ? '✓' : '✗'} ${r[1]}</div>`).join('');
+      h += `<button class="craft-btn" style="margin-top:8px; width:100%;" ${met && this.getGrose() >= next.cost ? '' : 'disabled'} onclick="CellariumSystem.upgradeKovarna()">⬆️ ${lang === 'en' ? 'Raise to' : 'Povýšit na'} ${nextName} (${next.cost}g)</button>`;
+    } else {
+      h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Highest tier reached.' : 'Nejvyšší úroveň dosažena.'}</div>`;
+    }
+    h += `</div>`;
+    return h;
+  },
+
+  _renderKovarnaGuildReminder: function(lang) {
+    const guildId = 'kovarsky';
+    const g = (typeof GuildsDB !== 'undefined') ? GuildsDB[guildId] : null;
+    const gName = g ? (lang === 'en' ? g.name_en : g.name) : 'Kovářský cech';
+    const matterKey = 'kovarsky:hamr';
+    const pravoStatus = (GameState.guildPravo && GameState.guildPravo[matterKey] && GameState.guildPravo[matterKey].status) || 'none';
+    if (pravoStatus === 'granted') {
+      return `<div style="background:rgba(76,175,80,0.1); border:1px solid #4CAF50; padding:10px 14px; border-radius:6px; margin-bottom:12px; font-size:0.78rem;">
+        ✅ ${lang === 'en' ? `Legal sale right with ${gName} — 10% fee applies, no risk.` : `Máš právo prodeje od cechu ${gName} — platí se 10 % poplatek, bez rizika.`}
+      </div>`;
+    }
+    return `<div style="background:rgba(197,90,60,0.1); border:1px solid #b05a3c; padding:10px 14px; border-radius:6px; margin-bottom:12px; font-size:0.78rem;">
+      ⚠️ ${lang === 'en' ? `Selling smithy goods on the Market without ${gName}'s leave is fušerství — no fee, but suspicion grows and a raid may follow. Negotiate in Cellarium — Guilds.` : `Prodej kovářského zboží na Trhu bez svolení cechu ${gName} je fušerství — bez poplatku, ale podezření roste a časem hrozí nájezd. Vyjednej si to v Cellariu — Cechy.`}
+    </div>`;
+  },
+
+  _renderKovarnaCraftList: function(lang) {
+    if (typeof RecipesDB === 'undefined') return '';
+    const recipes = RecipesDB.filter(r => r.cat === 'iron' && (!r.locked || (GameState.unlockedRecipes && GameState.unlockedRecipes.includes(r.id))));
+    if (!recipes.length) return '';
+    let h = `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85; margin:10px 0 8px;">⚒️ ${lang === 'en' ? 'Smithing' : 'Kovářství'}</div>`;
+    h += `<div style="display:grid; grid-template-columns:1fr; gap:6px;">`;
+    recipes.forEach(r => {
+      const prod = ItemsDB[r.output];
+      if (!prod) return;
+      let can = true;
+      let reqStr = '';
+      Object.entries(r.req || {}).forEach(([id, amt]) => {
+        const has = GameState.inventory[id] || 0;
+        const missing = (amt > 0 && has < amt) || (amt === 0 && !has);
+        if (missing) can = false;
+        const iN = (typeof iName === 'function') ? iName(id) : id;
+        reqStr += `<span style="${missing ? 'color:#b05a3c;' : ''}">${iN}${amt > 0 ? ' ' + has + '/' + amt : ''}</span> `;
+      });
+      if (r.toolReq) {
+        const hasTool = r.toolReq.some(tr => (GameState.inventory[tr.item] || 0) > 0 || (GameState.inventory['worn_' + tr.item] || 0) > 0);
+        if (!hasTool) can = false;
+        const toolNames = r.toolReq.map(tr => (typeof iName === 'function') ? iName(tr.item) : tr.item).join('/');
+        reqStr += `<span style="${hasTool ? '' : 'color:#b05a3c;'}">+ 🔧 ${toolNames}</span>`;
+      }
+      if (prod.maxStack && !r.id.startsWith('repair_')) {
+        const have = GameState.inventory[r.output] || 0;
+        const worn = GameState.inventory['worn_' + r.output] || 0;
+        if (have + worn >= prod.maxStack) can = false;
+      }
+      const label = r.id.startsWith('repair_') ? (lang === 'en' ? 'Repair' : 'Opravit') : (lang === 'en' ? 'Forge' : 'Kovat');
+      h += `<div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:6px;">
+        <div style="font-size:1.3rem;">${prod.icon}</div>
+        <div style="flex:1; font-size:0.8rem;"><strong>${lang === 'en' ? (prod.name_en || prod.name) : prod.name}</strong><div style="font-size:0.68rem; opacity:0.75;">${reqStr}</div></div>
+        <button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${label}</button>
+      </div>`;
+    });
+    h += `</div>`;
+    return h;
+  },
+
+  renderKovarnaTab: function() {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    let h = `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">
+      <h4 style="margin:0 0 8px 0; color:var(--ink-primary);">🔨 ${lang === 'en' ? 'Kovárna — the Smithy' : 'Kovárna'}</h4>
+      <div style="font-size:0.82rem; opacity:0.75; font-style:italic;">
+        ${lang === 'en'
+          ? "The smith's work has outgrown its old corner — anvil, forge and tools have all moved here, into a proper workshop of their own."
+          : 'Kovářská práce přerostla svůj starý kout — kovadlina, výheň i nářadí se přestěhovaly sem, do vlastní pořádné dílny.'}
+      </div>
+    </div>`;
+
+    if (!(GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.built)) {
+      h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'Kovárna not yet built.' : 'Kovárna ještě není postavena.'}</div>`;
+      return h;
+    }
+
+    this._ensureKovarnaFurnace();
+    const kov = GameState.storage.kovarna;
+    const furnace = kov.furnace;
+    const tier = kov.tier || 0;
+
+    const pct = Math.max(0, Math.min(100, Math.round((furnace.fuelMs / this.KOVARNA_MAX_FUEL_MS) * 100)));
+    const active = furnace.fuelMs > 0;
+    const hoursLeft = Math.floor(furnace.fuelMs / 3600000);
+    const fuelTypeName = furnace.lastFuelType ? ((typeof iName === 'function') ? iName(furnace.lastFuelType) : furnace.lastFuelType) : null;
+
+    h += `<div style="background:rgba(0,0,0,0.03); padding:14px; border-radius:8px; margin-bottom:12px;">
+      <div style="text-align:center; margin-bottom:8px;">${this._kovarnaFurnaceSvg(active)}</div>
+      <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.7; margin-bottom:3px;">
+        <span>${active ? (lang === 'en' ? 'Furnace burning' : 'Pec hoří') + (fuelTypeName ? ' (' + fuelTypeName + ')' : '') : (lang === 'en' ? 'Furnace cold' : 'Pec vychladlá')}</span>
+        <span>${active ? hoursLeft + 'h' : ''}</span>
+      </div>
+      <div style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:10px; border:1px solid rgba(197,160,89,0.3);">
+        <div style="height:100%; width:${pct}%; background:#ffbd40; transition:width 0.5s;"></div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        ${['stick', 'wood', 'log', 'charcoal'].map(fid => {
+          const have = GameState.inventory[fid] || 0;
+          const fname = (typeof iName === 'function') ? iName(fid) : fid;
+          const hrs = this.KOVARNA_FUEL_VALUES[fid] / 3600000;
+          return `<button class="filter-btn" style="flex:1; min-width:80px;" ${have < 1 ? 'disabled' : ''} onclick="CellariumSystem.kovarnaAddFuel('${fid}')" title="+${hrs}h">+ ${fname} (${have})</button>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+    const waterCount = GameState.inventory['water'] || 0;
+    h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:12px;">💧 ${lang === 'en' ? 'Water for quenching' : 'Voda na kalení'}: <strong>${waterCount}</strong></div>`;
+
+    h += this._renderKovarnaTierPanel(tier, lang);
+    h += this._renderKovarnaGuildReminder(lang);
+    h += this._renderKovarnaCraftList(lang);
+
     return h;
   },
 
@@ -2542,6 +2804,23 @@ const CellariumSystem = {
           ? 'Requires: own the Bakers\' Yard parcel (Cellarium — Land) + Abbot approval (petition)'
           : 'Nutné: vlastnit parcelu Pekařský dvůr (Cellarium — Pozemky) + souhlas opata (žádost)',
         petition_type: 'furnus',
+      },
+      {
+        // kovarna-dilna-mrd.md v0.5 (30.8.2026) — druhá dílna, mirror furnus
+        // entry přesně. req_build kombinuje opatovu petici o Kovárnu SAMOTNOU
+        // A vlastnictví parcely Dvůr u hradební zdi — obojí musí platit.
+        id: 'kovarna', icon: '🔨',
+        name: 'Kovárna', name_en: 'Kovárna (Smithy)',
+        desc: 'Kovárna s pevnou kovadlinou a stálým žárem. Oprava a kování podkov ve velkém. Vyžaduje souhlas opata a vlastní pozemek (Dvůr u hradební zdi).',
+        desc_en: 'A smithy with a firm anvil and steady heat. Repairing and forging horseshoes at scale. Requires Abbot consent and its own parcel (the Wall-side Yard).',
+        cost: { rock: 25, plank: 15, charcoal: 10, anvil: 1, hrebiky: 8 },
+        req_tech: (GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarna')),
+        req_build: (GameState.abbotPetition && GameState.abbotPetition.kovarna && GameState.abbotPetition.kovarna.status === 'approved')
+          && (GameState.landParcels && GameState.landParcels['u_hradby'] && GameState.landParcels['u_hradby'].status === 'owned'),
+        req_label: lang === 'en'
+          ? 'Requires: own the Wall-side Yard parcel (Cellarium — Land) + Abbot approval (petition)'
+          : 'Nutné: vlastnit parcelu Dvůr u hradební zdi (Cellarium — Pozemky) + souhlas opata (žádost)',
+        petition_type: 'kovarna',
       },
       {
         id: 'sulci', icon: '🪠',

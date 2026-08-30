@@ -306,7 +306,7 @@ const FarmyardSystem = {
                 // dřív byla tahle větev za "if MOOD_V2_PENS return", takže se
                 // pro 'stable' nikdy nespustila (mrtvý kód, 'stable' navíc
                 // chybělo v ALL_PENS vůbec).
-                if (pen === 'stable' && a.shoeDurability > 0) a.shoeDurability = Math.max(0, a.shoeDurability - 1);
+                if (pen === 'stable') FarmyardSystem.applyShoeWear(a, 1);
                 if (isV2Mood) return; // v2: nálada z getMood(), ne z pasivního decay
                 // Pasivní decay −5/den; přeplněný výběh −10 navíc
                 let decay = 5;
@@ -388,6 +388,39 @@ const FarmyardSystem = {
         if (typeof UI !== 'undefined' && UI.notify) UI.notify('💩 ' + t('farmyard.cleanDone').replace('{n}', n));
         if (typeof Game !== 'undefined' && Game.save) Game.save();
         this.renderFarmyard();
+    },
+
+    // ── Opotřebení a ztráta podkov — centralizovaná funkce
+    // (kovarna-dilna-mrd.md v0.5, 30.8.2026). VŠECHNY místa, co dnes nebo
+    // v budoucnu opotřebovávaj podkovy koně, volaj TOHLE, ne vlastní inline
+    // Math.max(0, shoeDurability - N) — jedno místo pravdy, žádná duplikace
+    // při budoucích akcích s koňmi (Forman/kočár apod.).
+    //
+    // Zóna rizika: JEN pod 75 % durability. Nad tím žádnej roll. Pod 75 %
+    // hází se kostka NA KAŽDÝ volání — 1:88 běžná sada, 1:220 (×0,4)
+    // prémiová (animal.shoePremium). Úspěch = sada upadla a je ztracená
+    // navždy (žádnej worn_sada_podkov). Běžný doopotřebení na 0 (bez
+    // ztráty) vygeneruje worn_sada_podkov — repair v Kovárně T1.
+    applyShoeWear: function (animal, wearAmount) {
+        if (!animal) return;
+        if (animal.shoeDurability === undefined) animal.shoeDurability = 0;
+        const before = animal.shoeDurability;
+        if (before <= 0 || !wearAmount) return; // bosý kůň, nic k opotřebení
+
+        animal.shoeDurability = Math.max(0, before - wearAmount);
+
+        if (animal.shoeDurability > 0 && animal.shoeDurability < 75) {
+            const lossChance = animal.shoePremium ? (1 / 220) : (1 / 88);
+            if (Math.random() < lossChance) {
+                animal.shoeDurability = 0;
+                return; // upadla za jízdy, ztracena — žádnej item
+            }
+        }
+
+        if (before > 0 && animal.shoeDurability === 0) {
+            if (!GameState.inventory) GameState.inventory = {};
+            GameState.inventory['worn_sada_podkov'] = (GameState.inventory['worn_sada_podkov'] || 0) + 1;
+        }
     },
 
     // ── Okování koní (Kovář-reference MRD, 2.8.2026) ────────────────────

@@ -589,7 +589,7 @@ const ScavengeManager = {
             const _mineMs = Math.round(_tierStart * 60 * 1000 * _horseTimeMult);
             // Aktivní opotřebení podkov — škáluje s délkou tieru (X = round(6×tier/30))
             const _shoeWear = Math.round(6 * _tierStart / 30);
-            _stableAnimals.forEach(a => { if (a.shoeDurability > 0) a.shoeDurability = Math.max(0, a.shoeDurability - _shoeWear); });
+            _stableAnimals.forEach(a => { if (typeof FarmyardSystem !== 'undefined') FarmyardSystem.applyShoeWear(a, _shoeWear); });
             GameState.activeAction = { id: type, startTime: Date.now(), endTime: Date.now() + _mineMs, multiplier: _mMultiplier, durationMin: _tierStart, freshMult: _freshMultStart };
             Game.save(); UI.renderMineActions();
             return;

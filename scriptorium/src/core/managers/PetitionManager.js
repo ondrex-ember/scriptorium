@@ -116,6 +116,29 @@ const PetitionManager = {
             }
         }
 
+        // Validace podmínek — pro Kovárnu, kovarna-dilna-mrd.md v0.5 (30.8.2026)
+        if (type === 'kovarna') {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarna'))) {
+                UI.notify(t('abbotPetition.kovarna.denied_tech'), true); return;
+            }
+            if (!(GameState.landParcels && GameState.landParcels['u_hradby'] && GameState.landParcels['u_hradby'].status === 'owned')) {
+                UI.notify(t('abbotPetition.kovarna.denied_parcel'), true); return;
+            }
+            if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 70) {
+                UI.notify(t('abbotPetition.kovarna.denied_groats'), true); return;
+            }
+            if ((GameState.inventory['anvil'] || 0) < 1) {
+                UI.notify(t('abbotPetition.kovarna.denied_anvil'), true); return;
+            }
+        }
+
+        // Validace podmínek — pro Dvůr u hradební zdi (parcela), mirror land_dvur_pekarsky.
+        if (type === 'land_u_hradby') {
+            if (!(GameState.flags && GameState.flags.pozemky_active)) {
+                UI.notify(t('abbotPetition.land_u_hradby.denied_regalia'), true); return;
+            }
+        }
+
         // Validace podmínek — pro Columbarium (Porta)
         if (type === 'columbarium') {
             if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_porta'))) {
@@ -181,7 +204,7 @@ const PetitionManager = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'columbarium', 'domus_ii', 'domus_iii', 'probost'].forEach(type => {
+        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'kovarna', 'land_u_hradby', 'columbarium', 'domus_ii', 'domus_iii', 'probost'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -215,6 +238,17 @@ const PetitionManager = {
             }
 
             if (type === 'land_dvur_pekarsky') {
+                if (!(GameState.flags && GameState.flags.pozemky_active)) deniedKey = 'denied_regalia';
+            }
+
+            if (type === 'kovarna') {
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_kovarna'))) deniedKey = 'denied_tech';
+                else if (!(GameState.landParcels && GameState.landParcels['u_hradby'] && GameState.landParcels['u_hradby'].status === 'owned')) deniedKey = 'denied_parcel';
+                else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 70) deniedKey = 'denied_groats';
+                else if ((GameState.inventory['anvil'] || 0) < 1) deniedKey = 'denied_anvil';
+            }
+
+            if (type === 'land_u_hradby') {
                 if (!(GameState.flags && GameState.flags.pozemky_active)) deniedKey = 'denied_regalia';
             }
 

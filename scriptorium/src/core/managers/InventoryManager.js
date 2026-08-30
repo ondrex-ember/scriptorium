@@ -126,6 +126,52 @@ const InventoryManager = {
             }
         }
 
+        // Gate: podkovy vyžadují Kovárnu a odpovídající tier (kovarna-dilna-mrd.md v0.5, 30.8.2026)
+        if (r.id === 'repair_sada_podkov') {
+            if (!(GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.built)) {
+                const _gl = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(_gl === 'en' ? '❌ Requires the Kovárna (smithy).' : '❌ Vyžaduje Kovárnu.', true);
+                return;
+            }
+        }
+        if (r.id === 'sada_podkov') {
+            const _tier = (GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.tier) || 0;
+            if (_tier < 2) {
+                const _gl = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(_gl === 'en' ? '❌ Requires Kovárna Tier 2.' : '❌ Vyžaduje Kovárnu, stupeň 2.', true);
+                return;
+            }
+        }
+        if (r.id === 'sada_podkov_premium') {
+            const _tier = (GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.tier) || 0;
+            if (_tier < 3) {
+                const _gl = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(_gl === 'en' ? '❌ Requires Kovárna Tier 3.' : '❌ Vyžaduje Kovárnu, stupeň 3.', true);
+                return;
+            }
+        }
+
+        // Gate: JAKMILE Kovárna stojí, VŠECHNO kovářský kování (starejch 33
+        // receptů + nový 3 podkovářský) potřebuje hořící pec — mirror
+        // Foculus principu, ale samostatný stav (kovarna-dilna-mrd.md v0.6,
+        // 30.8.2026). Před postavením Kovárny beze změny (Fabrica/tech_kovarina
+        // jede jako dřív, žádnej fire-gate).
+        let _usedKovarnaFire = false;
+        if (r.cat === 'iron' && GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.built) {
+            if (typeof CellariumSystem !== 'undefined') CellariumSystem._ensureKovarnaFurnace();
+            const _furnace = GameState.storage.kovarna.furnace;
+            const _gl = (GameState.settings && GameState.settings.language) || 'cs';
+            if (!_furnace || _furnace.fuelMs <= 0) {
+                UI.notify(_gl === 'en' ? '❌ The furnace has gone cold. Add fuel in the Kovárna.' : '❌ Pec vychladla. Přilož palivo v Kovárně.', true);
+                return;
+            }
+            if (r.id === 'sada_podkov_premium' && _furnace.lastFuelType !== 'charcoal') {
+                UI.notify(_gl === 'en' ? '❌ Premium work needs the furnace burning on charcoal.' : '❌ Prémiová práce potřebuje pec hořící na uhlí.', true);
+                return;
+            }
+            _usedKovarnaFire = true;
+        }
+
         // maxStack check — iron nástroje max 1 ks (repair_ recepty vyjmuty, ty vlastnictví worn_ verze vyžadují)
         const outItem = ItemsDB[r.output];
         if (outItem && outItem.maxStack && !r.id.startsWith('repair_')) {
@@ -189,6 +235,19 @@ const InventoryManager = {
             InventoryManager.removeItem(item, amt);
         }
         if (_foundTool) InventoryManager.useToolCharge(_foundTool.item);
+
+        // Voda na kalení — minimální spotřeba, jen když se kovalo u hořící
+        // pece v Kovárně (kovarna-dilna-mrd.md v0.6, 30.8.2026). 1 voda po
+        // každým 4. kovářským craftu, soft (bez vody = žádná penalizace,
+        // jen se nespotřebuje).
+        if (_usedKovarnaFire) {
+            const _furnace = GameState.storage.kovarna.furnace;
+            _furnace.craftCount = (_furnace.craftCount || 0) + 1;
+            if (_furnace.craftCount >= 4) {
+                _furnace.craftCount = 0;
+                if ((GameState.inventory['water'] || 0) >= 1) InventoryManager.removeItem('water', 1);
+            }
+        }
 
         // Init toolUses pro nový nástroj
         if (outItem && outItem.maxUses) {
@@ -884,6 +943,10 @@ const InventoryManager = {
         if (!GameState.storage.fodina) GameState.storage.fodina = { built: false };
         if (!GameState.storage.fornax_ferraria) GameState.storage.fornax_ferraria = { built: false };
         if (!GameState.storage.furnus) GameState.storage.furnus = { built: false };
+        // kovarna-dilna-mrd.md v0.5 (30.8.2026) — Kovárna, druhá dílna. tier
+        // 0 dokud built===false, na 1 skočí automaticky při dokončení stavby
+        // (viz konec funkce), T2/T3 se odemykaj samostatnym upgradem.
+        if (!GameState.storage.kovarna) GameState.storage.kovarna = { built: false, tier: 0 };
         if (!GameState.storage.vapenice) GameState.storage.vapenice = { built: false };
         if (!GameState.storage.udirna) GameState.storage.udirna = { built: false };
         if (!GameState.storage.cerna_kuchyne) GameState.storage.cerna_kuchyne = { built: false };
@@ -936,6 +999,12 @@ const InventoryManager = {
         // dilny-pozemky-mrd.md v0.3 — Furnus (25.8.2026), mirror fornax_ferraria
         if (type === 'furnus') {
             if (!(GameState.abbotPetition && GameState.abbotPetition.furnus && GameState.abbotPetition.furnus.status === 'approved')) {
+                UI.notify(lang === 'en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
+            }
+        }
+        // kovarna-dilna-mrd.md v0.5 (30.8.2026) — Kovárna, mirror furnus přesně.
+        if (type === 'kovarna') {
+            if (!(GameState.abbotPetition && GameState.abbotPetition.kovarna && GameState.abbotPetition.kovarna.status === 'approved')) {
                 UI.notify(lang === 'en' ? '❌ Abbot approval required. Submit a petition first.' : '❌ Vyžaduje souhlas opata. Nejprve zašli žádost.', true); return;
             }
         }
@@ -994,6 +1063,9 @@ const InventoryManager = {
             // dilny-pozemky-mrd.md v0.3 — Furnus (25.8.2026), i18n build_cost
             // (cs.js/en.js abbotPetition.furnus.build_cost) musí sedět s tímhle.
             furnus: { clay: 20, rock: 15, plank: 10, hrebiky: 5 },
+            // kovarna-dilna-mrd.md v0.5 (30.8.2026) — Kovárna, i18n build_cost
+            // (abbotPetition.kovarna.build_cost) musí sedět s tímhle.
+            kovarna: { rock: 25, plank: 15, charcoal: 10, anvil: 1, hrebiky: 8 },
             vapenice: { plank: 15, cut_stone: 20, clay: 20, hrebiky: 7 },
             // mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — kámen+železo+vápno,
             // mirror Udírna/Vápenice škály (mid-tier utility budova).
@@ -1040,6 +1112,9 @@ const InventoryManager = {
         for (const [item, amt] of Object.entries(cost)) { InventoryManager.removeItem(item, amt); }
         if (groseNeeded > 0 && typeof CellariumSystem !== 'undefined') CellariumSystem.addGrose(-groseNeeded, { title: lang === 'en' ? 'Construction' : 'Stavba', source: type, source_en: type });
         GameState.storage[type].built = true;
+        // kovarna-dilna-mrd.md v0.5 (30.8.2026) — stavba Kovárny = automaticky
+        // Tier 1 (oprava podkov). T2/T3 se odemykaj samostatnym upgradem, ne tady.
+        if (type === 'kovarna') GameState.storage.kovarna.tier = 1;
         Game.save();
         const names = {
             almarium: 'Almarium', cella: 'Cella', horreum: 'Horreum',
@@ -1049,6 +1124,7 @@ const InventoryManager = {
             uvarium: 'Uvarium', prelum_olei: 'Prelum Olei',
             fornax_ferraria: 'Fornax Ferraria',
             furnus: 'Furnus',
+            kovarna: 'Kovárna',
             vapenice: 'Vápenice',
             old_cellars: 'Staré sklepy',
             domus_conversorum_i: 'Domus Conversorum I',

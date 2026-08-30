@@ -652,6 +652,17 @@ const RecipesDB = [
     { id:"repair_iron_saw_whetstone",     output:"iron_saw",     qty:1, req:{worn_iron_saw:1},     toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení zubů pily obtahovacím kamenem.", desc_en:"Hone the saw teeth with a whetstone." },
     { id:"repair_iron_pickaxe_whetstone", output:"iron_pickaxe", qty:1, req:{worn_iron_pickaxe:1}, toolReq:[{item:"whetstone"}], cat:"iron", locked:true, desc:"Nabroušení hrotu krumpáče obtahovacím kamenem.", desc_en:"Hone the pickaxe head with a whetstone." },
 
+    // ── KOVÁRNA — podkovy (kovarna-dilna-mrd.md v0.5, 30.8.2026) ────────────
+    // Gate na storage.kovarna.tier žije v InventoryManager.craft(), ne tady
+    // (mirror bread_fine/iron_ingot vzoru — locked:true jen řídí viditelnost
+    // v UI po tech_kovarina, tier gate je samostatná podmínka navrch).
+    { id:"repair_sada_podkov", output:"sada_podkov", qty:1, req:{worn_sada_podkov:1}, toolReq:[{item:"podkovarske_kladivo"}], cat:"iron", locked:true,
+      desc:"Rozklepané podkovy znovu narovnat a nahřát.", desc_en:"Straighten and reheat the worn horseshoes." },
+    { id:"sada_podkov", output:"sada_podkov", qty:1, req:{iron_ingot:2, hrebiky:4}, toolReq:[{item:"podkovarske_kladivo"}], cat:"iron", locked:true,
+      desc:"Nová sada podkov z ingotu, ne z nákupu od vesnickýho kováře.", desc_en:"A fresh horseshoe set from ingot, not bought from the village smith." },
+    { id:"sada_podkov_premium", output:"sada_podkov_premium", qty:1, req:{iron_ingot:3, hrebiky:6}, toolReq:[{item:"podkovarske_kladivo"},{item:"raspa_kopytni"}], cat:"iron", locked:true,
+      desc:"Čistší železo, rašplí doladěný tvar — vydrží na kopytu podstatně déle.", desc_en:"Purer iron, shaped precisely with the rasp — lasts far longer on the hoof." },
+
     // ── VINOHRAD — stavby ─────────────────────────────────────────────────────
     { id:"prelum",            output:"prelum",            qty:1,
       req:{plank:8, rope:4, rock:6, iron_ingot:2},
