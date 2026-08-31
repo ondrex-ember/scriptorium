@@ -496,6 +496,26 @@ const InfirmariumSystem = {
                             ${(typeof SaeculumSystem !== 'undefined' && SaeculumSystem._flebotomieActionHtml) ? SaeculumSystem._flebotomieActionHtml(entity, isBrother, lang) : ''}
                           </div>`;
 
+                    // Neduhy bez léku — jen informativní poznámka (audit 31.8.2026,
+                    // Pécuchet, na Bouvardovo přání). cures:[] je záměrné (historicky
+                    // bezlékový nemoci jako dna/otrava olovem), ale hráč z UI dřív
+                    // neměl jak poznat, že žádný tlačítko nikdy nepřibude — teď se
+                    // ukáže rovnou "advice" text z HealthConditionsDB.
+                    if (entity.conditions) {
+                        const noCureNotes = [];
+                        Object.keys(entity.conditions).forEach(cid => {
+                            const def = typeof HealthConditionsDB !== 'undefined' ? HealthConditionsDB[cid] : null;
+                            if (def && def.cures && def.cures.length === 0 && (def.advice || def.advice_en)) {
+                                const condName = lang === 'en' ? def.name_en : def.name;
+                                const advice = lang === 'en' ? def.advice_en : def.advice;
+                                noCureNotes.push(`<div style="font-size:0.62rem; opacity:0.7; font-style:italic; margin:2px 0;">🕊️ <b>${condName}:</b> ${advice}</div>`);
+                            }
+                        });
+                        if (noCureNotes.length) {
+                            h += `<div style="margin:4px 0 6px;">${noCureNotes.join('')}</div>`;
+                        }
+                    }
+
                     // Lékárna — podání léku
                     const hasApothecarius = ((GameState.dormitorium && GameState.dormitorium.brothers) || []).some(b => b.assignedTab === 'infirmarium_apothecarius');
                     if (hasApothecarius && entity.conditions) {
