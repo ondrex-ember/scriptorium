@@ -12,6 +12,15 @@
 // systémovým gtřepem přes CELÝ game.js (ne jen původní blok), ne jen přes
 // blínou Game.X( kontrolu jako u předchozích domén.
 const HealthCareManager = {
+    // infirmarium-dashboard-mirror (30.8.2026) — akce se dřív re-renderovaly
+    // jen přes SaeculumSystem.switchEntity(), takže pokud je akce spuštěná
+    // z NOVÉHO zrcadlenýho tlačítka v InfirmariumSystem tabu, ten zůstal
+    // stale. Tenhle helper refreshne oba, kterej je zrovna v DOMu.
+    _refreshInfirmariumTab: function () {
+        const el = document.getElementById('home-infirmarium-content');
+        if (el && typeof InfirmariumSystem !== 'undefined') el.innerHTML = InfirmariumSystem.renderInfirmariumTab();
+    },
+
     healthConditionsDailyTick: function () {
         if (typeof HealthSystem === 'undefined') return;
         if (!GameState.healthTick) GameState.healthTick = { lastCheck: 0 };
@@ -71,6 +80,7 @@ const HealthCareManager = {
         UI.notifyPanel('🧽 ' + (lang === 'en' ? k.name + "'s pain is eased — back on his feet sooner." : k.name + 'ovi ulevila bolest — brzy na nohou.'), 'success');
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity('conversi');
+        HealthCareManager._refreshInfirmariumTab();
     },
 
     // Capellanus — duchovní útěcha pacientovi, jednou za pobyt. Jinej efekt než
@@ -96,6 +106,7 @@ const HealthCareManager = {
         UI.notifyPanel('🙏 ' + (lang === 'en' ? entity.name + ' finds peace in confession.' : entity.name + ' nalezl klid ve zpovědi.'), 'success');
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+        HealthCareManager._refreshInfirmariumTab();
     },
 
     hireChirurgus: function () {
@@ -173,6 +184,7 @@ const HealthCareManager = {
         }
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+        HealthCareManager._refreshInfirmariumTab();
     },
 
     // ── Valetudo pro Conversi/Dormitorium ────────────────────────────────
@@ -409,6 +421,7 @@ const HealthCareManager = {
         UI.notifyPanel('🩺 ' + (lang === 'en' ? entity.name + ' admitted to the infirmary.' : entity.name + ' přijat do Infirmaria.'), 'system');
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+        HealthCareManager._refreshInfirmariumTab();
     },
 
     dischargeFromInfirmarium: function (entityId, isBrother) {
@@ -421,6 +434,7 @@ const HealthCareManager = {
         if (entity) UI.notifyPanel('🩺 ' + (lang === 'en' ? entity.name + ' discharged from the infirmary.' : entity.name + ' propuštěn z Infirmaria.'), 'system');
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+        HealthCareManager._refreshInfirmariumTab();
     },
 
     // Apothecarius podá lék admitted pacientovi — spotřebuje 1× item z inventáře,
@@ -458,6 +472,7 @@ const HealthCareManager = {
         }
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+        HealthCareManager._refreshInfirmariumTab();
     },
 
     // Trvalé úmrtí — Rajský dvůr (vnitřní pohřebiště komunity), NE farní Hřbitov
