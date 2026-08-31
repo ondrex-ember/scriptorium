@@ -98,6 +98,11 @@ const ItemsDB = {
     // konopna-mast-mrd (31.8.2026) — Athanor discovery, mirror mast_kostivalova/tinktura_rebrikova.
     "konopna_mast": { name: "Konopná mast", name_en: "Cannabis Salve", icon: "🫙", type: "alchemy", desc: "Konopí uvařené s voskem nebo sádlem. Na revma a svrab.", desc_en: "Hemp boiled with wax or lard. For rheumatism and scabies." },
     "konopna_tinktura": { name: "Konopná tinktura", name_en: "Cannabis Tincture", icon: "🍶", type: "alchemy", desc: "Konopí louhované v octě. Dobově zaznamenané i proti dně.", desc_en: "Hemp steeped in vinegar. Historically recorded for gout as well." },
+    // athanor-nove-recepty (31.8.2026) — výstupy 4 nových receptů
+    "hipokras": { name: "Hipokras", name_en: "Hippocras", icon: "🍷", type: "alchemy", desc: "Víno se skořicí, zázvorem a hřebíčkem. Nejrozšířenější kořeněné víno středověké Evropy.", desc_en: "Wine with cinnamon, ginger and clove. The most widespread spiced wine of medieval Europe." },
+    "kadidlo_liturgicke": { name: "Liturgické kadidlo", name_en: "Liturgical Incense", icon: "🏺", type: "alchemy", desc: "Olibanum se styraxem — obvyklá směs klášterních vykuřovadel.", desc_en: "Olibanum blended with styrax — the usual mix of monastic censers." },
+    "safranove_vino": { name: "Šafránové víno", name_en: "Saffron Wine", icon: "🍷", type: "alchemy", desc: "Šafrán louhovaný ve víně proti smutku srdce.", desc_en: "Saffron steeped in wine against sorrow of heart." },
+    "muskatovy_balzam": { name: "Muškátový balzám", name_en: "Nutmeg Balm", icon: "🍯", type: "alchemy", desc: "Muškát svařený s medem — vyvážené teplo i sucho, dobré pro zklidnění.", desc_en: "Nutmeg boiled with honey — a balance of heat and dryness, good for calming." },
     "dried_cannabis": { name: "Sušené konopí", name_en: "Dried Hemp", icon: "🥀", type: "mat", desc: "Konopí sušené 24 hodin ve stínu. Připravené k napěchování do dýmky.", desc_en: "Hemp dried for 24 hours in the shade. Ready to be packed into a pipe." },
     "antidote": { name: "Protijed", name_en: "Antidote", icon: "💚", type: "alchemy", desc: "Proti jedu.", desc_en: "Against poison." },
     "odvar_z_dubenek": { name: "Odvar z duběnek", name_en: "Oak Gall Decoction", icon: "🫘", type: "alchemy", desc: "Svíravý odvar. Zastavuje krvácení a průjem.", desc_en: "An astringent decoction. Stops bleeding and flux." },

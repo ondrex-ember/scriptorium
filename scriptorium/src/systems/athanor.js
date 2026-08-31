@@ -668,6 +668,137 @@ const AthanorDB = {
       color: '#f0d020', icon: '🟡', thermal: 4, moisture: -4,
       lore: 'Sulfid arsenitý. Zářivě žlutý — a smrtelně jedovatý.',
       lore_en: 'Arsenic sulfide. Brilliantly yellow — and deadly poisonous.'
+    },
+
+    // athanor-reverzni-audit (31.8.2026, Gemini + ověřeno Pécuchet proti
+    // živýmu repu) — 18 ingrediencí dostupnejch ve hře (scavenge/trh/mine/
+    // farma), ale dřív v Athanoru chybějících úplně. thermal/moisture
+    // podle humorální teorie, každá s vlastním dobovým pramenem (viz lore).
+    {
+      id: 'resin_spruce', name: 'Smrková pryskyřice', name_en: 'Spruce Resin', name_lat: 'Resina Piceae',
+      rarity: 'common', source: 'foraging', color: '#a8722a', icon: '🌲',
+      thermal: 2, moisture: -2,
+      lore: 'Dioscorides i Galénos: smrková smůla je prohřívací a vysušující 2. stupně.',
+      lore_en: 'Dioscorides and Galen: spruce pitch is warming and drying, 2nd degree.'
+    },
+    {
+      id: 'resin_styrax', name: 'Styrax', name_en: 'Styrax', name_lat: 'Styrax',
+      rarity: 'rare', source: 'trade', color: '#8b5a2a', icon: '🏺',
+      thermal: 3, moisture: -2,
+      lore: 'Avicenna (Canon Medicinae) i Mattioli: Storax je výrazně teplý (3. stupeň) a suchý.',
+      lore_en: 'Avicenna (Canon Medicinae) and Mattioli: storax is markedly warm (3rd degree) and dry.'
+    },
+    {
+      id: 'resin_olibanum', name: 'Olibanum', name_en: 'Olibanum', name_lat: 'Olibanum',
+      rarity: 'rare', source: 'trade', color: '#e8c078', icon: '✨',
+      thermal: 2, moisture: -3,
+      lore: 'Dioscorides (De Materia Medica): Thus je teplo 2. stupně, silně vysušující (3. stupeň).',
+      lore_en: 'Dioscorides (De Materia Medica): Thus is warm in the 2nd degree, strongly drying (3rd degree).'
+    },
+    {
+      id: 'galium', name: 'Svízel syřišťový', name_en: "Lady's Bedstraw", name_lat: 'Galium Verum',
+      rarity: 'common', source: 'foraging', color: '#d4c840', icon: '🌼',
+      thermal: -1, moisture: -2,
+      lore: 'Tabernaemontanus: svízel je chladný a stahující/vysušující.',
+      lore_en: 'Tabernaemontanus: bedstraw is cooling and astringent/drying.'
+    },
+    {
+      id: 'iron_ore', name: 'Železná ruda', name_en: 'Iron Ore', name_lat: 'Ferrum Crudum',
+      rarity: 'common', source: 'existing', color: '#6b5648', icon: '🪨',
+      thermal: -2, moisture: -3,
+      lore: 'Pseudo-Geber (Summa Perfectionis): syrová ruda železa je chladné a vysušené těleso.',
+      lore_en: 'Pseudo-Geber (Summa Perfectionis): raw iron ore is a cold and dried-out body.'
+    },
+    {
+      id: 'vapenec', name: 'Vápenec', name_en: 'Limestone', name_lat: 'Calx Cruda',
+      rarity: 'common', source: 'existing', color: '#d8d0c0', icon: '⚪',
+      thermal: -1, moisture: -3,
+      lore: 'Syrový vápenec před žíháním je chladný a extrémně suchý kámen — teplo získává až v peci.',
+      lore_en: 'Raw limestone before firing is a cold, extremely dry stone — it gains heat only in the kiln.'
+    },
+    {
+      id: 'pepr_cerny', name: 'Černý pepř', name_en: 'Black Pepper', name_lat: 'Piper Nigrum',
+      rarity: 'uncommon', source: 'trade', color: '#2a2018', icon: '⚫',
+      thermal: 4, moisture: -4,
+      lore: 'Galénos i Avicenna: černý pepř na hranici 4. stupně tepla a sucha.',
+      lore_en: 'Galen and Avicenna: black pepper at the very edge of the 4th degree of heat and dryness.'
+    },
+    {
+      id: 'zazvor', name: 'Zázvor', name_en: 'Ginger', name_lat: 'Zingiber',
+      rarity: 'uncommon', source: 'trade', color: '#d4a860', icon: '🫚',
+      thermal: 3, moisture: 1,
+      lore: 'Hildegarda z Bingen (Physica, kap. 13): zázvor je velmi teplý (3. stupeň) s mírnou vlhkostí.',
+      lore_en: 'Hildegard of Bingen (Physica, ch. 13): ginger is very warm (3rd degree) with mild moisture.'
+    },
+    {
+      id: 'hrebicek', name: 'Hřebíček', name_en: 'Clove', name_lat: 'Caryophyllus',
+      rarity: 'uncommon', source: 'trade', color: '#4a2818', icon: '🟤',
+      thermal: 3, moisture: -3,
+      lore: 'Salernská škola (Regimen Sanitatis): hřebíček je horký a suchý ve 3. stupni.',
+      lore_en: 'The Salerno school (Regimen Sanitatis): clove is hot and dry in the 3rd degree.'
+    },
+    {
+      id: 'safran', name: 'Šafrán', name_en: 'Saffron', name_lat: 'Crocus Sativus',
+      rarity: 'rare', source: 'trade', color: '#e8a020', icon: '🟡',
+      thermal: 2, moisture: -1,
+      lore: 'Avicenna i Cennino Cennini: šafrán je teplý ve 2. stupni a stahující (suchý v 1. stupni).',
+      lore_en: 'Avicenna and Cennino Cennini: saffron is warm in the 2nd degree and astringent (dry in the 1st).'
+    },
+    {
+      id: 'skorice', name: 'Skořice', name_en: 'Cinnamon', name_lat: 'Cinnamomum',
+      rarity: 'uncommon', source: 'trade', color: '#a8683a', icon: '🟫',
+      thermal: 3, moisture: -2,
+      lore: 'Dioscorides i Mattioli: skořice je horká ve 3. stupni a suchá ve 2. stupni.',
+      lore_en: 'Dioscorides and Mattioli: cinnamon is hot in the 3rd degree and dry in the 2nd.'
+    },
+    {
+      id: 'muskat', name: 'Muškátový oříšek', name_en: 'Nutmeg', name_lat: 'Nux Moschata',
+      rarity: 'rare', source: 'trade', color: '#8b6030', icon: '🟠',
+      thermal: 2, moisture: -2,
+      lore: 'Hildegarda z Bingen: muškátový ořech je vyvážené teplo i sucho (2. stupeň).',
+      lore_en: 'Hildegard of Bingen: nutmeg balances heat and dryness (2nd degree).'
+    },
+    {
+      id: 'salt', name: 'Sůl', name_en: 'Salt', name_lat: 'Sal Commune',
+      rarity: 'common', source: 'trade', color: '#f0f0f0', icon: '🧂',
+      thermal: 2, moisture: -3,
+      lore: 'Pseudo-Geber (Summa Perfectionis): sůl je suchý a stahující princip 2. stupně tepla — jedna ze tří zásad.',
+      lore_en: "Pseudo-Geber (Summa Perfectionis): salt is the dry, astringent principle of the 2nd degree of heat — one of the three Principles."
+    },
+    {
+      id: 'milk', name: 'Ovčí mléko', name_en: 'Sheep Milk', name_lat: 'Lac Ovis',
+      rarity: 'common', source: 'existing', color: '#f8f4e8', icon: '🥛',
+      thermal: 1, moisture: 2,
+      lore: 'Galénos: čerstvé mléko je mírně teplé (1. stupeň) a vlhké (2. stupeň).',
+      lore_en: 'Galen: fresh milk is mildly warm (1st degree) and moist (2nd degree).'
+    },
+    {
+      id: 'wool', name: 'Vlna', name_en: 'Wool', name_lat: 'Lana',
+      rarity: 'common', source: 'existing', color: '#e8e0d0', icon: '🧶',
+      thermal: 1, moisture: -1,
+      lore: 'Aristotelovská fyzika i středověké herbáře: ovčí vlna je mírně teplé a suché krycí těleso.',
+      lore_en: "Aristotelian physics and medieval herbals: sheep's wool is a mildly warm and dry covering body."
+    },
+    {
+      id: 'linden_blossom', name: 'Lipový květ', name_en: 'Linden Blossom', name_lat: 'Flos Tiliae',
+      rarity: 'common', source: 'foraging', color: '#e8d878', icon: '🌸',
+      thermal: 1, moisture: 2,
+      lore: 'Mattioliho Herbář: lipový květ je mírně teplý (1. stupeň) a bohatý na vlhký sliz (2. stupeň).',
+      lore_en: "Mattioli's Herbal: linden blossom is mildly warm (1st degree) and rich in moist mucilage (2nd degree)."
+    },
+    {
+      id: 'worms', name: 'Červi', name_en: 'Worms', name_lat: 'Lumbrici',
+      rarity: 'common', source: 'foraging', color: '#c08060', icon: '🪱',
+      thermal: -2, moisture: 3,
+      lore: 'Valerius Cordus i dobová farmakopea: dešťovky jsou chladní a vlhcí tvorové ze zemské hlíny.',
+      lore_en: 'Valerius Cordus and period pharmacopoeia: earthworms are cold and moist creatures of the earth.'
+    },
+    {
+      id: 'acorn', name: 'Žalud', name_en: 'Acorn', name_lat: 'Glans',
+      rarity: 'common', source: 'foraging', color: '#8b6030', icon: '🌰',
+      thermal: -1, moisture: -3,
+      lore: 'Dioscorides: žaludy jsou silně stahující, chladné (1. stupeň) a suché (3. stupeň) plody.',
+      lore_en: 'Dioscorides: acorns are strongly astringent fruits, cold (1st degree) and dry (3rd degree).'
     }
   ],
 
@@ -1620,6 +1751,38 @@ const AthanorDB = {
       effect: null, unlockFolio: 'folio_scr03',
       lore: 'Konopí louhované v octě. Dobově zaznamenané i proti dně.',
       lore_en: 'Hemp steeped in vinegar. Historically recorded for gout as well.'
+    },
+    // athanor-nove-recepty (31.8.2026) — 4 recepty z 18 nových ingrediencí,
+    // jen ty s vysokou jistotou dobovýho pramene. Zbylejch 14 zůstává zatím
+    // jako "surovina bez receptu" — čeká na konkrétní podklady z NotebookLM,
+    // ne na vymyšlený spojení naslepo.
+    'hrebicek+skorice+wine+zazvor:maceratio': {
+      result: { id: 'hipokras', qty: 2 },
+      name: 'Hipokras', name_en: 'Hippocras', name_lat: 'Vinum Hipocras', icon: '🍷',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Víno louhované se skořicí, zázvorem a hřebíčkem. Nejrozšířenější kořeněné víno středověké Evropy — recept se opakuje napříč dobovýma kuchařkama od Francie po Čechy.',
+      lore_en: "Wine steeped with cinnamon, ginger and clove. The most widespread spiced wine of medieval Europe — the recipe repeats across period cookbooks from France to Bohemia."
+    },
+    'resin_olibanum+resin_styrax:coctio': {
+      result: { id: 'kadidlo_liturgicke', qty: 2 },
+      name: 'Liturgické kadidlo', name_en: 'Liturgical Incense', name_lat: 'Thus Liturgicum', icon: '🏺',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Olibanum se styraxem — obvyklá směs klášterních vykuřovadel, dvě pryskyřice dovezený stejnou levantskou cestou.',
+      lore_en: 'Olibanum blended with styrax — the usual mix of monastic censers, two resins imported along the same Levantine route.'
+    },
+    'safran+wine:maceratio': {
+      result: { id: 'safranove_vino', qty: 2 },
+      name: 'Šafránové víno', name_en: 'Saffron Wine', name_lat: 'Vinum Croceum', icon: '🍷',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Šafrán louhovaný ve víně proti smutku srdce — Avicenna i Dioscorides mu připisovali sílu "rozveselit mysl".',
+      lore_en: "Saffron steeped in wine against sorrow of heart — Avicenna and Dioscorides both credited it with the power to \"cheer the mind.\""
+    },
+    'honey+muskat:coctio': {
+      result: { id: 'muskatovy_balzam', qty: 1 },
+      name: 'Muškátový balzám', name_en: 'Nutmeg Balm', name_lat: 'Balsamicum Nucis Moschatae', icon: '🍯',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Muškát svařený s medem — Hildegarda ho popisovala jako vyvážené teplo i sucho, dobré pro zklidnění.',
+      lore_en: "Nutmeg boiled down with honey — Hildegard described it as a balance of heat and dryness, good for calming."
     },
     'honey+juniper:coctio': {
       result: { id: 'sirup_jalovcovy', qty: 1 },
@@ -2676,16 +2839,18 @@ const AthanorSystem = {
     herbs: ['chamomile', 'st_johns_wort', 'thyme', 'hops', 'rose', 'gentian',
       'comfrey', 'fennel', 'herb_blue', 'hyssop', 'juniper', 'mandrake', 'plantain',
       'poppy', 'rosemary', 'wormwood', 'yarrow', 'vrbova_kura', 'berries', 'theriacum_simplex',
-      'cannabis'],
+      'cannabis', 'galium', 'linden_blossom'],
     pigments: ['lapis_lazuli', 'ochre', 'cinnabar', 'carbon_black', 'egg_tempera', 'linseed_oil', 'malachite',
       'auripigmentum', 'calx_cupri', 'cerusa', 'cinere_stanni', 'ink_gallic', 'lazulium_mellitum',
       'lithargyrum', 'minium', 'ochra_flava', 'palette_membrana', 'sinopia_tosta', 'verdigris_purum', 'verdigris'],
     liquids: ['water', 'wine', 'vinegar', 'ash_water',
       'acetum_destillatum', 'aqua_ardens', 'aqua_fortis', 'spiritus_vini'],
     minerals: ['chalk', 'gum_arabic', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol', 'lead', 'copper', 'tin', 'sal_petrae', 'arsenicum',
-      'sal_alkali', 'sal_ammoniac', 'sandarak', 'tartarus', 'mercury', 'spodium'],
+      'sal_alkali', 'sal_ammoniac', 'sandarak', 'tartarus', 'mercury', 'spodium', 'iron_ore', 'vapenec'],
     brewing: ['grain', 'hops', 'wort', 'honey', 'thyme'],
-    materials: ['bone', 'cornu_cervi', 'egg', 'wood', 'stick', 'ash', 'charcoal', 'beeswax', 'propolis', 'bee_bread', 'resin_pine', 'lard'],
+    materials: ['bone', 'cornu_cervi', 'egg', 'wood', 'stick', 'ash', 'charcoal', 'beeswax', 'propolis', 'bee_bread', 'resin_pine', 'lard',
+      'resin_spruce', 'resin_styrax', 'resin_olibanum', 'worms', 'acorn', 'wool', 'milk'],
+    spices: ['pepr_cerny', 'zazvor', 'hrebicek', 'safran', 'skorice', 'muskat', 'salt'],
   },
 
   _activeIngFilter: 'all',
@@ -2727,6 +2892,7 @@ const AthanorSystem = {
       { id: 'liquids', label: '💧 Tekutiny', label_en: '💧 Liquids' },
       { id: 'minerals', label: '🪨 Minerály', label_en: '🪨 Minerals' },
       { id: 'materials', label: '🦴 Suroviny', label_en: '🦴 Materials' },
+      { id: 'spices', label: '🌶️ Koření', label_en: '🌶️ Spices' },
       { id: 'brewing', label: '🍺 Pivovar', label_en: '🍺 Brewing' },
     ];
     const active = AthanorSystem._activeIngFilter || 'all';
