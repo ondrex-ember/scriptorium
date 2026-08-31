@@ -3546,7 +3546,7 @@ const UI = {
         const adv = GameState.chroniconAdvisory;
         const extPending = adv && adv.pending && (adv.pending.kind === 'ctenar' || adv.pending.kind === 'vypujcka') ? adv.pending : null;
         const intPending = GameState.library && GameState.library.pendingInternalLoan;
-        if (extPending || intPending) {
+        {
             let contextHtml = '';
             let windowButtons = [];
             if (extPending) {
@@ -3565,6 +3565,11 @@ const UI = {
                     { label: lang === 'en' ? 'Approve' : 'Schválit', onclick: `LibraryHelpers.resolveInternalLoanRequest('approve');UI.renderVypujckyTab();` },
                     { label: lang === 'en' ? 'Deny' : 'Zamítnout', onclick: `LibraryHelpers.resolveInternalLoanRequest('deny');UI.renderVypujckyTab();` },
                 ];
+            } else {
+                // Klidový stav — okénko je trvalá součást tabu (Bouvard,
+                // 29.8.2026: "chci hezký herní design", ne jen podmíněný
+                // popup), ne něco, co se objeví jen při žádosti.
+                contextHtml = `<div style="margin-bottom:10px;opacity:0.7;font-style:italic;">${lang === 'en' ? 'No one is waiting right now.' : 'Momentálně tu nikdo nečeká.'}</div>`;
             }
             const headerText = lang === 'en' ? 'LENDING WINDOW' : 'VÝPŮJČNÍ OKÉNKO';
             h += `<div style="margin-bottom:20px;">
