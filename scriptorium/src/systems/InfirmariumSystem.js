@@ -356,7 +356,7 @@ const InfirmariumSystem = {
             Object.values(this.TREATMENTS).forEach(t => {
                 const name = lang === 'en' ? t.name_en : t.name_cs;
                 const desc = lang === 'en' ? t.desc_en : t.desc_cs;
-                h += `<button class="craft-btn" style="text-align:left; padding:8px 10px; height:auto; display:flex; flex-direction:column; justify-content:space-between;" onclick="Game.applyVisitatioTreatment('${s.patientId}', ${s.isBrother}, '${t.id}')">
+                h += `<button class="craft-btn" style="text-align:left; padding:8px 10px; height:auto; display:flex; flex-direction:column; justify-content:space-between; white-space:normal; margin-left:0; width:100%;" onclick="Game.applyVisitatioTreatment('${s.patientId}', ${s.isBrother}, '${t.id}')">
                         <div>
                             <div style="font-weight:bold; font-size:0.75rem; margin-bottom:3px;">${t.icon} ${name}</div>
                             <div style="font-size:0.65rem; opacity:0.75; font-weight:normal; line-height:1.2;">${desc}</div>

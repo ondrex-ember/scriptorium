@@ -2658,12 +2658,12 @@ const CellariumSystem = {
           <span id="inv-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
           <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${lbl.icon} ${lang === 'en' ? lbl.en : lbl.cs} (${catRows.length})</span>
         </div>`;
-        h += `<div id="inv-cat-body-${cat}" style="display:${collapsed ? 'none' : 'flex'}; flex-direction:column; gap:5px;">`;
+        h += `<div id="inv-cat-body-${cat}" style="display:${collapsed ? 'none' : 'grid'}; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:5px;">`;
         catRows.forEach(r => { h += renderRow(r); });
         h += `</div>`;
       });
     } else {
-      h += `<div style="display:flex; flex-direction:column; gap:5px;">`;
+      h += `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:5px;">`;
       rows.forEach(r => { h += renderRow(r); });
       h += `</div>`;
     }
@@ -2689,7 +2689,7 @@ const CellariumSystem = {
     const collapsed = !GameState.uiPrefs.invCollapsed[cat];
     GameState.uiPrefs.invCollapsed[cat] = collapsed;
     const body = document.getElementById('inv-cat-body-' + cat);
-    if (body) body.style.display = collapsed ? 'none' : 'flex';
+    if (body) body.style.display = collapsed ? 'none' : 'grid';
     const chevron = document.getElementById('inv-cat-chevron-' + cat);
     if (chevron) chevron.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(90deg)';
     if (typeof Game !== 'undefined' && Game.save) Game.save();
@@ -2834,7 +2834,7 @@ const CellariumSystem = {
     if (txs.length === 0) {
       h += `<div style="text-align:center; padding:20px; opacity:0.5; font-style:italic; font-size:0.85rem;">${emptyLabel}</div>`;
     } else {
-      h += `<div style="display:flex; flex-direction:column; gap:5px; max-height:400px; overflow-y:auto;">`;
+      h += `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:5px; max-height:400px; overflow-y:auto;">`;
       txs.forEach(tx => {
         const isSell = tx.type === 'sell';
         const tLabel = typeLabel[tx.type] || tx.type;
