@@ -760,6 +760,25 @@ const AthanorDB = {
       lore: 'Rumělkový inkoust pro rubriky a iniciály. Kreslí jím první písmeno kapitoly.',
       lore_en: 'Cinnabar ink for rubrics and initials. Used to draw the first letter of a chapter.'
     },
+    // athanor-audit (31.8.2026, Pécuchet/Bouvard) — verdigris a egg_tempera
+    // byly spotřebovaný v 6+ dalších receptech, ale NIKDY neměly vlastní
+    // výrobní cestu — hráč je nemohl získat, i kdyby chtěl. Obě cesty už
+    // byly naznačený přímo v lore textu (vinegar: "s mědí dává měděnku",
+    // egg_tempera: "žloutek s vínem"), jen nikdy nenapsaný jako recept.
+    'copper+vinegar:maceratio': {
+      result: { id: 'verdigris', qty: 2 },
+      name: 'Měděnka', name_en: 'Verdigris', name_lat: 'Viride Aeris', icon: '🟢',
+      effect: null,
+      lore: 'Měď louhovaná v octě zezelená patinou — týdny čekání, ale zázrak zeleně.',
+      lore_en: 'Copper steeped in vinegar turns green with patina — weeks of waiting, but a miracle of green.'
+    },
+    'egg+wine:trituratio': {
+      result: { id: 'egg_tempera', qty: 2 },
+      name: 'Vaječná tempera', name_en: 'Egg Tempera', name_lat: 'Tempera Ovi', icon: '🥚',
+      effect: null,
+      lore: 'Žloutek rozšlehaný s vínem. Nejstarší pojivo pigmentů, staré jak iluminace samy.',
+      lore_en: 'Egg yolk whisked with wine. The oldest pigment binder, as old as illumination itself.'
+    },
     'egg_tempera+ochre:trituratio': {
       result: { id: 'pigment_yellow', qty: 2 },
       name: 'Žlutý pigment', name_en: 'Yellow Pigment',
@@ -2656,7 +2675,8 @@ const AthanorSystem = {
     all: null,
     herbs: ['chamomile', 'st_johns_wort', 'thyme', 'hops', 'rose', 'gentian',
       'comfrey', 'fennel', 'herb_blue', 'hyssop', 'juniper', 'mandrake', 'plantain',
-      'poppy', 'rosemary', 'wormwood', 'yarrow', 'vrbova_kura', 'berries', 'theriacum_simplex'],
+      'poppy', 'rosemary', 'wormwood', 'yarrow', 'vrbova_kura', 'berries', 'theriacum_simplex',
+      'cannabis'],
     pigments: ['lapis_lazuli', 'ochre', 'cinnabar', 'carbon_black', 'egg_tempera', 'linseed_oil', 'malachite',
       'auripigmentum', 'calx_cupri', 'cerusa', 'cinere_stanni', 'ink_gallic', 'lazulium_mellitum',
       'lithargyrum', 'minium', 'ochra_flava', 'palette_membrana', 'sinopia_tosta', 'verdigris_purum', 'verdigris'],
@@ -2665,7 +2685,7 @@ const AthanorSystem = {
     minerals: ['chalk', 'gum_arabic', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol', 'lead', 'copper', 'tin', 'sal_petrae', 'arsenicum',
       'sal_alkali', 'sal_ammoniac', 'sandarak', 'tartarus', 'mercury', 'spodium'],
     brewing: ['grain', 'hops', 'wort', 'honey', 'thyme'],
-    materials: ['bone', 'cornu_cervi', 'egg', 'wood', 'stick', 'ash', 'charcoal', 'beeswax', 'propolis', 'bee_bread', 'resin_pine'],
+    materials: ['bone', 'cornu_cervi', 'egg', 'wood', 'stick', 'ash', 'charcoal', 'beeswax', 'propolis', 'bee_bread', 'resin_pine', 'lard'],
   },
 
   _activeIngFilter: 'all',
