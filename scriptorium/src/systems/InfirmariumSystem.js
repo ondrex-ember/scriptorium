@@ -109,6 +109,10 @@ const InfirmariumSystem = {
                                 <span>🤒 ${entity.name}${condNames ? ' — '+condNames : ''}</span>
                             </div>
                             ${humorLine}
+                            <div style="margin-top:4px;">
+                                ${(typeof SaeculumSystem !== 'undefined' && SaeculumSystem._infirmariumActionHtml) ? SaeculumSystem._infirmariumActionHtml(entity, p.isBrother, lang) : ''}
+                                ${(typeof SaeculumSystem !== 'undefined' && SaeculumSystem._flebotomieActionHtml) ? SaeculumSystem._flebotomieActionHtml(entity, p.isBrother, lang) : ''}
+                            </div>
                         </div>`;
             }).join('');
         }
