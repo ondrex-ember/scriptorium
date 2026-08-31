@@ -18,7 +18,15 @@
 // tenhle preventivní alias-sweep cílí předejít, ne opravovat po faktu.
 const ConversiManager = {
     // ── CONVERSI — holý skelet (jméno + slot) ───────────────────────────────
-    KONVRS_NAMES: ['Jakub', 'Matěj', 'Ondřej', 'Šimon', 'Tomáš', 'Vojtěch', 'Blažej', 'Havel', 'Prokop', 'Bartoloměj', 'Jiljí', 'Řehoř', 'Vít', 'Bonifác', 'Kliment'],
+    // Rozšířeno 31.8.2026 (name-duplication-mrd) z 15 na 33 jmen — anonymní
+    // pool byl menší než max conversiCapacity() (20), takže při vyčerpání
+    // fallback tiše přiděloval duplicity (viz hireFamulus/hireOblat/
+    // hireKonvrs fallback/ChroniconSystem._resolveGuestJoin). Nová jména
+    // převzata ze schváleného FARNI_FIRST_NAMES_M (TemplumManager.js,
+    // Nekrologium, 30.8.2026) — žádná nová nehistorická jména, jen sjednocení
+    // s už prověřeným poolem pro Olomoucko 1465. Margin 13 nad max kapacitou
+    // dělá fallback-na-duplicitu prakticky nedosažitelný.
+    KONVRS_NAMES: ['Jakub', 'Matěj', 'Ondřej', 'Šimon', 'Tomáš', 'Vojtěch', 'Blažej', 'Havel', 'Prokop', 'Bartoloměj', 'Jiljí', 'Řehoř', 'Vít', 'Bonifác', 'Kliment', 'Jan', 'Václav', 'Petr', 'Mikuláš', 'David', 'Jaromír', 'Radovan', 'Martin', 'Ivo', 'Štěpán', 'Jiří', 'Jaroslav', 'Josef', 'Rudolf', 'Oldřich', 'Aleš', 'Filip', 'Robert'],
 
     conversiCapacity: function () {
         const s = GameState.storage || {};
