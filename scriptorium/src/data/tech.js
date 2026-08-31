@@ -411,7 +411,7 @@ const TechTree = [
     cost: 20,
     desc: "Postavit pořádnou pec na chléb chce víc než jámu v zemi — hliněnou klenbu, co drží žár rovnoměrně po celou várku. S tímto věděním lze požádat opata o stavbu Furnusu. Odemkne: možnost žádat opata o stavbu Furnusu (pekárny).",
     desc_en: "Building a proper bread oven takes more than a pit in the ground — a clay vault that holds heat evenly through the whole batch. With this knowledge the monastery may petition the Abbot to build a Furnus. Unlocks: the ability to petition the Abbot for the Furnus (bakery oven).",
-    unlocks: ["furnus"], requires: ["tech_cooking_1"]
+    unlocks: ["furnus", "pernik", "preclik", "postni_chleb"], requires: ["tech_cooking_1"]
   },
 
   {
