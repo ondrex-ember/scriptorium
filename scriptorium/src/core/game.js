@@ -716,8 +716,18 @@ const Game = {
             try {
                 TimeSys.update();
                 if (typeof FireplaceSystem !== 'undefined') FireplaceSystem.tick();
-                if (typeof CellariumSystem !== 'undefined') CellariumSystem.kovarnaFurnaceTick();
-                if (typeof CellariumSystem !== 'undefined') CellariumSystem.furnusFurnaceTick();
+                // izolovaný try/catch (30.8.2026) — kdyby tohle vyhodilo výjimku
+                // KAŽDOU vteřinu (např. neočekávaný tvar GameState.storage na
+                // starším/testovacím save), celej zbytek hlavního tick bloku níž
+                // (Templum/Infirmarium updateTabVisibility, decay, nálady...) by
+                // se navěky přestal spouštět, protože je ve stejným vnějším
+                // try/catch. Furnace tick nesmí umět tohle strhnout s sebou.
+                try {
+                    if (typeof CellariumSystem !== 'undefined') CellariumSystem.kovarnaFurnaceTick();
+                    if (typeof CellariumSystem !== 'undefined') CellariumSystem.furnusFurnaceTick();
+                } catch (fe) {
+                    console.error('Furnace tick error (Kovárna/Furnus):', fe);
+                }
                 if (typeof ScriptoriumCat !== 'undefined') ScriptoriumCat.warmthTick();
                 if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem.localWorldTick) ChroniconSystem.localWorldTick();
                 Game.checkEnvironment();
