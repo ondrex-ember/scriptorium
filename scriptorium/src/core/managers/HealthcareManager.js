@@ -109,6 +109,143 @@ const HealthCareManager = {
         HealthCareManager._refreshInfirmariumTab();
     },
 
+    // Coquus — posilující výživný bujón / ovesná polévka pro nemocného na lůžku
+    serveNourishingBroth: function (entityId, isBrother) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+        const entity = pool.find(x => x.id === entityId);
+        if (!entity || !entity.admittedToInfirmarium) return;
+        const hasCoquus = (GameState.conversi || []).some(k => k.task === 'coquus');
+        if (!hasCoquus) {
+            UI.notify(lang === 'en' ? 'No Coquus in the infirmary kitchen.' : 'V kuchyni ošetřovny není přiřazen žádný Coquus (kuchař).', true);
+            return;
+        }
+        const now = Date.now();
+        if (entity.lastBrothFed && now - entity.lastBrothFed < 8 * 3600000) {
+            UI.notify(lang === 'en' ? 'Patient is full from the last bowl.' : 'Pacient je ještě plný z předchozí misky.', true);
+            return;
+        }
+        entity.lastBrothFed = now;
+        entity.fatigue = Math.max(0, (entity.fatigue || 0) - 10);
+        if (typeof entity.mood === 'number') entity.mood = Math.min(100, entity.mood + 12);
+        // Zkrátit trvání všech aktivních neduhů o 6 hodin
+        if (entity.conditions) {
+            Object.keys(entity.conditions).forEach(cid => {
+                if (entity.conditions[cid] && entity.conditions[cid].expiresAt) {
+                    entity.conditions[cid].expiresAt -= 6 * 3600000;
+                }
+            });
+        }
+        const quotes = lang === 'en' ? [
+            "🍲 The Coquus served hot broth with lovage — the patient smacks his lips and color returns to his cheeks!",
+            "🍲 A thick bowl of restorative barley porridge: 'God bless the kitchen, my strength returns!'",
+            "🍲 Warm broth with herbs — warmth spreads into weary bones."
+        ] : [
+            "🍲 Kuchař Coquus podal horký bylinný vývar s libečkem — pacient zamlaskal a do tváří se mu vrací barva!",
+            "🍲 Poctivá miska posilující ječné kaše: ‚Pánbůh zaplať kuchyni, hned je mi lépe!‘",
+            "🍲 Horký mastný bujón prohřál zkoušené údy a zklidnil žaludek."
+        ];
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        UI.notifyPanel(quote, 'success');
+        Game.save();
+        if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
+        HealthCareManager._refreshInfirmariumTab();
+    },
+
+    // Krátký odpočinek hráče na volném lůžku ošetřovny
+    takeMonasticRest: function () {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const now = Date.now();
+        if (GameState.lastInfirmaryRest && now - GameState.lastInfirmaryRest < 4 * 3600000) {
+            UI.notify(lang === 'en' ? 'You recently rested in the infirmary.' : 'Nedávno jsi už v ošetřovně odpočíval.', true);
+            return;
+        }
+        GameState.lastInfirmaryRest = now;
+        if (typeof GameState.fatigue === 'number') GameState.fatigue = Math.max(0, GameState.fatigue - 15);
+        const quotes = lang === 'en' ? [
+            "🛌 You lay on fresh straw scented with lavender. The quiet monastery ward restores your peace of mind.",
+            "🛌 A brief rest on the infirmary cot. In the distance, Brother Medicus mutters over his herb vials.",
+            "🛌 You rested your weary eyes. Clean sheets and peace grant +15 energy."
+        ] : [
+            "🛌 Ulehl jsi na čerstvou slámu provoněnou levandulí. Tichá síň ošetřovny ti vrátila klid v duši.",
+            "🛌 Krátký odpočinek na lůžku. Z dálky slyšíš bublání odvarů a bratra kuchaře míchajícího polévku.",
+            "🛌 Zavřel jsi na chvíli znavené oči. Čistá plachta a ticho ti dodaly novou sílu."
+        ];
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        UI.notifyPanel(quote, 'success');
+        Game.save();
+        HealthCareManager._refreshInfirmariumTab();
+    },
+
+    // Aplikace kroku v minihře Vizity (Visitatio Medica)
+    applyVisitatioTreatment: function (patientId, isBrother, treatmentKey) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+        const entity = pool.find(x => x.id === patientId);
+        if (!entity) return;
+
+        if (!InfirmariumSystem._minigameState || InfirmariumSystem._minigameState.patientId !== patientId) {
+            InfirmariumSystem.initMinigame(entity, isBrother);
+        }
+        const state = InfirmariumSystem._minigameState;
+        if (!state || state.finished) return;
+
+        const treatments = InfirmariumSystem.TREATMENTS;
+        const treat = treatments[treatmentKey];
+        if (!treat) return;
+
+        state.turnsUsed = (state.turnsUsed || 0) + 1;
+
+        // Upravit humory
+        Object.keys(treat.humorDeltas || {}).forEach(h => {
+            if (typeof state.humors[h] === 'number') {
+                state.humors[h] = Math.max(10, Math.min(90, state.humors[h] + treat.humorDeltas[h]));
+            }
+        });
+
+        // Vybrat vtipnou hlášku
+        const lines = lang === 'en' ? treat.responses_en : treat.responses_cs;
+        const reaction = lines[Math.floor(Math.random() * lines.length)];
+        state.lastReaction = reaction;
+        state.lastTreatment = treat;
+
+        // Zkontrolovat úspěch po 3 tazích nebo při dobré rovnováze
+        const maxDev = Math.max(...Object.values(state.humors).map(v => Math.abs(v - 50)));
+        const isBalanced = maxDev <= 20;
+
+        if (state.turnsUsed >= 3 || isBalanced) {
+            state.finished = true;
+            // Odměna pro pacienta
+            if (entity.conditions) {
+                Object.keys(entity.conditions).forEach(cid => {
+                    if (entity.conditions[cid] && entity.conditions[cid].expiresAt) {
+                        entity.conditions[cid].expiresAt -= 18 * 3600000; // -18h z trvání
+                    }
+                });
+            }
+            if (typeof entity.mood === 'number') entity.mood = Math.min(100, (entity.mood || 50) + 15);
+            entity.fatigue = Math.max(0, (entity.fatigue || 0) - 15);
+
+            // Odměna pro klášter
+            if (typeof GameState.inventory !== 'undefined') {
+                GameState.inventory['research'] = (GameState.inventory['research'] || 0) + 2;
+            }
+            UI.notifyPanel(lang === 'en'
+                ? `⚕️ Visitatio Medica complete! ${entity.name} feels much better (+2 Research notes, -18h illness).`
+                : `⚕️ Vizita dokončena! ${entity.name} se cítí podstatně lépe (+2 Zápisky, -18h trvání nemoci).`, 'success');
+
+            if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                Game.addKronikaEntry('minor',
+                    `🩺 Úspěšná vizita v Infirmariu u lůžka ${entity.name} — humory srovnány!`,
+                    `🩺 Successful medical visit at ${entity.name}'s bedside — humors balanced!`,
+                    `🩺 Visitatio medica feliciter peracta.`);
+            }
+            Game.save();
+        }
+
+        HealthCareManager._refreshInfirmariumTab();
+    },
+
     hireChirurgus: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const relation = (GameState.contactRelation && GameState.contactRelation['chirurgus']) || 0;

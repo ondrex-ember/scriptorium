@@ -1280,6 +1280,9 @@ const Game = {
     hireChirurgus: function () { return HealthCareManager.hireChirurgus(); },
     checkChirurgusWage: function () { return HealthCareManager.checkChirurgusWage(); },
     performFlebotomie: function (entityId, isBrother) { return HealthCareManager.performFlebotomie(entityId, isBrother); },
+    serveNourishingBroth: function (entityId, isBrother) { return HealthCareManager.serveNourishingBroth(entityId, isBrother); },
+    takeMonasticRest: function () { return HealthCareManager.takeMonasticRest(); },
+    applyVisitatioTreatment: function (patientId, isBrother, treatmentKey) { return HealthCareManager.applyVisitatioTreatment(patientId, isBrother, treatmentKey); },
 
 
     // ═══ D14 (3/4) ═══
