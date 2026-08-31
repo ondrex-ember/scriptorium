@@ -332,6 +332,8 @@ const Game = {
                 bookCondition: {},
                 conditionLastTick: 0,
                 loanedBooks: {},
+                pendingInternalLoan: null,
+                suspectedForgery: {},
                 loanHistory: [],
                 scribeState: {
                     visited: false,

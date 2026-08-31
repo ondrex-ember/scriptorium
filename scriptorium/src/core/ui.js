@@ -4,6 +4,15 @@ const UI = {
     currentScreen: 'home',
     _dirty: { home: false, inv: false, craft: false, lore: false, garden: false },
     _hashInv: '', _hashCraft: '', _hashActions: '',
+    // vypujcky-notifikace-mrd (29.8.2026) — "Vyřešit" v gate modalu vede
+    // sem: přepne na Knihovnu, na subtab Výpůjčky, kde renderVypujckyTab()
+    // rovnou nahoře ukáže pult s aktuální čekající žádostí.
+    goToLibraryRequest: function () {
+        if (!GameState.ui) GameState.ui = {};
+        GameState.ui.libraryTab = 'vypujcky';
+        UI.switchScreen('library');
+    },
+
     switchScreen: function (name, btn) {
         if (name === 'saeculum') {
             this.navigateToSaeculum();
@@ -2965,6 +2974,7 @@ const UI = {
                     const _bookCond = GameState.library.bookCondition && GameState.library.bookCondition[book.id];
                     const _bookDamaged = _bookCond && LibraryHelpers.DAMAGE_THRESHOLD && _bookCond.condition < LibraryHelpers.DAMAGE_THRESHOLD;
                     const _bookLoan = GameState.library.loanedBooks && GameState.library.loanedBooks[book.id];
+                    const _bookForgery = GameState.library.suspectedForgery && GameState.library.suspectedForgery[book.id];
 
                     h += `
                         <div class="card" style="border-color:${isRead ? 'var(--accent-gold)' : 'var(--ink-secondary)'};">
@@ -2972,7 +2982,7 @@ const UI = {
                                 ${book.icon}
                             </div>
                             <div style="flex:1;">
-                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''} ${_bookProt ? `<span title="${_bookProtTitle}">${_bookProtIcon}</span>` : ''} ${_bookDamaged ? '<span title="' + (currentLang === 'en' ? 'Damaged — needs repair' : 'Poškozeno — potřebuje opravu') + '">📕</span>' : ''} ${_bookLoan ? (_bookLoan.internal ? `<span title="${currentLang === 'en' ? 'Being read by ' + _bookLoan.borrowerName : 'Čte si ji ' + _bookLoan.borrowerName}">📖</span>` : `<span title="${currentLang === 'en' ? 'Out on loan to ' + _bookLoan.borrowerName : 'Zapůjčeno: ' + _bookLoan.borrowerName}">📤</span>`) : ''}
+                                <strong>${bookTitle}</strong> ${isRead ? '✓' : ''} ${_bookProt ? `<span title="${_bookProtTitle}">${_bookProtIcon}</span>` : ''} ${_bookDamaged ? '<span title="' + (currentLang === 'en' ? 'Damaged — needs repair' : 'Poškozeno — potřebuje opravu') + '">📕</span>' : ''} ${_bookLoan ? (_bookLoan.internal ? `<span title="${currentLang === 'en' ? 'Being read by ' + _bookLoan.borrowerName : 'Čte si ji ' + _bookLoan.borrowerName}">📖</span>` : `<span title="${currentLang === 'en' ? 'Out on loan to ' + _bookLoan.borrowerName : 'Zapůjčeno: ' + _bookLoan.borrowerName}">📤</span>`) : ''} ${_bookForgery ? `<span title="${currentLang === 'en' ? 'Secundo folio mismatch — possible forgery' : 'Secundo folio nesedí — možný padělek'}">🔍</span>` : ''}
                                 <div class="text-sm">${bookAuthor} (${book.year})</div>
                             </div>
                             ${hasCatalogus ? `<button class="craft-btn" style="font-size:0.75rem;padding:4px 8px;min-width:auto;" onclick="UI.showCatalogModal(LibraryDB.books.find(b=>b.id==='${book.id}'))" title="${t('library_lore.btn_catalog')}">📇</button>` : ''}
@@ -3342,6 +3352,181 @@ const UI = {
     // neplní stavovými panely. Přesunuto z renderLibrary() beze změny
     // logiky, jen onclick reload teď volá renderVypujckyTab() místo
     // renderLibrary().
+    // "Výpůjční okénko" — SVG scéna pultu (grafik, 29.8.2026), viewBox
+    // 800×400. Text odstraněn z SVG (byl natvrdo česky, i18n neprošlo) —
+    // nadpis se vykresluje jako skutečný HTML text přes stejné místo.
+    // Výklenky pro tlačítka jsou v SVG prostoru na x=405,w=350 (řádky
+    // y=115/177/239/301, h=52/52/52/45) — přepočteno na % z viewBoxu,
+    // ať sedí responzivně při libovolné šířce kontejneru (aspect-ratio
+    // 2/1 container + position:absolute uvnitř, žádné pevné px).
+    _LENDING_WINDOW_NICHES: [
+        { left: 50.625, top: 28.75, width: 43.75, height: 13 },
+        { left: 50.625, top: 44.25, width: 43.75, height: 13 },
+        { left: 50.625, top: 59.75, width: 43.75, height: 13 },
+        { left: 50.625, top: 75.25, width: 43.75, height: 11.25 },
+    ],
+
+    _lendingWindowSVG: function () {
+        return `<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%;">
+  <defs>
+    <linearGradient id="lwWoodPlank" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="var(--leather-dark)" stop-opacity="0.95"/>
+      <stop offset="50%" stop-color="var(--ink-secondary)" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="var(--leather-dark)" stop-opacity="0.95"/>
+    </linearGradient>
+    <radialGradient id="lwFireGlow" cx="50%" cy="60%" r="60%">
+      <stop offset="0%" stop-color="#ffb066" stop-opacity="0.9"/>
+      <stop offset="45%" stop-color="var(--accent-wax)" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="var(--accent-wax)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lwRoomDark" cx="50%" cy="45%" r="70%">
+      <stop offset="0%" stop-color="#3a2e22" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#1c1610" stop-opacity="0.97"/>
+    </radialGradient>
+    <linearGradient id="lwMetalHook" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="var(--accent-gold)"/>
+      <stop offset="100%" stop-color="var(--ink-secondary)"/>
+    </linearGradient>
+    <filter id="lwRough" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.04" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4"/>
+    </filter>
+    <filter id="lwWoodgrain" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.008 0.09" numOctaves="3" seed="12" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="6"/>
+    </filter>
+  </defs>
+
+  <g opacity="0.35">
+    <path d="M0 20 Q400 5 800 20" stroke="var(--ink-secondary)" stroke-width="1" fill="none" opacity="0.3"/>
+    <path d="M0 380 Q400 395 800 380" stroke="var(--ink-secondary)" stroke-width="1" fill="none" opacity="0.3"/>
+  </g>
+
+  <g filter="url(#lwWoodgrain)">
+    <rect x="15" y="15" width="770" height="370" rx="6" fill="url(#lwWoodPlank)" stroke="var(--ink-primary)" stroke-width="4"/>
+    <g stroke="var(--ink-primary)" stroke-width="1.5" opacity="0.5" fill="none">
+      <path d="M15 90 Q200 85 400 90 T785 88"/>
+      <path d="M15 170 Q220 175 420 168 T785 172"/>
+      <path d="M15 300 Q250 295 450 302 T785 298"/>
+      <path d="M15 340 Q250 345 450 338 T785 342"/>
+    </g>
+    <g stroke="var(--ink-secondary)" stroke-width="0.8" opacity="0.4" fill="none">
+      <path d="M40 30 Q60 120 45 220 Q35 300 55 375"/>
+      <path d="M120 20 Q140 100 125 200 Q115 290 140 380"/>
+      <path d="M660 25 Q680 110 665 210 Q655 300 675 375"/>
+      <path d="M730 20 Q745 110 735 210 T745 380"/>
+    </g>
+  </g>
+
+  <g fill="var(--ink-primary)" opacity="0.85">
+    <path d="M18 18 L60 18 L60 26 L26 26 L26 60 L18 60 Z"/>
+    <path d="M782 18 L740 18 L740 26 L774 26 L774 60 L782 60 Z"/>
+    <path d="M18 382 L60 382 L60 374 L26 374 L26 340 L18 340 Z"/>
+    <path d="M782 382 L740 382 L740 374 L774 374 L774 340 L782 340 Z"/>
+  </g>
+  <g fill="var(--accent-gold)" opacity="0.9">
+    <circle cx="30" cy="30" r="3.5"/><circle cx="770" cy="30" r="3.5"/>
+    <circle cx="30" cy="370" r="3.5"/><circle cx="770" cy="370" r="3.5"/>
+  </g>
+
+  <rect x="70" y="70" width="230" height="230" rx="10" fill="url(#lwRoomDark)" stroke="var(--ink-primary)" stroke-width="5" filter="url(#lwRough)"/>
+  <ellipse cx="185" cy="230" rx="90" ry="55" fill="url(#lwFireGlow)"/>
+  <g opacity="0.85">
+    <rect x="95" y="95" width="180" height="90" fill="#241c14" opacity="0.6"/>
+    <rect x="140" y="205" width="90" height="70" rx="6" fill="#241a12" stroke="var(--ink-primary)" stroke-width="2"/>
+    <rect x="150" y="215" width="70" height="20" rx="3" fill="var(--accent-wax)" opacity="0.55"/>
+    <rect x="158" y="217" width="54" height="12" rx="2" fill="#ffae56" opacity="0.85">
+      <animate attributeName="opacity" values="0.6;0.95;0.6" dur="3.2s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="178" y="150" width="14" height="60" fill="#2a2018" stroke="var(--ink-primary)" stroke-width="1"/>
+    <circle cx="170" cy="200" r="2" fill="#ffb066" opacity="0.7">
+      <animate attributeName="cy" values="200;170;150" dur="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.7;0.3;0" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="200" cy="205" r="1.6" fill="#ffcf8a" opacity="0.6">
+      <animate attributeName="cy" values="205;175;155" dur="3s" repeatCount="indefinite" begin="0.6s"/>
+      <animate attributeName="opacity" values="0.6;0.25;0" dur="3s" repeatCount="indefinite" begin="0.6s"/>
+    </circle>
+  </g>
+
+  <g stroke="var(--ink-primary)" stroke-width="6" stroke-linecap="round" filter="url(#lwRough)">
+    <line x1="115" y1="70" x2="115" y2="300"/><line x1="185" y1="70" x2="185" y2="300"/><line x1="255" y1="70" x2="255" y2="300"/>
+    <line x1="70" y1="130" x2="300" y2="130"/><line x1="70" y1="200" x2="300" y2="200"/><line x1="70" y1="260" x2="300" y2="260"/>
+  </g>
+  <g fill="var(--accent-gold)" opacity="0.8">
+    <circle cx="115" cy="130" r="3"/><circle cx="185" cy="130" r="3"/><circle cx="255" cy="130" r="3"/>
+    <circle cx="115" cy="200" r="3"/><circle cx="185" cy="200" r="3"/><circle cx="255" cy="200" r="3"/>
+  </g>
+  <rect x="60" y="60" width="250" height="250" rx="14" fill="none" stroke="var(--accent-gold)" stroke-width="2.5" opacity="0.55"/>
+  <path d="M60 60 Q185 45 310 60" fill="none" stroke="var(--accent-gold)" stroke-width="2" opacity="0.4"/>
+
+  <g transform="translate(345,110)">
+    <path d="M0 0 L0 90 Q10 96 22 90 L22 0 Q11 -6 0 0 Z" fill="var(--leather-dark)" stroke="var(--ink-primary)" stroke-width="2.5" filter="url(#lwRough)"/>
+    <path d="M11 20 Q40 20 44 45 Q46 60 30 62" fill="none" stroke="url(#lwMetalHook)" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="11" cy="15" r="2.5" fill="var(--accent-gold)" opacity="0.8"/>
+    <circle cx="11" cy="75" r="2.5" fill="var(--accent-gold)" opacity="0.8"/>
+    <ellipse cx="30" cy="63" rx="13" ry="7" fill="none" stroke="var(--ink-primary)" stroke-width="3"/>
+    <ellipse cx="30" cy="61" rx="9" ry="4.5" fill="#1a140e" opacity="0.6"/>
+    <path d="M25 58 Q30 50 35 58" stroke="var(--ink-secondary)" stroke-width="1" fill="none" opacity="0.5"/>
+  </g>
+
+  <g filter="url(#lwWoodgrain)">
+    <rect x="60" y="300" width="290" height="26" rx="4" fill="var(--leather-dark)" stroke="var(--ink-primary)" stroke-width="3"/>
+    <line x1="70" y1="313" x2="340" y2="313" stroke="var(--ink-primary)" stroke-width="1" opacity="0.4"/>
+  </g>
+  <g transform="translate(90,297)">
+    <circle r="12" fill="var(--accent-wax)" stroke="var(--ink-primary)" stroke-width="1.5"/>
+    <path d="M-6 -2 Q0 -8 6 -2 Q3 4 0 2 Q-3 4 -6 -2 Z" fill="var(--accent-gold)" opacity="0.7"/>
+  </g>
+
+  <g filter="url(#lwWoodgrain)">
+    <rect x="390" y="60" width="380" height="300" rx="10" fill="var(--bg-parchment)" opacity="0.08" stroke="var(--ink-primary)" stroke-width="3"/>
+    <rect x="390" y="60" width="380" height="300" rx="10" fill="none" stroke="var(--accent-gold)" stroke-width="1.5" opacity="0.5"/>
+  </g>
+  <g transform="translate(390,60)">
+    <path d="M0 0 L380 0 L380 34 Q190 44 0 34 Z" fill="var(--leather-dark)" opacity="0.5" stroke="var(--ink-primary)" stroke-width="2"/>
+  </g>
+
+  <g stroke="var(--ink-primary)" stroke-width="2" fill="none" opacity="0.55" filter="url(#lwRough)">
+    <rect x="405" y="115" width="350" height="52" rx="8"/>
+    <rect x="405" y="177" width="350" height="52" rx="8"/>
+    <rect x="405" y="239" width="350" height="52" rx="8"/>
+    <rect x="405" y="301" width="350" height="45" rx="8"/>
+  </g>
+  <g fill="var(--accent-gold)" opacity="0.6">
+    <circle cx="398" cy="141" r="2.5"/><circle cx="762" cy="141" r="2.5"/>
+    <circle cx="398" cy="203" r="2.5"/><circle cx="762" cy="203" r="2.5"/>
+    <circle cx="398" cy="265" r="2.5"/><circle cx="762" cy="265" r="2.5"/>
+    <circle cx="398" cy="323" r="2.5"/><circle cx="762" cy="323" r="2.5"/>
+  </g>
+
+  <g stroke="var(--ink-primary)" stroke-width="1" fill="none" opacity="0.25">
+    <path d="M40 45 Q45 200 38 355"/><path d="M760 45 Q756 200 762 355"/>
+    <path d="M100 65 Q400 55 700 68"/><path d="M100 345 Q400 355 700 342"/>
+  </g>
+  <g stroke="var(--ink-secondary)" stroke-width="0.6" opacity="0.3">
+    <line x1="330" y1="80" x2="360" y2="95"/><line x1="500" y1="90" x2="530" y2="70"/><line x1="600" y1="340" x2="640" y2="355"/>
+  </g>
+</svg>`;
+    },
+
+    // Sestaví celý pult — SVG na pozadí, skutečný HTML nadpis přes vyřezaný
+    // pruh, tlačítka přesně ve výklencích (procenta z viewBoxu, responzivní).
+    // buttons: [{label, onclick}], max 4 (tolik má SVG výklenků).
+    _renderLendingWindow: function (headerText, buttons) {
+        const niches = this._LENDING_WINDOW_NICHES;
+        let btnHtml = '';
+        buttons.slice(0, 4).forEach((b, i) => {
+            const n = niches[i];
+            btnHtml += `<button class="craft-btn" style="position:absolute;left:${n.left}%;top:${n.top}%;width:${n.width}%;height:${n.height}%;margin:0;font-size:0.8rem;" onclick="${b.onclick}">${b.label}</button>`;
+        });
+        return `<div style="position:relative;width:100%;max-width:800px;margin:0 auto 20px;aspect-ratio:2/1;">
+                  <div style="position:absolute;inset:0;">${this._lendingWindowSVG()}</div>
+                  <div style="position:absolute;left:48.75%;top:15%;width:47.5%;height:8.5%;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--accent-gold);font-weight:bold;font-size:clamp(0.6rem,1.6vw,1rem);letter-spacing:1px;padding:0 4%;overflow:hidden;">${headerText}</div>
+                  ${btnHtml}
+                </div>`;
+    },
+
     renderVypujckyTab: function () {
         const el = document.getElementById('library-vypujcky-content');
         if (!el) return;
@@ -3351,7 +3536,46 @@ const UI = {
         const hasInternal = GameState.researchedTechs && GameState.researchedTechs.includes('tech_lenten_reading');
         let h = '';
 
+        // "Pult" — vyřízení konkrétní čekající žádosti, cíl navigace
+        // z ChroniconSystem._showRequestGateModal() / "Vyřešit" volby.
+        // vypujcky-notifikace-mrd (29.8.2026). Externí (Chronicon) i
+        // interní (bratr) sdílí jednu kartu nahoře, ne dvě oddělené.
+        // MUSÍ běžet PŘED "nic k správě" early-returnem níž — žádost může
+        // dorazit z Chronicon strany nezávisle na tom, jaké techy má
+        // hráč prostudované (soft-bounce řeší až samotné _resolveAdvisory).
+        const adv = GameState.chroniconAdvisory;
+        const extPending = adv && adv.pending && (adv.pending.kind === 'ctenar' || adv.pending.kind === 'vypujcka') ? adv.pending : null;
+        const intPending = GameState.library && GameState.library.pendingInternalLoan;
+        if (extPending || intPending) {
+            let contextHtml = '';
+            let windowButtons = [];
+            if (extPending) {
+                const title = lang === 'en' ? (extPending.title_en || extPending.title_cs) : extPending.title_cs;
+                const text = lang === 'en' ? (extPending.text_en || extPending.text_cs) : extPending.text_cs;
+                contextHtml = `<div style="margin-bottom:10px;"><strong>${title}</strong><div style="font-size:0.85rem;opacity:0.85;margin-top:4px;">${text || ''}</div></div>`;
+                windowButtons = (extPending.choices || []).map(c => ({
+                    label: lang === 'en' ? (c.label_en || c.label_cs) : c.label_cs,
+                    onclick: `ChroniconSystem._resolveAdvisory('${adv.activeId}', '${c.id}', '${lang}');UI.renderVypujckyTab();`,
+                }));
+            } else if (intPending) {
+                const bTitle = lang === 'en' ? `${intPending.borrowerName} asks to read` : `${intPending.borrowerName} žádá o čtení`;
+                const bText = lang === 'en' ? `"${intPending.bookTitle}", for ${intPending.days} days.` : `"${intPending.bookTitle}", na ${intPending.days} dní.`;
+                contextHtml = `<div style="margin-bottom:10px;"><strong>${bTitle}</strong><div style="font-size:0.85rem;opacity:0.85;margin-top:4px;">${bText}</div></div>`;
+                windowButtons = [
+                    { label: lang === 'en' ? 'Approve' : 'Schválit', onclick: `LibraryHelpers.resolveInternalLoanRequest('approve');UI.renderVypujckyTab();` },
+                    { label: lang === 'en' ? 'Deny' : 'Zamítnout', onclick: `LibraryHelpers.resolveInternalLoanRequest('deny');UI.renderVypujckyTab();` },
+                ];
+            }
+            const headerText = lang === 'en' ? 'LENDING WINDOW' : 'VÝPŮJČNÍ OKÉNKO';
+            h += `<div style="margin-bottom:20px;">
+                    <div style="font-weight:bold;font-size:0.9rem;margin-bottom:8px;">${lang === 'en' ? '🛎️ At the Counter' : '🛎️ Na pultu'}</div>
+                    ${contextHtml}
+                    ${this._renderLendingWindow(headerText, windowButtons)}
+                  </div>`;
+        }
+
         if (!hasD2 && !hasC2 && !hasInternal) {
+            if (h) { el.innerHTML = h; return; } // pult karta existuje i bez techu — ukázat jen ji
             el.innerHTML = `<p style="opacity:0.7;font-style:italic;padding:12px;">${lang === 'en'
                 ? 'Nothing to manage here yet — research Book Infirmary or Absentee Lending first.'
                 : 'Zatím tu není co spravovat — nejdřív vyzkoumej Knižní nemocnici nebo Výpůjčku mimo klášter.'}</p>`;
@@ -3383,6 +3607,38 @@ const UI = {
                       }).join('')}
                     </div>` : ''}
                   </div>`;
+        }
+
+        // Secundo Folio audit — Cluster B (knihovna-rozsireni-mrd,
+        // 29.8.2026). Trvalá karta, ne popup event — objeví se, jakmile
+        // je co řešit, žádné umělé zpoždění/cooldown navíc (Bouvard,
+        // 29.8.2026: "chci ten tab, ne modal"). Gate na hasC2 — jen
+        // absenční výpůjčky mohou vůbec vyprodukovat podezření.
+        if (hasC2) {
+            const forgeries = (GameState.library && GameState.library.suspectedForgery) || {};
+            const forgeryIds = Object.keys(forgeries);
+            if (forgeryIds.length > 0) {
+                h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
+                        <div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '🔍 Secundo Folio Audit' : '🔍 Kontrola secundo folia'}</div>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                          ${forgeryIds.map(id => {
+                            const b = LibraryDB.books.find(bk => bk.id === id);
+                            const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                            const rec = forgeries[id];
+                            const note = lang === 'en'
+                                ? `Returned from ${rec.borrowerName} — the secundo folio does not quite match. A forgery?`
+                                : `Vrácena od ${rec.borrowerName} — secundo folio úplně nesedí. Padělek?`;
+                            return `<div style="font-size:0.78rem;">
+                              <div style="margin-bottom:4px;">📇 <strong>${title}</strong><br><span style="opacity:0.75;">${note}</span></div>
+                              <div style="display:flex;gap:8px;">
+                                <button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.confrontForgery('${id}');UI.renderVypujckyTab();">${lang === 'en' ? 'Confront' : 'Konfrontovat'}</button>
+                                <button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.ignoreForgery('${id}');UI.renderVypujckyTab();">${lang === 'en' ? 'Let it go' : 'Nechat být'}</button>
+                              </div>
+                            </div>`;
+                          }).join('')}
+                        </div>
+                      </div>`;
+            }
         }
 
         if (hasInternal) {

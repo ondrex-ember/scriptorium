@@ -171,6 +171,7 @@ const CanonicalHours = {
         // "různé časové bloky" požadavku.
         if (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.checkInternalLoanInterest) {
             LibraryHelpers.checkInternalLoanInterest();
+            if (LibraryHelpers.checkRequestExpiry) LibraryHelpers.checkRequestExpiry();
         }
 
         // Special actions per hour

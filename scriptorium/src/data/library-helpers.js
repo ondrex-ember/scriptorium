@@ -1014,6 +1014,18 @@ const LibraryHelpers = {
                 if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
                     Game.addKronikaEntry('minor', `📥 "${title}" se vrací od ${loan.borrowerName}, v pořádku.`, `📥 "${title}" returns from ${loan.borrowerName}, unharmed.`, `📥 Liber restitutus est.`);
                 }
+                // Secundo Folio audit — Cluster B (knihovna-rozsireni-mrd,
+                // 29.8.2026). Tichý roll při vrácení, žádná okamžitá reakce
+                // (přesně jak fungovaly dobové audity). Nižší vztah = vyšší
+                // riziko podvrhu, mirror lossChance logiky výš.
+                const rel = Math.min(100, (GameState.contactRelation || {})[loan.contactId] || 0);
+                const forgeryChance = Math.min(20, 6 + (100 - rel) * 0.14);
+                if (Math.random() * 100 < forgeryChance) {
+                    if (!GameState.library.suspectedForgery) GameState.library.suspectedForgery = {};
+                    GameState.library.suspectedForgery[bookId] = {
+                        contactId: loan.contactId, borrowerName: loan.borrowerName, deposit: loan.deposit || 0,
+                    };
+                }
                 delete loans[bookId];
             } else {
                 if (typeof PersonaSystem !== 'undefined') {
@@ -1040,44 +1052,137 @@ const LibraryHelpers = {
     // týdenního tiku). Šance váží erudition traitem — motivovaně, ne
     // arbitrárně: učenější bratr sahá po knize častěji. Jen přiřazení
     // bratři (assignedTab != null) bez už běžící interní půjčky.
+    // vypujcky-notifikace-mrd (29.8.2026) — brother už NEpůjčuje tiše na
+    // pozadí. Vytváří čekající žádost (jeden slot, mirror Chronicon
+    // pendingCtenar/pendingVypujcka), notifikace + modal (Odložit/Vyřešit
+    // v ChroniconSystem.checkPendingAdvisory), skutečné schválení až
+    // přes resolveInternalLoanRequest() z pultu v Knihovně.
     checkInternalLoanInterest: function() {
         if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_lenten_reading')) return;
         if (!GameState.dormitorium || !GameState.dormitorium.brothers) return;
         if (!GameState.library || !GameState.library.unlockedBooks || GameState.library.unlockedBooks.length === 0) return;
+        if (GameState.library.pendingInternalLoan) return; // jeden slot, stejně jako Chronicon
         if (!GameState.library.loanedBooks) GameState.library.loanedBooks = {};
         const loans = GameState.library.loanedBooks;
         const busyBrotherIds = new Set(Object.values(loans).filter(l => l.internal).map(l => l.brotherId));
 
-        GameState.dormitorium.brothers.forEach(brother => {
-            if (!brother.assignedTab) return;
-            if (busyBrotherIds.has(brother.id)) return;
+        for (const brother of GameState.dormitorium.brothers) {
+            if (!brother.assignedTab) continue;
+            if (busyBrotherIds.has(brother.id)) continue;
             const erudition = (brother.traits && brother.traits.erudition) || 0;
             const chance = 0.02 + (erudition / 100) * 0.15;
-            if (Math.random() >= chance) return;
+            if (Math.random() >= chance) continue;
 
             const pool = GameState.library.unlockedBooks.filter(id => {
-                if (loans[id]) return false; // uz nekym pujceno (interne nebo externe)
+                if (loans[id]) return false;
                 const prot = LibraryHelpers.getBookProtection ? LibraryHelpers.getBookProtection(LibraryDB.books.find(b => b.id === id)) : null;
                 return prot !== 'catena' && prot !== 'secreta';
             });
-            if (pool.length === 0) return;
+            if (pool.length === 0) continue;
 
             const bookId = pool[Math.floor(Math.random() * pool.length)];
             const book = LibraryDB.books.find(b => b.id === bookId);
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
             const title = book ? (lang === 'en' ? (book.title_en || book.title) : book.title) : bookId;
-            const days = 1 + Math.floor(Math.random() * 3); // 1-3 dny
+            const days = 1 + Math.floor(Math.random() * 3);
+            const reqId = 'internal_loan_' + Date.now();
 
-            loans[bookId] = {
-                internal: true, brotherId: brother.id, borrowerName: brother.name,
-                loanedAt: Date.now(), dueAt: Date.now() + days * 24 * 60 * 60 * 1000,
+            GameState.library.pendingInternalLoan = {
+                id: reqId, brotherId: brother.id, borrowerName: brother.name,
+                bookId: bookId, bookTitle: title, days: days, requestedAt: Date.now(),
+            };
+            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+                NotificationSystem.pendingEvent({ id: reqId, icon: '📖', title: lang === 'en' ? `${brother.name} asks to read` : `${brother.name} žádá o čtení`, source: 'library_internal' });
+            }
+            if (typeof ChroniconSystem !== 'undefined') ChroniconSystem._advisoryShownThisSession = false; // ať se gate-modal ukáže i pro tohle
+            Game.save();
+            return; // jeden request za tick, ne víc bratrů najednou
+        }
+    },
+
+    // Schválení/zamítnutí žádosti bratra o vnitřní půjčku, volané z pultu
+    // v Knihovna→Výpůjčky. Zamítnutí NEMÁ dopad (aktivní rozhodnutí hráče,
+    // stejná logika jako u Chronicon decline) — dopad má jen ignorování
+    // (viz checkRequestExpiry).
+    resolveInternalLoanRequest: function(choiceId) {
+        const req = GameState.library.pendingInternalLoan;
+        if (!req) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (choiceId === 'approve') {
+            if (!GameState.library.loanedBooks) GameState.library.loanedBooks = {};
+            GameState.library.loanedBooks[req.bookId] = {
+                internal: true, brotherId: req.brotherId, borrowerName: req.borrowerName,
+                loanedAt: Date.now(), dueAt: Date.now() + req.days * 24 * 60 * 60 * 1000,
             };
             if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
-                Game.addKronikaEntry('minor', `📖 ${brother.name} si bere "${title}" ke čtení.`, `📖 ${brother.name} takes "${title}" to read.`, `📖 Frater librum sumpsit.`);
+                Game.addKronikaEntry('minor', `📖 ${req.borrowerName} si bere "${req.bookTitle}" ke čtení.`, `📖 ${req.borrowerName} takes "${req.bookTitle}" to read.`, `📖 Frater librum sumpsit.`);
             }
-            Game.save();
-        });
+            UI.notify(lang === 'en' ? `Approved: ${req.borrowerName} takes the book.` : `Schváleno: ${req.borrowerName} si bere knihu.`);
+        } else {
+            UI.notify(lang === 'en' ? `Declined: ${req.borrowerName} does not take the book this time.` : `Zamítnuto: ${req.borrowerName} si knihu tentokrát nebere.`);
+        }
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(req.id);
+        GameState.library.pendingInternalLoan = null;
+        Game.save();
     },
+
+    // Časové okno na rozhodnutí — 8h základ + až +16h dle důvěry (0-100
+    // škála: vztah u Chronicon kontaktu, loyalty u bratra). vypujcky-
+    // notifikace-mrd (29.8.2026).
+    getRequestWindowMs: function(trustScore) {
+        const t = Math.max(0, Math.min(100, trustScore || 0));
+        return (8 + (t / 100) * 16) * 60 * 60 * 1000;
+    },
+
+    // Expirace čekajících žádostí — hák z CanonicalHours.triggerHour(),
+    // stejná kadence jako checkInternalLoanInterest (7×/den). Ignorování
+    // MÁ dopad (na rozdíl od aktivního zamítnutí) — mirror "nechat
+    // čekat je horší než rovnou odmítnout".
+    checkRequestExpiry: function() {
+        const now = Date.now();
+
+        // Interní — expirace = tichý zánik + malý pokles mood bratra.
+        const req = GameState.library && GameState.library.pendingInternalLoan;
+        if (req) {
+            const brother = (GameState.dormitorium && GameState.dormitorium.brothers || []).find(b => b.id === req.brotherId);
+            const loyalty = (brother && brother.loyalty) || 0;
+            const windowMs = this.getRequestWindowMs(loyalty);
+            if (now - req.requestedAt > windowMs) {
+                if (brother && typeof brother.mood === 'number') brother.mood = Math.max(0, brother.mood - 5);
+                if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent(req.id);
+                GameState.library.pendingInternalLoan = null;
+                Game.save();
+            }
+        }
+
+        // Externí — jen kind ctenar/vypujcka (tenhle MRD), ne ostatní
+        // Chronicon advisory typy (studovna/hospes/... beze změny).
+        const adv = GameState.chroniconAdvisory;
+        if (adv && adv.pending && (adv.pending.kind === 'ctenar' || adv.pending.kind === 'vypujcka')) {
+            const entry = (GameState.pendingDecisionEvents || []).find(p => p.id === adv.activeId);
+            if (entry) {
+                const rel = Math.min(100, (GameState.contactRelation || {})[adv.pending.contactId] || 0);
+                const windowMs = this.getRequestWindowMs(rel);
+                if (now - entry.time > windowMs) {
+                    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                    const contactId = adv.pending.contactId;
+                    if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._resolveAdvisory) {
+                        ChroniconSystem._resolveAdvisory(adv.activeId, 'decline', lang);
+                    }
+                    // Extra penalizace za ignorování navrch normálního decline
+                    // (ten sám dnes nemá žádný dopad — čekání a pak nic je horší).
+                    if (typeof PersonaSystem !== 'undefined' && contactId) {
+                        if (PersonaSystem.addInfluence) PersonaSystem.addInfluence(contactId, -4);
+                        const axis = contactId === 'vrchnost' ? 'slechta' : contactId === 'klaster' ? 'cirkev' : 'lidovost';
+                        if (PersonaSystem.addReputation) PersonaSystem.addReputation(axis, -2);
+                    }
+                    Game.save();
+                }
+            }
+        }
+    },
+
+
 
     // Vykoupení ztracené knihy přes Bartoloměje — reuse jeho existující
     // cenové škály a měny (papír, ne groše — jeho vlastní ekonomika).
@@ -1097,6 +1202,46 @@ const LibraryHelpers = {
         const book = LibraryDB.books.find(b => b.id === bookId);
         const title = book ? (lang === 'en' ? (book.title_en || book.title) : book.title) : bookId;
         UI.notify(lang === 'en' ? `🖋️ Bartoloměj found a replacement: "${title}".` : `🖋️ Bartoloměj sehnal náhradu: "${title}".`);
+    },
+
+    // Secundo Folio audit — vyřešení podezření. Konfrontovat = aktivní
+    // rozhodnutí s dopadem (nepříjemná scéna, ale kompenzace zpět).
+    // Nechat být = žádný ekonomický/vztahový dopad, ale kniha to nese na
+    // sobě (D2 condition), + drobná odměna za všímavost. Cluster B
+    // (knihovna-rozsireni-mrd, 29.8.2026).
+    confrontForgery: function(bookId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const rec = GameState.library.suspectedForgery && GameState.library.suspectedForgery[bookId];
+        if (!rec) return;
+        const axis = rec.contactId === 'vrchnost' ? 'slechta' : rec.contactId === 'klaster' ? 'cirkev' : 'lidovost';
+        if (typeof PersonaSystem !== 'undefined') {
+            if (PersonaSystem.addInfluence) PersonaSystem.addInfluence(rec.contactId, -8);
+            if (PersonaSystem.addReputation) PersonaSystem.addReputation(axis, -4);
+        }
+        if (rec.deposit > 0 && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+            CellariumSystem.addGrose(rec.deposit, { title: lang === 'en' ? 'Forgery compensation' : 'Kompenzace za padělek', source: rec.borrowerName, source_en: rec.borrowerName });
+        }
+        const book = LibraryDB.books.find(b => b.id === bookId);
+        const title = book ? (lang === 'en' ? (book.title_en || book.title) : book.title) : bookId;
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('important', `⚖️ ${rec.borrowerName} konfrontován kvůli "${title}" — secundo folio nesedělo.`, `⚖️ ${rec.borrowerName} confronted over "${title}" — the secundo folio did not match.`, `⚖️ Fraus deprehensa est.`);
+        }
+        delete GameState.library.suspectedForgery[bookId];
+        Game.save();
+        UI.notify(lang === 'en' ? `Confronted. ${rec.deposit}g compensation received.` : `Konfrontováno. Přijato ${rec.deposit}g náhrady.`);
+    },
+
+    ignoreForgery: function(bookId) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const rec = GameState.library.suspectedForgery && GameState.library.suspectedForgery[bookId];
+        if (!rec) return;
+        if (!GameState.library.bookCondition) GameState.library.bookCondition = {};
+        if (!GameState.library.bookCondition[bookId]) GameState.library.bookCondition[bookId] = { condition: 100, lastMaintained: Date.now() };
+        GameState.library.bookCondition[bookId].condition = 10;
+        Game.addItem('research', 5);
+        delete GameState.library.suspectedForgery[bookId];
+        Game.save();
+        UI.notify(lang === 'en' ? 'Let it go. (+5 research, book quality suffered)' : 'Necháno být. (+5 výzkum, kniha na tom utrpěla)');
     },
 
     // NPC Písař - obchod

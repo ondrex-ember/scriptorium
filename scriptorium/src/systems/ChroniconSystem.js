@@ -722,27 +722,91 @@ const ChroniconSystem = {
     _advisoryShownThisSession: false,
 
     // Volat ze stejné kadence jako EventsSystem.checkEvents() (1×/s tick)
+    //
+    // vypujcky-notifikace-mrd (29.8.2026) — kind 'ctenar'/'vypujcka'
+    // (knihovní žádosti) teď NEukazují celý resolve modal rovnou. Místo
+    // toho lehký gate modal (Odložit/Vyřešit) — "Vyřešit" naviguje do
+    // Knihovna→Výpůjčky, kde je skutečný pult se všemi volbami. Ostatní
+    // advisory typy (studovna/hospes/...) beze změny, plný modal jako dřív.
+    // Stejná funkce teď navíc kontroluje i interní žádost bratra
+    // (GameState.library.pendingInternalLoan) — sdílený gate, aby se
+    // neukazovaly dva modaly najednou.
     checkPendingAdvisory: function() {
         if (typeof GameState === 'undefined' || !GameState.chroniconAdvisory) return;
-        const adv = GameState.chroniconAdvisory;
-        if (!adv.pending || !adv.activeId) return;
         if (ChroniconSystem._advisoryShownThisSession) return;
-        if (typeof EventsSystem === 'undefined' || typeof NotificationSystem === 'undefined') return;
-
-        ChroniconSystem._advisoryShownThisSession = true;
+        if (typeof NotificationSystem === 'undefined') return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        const p = adv.pending;
 
-        EventsSystem.showEvent({
-            id:     p.id || adv.activeId,
-            source: 'chronicon',
-            icon:  p.icon || '☩',
-            title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
-            text:  lang === 'en' ? (p.text_en  || p.text_cs)  : p.text_cs,
-            choices: (p.choices || []).map(c => ({
-                label: lang === 'en' ? (c.label_en || c.label_cs) : c.label_cs,
-                action: () => ChroniconSystem._resolveAdvisory(adv.activeId, c.id, lang),
-            })),
+        const adv = GameState.chroniconAdvisory;
+        if (adv.pending && adv.activeId) {
+            const p = adv.pending;
+            if (p.kind === 'ctenar' || p.kind === 'vypujcka') {
+                ChroniconSystem._advisoryShownThisSession = true;
+                if (NotificationSystem.pendingEvent) {
+                    NotificationSystem.pendingEvent({
+                        id: p.id || adv.activeId,
+                        icon: p.icon || '📤',
+                        title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
+                        source: 'chronicon',
+                    });
+                }
+                ChroniconSystem._showRequestGateModal({
+                    icon: p.icon || '📤',
+                    title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
+                });
+                return;
+            }
+            if (typeof EventsSystem === 'undefined') return;
+            ChroniconSystem._advisoryShownThisSession = true;
+            EventsSystem.showEvent({
+                id:     p.id || adv.activeId,
+                source: 'chronicon',
+                icon:  p.icon || '☩',
+                title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
+                text:  lang === 'en' ? (p.text_en  || p.text_cs)  : p.text_cs,
+                choices: (p.choices || []).map(c => ({
+                    label: lang === 'en' ? (c.label_en || c.label_cs) : c.label_cs,
+                    action: () => ChroniconSystem._resolveAdvisory(adv.activeId, c.id, lang),
+                })),
+            });
+            return;
+        }
+
+        // Interní žádost bratra — stejný gate, sdílený flag ať se
+        // neukážou dva modaly ve stejném ticku.
+        const internalReq = GameState.library && GameState.library.pendingInternalLoan;
+        if (internalReq) {
+            ChroniconSystem._advisoryShownThisSession = true;
+            ChroniconSystem._showRequestGateModal({
+                icon: '📖',
+                title: lang === 'en' ? `${internalReq.borrowerName} asks to read` : `${internalReq.borrowerName} žádá o čtení`,
+            });
+        }
+    },
+
+    // Lehký 2-volbový gate modal — Odložit (jen zavře, čas na rozhodnutí
+    // dál běží od PRVNÍHO zobrazení notifikace, ne od tohohle kliku) /
+    // Vyřešit (naviguje do pultu v Knihovna→Výpůjčky). Nejde přes
+    // EventsSystem.showEvent — ten by za volbou zobrazil "výsledkový"
+    // modal, což tady nedává smysl (nic se ještě nerozhodlo).
+    _showRequestGateModal: function(opts) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        NotificationSystem.modal({
+            icon: opts.icon,
+            title: lang === 'en' ? 'A request awaits' : 'Čeká žádost',
+            text: opts.title,
+            choices: [
+                {
+                    label: lang === 'en' ? 'Postpone' : 'Odložit',
+                    type: 'default',
+                    effect: () => {}
+                },
+                {
+                    label: lang === 'en' ? 'Resolve' : 'Vyřešit',
+                    type: 'primary',
+                    effect: () => { if (typeof UI !== 'undefined' && UI.goToLibraryRequest) UI.goToLibraryRequest(); }
+                },
+            ],
         });
     },
 

@@ -292,6 +292,7 @@ const NotificationSystem = {
     _pendingReopenMap: {
         events:              (id) => `EventsSystem.showEvent(EventsSystem._findEventById('${id}'))`,
         chronicon:           ()   => `ChroniconSystem.reopenAdvisory()`,
+        library_internal:    ()   => `ChroniconSystem.reopenAdvisory()`,
         chronicon_guestjoin: (id) => `ChroniconSystem.reopenGuestJoin('${id}')`,
         game_parish:         ()   => `Game.reopenParishEvent()`,
         game_confession:     ()   => `Game.reopenConfession()`,
