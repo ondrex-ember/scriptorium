@@ -1784,6 +1784,16 @@ const AthanorDB = {
       lore: 'Muškát svařený s medem — Hildegarda ho popisovala jako vyvážené teplo i sucho, dobré pro zklidnění.',
       lore_en: "Nutmeg boiled down with honey — Hildegard described it as a balance of heat and dryness, good for calming."
     },
+    // athanor-audit-kolo3 (31.8.2026) — jedinej bezpečnej zisk z Gemini kola 3.
+    // syrecky_fresh existuje (recepty.js: milk+cheese_mold), tohle je druhá
+    // cesta bez formy — mirror potion_vigor_minor vzoru (5 cest k 1 výsledku).
+    'galium+milk:coctio': {
+      result: { id: 'syrecky_fresh', qty: 1 },
+      name: 'Syrečky (čerstvé)', name_en: 'Curd Cheese (Fresh)', name_lat: 'Caseus Coagulatus', icon: '🧀',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Svízel sráží mléko na sýřeninu bez syřidla z telecího žaludku — Dioscorides: "Galion coagulat lac."',
+      lore_en: 'Bedstraw curdles milk into curds without calf rennet — Dioscorides: "Galion coagulat lac."'
+    },
     'honey+juniper:coctio': {
       result: { id: 'sirup_jalovcovy', qty: 1 },
       name: 'Jalovcový sirup', name_en: 'Juniper Syrup', name_lat: 'Syrupus Juniperi', icon: '🍯',
