@@ -65,7 +65,7 @@ const HealthConditionsDB = {
         durationHours: 96,
         onApply: { fatigue: 10 },
         tickHour: { fatigue: 1 },
-        cures: ["herbal_tea", "potion_heal", "hildegard_tisane", "unguentum_calidum", "cannabis_poultice"],
+        cures: ["herbal_tea", "potion_heal", "hildegard_tisane", "unguentum_calidum", "cannabis_poultice", "konopna_mast"],
         humor: "phlegma",
         // titivillus-infirmary-mrd — žádná blokovaná akce, Infirmerie zde jen
         // zkracuje dobu léčby (96h → 24h) výměnou za Hřejivou mast.
@@ -126,7 +126,7 @@ const HealthConditionsDB = {
         durationHours: 80,
         onApply: { fatigue: 8 },
         tickHour: { fatigue: 1 },
-        cures: ["herbal_tea", "potion_heal", "odvar_z_vrby"],
+        cures: ["herbal_tea", "potion_heal", "odvar_z_vrby", "konopna_mast"],
         humor: "cholera",
     },
     "gout": {
@@ -135,12 +135,12 @@ const HealthConditionsDB = {
         desc_en: "An excess of meat and wine has taken its toll — the toe joint burns with pain.",
         causeShort: "Přemíra masa a vína za poslední týden.",
         causeShort_en: "An excess of meat and wine over the past week.",
-        advice: "Žádný lék nepomůže — jen čas a střídmost. Omez maso a víno, dokud nepřejde, jinak se vrátí.",
-        advice_en: "No remedy helps — only time and moderation. Cut back on meat and wine until it passes, or it will return.",
+        advice: "Konopná tinktura zmírní bolest, jinak jen čas a střídmost. Omez maso a víno, dokud nepřejde, jinak se vrátí.",
+        advice_en: "Cannabis tincture eases the pain; otherwise only time and moderation. Cut back on meat and wine until it passes, or it will return.",
         durationHours: 72,
         onApply: { fatigue: 15, satiety: -5 },
         tickHour: { fatigue: 1 },
-        cures: [], // pouze time-limited — odříkání, žádný lék
+        cures: ["konopna_tinktura"], // konopna-mast-mrd (31.8.2026) — historicky doloženo proti dně, ruší dřívější "bez léku"
         humor: "cholera",
     },
     "dysentery": {

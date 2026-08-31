@@ -202,6 +202,29 @@ const AthanorDB = {
       dropNote: 'Nalézáš při průzkumu v blízkosti lesa.'
     },
 
+    // konopna-mast-mrd (31.8.2026) — dvě nové ingredience pro Konopnou
+    // mast/tinkturu. Hodnoty kalibrovaný proti beeswax/vinegar/linseed_oil/
+    // comfrey. Hildegarda (Physica, kap. 11) popisuje konopí výslovně jako
+    // "teplé" — thermal kladné.
+    {
+      id: 'cannabis',
+      name: 'Konopí', name_en: 'Hemp', name_lat: 'Cannabis',
+      rarity: 'common', source: 'existing',
+      color: '#5a7d3a', icon: '🌿',
+      thermal: 2, moisture: -1,
+      lore: 'Hildegarda z Bingen je psala jako "teplé" — Physica, kapitola 11.',
+      lore_en: 'Hildegard of Bingen described it as "warm" — Physica, chapter 11.',
+    },
+    {
+      id: 'lard',
+      name: 'Sádlo', name_en: 'Lard', name_lat: 'Adeps Suillus',
+      rarity: 'common', source: 'existing',
+      color: '#f0e6d2', icon: '🫙',
+      thermal: 1, moisture: 2,
+      lore: 'Vepřové sádlo. Chudší, ale stejně starý základ mastí jako vosk.',
+      lore_en: 'Pig lard. A humbler but equally old salve base as wax.',
+    },
+
     // ── NOVÁ VLNA — z Alchemix (historicky věrné) ──
     {
       id: 'vitriol',
@@ -1554,6 +1577,30 @@ const AthanorDB = {
       effect: null, unlockFolio: 'folio_scr03',
       lore: 'Řebříček louhovaný v octě. Achilles jím prý léčil rány svých vojáků.',
       lore_en: "Yarrow steeped in vinegar. Achilles is said to have treated his soldiers' wounds with it."
+    },
+    // konopna-mast-mrd (31.8.2026) — dvě cesty ke stejný mastí (lékárenská
+    // vosková, chudší sádlová) — mirror precedent potion_vigor_minor (5 cest
+    // k jednomu výsledku). Tinktura mirror řebříčkový přesně (ocet+bylina).
+    'beeswax+cannabis:coctio': {
+      result: { id: 'konopna_mast', qty: 1 },
+      name: 'Konopná mast', name_en: 'Cannabis Salve', name_lat: 'Unguentum Cannabis', icon: '🫙',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Konopí uvařené s voskem. Hildegarda je znala jako "teplé" (Physica, kap. 11).',
+      lore_en: 'Hemp boiled with wax. Hildegard knew it as "warm" (Physica, ch. 11).'
+    },
+    'lard+cannabis:coctio': {
+      result: { id: 'konopna_mast', qty: 1 },
+      name: 'Konopná mast', name_en: 'Cannabis Salve', name_lat: 'Unguentum Cannabis', icon: '🫙',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Chudší cesta — konopí uvařené se sádlem místo vosku. Stejná mast, prostší kuchyně.',
+      lore_en: 'The humbler path — hemp boiled with lard instead of wax. The same salve, a plainer kitchen.'
+    },
+    'vinegar+cannabis:maceratio': {
+      result: { id: 'konopna_tinktura', qty: 1 },
+      name: 'Konopná tinktura', name_en: 'Cannabis Tincture', name_lat: 'Tinctura Cannabis', icon: '🍶',
+      effect: null, unlockFolio: 'folio_scr03',
+      lore: 'Konopí louhované v octě. Dobově zaznamenané i proti dně.',
+      lore_en: 'Hemp steeped in vinegar. Historically recorded for gout as well.'
     },
     'honey+juniper:coctio': {
       result: { id: 'sirup_jalovcovy', qty: 1 },
