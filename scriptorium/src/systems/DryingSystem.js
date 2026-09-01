@@ -184,6 +184,56 @@ const DryingSystem = {
             h += `</div>`;
         });
 
+        // susarna-uvarium-bridge (1.9.2026): Uvarium (sušení hroznů, Vinohrad)
+        // je samostatný systém — vlastní GameState.uvariumDrying, ne DRY_TYPES.
+        // Tahle karta nic nepřesouvá ani neduplikuje, jen čte stejný stav a
+        // volá stejné GardenSystem.startDrying/collectDrying — zrcadlo karty
+        // ve Vinohradu, jiné místo. Zobrazí se jen pokud je Uvarium postavené.
+        if (typeof GardenSystem !== 'undefined' && GameState.storage && GameState.storage.uvarium && GameState.storage.uvarium.built) {
+            const drying = GameState.uvariumDrying;
+            const outName = (typeof iName === 'function') ? iName('raisins') : 'raisins';
+            h += `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">`;
+            h += `<h4 style="margin:0 0 10px 0; color:var(--ink-primary);">🍇 ${outName}</h4>`;
+            if (drying) {
+                const v = GardenSystem.VINEA_DB[drying.varietyId];
+                const vName = v ? (lang === 'en' ? v.name_en : v.name) : drying.varietyId;
+                const totalMs = 5 * this.DAY_MS;
+                const elapsedMs = Date.now() - drying.startedAt;
+                const pct = Math.min(100, Math.round(elapsedMs / totalMs * 100));
+                const ready = Date.now() >= drying.readyAt;
+                h += `<div style="font-size:0.78rem; opacity:0.65; margin-bottom:8px;">${vName} ×${drying.amount}</div>`;
+                h += `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:0.78rem;">
+                    <div style="flex:1; background:rgba(0,0,0,0.1); border-radius:4px; height:8px;">
+                        <div style="width:${pct}%; background:var(--accent-gold); height:8px; border-radius:4px; transition:width 0.3s;"></div>
+                    </div>
+                    <span style="opacity:0.65; white-space:nowrap;">${ready ? (lang === 'en' ? 'ready!' : 'hotovo!') : (Math.max(0, Math.ceil((drying.readyAt - Date.now()) / this.DAY_MS)) + (lang === 'en' ? 'd left' : 'd zbývá'))}</span>
+                </div>`;
+                h += `<button onclick="GardenSystem.collectDrying()" ${ready ? '' : 'disabled'}
+                    style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--accent-gold);
+                    background:${ready ? 'rgba(197,160,89,0.15)' : 'rgba(197,160,89,0.07)'};
+                    color:var(--accent-gold); cursor:${ready ? 'pointer' : 'default'};
+                    font-size:0.82rem; opacity:${ready ? '1' : '0.5'}; margin-top:6px;">
+                    🍇 ${lang === 'en' ? 'Collect' : 'Vyzvednout'}
+                </button>`;
+            } else {
+                const opts = Object.values(GardenSystem.VINEA_DB).map(v => {
+                    const gHave = GameState.inventory['grapes_' + v.id] || 0;
+                    return `<option value="${v.id}" ${gHave > 0 ? '' : 'disabled'}>${lang === 'en' ? v.name_en : v.name} (${gHave})</option>`;
+                }).join('');
+                h += `<div style="font-size:0.78rem; opacity:0.5; font-style:italic; margin-bottom:6px;">${lang === 'en' ? 'Nothing in progress.' : 'Momentálně nic nezraje.'}</div>`;
+                h += `<select id="susarna-uvarium-sel" style="font-size:0.78rem;padding:4px;width:100%;margin-bottom:6px;">${opts}</select>`;
+                h += `<button onclick="GardenSystem.startDrying(document.getElementById('susarna-uvarium-sel').value)"
+                    style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--accent-gold);
+                    background:rgba(197,160,89,0.15); color:var(--accent-gold); cursor:pointer;
+                    font-size:0.82rem; margin-top:6px;">
+                    🍇 ${lang === 'en' ? 'Start drying' : 'Zahájit sušení'} (5${lang === 'en' ? 'd' : 'd'})
+                </button>`;
+            }
+            const haveRaisins = GameState.inventory['raisins'] || 0;
+            h += `<div style="font-size:0.72rem; opacity:0.6; margin-top:6px;">${lang === 'en' ? 'In stock' : 'Máš hotovo'}: ${haveRaisins}×</div>`;
+            h += `</div>`;
+        }
+
         return h;
     },
 };
