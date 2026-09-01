@@ -3020,6 +3020,19 @@
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 180, 240, 0.12), inset 0 0 0 1px rgba(197, 160, 89, 0.15) !important;
         }
 
+        /* Infirmarium occupied-bed card had a hardcoded light background that
+           never followed the theme system, so it stayed unreadable against the
+           light ink-primary text color used by theme-dark/theme-night. */
+        body.theme-dark .infirmary-bed-occupied,
+        body.theme-night .infirmary-bed-occupied {
+            background: linear-gradient(135deg, rgba(30, 24, 18, 0.92) 0%, rgba(18, 14, 10, 0.96) 100%) !important;
+        }
+
+        body.theme-dark .infirmary-bed-chart,
+        body.theme-night .infirmary-bed-chart {
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
         /* Strategic Card Hover & Lift Animation with Cyan/Gold Glow */
         .card:hover,
         .game-card:hover {
