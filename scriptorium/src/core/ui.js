@@ -3546,7 +3546,12 @@ const UI = {
         const adv = GameState.chroniconAdvisory;
         const extPending = adv && adv.pending && (adv.pending.kind === 'ctenar' || adv.pending.kind === 'vypujcka') ? adv.pending : null;
         const intPending = GameState.library && GameState.library.pendingInternalLoan;
-        {
+        // Gate-fix (1.9.2026, nahlásil Bouvard) — okénko se v předchozí
+        // úpravě omylem zobrazovalo VŽDY, bez ohledu na tech. Porušovalo
+        // to vlastní hard rule "gatuj všechno". Bez aspoň jednoho ze tří
+        // Výpůjčky-techů (D2/C2/interní) se okénko vůbec nestaví — jen
+        // informace, co je potřeba prostudovat.
+        if (hasD2 || hasC2 || hasInternal) {
             let contextHtml = '';
             let windowButtons = [];
             if (extPending) {
@@ -3576,6 +3581,13 @@ const UI = {
                     <div style="font-weight:bold;font-size:0.9rem;margin-bottom:8px;">${lang === 'en' ? '🛎️ At the Counter' : '🛎️ Na pultu'}</div>
                     ${contextHtml}
                     ${this._renderLendingWindow(headerText, windowButtons)}
+                  </div>`;
+        } else {
+            h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;opacity:0.8;">
+                    <div style="font-weight:bold;font-size:0.85rem;margin-bottom:6px;">${lang === 'en' ? '🔒 Lending Window' : '🔒 Výpůjční okénko'}</div>
+                    <div style="font-size:0.8rem;">${lang === 'en'
+                        ? 'Not built yet — research Book Infirmary, Absentee Lending, or Lenten Reading first.'
+                        : 'Zatím nestojí — nejdřív vyzkoumej Knižní nemocnici, Výpůjčku mimo klášter, nebo Postní čtení.'}</div>
                   </div>`;
         }
 
