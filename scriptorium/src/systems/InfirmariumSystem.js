@@ -220,7 +220,19 @@ const InfirmariumSystem = {
     },
 
     // Inicializace stavu minihry
-    initMinigame: function (entity, isBrother) {
+    // infirmarium-bugfix (31.8.2026, Pécuchet) — dřív bral celou entitu
+    // jako parametr, posílanou přes JSON.stringify() přímo v onclick HTML
+    // atributu ("Provést Vizitu" tlačítko) — křehký, riskantní vzor.
+    // Teď bere jen entityId+isBrother a dohledává live entitu sám, mirror
+    // applyVisitatioTreatment() v HealthcareManager.js.
+    initMinigame: function (entityId, isBrother) {
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
+        const entity = pool.find(x => x.id === entityId);
+        if (!entity) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en' ? 'Patient not found.' : 'Pacient nenalezen.', true);
+            return;
+        }
         this._minigameState = {
             patientId: entity.id,
             patientName: entity.name,
@@ -245,6 +257,7 @@ const InfirmariumSystem = {
                 }
             });
         }
+        this._refreshTab();
     },
 
     closeMinigame: function () {
@@ -491,7 +504,7 @@ const InfirmariumSystem = {
 
                 if (entity) {
                     h += `<div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px;">
-                            <button class="craft-btn" style="padding:3px 8px; font-size:0.68rem; background:rgba(212,168,83,0.25);" onclick="InfirmariumSystem.initMinigame((${JSON.stringify(entity).replace(/"/g, '&quot;')}), ${isBrother}); InfirmariumSystem._refreshTab();">🩺 ${lang === 'en' ? 'Bedside Visit' : 'Provést Vizitu'}</button>
+                            <button class="craft-btn" style="padding:3px 8px; font-size:0.68rem; background:rgba(212,168,83,0.25);" onclick="InfirmariumSystem.initMinigame('${entity.id}', ${isBrother})">🩺 ${lang === 'en' ? 'Bedside Visit' : 'Provést Vizitu'}</button>
                             <button class="craft-btn" style="padding:3px 8px; font-size:0.68rem;" onclick="Game.serveNourishingBroth('${entity.id}', ${isBrother})">🍲 ${lang === 'en' ? 'Serve Broth' : 'Podat vývar'}</button>
                             ${(typeof SaeculumSystem !== 'undefined' && SaeculumSystem._flebotomieActionHtml) ? SaeculumSystem._flebotomieActionHtml(entity, isBrother, lang) : ''}
                           </div>`;
