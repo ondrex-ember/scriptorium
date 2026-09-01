@@ -86,16 +86,26 @@ const HealthCareManager = {
     // Capellanus — duchovní útěcha pacientovi, jednou za pobyt. Jinej efekt než
     // Infirmarius (stress/temptation u bratra, mood u konvrše) — ne další
     // vrstva do infirmariumCareModifier, ať se role nescvaknou do jednoho čísla.
+    // infirmarium-bugfix (31.8.2026, Pécuchet) — dřív `if (entity.confessedThisStay) return;`
+    // bez hlášky = tichej no-op, přesně nahlášenej bug. Teď notify na
+    // KAŽDÝ neúspěšnej krok + dialog (NotificationSystem.modal) místo
+    // prchavýho toastu na úspěch, jak sis přál.
     hearConfession: function (entityId, isBrother) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
         const entity = pool.find(x => x.id === entityId);
-        if (!entity || !entity.admittedToInfirmarium) return;
+        if (!entity || !entity.admittedToInfirmarium) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en' ? 'Patient not found or not admitted.' : 'Pacient nenalezen nebo není uložen na lůžku.', true);
+            return;
+        }
         const hasCapellanus = ((GameState.dormitorium && GameState.dormitorium.brothers) || []).some(b => b.assignedTab === 'infirmarium_capellanus');
         if (!hasCapellanus) {
             UI.notify(lang === 'en' ? 'No Capellanus to hear confession.' : 'Není Capellanus, kdo by vyslechl zpověď.', true); return;
         }
-        if (entity.confessedThisStay) return;
+        if (entity.confessedThisStay) {
+            UI.notify(lang === 'en' ? entity.name + ' has already confessed during this stay.' : entity.name + ' se během tohoto pobytu už vyzpovídal.', true);
+            return;
+        }
         entity.confessedThisStay = true;
         if (isBrother) {
             entity.stress = Math.max(0, (entity.stress || 0) - 20);
@@ -103,10 +113,30 @@ const HealthCareManager = {
         } else {
             entity.mood = Math.min(100, (entity.mood || 0) + 15);
         }
-        UI.notifyPanel('🙏 ' + (lang === 'en' ? entity.name + ' finds peace in confession.' : entity.name + ' nalezl klid ve zpovědi.'), 'success');
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
         HealthCareManager._refreshInfirmariumTab();
+
+        const quotes = lang === 'en' ? [
+            '"Bless me, for I have sinned..." The Capellanus listens in silence, then absolves.',
+            'The confession is heard behind a cupped hand. A quiet penance is set, and the shoulders visibly ease.',
+            'Words spoken low find their way out at last. The Capellanus nods, and peace returns to a troubled face.'
+        ] : [
+            '„Zhřešil jsem, otče...“ Capellanus naslouchá mlčky a pak udílí rozhřešení.',
+            'Zpověď zazní tiše za dlaní. Uloží se skromné pokání a ramena se viditelně uvolní.',
+            'Slova, co dlouho tížila, konečně najdou cestu ven. Capellanus přikývne a do ustarané tváře se vrací klid.'
+        ];
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+            NotificationSystem.modal({
+                icon: '🙏',
+                title: lang === 'en' ? 'Confession' : 'Zpověď',
+                text: quote,
+                choices: [{ label: lang === 'en' ? 'Amen' : 'Amen', type: 'primary', effect: () => {} }]
+            });
+        } else {
+            UI.notifyPanel('🙏 ' + quote, 'success');
+        }
     },
 
     // Coquus — posilující výživný bujón / ovesná polévka pro nemocného na lůžku
@@ -114,7 +144,10 @@ const HealthCareManager = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
         const entity = pool.find(x => x.id === entityId);
-        if (!entity || !entity.admittedToInfirmarium) return;
+        if (!entity || !entity.admittedToInfirmarium) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en' ? 'Patient not found or not admitted.' : 'Pacient nenalezen nebo není uložen na lůžku.', true);
+            return;
+        }
         const hasCoquus = (GameState.conversi || []).some(k => k.task === 'coquus');
         if (!hasCoquus) {
             UI.notify(lang === 'en' ? 'No Coquus in the infirmary kitchen.' : 'V kuchyni ošetřovny není přiřazen žádný Coquus (kuchař).', true);
@@ -182,17 +215,26 @@ const HealthCareManager = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
         const entity = pool.find(x => x.id === patientId);
-        if (!entity) return;
+        if (!entity) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en' ? 'Patient not found.' : 'Pacient nenalezen.', true);
+            return;
+        }
 
         if (!InfirmariumSystem._minigameState || InfirmariumSystem._minigameState.patientId !== patientId) {
-            InfirmariumSystem.initMinigame(entity, isBrother);
+            InfirmariumSystem.initMinigame(entity.id, isBrother);
         }
         const state = InfirmariumSystem._minigameState;
-        if (!state || state.finished) return;
+        if (!state || state.finished) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en' ? 'The visit has already ended.' : 'Vizita už skončila.', true);
+            return;
+        }
 
         const treatments = InfirmariumSystem.TREATMENTS;
         const treat = treatments[treatmentKey];
-        if (!treat) return;
+        if (!treat) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en' ? 'Unknown treatment.' : 'Neznámý léčebný úkon.', true);
+            return;
+        }
 
         state.turnsUsed = (state.turnsUsed || 0) + 1;
 
@@ -566,9 +608,13 @@ const HealthCareManager = {
         if (!GameState.infirmarium) GameState.infirmarium = { beds: 3, patients: [] };
         const pool = isBrother ? ((GameState.dormitorium && GameState.dormitorium.brothers) || []) : (GameState.conversi || []);
         const entity = pool.find(x => x.id === entityId);
-        if (entity) entity.admittedToInfirmarium = false;
+        if (!entity) {
+            if (typeof UI !== 'undefined' && UI.notify) UI.notify(lang === 'en' ? 'Patient not found.' : 'Pacient nenalezen.', true);
+            return;
+        }
+        entity.admittedToInfirmarium = false;
         GameState.infirmarium.patients = (GameState.infirmarium.patients || []).filter(p => p.entityId !== entityId);
-        if (entity) UI.notifyPanel('🩺 ' + (lang === 'en' ? entity.name + ' discharged from the infirmary.' : entity.name + ' propuštěn z Infirmaria.'), 'system');
+        UI.notifyPanel('🩺 ' + (lang === 'en' ? entity.name + ' discharged from the infirmary.' : entity.name + ' propuštěn z Infirmaria.'), 'system');
         Game.save();
         if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(isBrother ? 'dormitorium' : 'conversi');
         HealthCareManager._refreshInfirmariumTab();
