@@ -1330,7 +1330,10 @@ const SaeculumSystem = {
     const cName = lang === 'en' ? c.name_en : c.name;
     const partialNote = result.actuallySold < qty ? (lang === 'en' ? ' (daily limit reached)' : ' (denní limit dosažen)') : '';
     UI.notify('🤝 ' + itemName + ' ×' + result.actuallySold + ' → ' + total + ' g · ' + cName + partialNote);
-    this.switchEntity('clientela'); // refresh panelu (modal zrušen)
+    // giacomo-market-stall (1.9.2026): pokud prodej proběhl ze stánku na Trhu
+    // (rankTier<3, Clientela ještě neexistuje), refreshni 'market', ne 'clientela' —
+    // jinak by fallback v renderEntityTabs přehodil hráče na Hospodu.
+    this.switchEntity(GameState.ui.saeculumEntity === 'market' ? 'market' : 'clientela');
   },
 
   // GUI: panel místo modalu (schváleno) — klik na dlaždici otevře obchodní panel uvnitř tabu
@@ -1423,7 +1426,8 @@ const SaeculumSystem = {
     if (itemId === 'snare') {
       UI.notify(lang === 'en' ? '🪤 Set it in the Workshop (Pracovna).' : '🪤 Nalíčíš ho v Pracovně.');
     }
-    this.switchEntity('clientela');
+    // giacomo-market-stall (1.9.2026): stejný refresh-cíl fix jako sellToContact — viz komentář tam.
+    this.switchEntity(GameState.ui.saeculumEntity === 'market' ? 'market' : 'clientela');
   },
 
   // V4/S2: Zakázky u kontaktu (Sklář, Kameník...) — 1 slot NA KONTAKT, 48 h, 50 % záloha, doplatek při vyzvednutí, +2 vztah

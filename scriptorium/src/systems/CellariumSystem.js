@@ -1142,6 +1142,46 @@ const CellariumSystem = {
     document.body.appendChild(modal);
   },
 
+  // giacomo-market-stall (1.9.2026): Giacomo byl od začátku myšlen jako
+  // dostupný hned (ContactsDB.giacomo.unlockTech = null), ale jediný vstup
+  // k jeho buyOffer byl v Clientela — gated na rankTier>=3. Hráči pod tier 3
+  // tak dostávali "Giacomo přijel!" pozvánku bez jakéhokoliv místa, kam jít.
+  // Mirror Stationarius vzoru v Knihovně (ui.js) — vlastní "stánek" mimo
+  // Clientela grid, volá stejný renderContactPanel(), žádný nový obchodní
+  // engine. Mizí, jakmile hráč odemkne Clientela (tam má plnohodnotný vstup).
+  renderGiacomoMarketStall: function (lang) {
+    if (typeof ContactsDB === 'undefined' || !ContactsDB.giacomo) return '';
+    const c = ContactsDB.giacomo;
+    const present = this.isGiacomoPresent();
+    const d = this.giacomoDaysLeft();
+    const open = GameState.ui && GameState.ui.marketGiacomoOpen;
+
+    let statusLine;
+    if (present) {
+      statusLine = lang === 'en' ? `In port — departs in ${d.days}d.` : `V přístavu — odplouvá za ${d.days} dny.`;
+    } else {
+      const lastVisit = (GameState.economy && GameState.economy.lastGiacomoVisit) || 0;
+      const daysSince = lastVisit ? Math.floor((Date.now() - lastVisit) / 86400000) : null;
+      const lastLine = daysSince !== null
+        ? (lang === 'en' ? ` Last in the region ${daysSince}d ago.` : ` Naposledy v kraji před ${daysSince} dny.`)
+        : '';
+      statusLine = (lang === 'en' ? `At sea — returns in ${d.days}d.` : `Na moři — vrací se za ${d.days} dní.`) + lastLine;
+    }
+
+    let h = `<div style="margin-bottom:16px;padding:12px 14px;background:rgba(197,160,89,0.07);border:1px solid rgba(197,160,89,0.3);border-radius:6px;">
+      <div style="display:flex;align-items:center;gap:10px;${present ? '' : 'opacity:0.6;'}">
+        <div style="font-size:1.6rem;">${c.icon}</div>
+        <div style="flex:1;">
+          <strong>${lang === 'en' ? c.name_en : c.name}</strong>
+          <div class="text-sm" style="opacity:0.75;">${statusLine}</div>
+        </div>
+        ${present ? `<button class="craft-btn" onclick="GameState.ui.marketGiacomoOpen = !GameState.ui.marketGiacomoOpen; SaeculumSystem.switchEntity('market');">🤝 ${lang === 'en' ? 'Trade' : 'Obchod'}</button>` : ''}
+      </div>
+      ${(present && open && typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderContactPanel('giacomo') : ''}
+    </div>`;
+    return h;
+  },
+
   // ═══════════════════════════════════════════════════════════════════════════
   // HEINRICH TRAXDORF EVENT — weekly organ merchant
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1479,7 +1519,15 @@ const CellariumSystem = {
     const open = this.isEntityOpen(entity);
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-    let h = `<div style="padding:15px; background:rgba(0,0,0,0.03);
+    let h = '';
+    // Giacomo stánek — nezávislý na otevírací době Trhu (So-Ne) a na
+    // Clientela (rankTier>=3). Vlastní real-time okno, viz isGiacomoPresent.
+    if (entity === 'market') {
+      const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
+      if (rankTier < 3) h += this.renderGiacomoMarketStall(lang);
+    }
+
+    h += `<div style="padding:15px; background:rgba(0,0,0,0.03);
                          border-radius:8px; border-left:3px solid
                          ${open ? 'var(--accent-gold)' : 'rgba(0,0,0,0.15)'};">`;
 
