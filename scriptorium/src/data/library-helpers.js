@@ -1508,6 +1508,732 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
 };
 
 // ================================================
+// 8. LENDING COUNTER MECHANICS & 1970s LIBRARIAN DESK UI
+// ================================================
+
+(function() {
+    class LibraryManager {
+        constructor() {
+            this.init();
+        }
+
+        init() {
+            if (!window.GameState) return;
+            if (!window.GameState.library) {
+                window.GameState.library = {};
+            }
+            if (!window.GameState.library.loans) {
+                window.GameState.library.loans = [];
+            }
+            if (!window.GameState.library.activeVisitor) {
+                window.GameState.library.activeVisitor = null;
+            }
+            if (!window.GameState.library.hospital) {
+                window.GameState.library.hospital = { totalDamaged: 0, dustyBooks: 0, damagedBindings: 0 };
+            }
+            if (!window.GameState.library.history) {
+                window.GameState.library.history = [];
+            }
+        }
+
+        getActiveVisitor() {
+            this.init();
+            return window.GameState.library.activeVisitor;
+        }
+
+        getVisitorById(visitorId) {
+            const active = this.getActiveVisitor();
+            if (active && active.id === visitorId) return active;
+            return null;
+        }
+
+        spawnVisitor() {
+            this.init();
+            const possibleVisitors = [
+                { id: 'v_' + Date.now(), name: 'Bratr Prokulus', role: 'Novic / Iluminátor', avatar: '🧑‍🦲', requestText: 'Hledám spis o barvení roun a miniu pro chystaný žaltář. Slibuji, že nezanechám kaňky!', requestedTopic: 'Teologie', patience: 'Vysoká (Stoická pokora)', reward: '5× Křída', quote70s: '„Průkazku mám pod kutnou, otče knihovníku!“', rewardGroshen: 5 },
+                { id: 'v_' + Date.now(), name: 'Bratr Nezamysl', role: 'Bylinkář', avatar: '🌿', requestText: 'Potřebuji Mattioliho přepis nebo herbář o léčbě zimnice. Mám rýmu a spěchám k záhonům.', requestedTopic: 'Lékařství', patience: 'Střední (Něco bublá v kotli)', reward: '3× Pelyněk', quote70s: '„Vypůjčím si to do pátku, než uschne třezalka.“', rewardGroshen: 8 },
+                { id: 'v_' + Date.now(), name: 'Pan Hynek z Poděbrad', role: 'Šlechtic / Patron', avatar: '⚔️', requestText: 'Zapůjčte mi rytířskou kroniku a rodokmen na 14 dní! A žádné zbytečné papírování.', requestedTopic: 'Historie', patience: 'Nízká (Netrpělivý zeman)', reward: '25× Groš', quote70s: '„Mám přednostní právo šlechty z roku 1380!“', rewardGroshen: 25 },
+                { id: 'v_' + Date.now(), name: 'Opat Bernard', role: 'Opat kláštera', avatar: '👑', requestText: 'Přines mi řeholi svatého Benedikta pro kontrolu kapitulní síně. A utři prach na hřbetu!', requestedTopic: 'Řehole', patience: 'Nespěchá (Najde každou kaňku)', reward: 'Přízeň Opata', quote70s: '„Ticho v knižnici! Kde je výpůjční matrika?!“', rewardGroshen: 15 },
+                { id: 'v_' + Date.now(), name: 'Poutník Jan', role: 'Cestovatel z Itálie', avatar: '🎒', requestText: 'Máte mapu střední Evropy nebo ptolemaiovský atlas? Platím zlatem i exotickým kořením.', requestedTopic: 'Geografie', patience: 'Střední (Chystá mulu na cestu)', reward: '1× Neznámá substance', quote70s: '„V Benátkách máme na kartičky razítka z mosazi!“', rewardGroshen: 20 },
+                { id: 'v_' + Date.now(), name: 'Měšťanka Kateřina', role: 'Olomoucká kupcová', avatar: '👵', requestText: 'Hledám modlitební knížku pro dceru a herbář na bolavá kolena. Nemáte něco veselého?', requestedTopic: 'Lékařství', patience: 'Vysoká (Povídat si chce)', reward: '12× Groš', quote70s: '„Za mých mladých let se půjčovalo bez zálohy!“', rewardGroshen: 12 },
+                { id: 'v_' + Date.now(), name: 'Student Baltazar', role: 'Scholastik z Prahy', avatar: '📜', requestText: 'Chystám disputaci o Aristotelovi. Potřebuji jakýkoliv filozofický traktát do zítřka!', requestedTopic: 'Teologie', patience: 'Nízká (Zkouška ho čeká)', reward: '8× Groš', quote70s: '„Propásl jsem otvírací dobu scriptoria!“', rewardGroshen: 8 }
+            ];
+
+            const chosen = possibleVisitors[Math.floor(Math.random() * possibleVisitors.length)];
+            window.GameState.library.activeVisitor = chosen;
+            return chosen;
+        }
+
+        getInternalLoans() {
+            this.init();
+            return (window.GameState.library.loans || []).filter(l => l.type === 'internal' && !l.returned);
+        }
+
+        getExternalLoans() {
+            this.init();
+            return (window.GameState.library.loans || []).filter(l => l.type === 'external' && !l.returned);
+        }
+
+        getRecentHistory() {
+            this.init();
+            return (window.GameState.library.history || []).slice(-5).reverse();
+        }
+
+        getHospitalStatus() {
+            this.init();
+            return window.GameState.library.hospital || { totalDamaged: 0, dustyBooks: 0, damagedBindings: 0 };
+        }
+
+        getAvailableBooks() {
+            if (window.LibraryDB && window.LibraryDB.books) {
+                const loans = (window.GameState && window.GameState.library && window.GameState.library.loans) || [];
+                const loanedBookIds = loans.filter(l => !l.returned).map(l => l.bookId);
+                return window.LibraryDB.books.filter(b => !loanedBookIds.includes(b.id));
+            }
+            return [
+                { id: 'book_1', title: 'Regula Benedicti', topic: 'Řehole' },
+                { id: 'book_2', title: 'Mattioliho Herbář', topic: 'Lékařství' },
+                { id: 'book_3', title: 'Olomoucký Kropáč', topic: 'Historie' },
+                { id: 'book_4', title: 'Klaudyánova mapa', topic: 'Geografie' }
+            ];
+        }
+
+        executeLend(visitorId, bookId) {
+            this.init();
+            const visitor = this.getVisitorById(visitorId);
+            if (!visitor) return { success: false, message: 'Žadatel nečeká u okénka.' };
+
+            const books = this.getAvailableBooks();
+            const book = books.find(b => b.id === bookId);
+            if (!book) return { success: false, message: 'Svazek není k dispozici.' };
+
+            const isExternal = visitor.role && (visitor.role.includes('Šlechtic') || visitor.role.includes('Cestovatel') || visitor.role.includes('Patron') || visitor.role.includes('Měšťanka'));
+            const loan = {
+                id: 'loan_' + Date.now(),
+                bookId: book.id,
+                bookTitle: book.title,
+                borrowerId: visitor.id,
+                borrowerName: visitor.name,
+                borrowerRole: visitor.role,
+                type: isExternal ? 'external' : 'internal',
+                daysRemaining: isExternal ? 14 : 7,
+                returned: false,
+                date: new Date().toLocaleDateString('cs-CZ'),
+                stamped: true
+            };
+
+            window.GameState.library.loans.push(loan);
+            window.GameState.library.history.push(loan);
+            window.GameState.library.activeVisitor = null;
+
+            if (visitor.rewardGroshen && window.GameState.economy) {
+                window.GameState.economy.groshen = (window.GameState.economy.groshen || 0) + visitor.rewardGroshen;
+            }
+
+            return { success: true, message: `📖 Svazek "${book.title}" byl řádně stvrzen razítkem a zapůjčen čtenáři ${visitor.name}.` };
+        }
+
+        rejectVisitor(visitorId) {
+            this.init();
+            window.GameState.library.activeVisitor = null;
+            return { success: true, message: 'Žadatel byl odmítnut s knihovním razítkem "ZAMÍTNUTO" a odešel od okénka.' };
+        }
+
+        returnBook(loanId) {
+            this.init();
+            const loan = (window.GameState.library.loans || []).find(l => l.id === loanId);
+            if (!loan) return { success: false, message: 'Výpůjčka nenalezena.' };
+
+            loan.returned = true;
+            return { success: true, message: `📖 Svazek "${loan.bookTitle}" byl převzat, zkontrolován na skvrny a založen do skříně.` };
+        }
+
+        sendRemindMessenger(loanId) {
+            this.init();
+            const loan = (window.GameState.library.loans || []).find(l => l.id === loanId);
+            if (!loan) return { success: false, message: 'Výpůjčka nenalezena.' };
+            return { success: true, message: `✉️ Klášterní posel vyrazil za ${loan.borrowerName} s připomínacím pergamenem a výzvou k navrácení svazku "${loan.bookTitle}".` };
+        }
+
+        dustBooks() {
+            this.init();
+            if (window.GameState.library.hospital) {
+                window.GameState.library.hospital.totalDamaged = 0;
+                window.GameState.library.hospital.dustyBooks = 0;
+                window.GameState.library.hospital.damagedBindings = 0;
+            }
+            return { success: true, message: '🌿 Oprášil jste a vyvětral zaprášené svazky pelyňkovým smatlákem.' };
+        }
+    }
+
+    window.LibraryManager = new LibraryManager();
+})();
+
+window.renderLendingWindowUI = function() {
+    const activeVisitor = window.LibraryManager ? window.LibraryManager.getActiveVisitor() : null;
+    const internalLoans = window.LibraryManager ? window.LibraryManager.getInternalLoans() : [];
+    const externalLoans = window.LibraryManager ? window.LibraryManager.getExternalLoans() : [];
+    const recentHistory = window.LibraryManager ? window.LibraryManager.getRecentHistory() : [];
+    const hospital = window.LibraryManager ? window.LibraryManager.getHospitalStatus() : { totalDamaged: 0, dustyBooks: 0, damagedBindings: 0 };
+
+    const inventory = (window.GameState && window.GameState.inventory) ? window.GameState.inventory : {};
+    const herbQty = (inventory['herbs'] || inventory['herb_green'] || inventory['wormwood'] || 19);
+    const groshen = (window.GameState && window.GameState.economy) ? (window.GameState.economy.groshen || 0) : 100;
+
+    const slogans70s = [
+        "🔕 TICHO V KNIŽNICI! • Mastné prsty od sádla přísně zakázány!",
+        "📜 Vrátit do 14 dnů nebo pokuta 2 svíce & 5 otčenášů!",
+        "🗄️ Ztráta kartičky = povinný přepis řehole sv. Benedikta!",
+        "🍵 Zákaz pití piva a medoviny nad pergamenovými rukopisy!",
+        "🏷️ Každý svazek musí mít razítko Armaria a inventární číslo 1465!"
+    ];
+    const slogan = slogans70s[Math.floor(Math.random() * slogans70s.length)];
+
+    return `
+        <div class="space-y-6 font-serif text-amber-950 select-none">
+            
+            <!-- 1970s Librarian Retro Header Slogan & Counter Badge -->
+            <div class="bg-gradient-to-r from-[#2c2018] via-[#3d2d22] to-[#2c2018] text-amber-100 p-3 rounded-lg border-2 border-[#5a4432] shadow-md flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-xl animate-pulse">🔕</span>
+                    <div>
+                        <div class="text-xs font-bold tracking-widest uppercase text-amber-300">Pult Knihovníka • Armarius Olomucensis 1465</div>
+                        <div class="text-[11px] text-amber-200/90 italic font-sans">${slogan}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-sans">
+                    <span class="bg-[#1b140e] px-2.5 py-1 rounded border border-amber-700/50 text-amber-300 font-bold">
+                        💰 ${groshen} Grošů
+                    </span>
+                    <span class="bg-[#1b140e] px-2.5 py-1 rounded border border-amber-700/50 text-amber-200">
+                        📋 Výpůjček: <strong>${internalLoans.length + externalLoans.length}</strong>
+                    </span>
+                </div>
+            </div>
+
+            <!-- MAIN DESK WORKSPACE - Tactile 3D Wood Desk -->
+            <div class="relative bg-[#251b14] border-4 border-[#17100b] rounded-2xl p-5 shadow-2xl overflow-hidden text-amber-100" 
+                 style="background-image: radial-gradient(circle at 50% 30%, #3a2b20 0%, #1c140e 100%);">
+                
+                <!-- Desk Surface Header -->
+                <div class="flex items-center justify-between border-b border-amber-800/40 pb-3 mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">🏛️</span>
+                        <div>
+                            <h3 class="text-base font-bold tracking-wider text-amber-200 uppercase drop-shadow-sm">Pracovní Stůl Armaria</h3>
+                            <div class="text-[10px] text-amber-500/80 font-sans tracking-wide">Výpůjční okénko, lístková kartotéka & razítkovací poduška</div>
+                        </div>
+                    </div>
+                    <div class="hidden sm:flex items-center gap-1.5 bg-[#140e0a] px-3 py-1 rounded-full border border-amber-800/60 text-[11px] text-amber-300">
+                        <span>👤 Knihovník:</span>
+                        <strong class="text-amber-100">Bratr Armarius</strong>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[260px]">
+                    
+                    <!-- LEFT: Visitor Window -->
+                    <div class="lg:col-span-5 bg-[#120c08] border-2 border-[#423223] rounded-xl p-4 flex flex-col justify-between items-center relative shadow-inner overflow-hidden">
+                        
+                        <div class="absolute inset-0 pointer-events-none opacity-30 flex justify-around">
+                            <div class="w-1.5 bg-gradient-to-b from-stone-900 via-amber-950 to-stone-900 h-full"></div>
+                            <div class="w-1.5 bg-gradient-to-b from-stone-900 via-amber-950 to-stone-900 h-full"></div>
+                            <div class="w-1.5 bg-gradient-to-b from-stone-900 via-amber-950 to-stone-900 h-full"></div>
+                        </div>
+
+                        <div class="z-10 w-full flex flex-col items-center justify-center my-auto py-1">
+                            ${activeVisitor ? `
+                                <div class="w-full text-center">
+                                    <div class="relative inline-block cursor-pointer group" onclick="window.LibraryUI && window.LibraryUI.inspectVisitor && window.LibraryUI.inspectVisitor('${activeVisitor.id}')">
+                                        <div class="w-20 h-20 rounded-full bg-[#2a1d15] border-2 border-amber-500/80 flex items-center justify-center text-4xl shadow-xl mb-1 transition-transform group-hover:scale-105">
+                                            ${activeVisitor.avatar || '🧙‍♂️'}
+                                        </div>
+                                        <span class="absolute -bottom-1 -right-1 bg-amber-500 text-amber-950 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-200 shadow">
+                                            Čtenář
+                                        </span>
+                                    </div>
+
+                                    <div class="font-bold text-amber-100 text-base tracking-wide mt-2">${activeVisitor.name}</div>
+                                    <div class="text-xs text-amber-400/90 italic font-sans">${activeVisitor.role || 'Žadatel o rukopis'}</div>
+                                    
+                                    ${activeVisitor.quote70s ? `
+                                        <div class="text-[11px] text-amber-300/80 italic font-sans my-1 bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/30">
+                                            ${activeVisitor.quote70s}
+                                        </div>
+                                    ` : ''}
+
+                                    <div class="mt-2.5 bg-[#221811] border border-amber-700/60 rounded-lg p-2.5 text-xs text-amber-200/90 text-left shadow-md relative">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wide">Žádost:</span>
+                                            <span class="text-[10px] bg-amber-900/60 text-amber-200 px-1.5 py-0.2 rounded border border-amber-700/40">
+                                                Téma: ${activeVisitor.requestedTopic || 'Všeobecné'}
+                                            </span>
+                                        </div>
+                                        <div class="italic leading-snug">"${activeVisitor.requestText || 'Hledám vhodný svazek...'}"</div>
+                                        <div class="mt-2 pt-1 border-t border-amber-800/40 flex justify-between items-center text-[10px] text-amber-400/80">
+                                            <span>Trpělivost: <strong>${activeVisitor.patience || 'Vysoká'}</strong></span>
+                                            <span class="text-emerald-400 font-bold">Odměna: ${activeVisitor.reward || 'Svíčka & Groš'}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3 flex gap-2 w-full">
+                                        <button onclick="window.LibraryUI && window.LibraryUI.lendBookToVisitor && window.LibraryUI.lendBookToVisitor('${activeVisitor.id}')" 
+                                                class="flex-1 py-2 bg-gradient-to-r from-amber-800 to-amber-700 hover:from-amber-700 hover:to-amber-600 text-amber-100 text-xs font-bold rounded-lg border border-amber-500/60 shadow-lg transition flex items-center justify-center gap-1.5">
+                                            📖 Vydat svazek
+                                        </button>
+                                        <button onclick="window.LibraryUI && window.LibraryUI.rejectVisitor && window.LibraryUI.rejectVisitor('${activeVisitor.id}')" 
+                                                class="py-2 px-3 bg-red-950/60 hover:bg-red-900/80 text-red-200 text-xs font-bold rounded-lg border border-red-800/60 shadow transition flex items-center justify-center gap-1"
+                                                title="ZAMÍTNUTO">
+                                            ❌ Zamítnout
+                                        </button>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="text-center py-4">
+                                    <div class="text-5xl opacity-25 mb-2 animate-pulse">🪟</div>
+                                    <div class="text-sm font-bold text-amber-300">Okénko je prázdné</div>
+                                    <div class="text-xs text-amber-400/60 font-sans italic mt-1 max-w-[200px] mx-auto">
+                                        Žádný čtenář nenechává svou výpůjční kartu u okénka. Zazvoňte na zvoneček!
+                                    </div>
+
+                                    <button onclick="window.LibraryUI && window.LibraryUI.ringLendingBell && window.LibraryUI.ringLendingBell()" 
+                                            class="mt-4 px-4 py-2.5 bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-500 text-amber-950 font-bold text-xs rounded-xl border-2 border-amber-400 shadow-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 mx-auto">
+                                        <span class="text-base">🔔</span>
+                                        <span>ZAZVONIT NA PULT (Přivolat čtenáře)</span>
+                                    </button>
+                                </div>
+                            `}
+                        </div>
+
+                        <div class="w-full bg-[#1b120a] border-t border-amber-900/60 p-1.5 text-center text-[10px] text-amber-500/70 font-sans rounded-b">
+                            📍 Výpůjční pult • Klášterní Armaria Olomouc
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: 4 Retro 1970s Style Interactive Desk Tools -->
+                    <div class="lg:col-span-7 flex flex-col justify-between gap-3">
+                        
+                        <!-- Tool 1: Card Catalog Drawer -->
+                        <button onclick="window.LibraryUI && window.LibraryUI.openCatalogForLending && window.LibraryUI.openCatalogForLending()" 
+                                class="group relative bg-gradient-to-r from-[#382a1e] via-[#2d2117] to-[#251a11] hover:from-[#483727] hover:to-[#33251a] border-2 border-amber-700/60 hover:border-amber-400 rounded-xl p-3 text-left transition-all shadow-md flex items-center justify-between">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-10 h-10 rounded-lg bg-[#1a120b] border border-amber-600/50 flex items-center justify-center text-xl shadow-inner group-hover:scale-105 transition-transform">
+                                    🗄️
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-amber-200 group-hover:text-amber-100 uppercase tracking-wide flex items-center gap-2">
+                                        <span>1. Lístková Kartotéka Rukopisů</span>
+                                        <span class="text-[9px] bg-amber-900/80 text-amber-300 px-1.5 py-0.2 rounded border border-amber-700">Dřevěná zásuvka</span>
+                                    </div>
+                                    <div class="text-[11px] text-amber-400/80 font-sans mt-0.5">
+                                        Otevřít katalogové lístky, vyhledat svazek podle témat a vydat čtenáři
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-sm text-amber-400 group-hover:translate-x-1 transition-transform font-bold">➔</span>
+                        </button>
+
+                        <!-- Tool 2: Date Stamp & Wax Seal -->
+                        <button onclick="window.LibraryUI && window.LibraryUI.stampCurrentLoan && window.LibraryUI.stampCurrentLoan()" 
+                                class="group relative bg-gradient-to-r from-[#382a1e] via-[#2d2117] to-[#251a11] hover:from-[#483727] hover:to-[#33251a] border-2 border-amber-700/60 hover:border-amber-400 rounded-xl p-3 text-left transition-all shadow-md flex items-center justify-between">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-10 h-10 rounded-lg bg-[#1a120b] border border-amber-600/50 flex items-center justify-center text-xl shadow-inner group-hover:scale-105 transition-transform">
+                                    💮
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-amber-200 group-hover:text-amber-100 uppercase tracking-wide flex items-center gap-2">
+                                        <span>2. Knihovnické Datumové Razítko</span>
+                                        <span class="text-[9px] bg-amber-900/80 text-amber-300 px-1.5 py-0.2 rounded border border-amber-700">SCHVÁLENO 1465</span>
+                                    </div>
+                                    <div class="text-[11px] text-amber-400/80 font-sans mt-0.5">
+                                        Razítkovací poduška • Otisknout datum navrácení a pečeť Armaria
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-sm text-amber-400 group-hover:translate-x-1 transition-transform font-bold">➔</span>
+                        </button>
+
+                        <!-- Tool 3: Return Tray & Stain Inspector -->
+                        <button onclick="window.LibraryUI && window.LibraryUI.openReturnDialog && window.LibraryUI.openReturnDialog()" 
+                                class="group relative bg-gradient-to-r from-[#382a1e] via-[#2d2117] to-[#251a11] hover:from-[#483727] hover:to-[#33251a] border-2 border-amber-700/60 hover:border-amber-400 rounded-xl p-3 text-left transition-all shadow-md flex items-center justify-between">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-10 h-10 rounded-lg bg-[#1a120b] border border-amber-600/50 flex items-center justify-center text-xl shadow-inner group-hover:scale-105 transition-transform">
+                                    📥
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-amber-200 group-hover:text-amber-100 uppercase tracking-wide flex items-center gap-2">
+                                        <span>3. Přijmout Vratku & Zkontrolovat Skvrny</span>
+                                        <span class="text-[9px] bg-amber-900/80 text-amber-300 px-1.5 py-0.2 rounded border border-amber-700">Vratkový pult</span>
+                                    </div>
+                                    <div class="text-[11px] text-amber-400/80 font-sans mt-0.5">
+                                        Převzít přečtené svazky, skasírovat opozdilce v Groších a založit do skříně
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-sm text-amber-400 group-hover:translate-x-1 transition-transform font-bold">➔</span>
+                        </button>
+
+                        <!-- Tool 4: Herb Duster & Preservation -->
+                        <button onclick="window.LibraryUI && window.LibraryUI.dustLibraryBooks && window.LibraryUI.dustLibraryBooks()" 
+                                class="group relative bg-gradient-to-r from-[#382a1e] via-[#2d2117] to-[#251a11] hover:from-[#483727] hover:to-[#33251a] border-2 border-amber-700/60 hover:border-amber-400 rounded-xl p-3 text-left transition-all shadow-md flex items-center justify-between">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-10 h-10 rounded-lg bg-[#1a120b] border border-amber-600/50 flex items-center justify-center text-xl shadow-inner group-hover:scale-105 transition-transform">
+                                    🌿
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-amber-200 group-hover:text-amber-100 uppercase tracking-wide flex items-center gap-2">
+                                        <span>4. Vyvětrat & Oprášit Knihovní Fond</span>
+                                        <span class="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.2 rounded border border-emerald-700">${herbQty}× Pelyněk po ruce</span>
+                                    </div>
+                                    <div class="text-[11px] text-amber-400/80 font-sans mt-0.5">
+                                        Pelyňkový smatlák • Ochrana pergamenu před prachem, červotočem a moly
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-sm text-amber-400 group-hover:translate-x-1 transition-transform font-bold">➔</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOOK HOSPITAL & PRESERVATION STATUS -->
+            <div class="bg-amber-100/60 border border-amber-900/30 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-amber-900/20 border border-amber-800/40 flex items-center justify-center text-2xl shadow-inner">
+                        🏥
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-amber-950 uppercase tracking-wider">Knižní Nemocnice & Konzervace</h3>
+                        <div class="text-xs text-amber-800 mt-0.5">
+                            ${hospital.totalDamaged > 0 ? `
+                                Vyžaduje ošetření: <strong class="text-amber-950 font-bold">${hospital.totalDamaged}</strong> svazků (prach, vlhkost, vosk).
+                            ` : `
+                                <span class="text-emerald-800 font-bold">✓ Všechny knihovní svazky jsou čisté, vyvětrané a v pořádku</span>
+                            `}
+                        </div>
+                    </div>
+                </div>
+                <button onclick="window.LibraryUI && window.LibraryUI.dustLibraryBooks && window.LibraryUI.dustLibraryBooks()" 
+                        class="px-4 py-2 bg-amber-800 hover:bg-amber-700 text-amber-100 text-xs rounded-lg font-bold transition shadow uppercase tracking-wider flex items-center gap-1.5">
+                    <span>🌿 Vyvětrat a oprášit</span>
+                    <span class="text-[10px] opacity-80">(${herbQty}× po ruce)</span>
+                </button>
+            </div>
+
+            <!-- ACTIVE LOANS (INTERNAL & EXTERNAL INDEX CARDS) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                
+                <!-- Internal Loans -->
+                <div class="bg-amber-900/10 border border-amber-800/30 rounded-xl p-4 shadow-xs">
+                    <div class="flex items-center justify-between mb-3 border-b border-amber-800/20 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg">📥</span>
+                            <h3 class="text-sm font-bold text-amber-950 uppercase tracking-wider">V Klášteře (Bratří)</h3>
+                        </div>
+                        <span class="text-xs font-bold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full border border-amber-300">
+                            ${internalLoans.length} zapůjčeno
+                        </span>
+                    </div>
+
+                    ${internalLoans.length > 0 ? `
+                        <div class="space-y-2.5">
+                            ${internalLoans.map(loan => `
+                                <div class="bg-[#fcf8ed] p-3 rounded-lg border-2 border-amber-800/30 text-xs shadow-sm relative">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-bold text-amber-950 text-sm">${loan.bookTitle || loan.bookId}</div>
+                                            <div class="text-amber-800 font-sans mt-0.5">👤 Vypůjčitel: <strong>${loan.borrowerName || 'Bratr'}</strong></div>
+                                        </div>
+                                        <span class="bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded border border-amber-400 text-[10px]">
+                                            ⏳ Dní: ${loan.daysRemaining}
+                                        </span>
+                                    </div>
+                                    <div class="mt-2.5 pt-2 border-t border-amber-200 flex justify-between items-center">
+                                        <span class="text-[10px] text-amber-700 italic">Datum: ${loan.date || '1465'}</span>
+                                        <button onclick="window.LibraryUI && window.LibraryUI.returnBook && window.LibraryUI.returnBook('${loan.id}')" 
+                                                class="px-3 py-1 bg-amber-800 hover:bg-amber-700 text-amber-100 rounded text-xs font-bold transition shadow">
+                                            Převzít vratku
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : `
+                        <div class="text-xs text-amber-800/70 italic p-3 bg-amber-50/50 rounded-lg border border-amber-200/60 text-center">
+                            Žádné aktivní vnitřní výpůjčky mezi mnichy.
+                        </div>
+                    `}
+                </div>
+
+                <!-- External Loans -->
+                <div class="bg-amber-900/10 border border-amber-800/30 rounded-xl p-4 shadow-xs">
+                    <div class="flex items-center justify-between mb-3 border-b border-amber-800/20 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg">🌉</span>
+                            <h3 class="text-sm font-bold text-amber-950 uppercase tracking-wider">Mimo Klášter (Hosté)</h3>
+                        </div>
+                        <span class="text-xs font-bold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full border border-amber-300">
+                            ${externalLoans.length} venku
+                        </span>
+                    </div>
+
+                    ${externalLoans.length > 0 ? `
+                        <div class="space-y-2.5">
+                            ${externalLoans.map(loan => `
+                                <div class="bg-[#fcf8ed] p-3 rounded-lg border-2 border-amber-800/30 text-xs shadow-sm relative">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-bold text-amber-950 text-sm">${loan.bookTitle || loan.bookId}</div>
+                                            <div class="text-amber-800 font-sans mt-0.5">👤 Vypůjčitel: <strong>${loan.borrowerName}</strong> (${loan.borrowerRole || 'Šlechta'})</div>
+                                        </div>
+                                        <span class="bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded border border-amber-400 text-[10px]">
+                                            ⏳ Dní: ${loan.daysRemaining}
+                                        </span>
+                                    </div>
+                                    <div class="mt-2.5 pt-2 border-t border-amber-200 flex justify-between items-center">
+                                        <button onclick="window.LibraryUI && window.LibraryUI.sendRemindMessenger && window.LibraryUI.sendRemindMessenger('${loan.id}')" 
+                                                class="px-2.5 py-1 bg-amber-900/20 hover:bg-amber-900/30 text-amber-900 rounded text-[11px] font-bold transition border border-amber-700/30">
+                                            ✉️ Poslat posla
+                                        </button>
+                                        <button onclick="window.LibraryUI && window.LibraryUI.returnBook && window.LibraryUI.returnBook('${loan.id}')" 
+                                                class="px-3 py-1 bg-amber-800 hover:bg-amber-700 text-amber-100 rounded text-xs font-bold transition shadow">
+                                            Převzít
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : `
+                        <div class="text-xs text-amber-800/70 italic p-3 bg-amber-50/50 rounded-lg border border-amber-200/60 text-center">
+                            Žádné knihy v tomto okamžiku necestují mimo klášterní hradby.
+                        </div>
+                    `}
+                </div>
+            </div>
+
+            <!-- RECENT LENDING LOG & LIBRARIAN NOTES -->
+            ${recentHistory.length > 0 ? `
+                <div class="bg-amber-900/10 border border-amber-800/30 rounded-xl p-4 shadow-xs">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xs font-bold text-amber-950 uppercase tracking-wider">📜 Nedávný Knihovní Protokol</h3>
+                        <span class="text-[10px] text-amber-800 font-sans">Klášterní kronika 1465</span>
+                    </div>
+                    <div class="space-y-1.5">
+                        ${recentHistory.slice(0, 4).map(h => `
+                            <div class="text-xs text-amber-900 flex items-center justify-between p-1.5 bg-amber-50/60 rounded border border-amber-200/60">
+                                <span>📖 <strong>${h.bookTitle}</strong> — ${h.borrowerName} (${h.date || '1465'})</span>
+                                <span class="text-[10px] font-bold ${h.returned ? 'text-emerald-800' : 'text-amber-800'}">
+                                    ${h.returned ? '✓ Navráceno' : '⏳ Vypůjčeno'}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+        </div>
+    `;
+};
+
+window.LibraryUI = window.LibraryUI || {};
+
+window.LibraryUI.ringLendingBell = function() {
+    if (window.LibraryManager && window.LibraryManager.spawnVisitor) {
+        const newVisitor = window.LibraryManager.spawnVisitor();
+        if (newVisitor) {
+            if (window.Game && window.Game.showNotification) {
+                window.Game.showNotification(`🔔 Cink! Ke stolu přistoupil ${newVisitor.name} (${newVisitor.role || 'Čtenář'}).`);
+            }
+            if (window.SoundManager && window.SoundManager.play) {
+                window.SoundManager.play('bell');
+            }
+        } else {
+            if (window.Game && window.Game.showNotification) {
+                window.Game.showNotification('🔔 Zazvonil jste na pult. Chodbou se nese ozvěna, ale momentálně nikdo další nepřichází.');
+            }
+        }
+    } else {
+        if (window.Game && window.Game.showNotification) {
+            window.Game.showNotification('🔔 Cink! Zazvonil jste na knihovnický zvoneček.');
+        }
+    }
+    if (window.renderLibraryUI) { window.renderLibraryUI(); }
+    else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
+};
+
+window.LibraryUI.inspectVisitor = function(visitorId) {
+    const visitor = window.LibraryManager ? window.LibraryManager.getVisitorById(visitorId) : null;
+    if (!visitor) return;
+
+    const details = `
+🧑‍🏫 **${visitor.name}** (${visitor.role || 'Žadatel'})
+📜 **Žádost:** "${visitor.requestText}"
+🎯 **Preferované téma:** ${visitor.requestedTopic || 'Všeobecné spisy'}
+⏳ **Trpělivost:** ${visitor.patience || 'Vysoká'}
+💰 **Nabízená odměna:** ${visitor.reward || '10× Groš'}
+💬 **Knihovnická poznámka:** ${visitor.quote70s || 'Řádně zkontrolovat výpůjční kartičku!'}
+    `;
+    if (window.Game && window.Game.showDialog) {
+        window.Game.showDialog('Návštěvník u okénka', details, [
+            { text: '📖 Půjčit vhodnou knihu', action: () => window.LibraryUI.lendBookToVisitor(visitorId) },
+            { text: '❌ Odmítnout s omluvou', action: () => window.LibraryUI.rejectVisitor(visitorId) },
+            { text: 'Zavřít', action: null }
+        ]);
+    } else {
+        alert(details);
+    }
+};
+
+window.LibraryUI.stampCurrentLoan = function() {
+    if (window.SoundManager && window.SoundManager.play) {
+        window.SoundManager.play('stamp');
+    }
+    const visitor = window.LibraryManager ? window.LibraryManager.getActiveVisitor() : null;
+    if (visitor) {
+        if (window.Game && window.Game.showNotification) {
+            window.Game.showNotification(`💮 THUMP! Otiskl jste razítko SCHVÁLENO 1465 na kartu čtenáře ${visitor.name}.`);
+        }
+    } else {
+        if (window.Game && window.Game.showNotification) {
+            window.Game.showNotification('💮 THUMP! Otiskl jste datumové razítko SCHVÁLENO 1465 na čerstvý výpůjční pergamen.');
+        }
+    }
+    if (window.renderLibraryUI) { window.renderLibraryUI(); }
+    else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
+};
+
+window.LibraryUI.sendRemindMessenger = function(loanId) {
+    if (window.LibraryManager && window.LibraryManager.sendRemindMessenger) {
+        const res = window.LibraryManager.sendRemindMessenger(loanId);
+        if (window.Game && window.Game.showNotification) {
+            window.Game.showNotification(res.message || '✉️ Posel vyrazil s urgencí.');
+        }
+    }
+    if (window.renderLibraryUI) { window.renderLibraryUI(); }
+    else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
+};
+
+window.LibraryUI.openCatalogForLending = function() {
+    const visitor = window.LibraryManager ? window.LibraryManager.getActiveVisitor() : null;
+    if (window.Game && window.Game.showNotification) {
+        if (visitor) {
+            window.Game.showNotification(`🗄️ Otevíráte kartotéku pro čtenáře ${visitor.name}. Vyberte svazek.`);
+        } else {
+            window.Game.showNotification('🗄️ Otevíráte dřevěnou kartotéku rukopisů. Procházíte uložené karty.');
+        }
+    }
+    if (window.LibraryState) {
+        window.LibraryState.activeTab = 'catalog';
+    }
+    if (window.renderLibraryUI) { window.renderLibraryUI(); }
+    else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
+};
+
+window.LibraryUI.dustLibraryBooks = function() {
+    if (window.LibraryManager && window.LibraryManager.dustBooks) {
+        const res = window.LibraryManager.dustBooks();
+        if (window.Game && window.Game.showNotification) {
+            window.Game.showNotification(res.message || '🌿 Oprášil jste a vyvětral zaprášené svazky pelyňkovým smatlákem.');
+        }
+    }
+    if (window.renderLibraryUI) { window.renderLibraryUI(); }
+    else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
+};
+
+window.LibraryUI.lendBookToVisitor = function(visitorId) {
+    const visitor = window.LibraryManager ? window.LibraryManager.getVisitorById(visitorId) : null;
+    if (!visitor) return;
+
+    const availableBooks = window.LibraryManager ? window.LibraryManager.getAvailableBooks() : [];
+    if (availableBooks.length === 0) {
+        if (window.Game && window.Game.showNotification) {
+            window.Game.showNotification('⚠️ V knihovně nejsou žádné dostupné knihy k zapůjčení!');
+        }
+        return;
+    }
+
+    const options = availableBooks.map(b => ({
+        text: `${b.title} (${b.topic || 'Obecné'})`,
+        action: () => {
+            if (window.LibraryManager && window.LibraryManager.executeLend) {
+                const result = window.LibraryManager.executeLend(visitorId, b.id);
+                if (window.Game && window.Game.showNotification) {
+                    window.Game.showNotification(result.message || `📖 Zapůjčil jste "${b.title}" čtenáři ${visitor.name}.`);
+                }
+            }
+            if (window.renderLibraryUI) { window.renderLibraryUI(); }
+            else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
+        }
+    }));
+    options.push({ text: 'Zrušit', action: null });
+
+    if (window.Game && window.Game.showDialog) {
+        window.Game.showDialog(`Vybrat knihu pro ${visitor.name}`, `Žádost: "${visitor.requestText}"\nVyberte svazek ze skříně:`, options);
+    }
+};
+
+window.LibraryUI.rejectVisitor = function(visitorId) {
+    if (window.LibraryManager && window.LibraryManager.rejectVisitor) {
+        const res = window.LibraryManager.rejectVisitor(visitorId);
+        if (window.Game && window.Game.showNotification) {
+            window.Game.showNotification(res.message || 'Slušně jste odmítl žadatele a poslal ho do skriptoria.');
+        }
+    }
+    if (window.renderLibraryUI) { window.renderLibraryUI(); }
+    else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
+};
+
+window.LibraryUI.returnBook = function(loanId) {
+    if (window.LibraryManager && window.LibraryManager.returnBook) {
+        const res = window.LibraryManager.returnBook(loanId);
+        if (window.Game && window.Game.showNotification) {
+            window.Game.showNotification(res.message || '📖 Kniha byla vrácena do knihovny.');
+        }
+    }
+    if (window.renderLibraryUI) { window.renderLibraryUI(); }
+    else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
+};
+
+window.LibraryUI.openReturnDialog = function() {
+    const internalLoans = window.LibraryManager ? window.LibraryManager.getInternalLoans() : [];
+    const externalLoans = window.LibraryManager ? window.LibraryManager.getExternalLoans() : [];
+    const allLoans = [...internalLoans, ...externalLoans];
+
+    if (allLoans.length === 0) {
+        if (window.Game && window.Game.showNotification) {
+            window.Game.showNotification('📜 V protokolu nejsou zapsány žádné nedoručené výpůjčky k převzetí.');
+        }
+        return;
+    }
+
+    const options = allLoans.map(l => ({
+        text: `${l.bookTitle || l.bookId} (${l.borrowerName})`,
+        action: () => window.LibraryUI.returnBook(l.id)
+    }));
+    options.push({ text: 'Zrušit', action: null });
+
+    if (window.Game && window.Game.showDialog) {
+        window.Game.showDialog('Převzít vrácený svazek', 'Vyberte výpůjčku ze seznamu, kterou čtenář přinesl k pultu:', options);
+    }
+};
+
+window.LibraryUI.openLedgerModal = function() {
+    const internalLoans = window.LibraryManager ? window.LibraryManager.getInternalLoans() : [];
+    const externalLoans = window.LibraryManager ? window.LibraryManager.getExternalLoans() : [];
+    const text = `
+📜 **Klášterní matrika výpůjček (1465)**
+
+📥 **V klášteře:** ${internalLoans.length} svazků
+🌉 **Mimo klášter:** ${externalLoans.length} svazků
+
+*Upozornění Armaria:* Všechny svazky musí být navráceny do svátku svatého Jakuba. Opozdilci platí voskem nebo stříbrnými groši.
+    `;
+    if (window.Game && window.Game.showDialog) {
+        window.Game.showDialog('Knihovní matrika & Dlužníci', text, [{ text: 'Rozumím', action: null }]);
+    }
+};
+
+// ================================================
 // 7. EXPORT MODULE
 // ================================================
 
