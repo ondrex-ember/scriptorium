@@ -1775,6 +1775,13 @@ const GardenSystem = {
         );
         Game.save();
         this.renderVinohrad();
+        // susarna-uvarium-bridge (1.9.2026): stejná oprava jako kdysi Foculus→
+        // Sušárna (DryingSystem.startDrying) — refresh i druhého tabu, pokud
+        // je zrovna viditelný.
+        const _susarnaEl = document.getElementById('home-drying-content');
+        if (_susarnaEl && _susarnaEl.style.display !== 'none' && typeof DryingSystem !== 'undefined') {
+            _susarnaEl.innerHTML = DryingSystem.renderSusarna();
+        }
     },
 
     collectDrying: function() {
@@ -1796,6 +1803,11 @@ const GardenSystem = {
         GameState.uvariumDrying = null;
         Game.save();
         this.renderVinohrad();
+        // susarna-uvarium-bridge (1.9.2026): viz komentář ve startDrying výš.
+        const _susarnaEl = document.getElementById('home-drying-content');
+        if (_susarnaEl && _susarnaEl.style.display !== 'none' && typeof DryingSystem !== 'undefined') {
+            _susarnaEl.innerHTML = DryingSystem.renderSusarna();
+        }
     },
 
     checkVineaGrowth: function() {
