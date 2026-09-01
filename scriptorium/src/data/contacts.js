@@ -391,7 +391,7 @@ const ContactsDB = {
         buyOffer: {
             items: {
                 ink: { price: 3, stock: 5 },
-                vellum: { price: 5, stock: 5 },
+                vellum: { price: 25, stock: 5 }, // ekonomicky-audit-fix (1.9.2026): bylo 5, tržní hodnota (BASE_PRICES.vellum=20) dělala z toho nekonečný arbitráž s výkupem (~21-22g). 25 = mírně nad trh, mirror ink/quill/gum_arabic vzoru (nákup > trh, žádný exploit).
                 quill: { price: 4, stock: 3 },
                 gum_arabic: { price: 3, stock: 5 },
             }
