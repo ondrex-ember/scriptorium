@@ -461,7 +461,7 @@ const InfirmariumSystem = {
                 const tempC = (37.8 + ((entityName.charCodeAt(0) % 15) / 10)).toFixed(1);
                 const heartBpm = 68 + (entityName.charCodeAt(1) || 70) % 24;
 
-                h += `<div style="background:linear-gradient(145deg, rgba(250,243,228,0.95), rgba(240,230,210,0.95)); border:2px solid var(--accent-wax); border-radius:10px; padding:12px; box-shadow:0 3px 8px rgba(0,0,0,0.08); position:relative; overflow:hidden;">
+                h += `<div class="infirmary-bed-occupied" style="background:linear-gradient(145deg, rgba(250,243,228,0.95), rgba(240,230,210,0.95)); border:2px solid var(--accent-wax); border-radius:10px; padding:12px; box-shadow:0 3px 8px rgba(0,0,0,0.08); position:relative; overflow:hidden;">
                         
                         <!-- Záhlaví lůžka -->
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; border-bottom:1px dashed rgba(197,160,89,0.35); padding-bottom:6px;">
@@ -495,7 +495,7 @@ const InfirmariumSystem = {
                         </div>
 
                         <!-- Chorobopis (Vtipná dobová lékařská poznámka) -->
-                        <div style="font-size:0.68rem; font-style:italic; opacity:0.8; background:rgba(255,255,255,0.6); border-left:3px solid var(--accent-wax); padding:5px 8px; border-radius:0 4px 4px 0; margin-bottom:8px; line-height:1.25;">
+                        <div class="infirmary-bed-chart" style="font-size:0.68rem; font-style:italic; opacity:0.8; background:rgba(255,255,255,0.6); border-left:3px solid var(--accent-wax); padding:5px 8px; border-radius:0 4px 4px 0; margin-bottom:8px; line-height:1.25;">
                             📜 <b>${lang === 'en' ? 'Monastic Chart:' : 'Chorobopis:'}</b> „${chartNote}“
                         </div>
 
