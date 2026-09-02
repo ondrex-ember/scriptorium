@@ -265,6 +265,18 @@ const AchievementsDB = [
         condition: () => GameState.athanor && GameState.athanor.discovered && typeof AthanorDB !== 'undefined' && GameState.athanor.discovered.length >= Object.keys(AthanorDB.combinations).length,
         reward: { research: 10 }
     },
+    {
+        id: "confectio_preserved",
+        name: "Zavařeno",           name_en: "Preserved",
+        desc: "Odhal aspoň 3 zavařeninové receptury v Athanoru", desc_en: "Discover at least 3 preserve recipes in the Athanor",
+        icon: "🍯", category: "Athanor",
+        condition: () => {
+            if (!GameState.athanor || !GameState.athanor.discovered) return false;
+            const ids = ['berries+honey:coctio','apple+honey:coctio','honey+quince:coctio','honey+plum:coctio','cornel_cherry+honey:coctio','honey+wild_fruit:coctio','honey+quince+skorice:coctio'];
+            return ids.filter(id => GameState.athanor.discovered.includes(id)).length >= 3;
+        },
+        reward: { research: 5 }
+    },
 
     // SCRINIUM
     {
