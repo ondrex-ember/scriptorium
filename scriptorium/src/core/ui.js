@@ -4941,6 +4941,9 @@ UI.openCataloguingExam = function (bookId) {
     const formatKeys = Object.keys(formats);
     const catKeys = Object.keys(categories);
     const shelfKeys = Object.keys(shelves);
+    // UX fix (2.9.2026) — ukázat obsazenost přímo ve výběru, ať hráč vidí
+    // plnou polici DŘÍV, než zkoušku odešle, ne až po neúspěchu v razítku.
+    const shelfStateForExam = (GameState.library && GameState.library.shelves) || {};
 
     const examHTML = `
         <div style="background:#261e17;border:2px solid #c5a059;border-radius:10px;max-width:720px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 15px 35px rgba(0,0,0,0.8);padding:22px;box-sizing:border-box;color:#f3eee8;font-family:serif;">
@@ -5004,7 +5007,12 @@ UI.openCataloguingExam = function (bookId) {
                     </label>
                     <select id="exam-shelf" style="width:100%;background:#1c140e;color:#fff;border:1px solid #8b6f3c;padding:8px;border-radius:4px;font-size:0.9rem;" required>
                         <option value="">-- Vyberte polici nebo skříňku --</option>
-                        ${shelfKeys.map(k => `<option value="${k}">${shelves[k].icon} ${shelves[k].name}</option>`).join('')}
+                        ${shelfKeys.map(k => {
+                            const occ = (shelfStateForExam[k] || []).length;
+                            const cap = LibraryHelpers.LibraryCatalogSystem.getShelfCapacity(k);
+                            const full = occ >= cap;
+                            return `<option value="${k}" ${full ? 'disabled' : ''}>${shelves[k].icon} ${shelves[k].name} (${occ}/${cap}${full ? ' — plná' : ''})</option>`;
+                        }).join('')}
                     </select>
                 </div>
 
@@ -5062,17 +5070,26 @@ UI.submitCatalogExam = function (e, bookId) {
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,5,2,0.85);backdrop-filter:blur(4px);z-index:100001;display:flex;align-items:center;justify-content:center;padding:15px;box-sizing:border-box;';
 
     const rankInfo = LibraryHelpers.LibraryCatalogSystem.getCurrentRank();
+    // UX fix (2.9.2026, nahlásil Bouvard) — plná police dřív jen jedna
+    // věta pohřbená mezi 4 zelenými fajfkami pod slavnostním razítkem;
+    // vypadalo to jako úplný úspěch, i když se kniha fyzicky nezaložila.
+    // Teď: razítko i nadpis reagují na to, jestli se skutečně založila.
+    const notShelved = result.record && !result.record.shelfId;
 
     const resultHTML = `
         <div style="background:#f4ecd8;border:3px solid #8b6f3c;border-radius:10px;max-width:600px;width:100%;box-shadow:0 15px 40px rgba(0,0,0,0.85);padding:24px;box-sizing:border-box;color:#2b1d0c;font-family:serif;position:relative;">
             
             <!-- Knihovní razítko razítkovací efekt -->
-            <div style="position:absolute;top:20px;right:25px;border:3px solid #991b1b;color:#991b1b;padding:6px 14px;font-weight:bold;font-size:1.1rem;letter-spacing:1px;border-radius:6px;transform:rotate(-8deg);box-shadow:0 0 10px rgba(153,27,27,0.2);">
-                ✓ ZAEVIDOVÁNO 1465
+            <div style="position:absolute;top:20px;right:25px;border:3px solid ${notShelved ? '#b45309' : '#991b1b'};color:${notShelved ? '#b45309' : '#991b1b'};padding:6px 14px;font-weight:bold;font-size:1.1rem;letter-spacing:1px;border-radius:6px;transform:rotate(-8deg);box-shadow:0 0 10px rgba(153,27,27,0.2);">
+                ${notShelved ? '⚠️ ZAPSÁNO, NEZALOŽENO' : '✓ ZAEVIDOVÁNO 1465'}
             </div>
 
             <div style="font-size:0.8rem;text-transform:uppercase;color:#7c5f2b;font-weight:bold;letter-spacing:1px;">Výsledek katalogizační zkoušky</div>
             <h2 style="margin:4px 0 12px 0;font-size:1.4rem;color:#1c1106;">📇 ${result.ratingTitle}</h2>
+
+            ${notShelved ? `<div style="background:rgba(180,83,9,0.12);border:2px solid #b45309;padding:10px 14px;border-radius:6px;margin-bottom:14px;font-size:0.88rem;font-weight:bold;color:#7c3a09;">
+                ⚠️ Svazek je zapsán v katalogu, ale police byla plná — fyzicky se nezaložil nikam. Najdeš ho v hlavním seznamu Knih (tlačítko 📇), odkud ho po koupi dalšího regálu založíš přes 🗄️.
+            </div>` : ''}
 
             <div style="background:rgba(139,111,60,0.08);border:1px solid #8b6f3c;padding:12px;border-radius:6px;margin-bottom:16px;">
                 <div style="font-weight:bold;font-size:0.95rem;margin-bottom:6px;">Hodnocení kritérií (${result.score} / ${result.totalSteps}):</div>
