@@ -799,6 +799,41 @@ const AthanorDB = {
       thermal: -1, moisture: -3,
       lore: 'Dioscorides: žaludy jsou silně stahující, chladné (1. stupeň) a suché (3. stupeň) plody.',
       lore_en: 'Dioscorides: acorns are strongly astringent fruits, cold (1st degree) and dry (3rd degree).'
+    },
+    {
+      id: 'apple', name: 'Jablko', name_en: 'Apple', name_lat: 'Malum',
+      rarity: 'common', source: 'existing', color: '#c0392b', icon: '🍎',
+      thermal: -2, moisture: 1,
+      lore: 'Galén (De Alimentorum Facultatibus): jablka jsou chladná a mírně vlhká, sladká odrůda méně stahující.',
+      lore_en: "Galen (De Alimentorum Facultatibus): apples are cold and mildly moist; the sweet variety less astringent."
+    },
+    {
+      id: 'quince', name: 'Kdoule', name_en: 'Quince', name_lat: 'Cydonium',
+      rarity: 'uncommon', source: 'existing', color: '#d4b83c', icon: '🍋',
+      thermal: -1, moisture: -2,
+      lore: 'Dioscorides: kdoule je silně stahující, chladná a suchá — proto vyžaduje nejdelší var ze všeho ovoce.',
+      lore_en: 'Dioscorides: the quince is strongly astringent, cold and dry — hence it needs the longest boiling of any fruit.'
+    },
+    {
+      id: 'plum', name: 'Švestka', name_en: 'Plum', name_lat: 'Prunum',
+      rarity: 'common', source: 'existing', color: '#5b3a6e', icon: '🫐',
+      thermal: -1, moisture: 2,
+      lore: 'Galén: švestky jsou chladné a vlhké, projímavá povaha ovoce sadu.',
+      lore_en: 'Galen: plums are cold and moist, the laxative nature of orchard fruit.'
+    },
+    {
+      id: 'cornel_cherry', name: 'Dřínky', name_en: 'Cornel Cherry', name_lat: 'Cornum',
+      rarity: 'uncommon', source: 'existing', color: '#8b2020', icon: '🍒',
+      thermal: -1, moisture: -1,
+      lore: 'Dioscorides zmiňuje dřín (Cornus) mezi stahujícími plody — chladný a suchý jako trnka.',
+      lore_en: 'Dioscorides lists the cornelian cherry (Cornus) among astringent fruits — cold and dry, like the sloe.'
+    },
+    {
+      id: 'wild_fruit', name: 'Planá jablka a hrušky', name_en: 'Wild Fruit', name_lat: 'Poma Silvestria',
+      rarity: 'common', source: 'existing', color: '#7a9c4a', icon: '🍏',
+      thermal: -1, moisture: 0,
+      lore: 'Pláňata — tvrdší a trpčí než sadové jablko, chladná a méně vlhká povaha, syrová se nedala jíst.',
+      lore_en: 'Wild apples and pears — harder and more bitter than the orchard kind, cold and less moist, inedible raw.'
     }
   ],
 
@@ -1956,6 +1991,60 @@ const AthanorDB = {
       lore_en: 'A grain broth sweetened with honey. Posca — the drink of Roman legionaries, in monastery form.'
     },
 
+    // ── Ars Conservandi — Confectio (tech_athanor_confectio) ──
+    // Zavařeniny: plain food, effect:null, konzistentní se sloe_jam/berry_pie
+    // precedentem (Athanor nikdy neprodukuje jídlo bez efektu jako lék/pigment,
+    // tohle je stejná food-drink výjimka jako Prima Cervisia/Hydromel/Posca výše).
+    'berries+honey:coctio': {
+      result: { id: 'berry_jam', qty: 1 },
+      name: 'Bobulová povidla', name_en: 'Berry Jam', name_lat: 'Confectio Baccarum', icon: '🫐', effect: null,
+      unlock: 'tech_athanor_confectio',
+      lore: 'Bobule svařené s medem, bez cukru — jen dlouhý var a trpělivost.',
+      lore_en: 'Berries boiled down with honey, no sugar — just long boiling and patience.'
+    },
+    'apple+honey:coctio': {
+      result: { id: 'apple_jam', qty: 1 },
+      name: 'Jablečná povidla', name_en: 'Apple Jam', name_lat: 'Confectio Malorum', icon: '🍎', effect: null,
+      unlock: 'tech_athanor_confectio',
+      lore: 'Sadová jablka svařená s medem do husté hmoty.',
+      lore_en: 'Orchard apples boiled down with honey into a thick paste.'
+    },
+    'honey+quince:coctio': {
+      result: { id: 'quince_marmalade', qty: 1 },
+      name: 'Kdoulová marmeláda', name_en: 'Quince Marmalade', name_lat: 'Marmelada Cydoniorum', icon: '🍋', effect: null,
+      unlock: 'tech_athanor_confectio',
+      lore: 'Marmelada — slovo z portugalského marmelo, kdoule. Tvrdá kdoule žádá nejdelší var ze všeho ovoce.',
+      lore_en: 'Marmalade — the word itself from Portuguese marmelo, quince. The hard fruit demands the longest boiling of all.'
+    },
+    'honey+plum:coctio': {
+      result: { id: 'plum_jam', qty: 1 },
+      name: 'Švestková povidla', name_en: 'Plum Jam', name_lat: 'Confectio Prunorum', icon: '🫐', effect: null,
+      unlock: 'tech_athanor_confectio',
+      lore: 'Švestky ze sadu, dlouze vařené s medem.',
+      lore_en: 'Orchard plums, long-boiled with honey.'
+    },
+    'cornel_cherry+honey:coctio': {
+      result: { id: 'cornel_cherry_jam', qty: 1 },
+      name: 'Dřínková povidla', name_en: 'Cornel Cherry Jam', name_lat: 'Confectio Cornorum', icon: '🍒', effect: null,
+      unlock: 'tech_athanor_confectio',
+      lore: 'Trpké dřínky zkrocené medem a dlouhým varem.',
+      lore_en: 'Tart cornel cherries tamed with honey and long boiling.'
+    },
+    'honey+wild_fruit:coctio': {
+      result: { id: 'wild_fruit_jam', qty: 1 },
+      name: 'Povidla z planého ovoce', name_en: 'Wild Fruit Jam', name_lat: 'Confectio Silvestris', icon: '🍏', effect: null,
+      unlock: 'tech_athanor_confectio',
+      lore: 'Planá jablka a hrušky, jinak nejedlá syrová, svařená s medem.',
+      lore_en: 'Wild apples and pears, inedible raw otherwise, boiled down with honey.'
+    },
+    'honey+quince+skorice:coctio': {
+      result: { id: 'spiced_marmalade', qty: 1 },
+      name: 'Kořeněná marmeláda', name_en: 'Spiced Monastery Marmalade', name_lat: 'Marmelada Aromatica', icon: '✨', effect: null,
+      unlock: 'tech_athanor_confectio',
+      lore: 'Kdoule, med a skořice — luxusní varianta hodná daru opatovi nebo prodeje za zlaté.',
+      lore_en: 'Quince, honey and cinnamon — a luxury variant fit for a gift to the abbot, or sale for gold coin.'
+    },
+
     // ── Tier 4: Calcinatio — Žíhání (popel) ──
     'charcoal+charcoal:calcinatio': {
       result: { id: 'ash', qty: 5 },
@@ -2365,6 +2454,17 @@ const AthanorSystem = {
       const isNewDiscovery = !state.discovered.includes(key);
       if (isNewDiscovery) {
         state.discovered.push(key);
+
+        // Ars Conservandi (confectio-mrd) — badatelské body + Kronika záznam
+        // pro první objev každé z 7 zavařeninových receptur.
+        if (combo.unlock === 'tech_athanor_confectio') {
+          GameState.researchPoints = (GameState.researchPoints || 0) + 2;
+          Game.addKronikaEntry('minor',
+            `🍯 Objevena receptura: ${dispName}.`,
+            `🍯 Recipe discovered: ${dispName}.`,
+            `🍯 Confectio inventa: ${dispName}.`
+          );
+        }
       }
 
       // Ulož lastResult
