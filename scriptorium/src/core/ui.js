@@ -203,6 +203,7 @@ const UI = {
         { elId: 'library-kraj-content', fn: () => UI.renderChroniconWindow() },
         { elId: 'library-studovna-content', fn: () => { if (typeof StudovnaSystem !== 'undefined') StudovnaSystem.render(); } },
         { elId: 'library-vypujcky-content', fn: () => UI.renderVypujckyTab() },
+        { elId: 'library-katalog-content', fn: () => UI.renderCatalogTab() },
         { elId: 'library-opat-content', fn: () => { if (typeof AbbotSystem !== 'undefined') AbbotSystem.render(); } },
         // Home — horní sub-taby
         { elId: 'home-athanor-content', fn: () => { if (typeof AthanorSystem !== 'undefined') AthanorSystem.render('home-athanor-content'); } },
@@ -836,7 +837,7 @@ const UI = {
                 const _modalProtIcon = _modalProt === 'secreta' ? '🗝️' : _modalProt === 'catena' ? '⛓️' : '🖋️';
                 const _modalProtLabel = _modalProt === 'secreta' ? (lang === 'en' ? 'Libraria Secreta' : 'Libraria Secreta')
                     : _modalProt === 'catena' ? (lang === 'en' ? 'Chained (Catena)' : 'Přikováno (Catena)')
-                    : (lang === 'en' ? 'Anathema' : 'Anathema');
+                        : (lang === 'en' ? 'Anathema' : 'Anathema');
                 extra += `<div style="margin:10px 0;padding:8px 12px;background:rgba(139,111,60,0.08);border-radius:6px;border-left:3px solid var(--accent-gold);font-size:0.85rem;">
                     ${_modalProtIcon} ${t('library_lore.catalog_protection')}: <strong>${_modalProtLabel}</strong></div>`;
             }
@@ -1754,7 +1755,7 @@ const UI = {
         GameState.ui.libraryTab = tab;
 
         // Hide all library tabs
-        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna', 'vypujcky', 'opat'];
+        const tabs = ['books', 'games', 'news', 'scrinium', 'kronika', 'kraj', 'studovna', 'vypujcky', 'katalog', 'opat'];
         tabs.forEach(t => {
             const el = document.getElementById('library-' + t + '-content');
             if (el) el.style.display = 'none';
@@ -1790,6 +1791,9 @@ const UI = {
         } else if (tab === 'vypujcky') {
             const el = document.getElementById('library-vypujcky-content');
             if (el) { el.style.display = 'block'; UI.renderVypujckyTab(); }
+        } else if (tab === 'katalog') {
+            const el = document.getElementById('library-katalog-content');
+            if (el) { el.style.display = 'block'; UI.renderCatalogTab(); }
         } else if (tab === 'opat') {
             const el = document.getElementById('library-opat-content');
             if (el) { el.style.display = 'block'; if (typeof AbbotSystem !== 'undefined') AbbotSystem.render(); }
@@ -2970,7 +2974,7 @@ const UI = {
                     const _bookProtIcon = _bookProt === 'secreta' ? '🗝️' : _bookProt === 'catena' ? '⛓️' : _bookProt === 'anathema' ? '🖋️' : '';
                     const _bookProtTitle = _bookProt === 'secreta' ? (currentLang === 'en' ? 'Sealed in the Libraria Secreta' : 'Uzamčeno v Libraria Secreta')
                         : _bookProt === 'catena' ? (currentLang === 'en' ? 'Chained to the lectern' : 'Přikováno k pultu')
-                        : _bookProt === 'anathema' ? (currentLang === 'en' ? 'Protected by a curse' : 'Chráněno kletbou') : '';
+                            : _bookProt === 'anathema' ? (currentLang === 'en' ? 'Protected by a curse' : 'Chráněno kletbou') : '';
                     const _bookCond = GameState.library.bookCondition && GameState.library.bookCondition[book.id];
                     const _bookDamaged = _bookCond && LibraryHelpers.DAMAGE_THRESHOLD && _bookCond.condition < LibraryHelpers.DAMAGE_THRESHOLD;
                     const _bookLoan = GameState.library.loanedBooks && GameState.library.loanedBooks[book.id];
@@ -3586,8 +3590,8 @@ const UI = {
             h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;opacity:0.8;">
                     <div style="font-weight:bold;font-size:0.85rem;margin-bottom:6px;">${lang === 'en' ? '🔒 Lending Window' : '🔒 Výpůjční okénko'}</div>
                     <div style="font-size:0.8rem;">${lang === 'en'
-                        ? 'Not built yet — research Book Infirmary, Absentee Lending, or Lenten Reading first.'
-                        : 'Zatím nestojí — nejdřív vyzkoumej Knižní nemocnici, Výpůjčku mimo klášter, nebo Postní čtení.'}</div>
+                    ? 'Not built yet — research Book Infirmary, Absentee Lending, or Lenten Reading first.'
+                    : 'Zatím nestojí — nejdřív vyzkoumej Knižní nemocnici, Výpůjčku mimo klášter, nebo Postní čtení.'}</div>
                   </div>`;
         }
 
@@ -3615,13 +3619,13 @@ const UI = {
                     </div>
                     ${damaged.length > 0 ? `<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
                       ${damaged.map(id => {
-                        const b = LibraryDB.books.find(bk => bk.id === id);
-                        const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
-                        return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.75rem;">
+                const b = LibraryDB.books.find(bk => bk.id === id);
+                const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.75rem;">
                           <span>📕 ${title}</span>
                           <button class="craft-btn" style="font-size:0.7rem;padding:2px 6px;min-width:auto;" onclick="LibraryHelpers.repairBook('${id}');UI.renderVypujckyTab();">${lang === 'en' ? 'Repair' : 'Opravit'}</button>
                         </div>`;
-                      }).join('')}
+            }).join('')}
                     </div>` : ''}
                   </div>`;
         }
@@ -3639,20 +3643,20 @@ const UI = {
                         <div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '🔍 Secundo Folio Audit' : '🔍 Kontrola secundo folia'}</div>
                         <div style="display:flex;flex-direction:column;gap:8px;">
                           ${forgeryIds.map(id => {
-                            const b = LibraryDB.books.find(bk => bk.id === id);
-                            const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
-                            const rec = forgeries[id];
-                            const note = lang === 'en'
-                                ? `Returned from ${rec.borrowerName} — the secundo folio does not quite match. A forgery?`
-                                : `Vrácena od ${rec.borrowerName} — secundo folio úplně nesedí. Padělek?`;
-                            return `<div style="font-size:0.78rem;">
+                    const b = LibraryDB.books.find(bk => bk.id === id);
+                    const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                    const rec = forgeries[id];
+                    const note = lang === 'en'
+                        ? `Returned from ${rec.borrowerName} — the secundo folio does not quite match. A forgery?`
+                        : `Vrácena od ${rec.borrowerName} — secundo folio úplně nesedí. Padělek?`;
+                    return `<div style="font-size:0.78rem;">
                               <div style="margin-bottom:4px;">📇 <strong>${title}</strong><br><span style="opacity:0.75;">${note}</span></div>
                               <div style="display:flex;gap:8px;">
                                 <button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.confrontForgery('${id}');UI.renderVypujckyTab();">${lang === 'en' ? 'Confront' : 'Konfrontovat'}</button>
                                 <button class="craft-btn" style="font-size:0.72rem;padding:3px 8px;min-width:auto;" onclick="LibraryHelpers.ignoreForgery('${id}');UI.renderVypujckyTab();">${lang === 'en' ? 'Let it go' : 'Nechat být'}</button>
                               </div>
                             </div>`;
-                          }).join('')}
+                }).join('')}
                         </div>
                       </div>`;
             }
@@ -3672,11 +3676,11 @@ const UI = {
                     </div>
                     ${internalIds.length > 0 ? `<div style="display:flex;flex-direction:column;gap:4px;">
                       ${internalIds.map(id => {
-                        const b = LibraryDB.books.find(bk => bk.id === id);
-                        const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
-                        const daysLeft = Math.max(0, Math.ceil((loans[id].dueAt - Date.now()) / (24 * 3600000)));
-                        return `<div style="font-size:0.75rem;padding:2px 0;">📖 ${title} — <span style="opacity:0.7;">${loans[id].borrowerName}, ${lang === 'en' ? daysLeft + 'd left' : 'zbývá ' + daysLeft + ' dní'}</span></div>`;
-                      }).join('')}
+                const b = LibraryDB.books.find(bk => bk.id === id);
+                const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                const daysLeft = Math.max(0, Math.ceil((loans[id].dueAt - Date.now()) / (24 * 3600000)));
+                return `<div style="font-size:0.75rem;padding:2px 0;">📖 ${title} — <span style="opacity:0.7;">${loans[id].borrowerName}, ${lang === 'en' ? daysLeft + 'd left' : 'zbývá ' + daysLeft + ' dní'}</span></div>`;
+            }).join('')}
                     </div>` : ''}
                   </div>`;
         }
@@ -3690,7 +3694,7 @@ const UI = {
             // interních půjček) — jinak prázdný orámovaný box (28.8.2026 fix,
             // nahlásil Bouvard — hasInternal samo o sobě netvoří obsah).
             if (hasC2 || history.length > 0) {
-            h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
+                h += `<div style="margin-bottom:20px;padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;">
                     ${hasC2 ? `<div style="font-weight:bold;font-size:0.85rem;margin-bottom:8px;">${lang === 'en' ? '📤 Absentee Loans' : '📤 Výpůjčky mimo klášter'}</div>
                     <div style="font-size:0.78rem;opacity:0.8;margin-bottom:6px;">
                       ${outIds.length > 0 ? (lang === 'en' ? `${outIds.length} out on loan` : `${outIds.length} zapůjčeno`) : ''}
@@ -3699,22 +3703,22 @@ const UI = {
                     </div>
                     ${outIds.length > 0 ? `<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
                       ${outIds.map(id => {
-                        const b = LibraryDB.books.find(bk => bk.id === id);
-                        const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
-                        const daysLeft = Math.max(0, Math.ceil((loans[id].dueAt - Date.now()) / (24 * 3600000)));
-                        return `<div style="font-size:0.75rem;padding:2px 0;">📤 ${title} — <span style="opacity:0.7;">${loans[id].borrowerName}, ${lang === 'en' ? daysLeft + 'd left' : 'zbývá ' + daysLeft + ' dní'}</span></div>`;
-                      }).join('')}
+                    const b = LibraryDB.books.find(bk => bk.id === id);
+                    const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                    const daysLeft = Math.max(0, Math.ceil((loans[id].dueAt - Date.now()) / (24 * 3600000)));
+                    return `<div style="font-size:0.75rem;padding:2px 0;">📤 ${title} — <span style="opacity:0.7;">${loans[id].borrowerName}, ${lang === 'en' ? daysLeft + 'd left' : 'zbývá ' + daysLeft + ' dní'}</span></div>`;
+                }).join('')}
                     </div>` : ''}
                     ${lostIds.length > 0 ? `<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;">
                       ${lostIds.map(id => {
-                        const b = LibraryDB.books.find(bk => bk.id === id);
-                        const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
-                        const cost = ((typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getScribePrice) ? LibraryHelpers.getScribePrice() : 10) * 2;
-                        return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.75rem;">
+                    const b = LibraryDB.books.find(bk => bk.id === id);
+                    const title = b ? (lang === 'en' ? (b.title_en || b.title) : b.title) : id;
+                    const cost = ((typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getScribePrice) ? LibraryHelpers.getScribePrice() : 10) * 2;
+                    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.75rem;">
                           <span>📕 ${title} <span style="opacity:0.6;">(${loans[id].borrowerName})</span></span>
                           <button class="craft-btn" style="font-size:0.7rem;padding:2px 6px;min-width:auto;" onclick="LibraryHelpers.buybackLoanedBook('${id}');UI.renderVypujckyTab();">${lang === 'en' ? 'Recover' : 'Vykoupit'} (${cost}× 📜)</button>
                         </div>`;
-                      }).join('')}
+                }).join('')}
                     </div>` : ''}` : ''}
                     ${history.length > 0 ? `<div style="border-top:1px solid rgba(197,160,89,0.2);padding-top:6px;">
                       <div style="font-size:0.72rem;opacity:0.6;margin-bottom:4px;">${lang === 'en' ? 'Recent history' : 'Nedávná historie'}</div>
@@ -4587,6 +4591,669 @@ const UI = {
         }
     },
 
+};
+
+// ===============================================
+// KATALOGIZACE — Řád bratra Marka (M.A.R.C.), katalogizace-mrd (2.9.2026)
+// ===============================================
+
+// INTERAKTIVNÍ KATALOGIZAČNÍ UI & MODÁLY
+// ================================================
+
+UI.openCatalogModal = function (bookId, defaultTab) {
+    if (!bookId) return;
+    const catData = LibraryDB.getBookCatalogData(bookId);
+    if (!catData) return;
+
+    const book = LibraryDB.books.find(b => b.id === bookId);
+    const lang = (GameState && GameState.settings && GameState.settings.language) || 'cs';
+    const isCatalogued = LibraryHelpers.LibraryCatalogSystem.isCatalogued(bookId);
+    const record = LibraryHelpers.LibraryCatalogSystem.getCatalogRecord(bookId);
+
+    const activeTab = defaultTab || (isCatalogued ? '1465' : 'measure');
+
+    const modalId = 'catalog-detail-modal';
+    let existing = document.getElementById(modalId);
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = modalId;
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20,15,10,0.82);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:15px;box-sizing:border-box;';
+
+    const renderTabsContent = function (tab) {
+        if (tab === '1465') {
+            // Historický klášterní lístek
+            return `
+                <div style="background:#f4ecd8;border:2px solid #8b6f3c;padding:20px;border-radius:6px;box-shadow:inset 0 0 15px rgba(139,111,60,0.15);color:#2b1d0c;font-family:serif;">
+                    <div style="display:flex;justify-content:space-between;border-bottom:2px solid #8b6f3c;padding-bottom:8px;margin-bottom:14px;align-items:center;">
+                        <span style="font-size:1.1rem;font-weight:bold;letter-spacing:1px;">📜 MONASTERIUM OLOMUCENSE • 1465</span>
+                        <span style="background:#8b6f3c;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold;font-size:0.85rem;">${catData.callNumber}</span>
+                    </div>
+
+                    <div style="margin-bottom:12px;">
+                        <div style="font-size:0.8rem;text-transform:uppercase;color:#7c5f2b;font-weight:bold;">Titulus / Název:</div>
+                        <div style="font-size:1.15rem;font-weight:bold;color:#1a0f05;margin-top:2px;">${catData.title}</div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:14px;background:rgba(139,111,60,0.06);padding:10px;border-radius:4px;">
+                        <div>
+                            <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Auctor / Původce:</div>
+                            <div style="font-weight:bold;">${catData.author}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Formatum / Archový lom:</div>
+                            <div style="font-weight:bold;color:#8b6f3c;">${catData.format.name} (${catData.format.foldDesc})</div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Mensura & Folia / Rozměry:</div>
+                            <div>${catData.dimensions} • ${catData.folios}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Vazba & Ochrana:</div>
+                            <div>${catData.binding}</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:12px;padding:8px 10px;background:rgba(255,255,255,0.6);border-left:3px solid #8b6f3c;font-size:0.85rem;">
+                        <strong>Incipit:</strong> <em>"${catData.incipit}"</em><br>
+                        <strong>Secundo Folio:</strong> <em>"${catData.secundoFolio}"</em>
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #8b6f3c;padding-top:10px;font-size:0.8rem;color:#554020;">
+                        <div>Regálové uložení: <strong>${record ? (LibraryDB.shelves[record.shelfId]?.name || record.shelfId) : catData.format.shelfName}</strong></div>
+                        <div style="border:2px solid #8b2b2b;color:#8b2b2b;padding:2px 8px;border-radius:3px;font-weight:bold;transform:rotate(-2deg);">
+                            ${isCatalogued ? '✓ VERIFICATUM 1465' : 'NEZAEVIDOVÁNO'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (tab === 'rda') {
+            // "Moderní" rejstřík bratra Marka — vtip schovaný v jméně, ne v textu
+            return `
+                <div style="background:#202022;border:1px solid #444;padding:18px;border-radius:6px;color:#e0e0e0;font-family:monospace;font-size:0.85rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #555;padding-bottom:8px;margin-bottom:12px;">
+                        <span style="color:#60a5fa;font-weight:bold;">REJSTŘÍK BRATRA MARKA</span>
+                        <span style="color:#a3e635;background:rgba(163,230,53,0.15);padding:2px 6px;border-radius:3px;">Anno 1465</span>
+                    </div>
+
+                    <div style="display:flex;flex-direction:column;gap:8px;line-height:1.4;">
+                        <div><strong style="color:#f59e0b;">M.I  </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag084} </div>
+                        <div><strong style="color:#f59e0b;">M.II </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag100} <span style="color:#94a3b8;">$e</span> autor</div>
+                        <div><strong style="color:#f59e0b;">M.III</strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag245}</div>
+                        <div><strong style="color:#f59e0b;">M.IV </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag260}</div>
+                        <div><strong style="color:#f59e0b;">M.V  </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag300}</div>
+                        <div><strong style="color:#f59e0b;">M.VI </strong> <span style="color:#94a3b8;">$a</span> text </div>
+                        <div><strong style="color:#f59e0b;">M.VII</strong> <span style="color:#94a3b8;">$a</span> bez média </div>
+                        <div><strong style="color:#f59e0b;">M.VIII</strong> <span style="color:#94a3b8;">$a</span> svazek </div>
+                        <div><strong style="color:#f59e0b;">M.IX </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag500}</div>
+                        <div><strong style="color:#f59e0b;">M.X  </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag650}</div>
+                    </div>
+
+                    <div style="margin-top:14px;border-top:1px solid #444;padding-top:10px;color:#9ca3af;font-size:0.78rem;">
+                        💡 Bratr Marek trvá na tom, že tuhle soustavu vymyslel sám, čistě z lásky k pořádku. Nikdo neví proč, ale funguje — a nápadně připomíná něco, co bude mít svět až za pár staletí.
+                    </div>
+                </div>
+            `;
+        } else {
+            // Měření, formát a regálové uložení
+            return `
+                <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:16px;border-radius:6px;">
+                    <div style="font-weight:bold;font-size:1rem;margin-bottom:8px;color:#fcd34d;">📐 Fyzická inspekce & Formátový regál</div>
+                    <div style="font-size:0.85rem;color:#d1d5db;margin-bottom:14px;">
+                        Každý svazek v klášterní knihovně je zařazen dle <strong>velikosti a lomu archu</strong>, aby těžká folia nepoškozovala menší traktáty a police unesly jejich váhu.
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;margin-bottom:16px;">
+                        <div style="background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;border-left:3px solid #f59e0b;">
+                            <div style="font-size:0.75rem;color:#9ca3af;">Výška hřbetu:</div>
+                            <div style="font-size:1.1rem;font-weight:bold;color:#fef3c7;">${catData.dimensions}</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;border-left:3px solid #10b981;">
+                            <div style="font-size:0.75rem;color:#9ca3af;">Váha svazku:</div>
+                            <div style="font-size:1.1rem;font-weight:bold;color:#d1fae5;">~${catData.weightKg} kg</div>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;border-left:3px solid #3b82f6;">
+                            <div style="font-size:0.75rem;color:#9ca3af;">Doporučený regál:</div>
+                            <div style="font-size:0.9rem;font-weight:bold;color:#bfdbfe;">${catData.format.shelfName}</div>
+                        </div>
+                    </div>
+
+                    <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);padding:10px;border-radius:5px;font-size:0.82rem;color:#fde68a;margin-bottom:16px;">
+                        📌 <strong>Pravidlo formátového řazení:</strong> ${catData.format.shelvingRule}
+                    </div>
+
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                        <button class="craft-btn" style="background:#b45309;color:#fff;border-color:#d97706;padding:8px 14px;font-weight:bold;" onclick="UI.openCataloguingExam('${bookId}')">
+                            📇 ${isCatalogued ? 'Přezkoumat a překatalogizovat' : 'Spustit katalogizační zkoušku Armaria'}
+                        </button>
+                        <button class="craft-btn" style="padding:8px 14px;" onclick="UI.quickShelvePrompt('${bookId}')">
+                            🗄️ Přemístit do jiného regálu
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    };
+
+    const modalHTML = `
+        <div style="background:var(--bg-card, #251d16);border:2px solid var(--accent-gold, #c5a059);border-radius:10px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 12px 30px rgba(0,0,0,0.7);padding:20px;box-sizing:border-box;color:var(--text-main, #eee);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:15px;border-bottom:1px solid rgba(197,160,89,0.3);padding-bottom:10px;">
+                <div>
+                    <div style="font-size:0.78rem;text-transform:uppercase;color:var(--accent-gold);letter-spacing:1px;">Katalogizační karta svazku</div>
+                    <div style="font-size:1.3rem;font-weight:bold;margin-top:2px;">📇 ${catData.title}</div>
+                </div>
+                <button style="background:none;border:none;color:#aaa;font-size:1.4rem;cursor:pointer;padding:0 5px;" onclick="document.getElementById('${modalId}').remove()">✕</button>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+                <button id="cat-tab-btn-1465" class="craft-btn ${activeTab === '1465' ? 'active' : ''}" style="font-size:0.8rem;padding:5px 10px;" onclick="UI.switchCatalogModalTab('${bookId}', '1465')">
+                    📜 Klášterní lístek 1465
+                </button>
+                <button id="cat-tab-btn-rda" class="craft-btn ${activeTab === 'rda' ? 'active' : ''}" style="font-size:0.8rem;padding:5px 10px;" onclick="UI.switchCatalogModalTab('${bookId}', 'rda')">
+                    📇 Rejstřík bratra Marka
+                </button>
+                <button id="cat-tab-btn-measure" class="craft-btn ${activeTab === 'measure' ? 'active' : ''}" style="font-size:0.8rem;padding:5px 10px;" onclick="UI.switchCatalogModalTab('${bookId}', 'measure')">
+                    ⚖️ Měření & Regál (${catData.format.code})
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="cat-tab-content-area">
+                ${renderTabsContent(activeTab)}
+            </div>
+
+            <!-- Footer actions -->
+            <div style="margin-top:18px;display:flex;justify-content:flex-end;gap:10px;">
+                <button class="craft-btn" style="padding:6px 14px;" onclick="document.getElementById('${modalId}').remove()">Zavřít</button>
+            </div>
+        </div>
+    `;
+
+    overlay.innerHTML = modalHTML;
+    document.body.appendChild(overlay);
+};
+
+UI.switchCatalogModalTab = function (bookId, tab) {
+    const area = document.getElementById('cat-tab-content-area');
+    if (!area) return;
+
+    ['1465', 'rda', 'measure'].forEach(t => {
+        const btn = document.getElementById(`cat-tab-btn-${t}`);
+        if (btn) {
+            if (t === tab) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+    });
+
+    const catData = LibraryDB.getBookCatalogData(bookId);
+    const isCatalogued = LibraryHelpers.LibraryCatalogSystem.isCatalogued(bookId);
+    const record = LibraryHelpers.LibraryCatalogSystem.getCatalogRecord(bookId);
+
+    if (tab === '1465') {
+        area.innerHTML = `
+            <div style="background:#f4ecd8;border:2px solid #8b6f3c;padding:20px;border-radius:6px;box-shadow:inset 0 0 15px rgba(139,111,60,0.15);color:#2b1d0c;font-family:serif;">
+                <div style="display:flex;justify-content:space-between;border-bottom:2px solid #8b6f3c;padding-bottom:8px;margin-bottom:14px;align-items:center;">
+                    <span style="font-size:1.1rem;font-weight:bold;letter-spacing:1px;">📜 MONASTERIUM OLOMUCENSE • 1465</span>
+                    <span style="background:#8b6f3c;color:#fff;padding:3px 8px;border-radius:4px;font-weight:bold;font-size:0.85rem;">${catData.callNumber}</span>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:0.8rem;text-transform:uppercase;color:#7c5f2b;font-weight:bold;">Titulus / Název:</div>
+                    <div style="font-size:1.15rem;font-weight:bold;color:#1a0f05;margin-top:2px;">${catData.title}</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:14px;background:rgba(139,111,60,0.06);padding:10px;border-radius:4px;">
+                    <div>
+                        <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Auctor / Původce:</div>
+                        <div style="font-weight:bold;">${catData.author}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Formatum / Archový lom:</div>
+                        <div style="font-weight:bold;color:#8b6f3c;">${catData.format.name} (${catData.format.foldDesc})</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Mensura & Folia / Rozměry:</div>
+                        <div>${catData.dimensions} • ${catData.folios}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Vazba & Ochrana:</div>
+                        <div>${catData.binding}</div>
+                    </div>
+                </div>
+                <div style="margin-bottom:12px;padding:8px 10px;background:rgba(255,255,255,0.6);border-left:3px solid #8b6f3c;font-size:0.85rem;">
+                    <strong>Incipit:</strong> <em>"${catData.incipit}"</em><br>
+                    <strong>Secundo Folio:</strong> <em>"${catData.secundoFolio}"</em>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #8b6f3c;padding-top:10px;font-size:0.8rem;color:#554020;">
+                    <div>Regálové uložení: <strong>${record ? (LibraryDB.shelves[record.shelfId]?.name || record.shelfId) : catData.format.shelfName}</strong></div>
+                    <div style="border:2px solid #8b2b2b;color:#8b2b2b;padding:2px 8px;border-radius:3px;font-weight:bold;transform:rotate(-2deg);">
+                        ${isCatalogued ? '✓ VERIFICATUM 1465' : 'NEZAEVIDOVÁNO'}
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (tab === 'rda') {
+        area.innerHTML = `
+            <div style="background:#202022;border:1px solid #444;padding:18px;border-radius:6px;color:#e0e0e0;font-family:monospace;font-size:0.85rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #555;padding-bottom:8px;margin-bottom:12px;">
+                    <span style="color:#60a5fa;font-weight:bold;">REJSTŘÍK BRATRA MARKA</span>
+                    <span style="color:#a3e635;background:rgba(163,230,53,0.15);padding:2px 6px;border-radius:3px;">LEADER 01465nam a2200349 c 4500</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;line-height:1.4;">
+                    <div><strong style="color:#f59e0b;">M.I  </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag084} </div>
+                    <div><strong style="color:#f59e0b;">M.II </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag100} <span style="color:#94a3b8;">$e</span> autor</div>
+                    <div><strong style="color:#f59e0b;">M.III</strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag245}</div>
+                    <div><strong style="color:#f59e0b;">M.IV </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag260}</div>
+                    <div><strong style="color:#f59e0b;">M.V  </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag300}</div>
+                    <div><strong style="color:#f59e0b;">M.VI </strong> <span style="color:#94a3b8;">$a</span> text </div>
+                    <div><strong style="color:#f59e0b;">M.VII</strong> <span style="color:#94a3b8;">$a</span> bez média </div>
+                    <div><strong style="color:#f59e0b;">M.VIII</strong> <span style="color:#94a3b8;">$a</span> svazek </div>
+                    <div><strong style="color:#f59e0b;">M.IX </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag500}</div>
+                    <div><strong style="color:#f59e0b;">M.X  </strong> <span style="color:#94a3b8;">$a</span> ${catData.marc.tag650}</div>
+                </div>
+            </div>
+        `;
+    } else {
+        area.innerHTML = `
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:16px;border-radius:6px;">
+                <div style="font-weight:bold;font-size:1rem;margin-bottom:8px;color:#fcd34d;">📐 Fyzická inspekce & Formátový regál</div>
+                <div style="font-size:0.85rem;color:#d1d5db;margin-bottom:14px;">
+                    Každý svazek v klášterní knihovně je zařazen dle <strong>velikosti a lomu archu</strong>, aby těžká folia nepoškozovala menší traktáty a police unesly jejich váhu.
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;margin-bottom:16px;">
+                    <div style="background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;border-left:3px solid #f59e0b;">
+                        <div style="font-size:0.75rem;color:#9ca3af;">Výška hřbetu:</div>
+                        <div style="font-size:1.1rem;font-weight:bold;color:#fef3c7;">${catData.dimensions}</div>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;border-left:3px solid #10b981;">
+                        <div style="font-size:0.75rem;color:#9ca3af;">Váha svazku:</div>
+                        <div style="font-size:1.1rem;font-weight:bold;color:#d1fae5;">~${catData.weightKg} kg</div>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.25);padding:10px;border-radius:4px;border-left:3px solid #3b82f6;">
+                        <div style="font-size:0.75rem;color:#9ca3af;">Doporučený regál:</div>
+                        <div style="font-size:0.9rem;font-weight:bold;color:#bfdbfe;">${catData.format.shelfName}</div>
+                    </div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                    <button class="craft-btn" style="background:#b45309;color:#fff;border-color:#d97706;padding:8px 14px;font-weight:bold;" onclick="UI.openCataloguingExam('${bookId}')">
+                        📇 ${isCatalogued ? 'Přezkoumat a překatalogizovat' : 'Spustit katalogizační zkoušku Armaria'}
+                    </button>
+                    <button class="craft-btn" style="padding:8px 14px;" onclick="UI.quickShelvePrompt('${bookId}')">
+                        🗄️ Přemístit do jiného regálu
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+};
+
+UI.quickShelvePrompt = function (bookId) {
+    const catData = LibraryDB.getBookCatalogData(bookId);
+    if (!catData) return;
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+    const shelves = LibraryDB.shelves;
+    const choices = Object.keys(shelves).map(sKey => ({
+        label: `${shelves[sKey].icon} ${lang === 'en' ? (shelves[sKey].name_en || shelves[sKey].name) : shelves[sKey].name}`,
+        type: 'default',
+        effect: () => {
+            const res = LibraryHelpers.LibraryCatalogSystem.shelveBook(bookId, sKey);
+            UI.notify(res.message);
+            if (document.getElementById('catalog-detail-modal')) document.getElementById('catalog-detail-modal').remove();
+            UI.renderCatalogTab();
+        }
+    }));
+
+    NotificationSystem.modal({
+        icon: '🗄️',
+        title: lang === 'en' ? `Shelve "${catData.title}"` : `Založit svazek "${catData.title}"`,
+        text: lang === 'en' ? `Choose a shelf or drawer (recommended for this format: ${catData.format.shelfName}).` : `Vyberte polici nebo zásuvku (doporučeno pro tento formát: ${catData.format.shelfName}).`,
+        choices: choices,
+    });
+};
+
+// Interaktivní zkouška katalogizace (Mini-hra)
+UI.openCataloguingExam = function (bookId) {
+    const catData = LibraryDB.getBookCatalogData(bookId);
+    if (!catData) return;
+
+    if (document.getElementById('catalog-detail-modal')) {
+        document.getElementById('catalog-detail-modal').remove();
+    }
+
+    const examModalId = 'catalog-exam-modal';
+    let existing = document.getElementById(examModalId);
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = examModalId;
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,10,5,0.88);backdrop-filter:blur(5px);z-index:100000;display:flex;align-items:center;justify-content:center;padding:15px;box-sizing:border-box;';
+
+    const formats = LibraryDB.formats;
+    const categories = LibraryDB.categories;
+    const shelves = LibraryDB.shelves;
+
+    // Možnosti pro výběr
+    const formatKeys = Object.keys(formats);
+    const catKeys = Object.keys(categories);
+    const shelfKeys = Object.keys(shelves);
+
+    const examHTML = `
+        <div style="background:#261e17;border:2px solid #c5a059;border-radius:10px;max-width:720px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 15px 35px rgba(0,0,0,0.8);padding:22px;box-sizing:border-box;color:#f3eee8;font-family:serif;">
+            
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #8b6f3c;padding-bottom:10px;margin-bottom:16px;">
+                <div>
+                    <span style="font-size:0.75rem;text-transform:uppercase;color:#f59e0b;letter-spacing:1.5px;font-weight:bold;">Katalogizační zkouška Armaria 1465</span>
+                    <h3 style="margin:2px 0 0 0;font-size:1.3rem;color:#fef3c7;">📇 Evidence svazku: ${catData.title}</h3>
+                </div>
+                <button style="background:none;border:none;color:#aaa;font-size:1.4rem;cursor:pointer;" onclick="document.getElementById('${examModalId}').remove()">✕</button>
+            </div>
+
+            <!-- Fyzický náhled a nápověda pro bibliofilské oko -->
+            <div style="background:rgba(0,0,0,0.3);border:1px solid #5a4432;border-radius:6px;padding:12px;margin-bottom:16px;font-size:0.85rem;display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+                <div style="font-size:2rem;">📖</div>
+                <div style="flex:1;">
+                    <div style="color:#fcd34d;font-weight:bold;">Fyzická ohledávka na pultu:</div>
+                    <div style="color:#d1d5db;margin-top:2px;">
+                        Výška hřbetu: <strong>${catData.dimensions}</strong> • Rozsah: <strong>${catData.folios}</strong> • Váha: <strong>~${catData.weightKg} kg</strong><br>
+                        Vazba: <em>${catData.binding}</em> • Secundo folio: <em>"${catData.secundoFolio}"</em>
+                    </div>
+                </div>
+            </div>
+
+            <form id="catalog-exam-form" onsubmit="UI.submitCatalogExam(event, '${bookId}')" style="display:flex;flex-direction:column;gap:16px;">
+                
+                <!-- KROK I: Formát knihy dle archového lomu -->
+                <div style="background:rgba(139,111,60,0.1);padding:12px;border-radius:6px;border-left:4px solid #f59e0b;">
+                    <label style="display:block;font-weight:bold;font-size:0.92rem;color:#fef3c7;margin-bottom:6px;">
+                        I. Urči bibliografický formát (Size-Format) dle výšky a lomu archu:
+                    </label>
+                    <select id="exam-format" style="width:100%;background:#1c140e;color:#fff;border:1px solid #8b6f3c;padding:8px;border-radius:4px;font-size:0.9rem;" required>
+                        <option value="">-- Vyberte formát knihy --</option>
+                        ${formatKeys.map(k => `<option value="${k}">${formats[k].name} — ${formats[k].heightRange} (${formats[k].foldDesc})</option>`).join('')}
+                    </select>
+                </div>
+
+                <!-- KROK II: Autorská autorita (dle bratra Marka) -->
+                <div style="background:rgba(139,111,60,0.1);padding:12px;border-radius:6px;border-left:4px solid #3b82f6;">
+                    <label style="display:block;font-weight:bold;font-size:0.92rem;color:#fef3c7;margin-bottom:6px;">
+                        II. Ověř unifikované autorské záhlaví (dle Markova rejstříku):
+                    </label>
+                    <input type="text" id="exam-author" value="${catData.author}" style="width:100%;background:#1c140e;color:#fff;border:1px solid #8b6f3c;padding:8px;border-radius:4px;font-size:0.9rem;" required>
+                </div>
+
+                <!-- KROK III: Věcný oborový třídník (dle bratra Marka) -->
+                <div style="background:rgba(139,111,60,0.1);padding:12px;border-radius:6px;border-left:4px solid #10b981;">
+                    <label style="display:block;font-weight:bold;font-size:0.92rem;color:#fef3c7;margin-bottom:6px;">
+                        III. Zařaď do klášterního věcného třídníku (dle Markova rejstříku):
+                    </label>
+                    <select id="exam-category" style="width:100%;background:#1c140e;color:#fff;border:1px solid #8b6f3c;padding:8px;border-radius:4px;font-size:0.9rem;" required>
+                        <option value="">-- Vyberte oborovou třídu --</option>
+                        ${catKeys.map(k => `<option value="${k}" ${k === catData.category ? 'selected' : ''}>${categories[k].icon} ${categories[k].name} (${categories[k].desc})</option>`).join('')}
+                    </select>
+                </div>
+
+                <!-- KROK IV: Formátové regálové uložení -->
+                <div style="background:rgba(139,111,60,0.1);padding:12px;border-radius:6px;border-left:4px solid #a855f7;">
+                    <label style="display:block;font-weight:bold;font-size:0.92rem;color:#fef3c7;margin-bottom:6px;">
+                        IV. Zvol správný regál pro bezpečné uložení (Shelving Stacks):
+                    </label>
+                    <select id="exam-shelf" style="width:100%;background:#1c140e;color:#fff;border:1px solid #8b6f3c;padding:8px;border-radius:4px;font-size:0.9rem;" required>
+                        <option value="">-- Vyberte polici nebo skříňku --</option>
+                        ${shelfKeys.map(k => `<option value="${k}">${shelves[k].icon} ${shelves[k].name}</option>`).join('')}
+                    </select>
+                </div>
+
+                <!-- Tlačítka -->
+                <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;border-top:1px solid #5a4432;padding-top:14px;">
+                    <button type="button" class="craft-btn" onclick="document.getElementById('${examModalId}').remove()">Zrušit</button>
+                    <button type="submit" class="craft-btn" style="background:#b45309;color:#fff;font-weight:bold;padding:10px 20px;font-size:0.95rem;box-shadow:0 4px 10px rgba(0,0,0,0.4);">
+                        📇 Vystavit a orazítkovat katalogizační lístek
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    overlay.innerHTML = examHTML;
+    document.body.appendChild(overlay);
+};
+
+UI.submitCatalogExam = function (e, bookId) {
+    if (e) e.preventDefault();
+
+    const formatSelect = document.getElementById('exam-format');
+    const authorInput = document.getElementById('exam-author');
+    const catSelect = document.getElementById('exam-category');
+    const shelfSelect = document.getElementById('exam-shelf');
+
+    if (!formatSelect || !authorInput || !catSelect || !shelfSelect) return;
+
+    const chosenFormat = formatSelect.value;
+    const chosenAuthor = authorInput.value;
+    const chosenCat = catSelect.value;
+    const chosenShelf = shelfSelect.value;
+
+    const result = LibraryHelpers.LibraryCatalogSystem.submitExam(bookId, chosenFormat, chosenAuthor, chosenCat, chosenShelf);
+
+    if (document.getElementById('catalog-exam-modal')) {
+        document.getElementById('catalog-exam-modal').remove();
+    }
+
+    // Ochrana proti chybějícímu techu (submitExam vrátí success:false,
+    // žádné score/details/ratingTitle) — bez tohohle by šablona níž
+    // vypsala "undefined" všude.
+    if (!result.success) {
+        UI.notify(result.message, true);
+        return;
+    }
+
+    // Zobrazit slavnostní výsledkové okno s razítkem
+    const resModalId = 'catalog-result-modal';
+    let existing = document.getElementById(resModalId);
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = resModalId;
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,5,2,0.85);backdrop-filter:blur(4px);z-index:100001;display:flex;align-items:center;justify-content:center;padding:15px;box-sizing:border-box;';
+
+    const rankInfo = LibraryHelpers.LibraryCatalogSystem.getCurrentRank();
+
+    const resultHTML = `
+        <div style="background:#f4ecd8;border:3px solid #8b6f3c;border-radius:10px;max-width:600px;width:100%;box-shadow:0 15px 40px rgba(0,0,0,0.85);padding:24px;box-sizing:border-box;color:#2b1d0c;font-family:serif;position:relative;">
+            
+            <!-- Knihovní razítko razítkovací efekt -->
+            <div style="position:absolute;top:20px;right:25px;border:3px solid #991b1b;color:#991b1b;padding:6px 14px;font-weight:bold;font-size:1.1rem;letter-spacing:1px;border-radius:6px;transform:rotate(-8deg);box-shadow:0 0 10px rgba(153,27,27,0.2);">
+                ✓ ZAEVIDOVÁNO 1465
+            </div>
+
+            <div style="font-size:0.8rem;text-transform:uppercase;color:#7c5f2b;font-weight:bold;letter-spacing:1px;">Výsledek katalogizační zkoušky</div>
+            <h2 style="margin:4px 0 12px 0;font-size:1.4rem;color:#1c1106;">📇 ${result.ratingTitle}</h2>
+
+            <div style="background:rgba(139,111,60,0.08);border:1px solid #8b6f3c;padding:12px;border-radius:6px;margin-bottom:16px;">
+                <div style="font-weight:bold;font-size:0.95rem;margin-bottom:6px;">Hodnocení kritérií (${result.score} / ${result.totalSteps}):</div>
+                <ul style="margin:0;padding-left:20px;font-size:0.85rem;line-height:1.5;">
+                    ${result.details.map(d => `<li>${d}</li>`).join('')}
+                </ul>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-bottom:16px;text-align:center;">
+                <div style="background:rgba(255,255,255,0.7);padding:8px;border-radius:6px;border:1px solid #8b6f3c;">
+                    <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Získané XP:</div>
+                    <div style="font-size:1.2rem;font-weight:bold;color:#b45309;">+${result.expEarned} XP</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.7);padding:8px;border-radius:6px;border:1px solid #8b6f3c;">
+                    <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Výzkum:</div>
+                    <div style="font-size:1.2rem;font-weight:bold;color:#2563eb;">+${result.researchReward} ⚗️</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.7);padding:8px;border-radius:6px;border:1px solid #8b6f3c;">
+                    <div style="font-size:0.75rem;color:#7c5f2b;font-weight:bold;">Groše z pokladny:</div>
+                    <div style="font-size:1.2rem;font-weight:bold;color:#15803d;">+${result.groshenReward} 💰</div>
+                </div>
+            </div>
+
+            <div style="background:#e8dcbe;padding:10px 14px;border-radius:6px;font-size:0.85rem;margin-bottom:18px;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:1.6rem;">${rankInfo.current.icon}</span>
+                <div>
+                    <div>Aktuální hodnost: <strong>${rankInfo.current.title}</strong> (${rankInfo.exp} XP)</div>
+                    <div style="font-size:0.75rem;color:#6b5329;margin-top:2px;">Výhoda: ${rankInfo.current.perk}</div>
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <button class="craft-btn" style="padding:6px 12px;" onclick="UI.openCatalogModal('${bookId}', '1465'); document.getElementById('${resModalId}').remove();">
+                    📜 Zobrazit hotový lístek
+                </button>
+                <button class="craft-btn" style="background:#8b6f3c;color:#fff;font-weight:bold;padding:8px 18px;" onclick="document.getElementById('${resModalId}').remove(); UI.renderCatalogTab();">
+                    Hotovo
+                </button>
+            </div>
+        </div>
+    `;
+
+    overlay.innerHTML = resultHTML;
+    document.body.appendChild(overlay);
+
+    UI.renderCatalogTab();
+};
+
+// Plnohodnotný dashboard Katalog & Regály (pro záložku v Knihovně)
+UI.renderCatalogTab = function () {
+    const container = document.getElementById('library-katalog-content');
+    if (!container) return;
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+
+    if (typeof LibraryHelpers !== 'undefined' && typeof LibraryHelpers.checkLibraryUnlocks === 'function') {
+        LibraryHelpers.checkLibraryUnlocks();
+    }
+
+    // Gate (katalogizace-mrd, 2.9.2026) — bez tech_marc žádný dashboard,
+    // jen info karta proč, mirror vzoru z Výpůjček (hasD2/hasC2/hasInternal).
+    const hasMarc = GameState.researchedTechs && GameState.researchedTechs.includes('tech_marc');
+    if (!hasMarc) {
+        container.innerHTML = `<div style="padding:12px 14px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:6px;opacity:0.8;">
+                <div style="font-weight:bold;font-size:0.85rem;margin-bottom:6px;">${lang === 'en' ? '🔒 Cataloguing' : '🔒 Katalogizace'}</div>
+                <div style="font-size:0.8rem;">${lang === 'en' ? "Not available yet — research Brother Marek's Order first." : 'Zatím nedostupné — nejdřív vyzkoumej Řád bratra Marka.'}</div>
+              </div>`;
+        return;
+    }
+
+    if (!GameState.library) GameState.library = {};
+    if (!GameState.library.unlockedBooks) GameState.library.unlockedBooks = [];
+
+    const rankInfo = LibraryHelpers.LibraryCatalogSystem.getCurrentRank();
+    const unlockedIds = GameState.library.unlockedBooks || [];
+    const allBooks = LibraryDB.books || [];
+    const unlockedBooks = allBooks.filter(b => unlockedIds.includes(b.id));
+    const cataloguedBooks = Object.keys(GameState.library.cataloguedBooks || {});
+    const cataloguedCount = cataloguedBooks.length;
+    const totalCount = unlockedBooks.length;
+    const shelves = LibraryDB.shelves || {};
+    const shelfKeys = Object.keys(shelves);
+    const shelfState = GameState.library.shelves || {};
+    const uncataloguedList = unlockedBooks.filter(b => !cataloguedBooks.includes(b.id));
+
+    let html = '';
+
+    // Hlavička — hodnost Armaria a stav fondu
+    html += `<div style="margin-bottom:16px;padding:14px 16px;background:linear-gradient(90deg,#2c2018,#3d2d22,#2c2018);color:#f3eee8;border:2px solid #5a4432;border-radius:8px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.8rem;">${rankInfo.current.icon}</span>
+            <div>
+                <div style="font-size:0.7rem;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#e0b566;">${lang === 'en' ? "Armarius's Cataloguing Office 1465 • Brother Marek's Order" : 'Katalogizační kancelář Armaria 1465 • Řád bratra Marka'}</div>
+                <div style="font-size:1.05rem;font-weight:bold;">${lang === 'en' ? rankInfo.current.title_en : rankInfo.current.title}</div>
+                <div style="font-size:0.72rem;opacity:0.75;">${lang === 'en' ? 'Experience' : 'Zkušenost'}: <strong>${rankInfo.exp} XP</strong> • ${lang === 'en' ? 'Perk' : 'Perk'}: ${rankInfo.current.perk}</div>
+            </div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:#e0b566;">${lang === 'en' ? 'Fond cataloguing status' : 'Stav katalogizace fondu'}</div>
+            <div style="font-size:1.15rem;font-weight:bold;">${cataloguedCount} / ${totalCount} ${lang === 'en' ? 'volumes' : 'svazků'}</div>
+            <div style="width:140px;height:8px;background:#1a120b;border:1px solid #5a4432;border-radius:6px;overflow:hidden;margin-top:4px;">
+                <div style="height:100%;background:#c5a059;width:${totalCount ? (cataloguedCount / totalCount * 100) : 0}%;"></div>
+            </div>
+        </div>
+    </div>`;
+
+    // Čekající svazky
+    if (uncataloguedList.length > 0) {
+        html += `<div style="margin-bottom:16px;padding:14px 16px;background:rgba(197,160,89,0.1);border:2px solid var(--accent-gold);border-radius:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
+                <div style="font-weight:bold;font-size:0.85rem;">📥 ${lang === 'en' ? `Volumes awaiting measurement and cataloguing (${uncataloguedList.length})` : `Svazky čekající na měření a katalogizaci (${uncataloguedList.length})`}</div>
+                <span style="font-size:0.72rem;opacity:0.7;font-style:italic;">${lang === 'en' ? 'Each catalogued volume gains +50% fond durability' : 'Každý zkatalogizovaný svazek získá +50 % odolnost fondu'}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                ${uncataloguedList.slice(0, 6).map(b => {
+            const catData = LibraryDB.getBookCatalogData(b.id);
+            return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.06);border-radius:5px;">
+                        <div style="min-width:0;">
+                            <div style="font-weight:bold;font-size:0.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.title}</div>
+                            <div style="font-size:0.72rem;opacity:0.7;">${b.author || 'Anonymus'} • ${catData.dimensions}</div>
+                        </div>
+                        <button class="craft-btn" style="font-size:0.72rem;padding:5px 10px;min-width:auto;background:#b45309;color:#fff;" onclick="UI.openCataloguingExam('${b.id}')">📇 ${lang === 'en' ? 'Catalogue' : 'Katalogizovat'}</button>
+                    </div>`;
+        }).join('')}
+            </div>
+        </div>`;
+    } else {
+        html += `<div style="margin-bottom:16px;padding:10px 14px;background:rgba(90,154,90,0.1);border:1px solid #5a9a5a;border-radius:6px;font-size:0.78rem;">
+            ✓ ${lang === 'en' ? 'Every available book in the fond is properly catalogued and given a shelfmark!' : 'Všechny dostupné knihy ve fondu jsou řádně zkatalogizovány a opatřeny signaturami!'}
+        </div>`;
+    }
+
+    // Formátové regály
+    html += `<div style="margin-bottom:16px;padding:16px;background:#241a12;color:#f3eee8;border:2px solid #5a4432;border-radius:8px;">
+        <div style="margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #5a4432;">
+            <div style="font-weight:bold;font-size:0.9rem;">🏛️ ${lang === 'en' ? 'Monastery format shelving (Size-Format Shelving)' : 'Klášterní formátové plutei & regály (Size-Format Shelving)'}</div>
+            <div style="font-size:0.72rem;opacity:0.7;margin-top:2px;">${lang === 'en' ? 'Books are ordered by size and sheet fold to protect bindings and shelf load.' : 'Knihy jsou řazeny dle velikosti a lomu archu pro ochranu vazeb a nosnost polic.'}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            ${shelfKeys.map(sKey => {
+        const shelf = shelves[sKey];
+        const bookIdsInShelf = shelfState[sKey] || [];
+        const booksInShelf = bookIdsInShelf.map(id => LibraryDB.books.find(b => b.id === id)).filter(Boolean);
+        const spineColors = { folio: '#78350f', quarto: '#9a3412', octavo: '#1e3a8a', duodecimo: '#065f46' };
+        const spineHeights = { folio: 52, quarto: 42, octavo: 34, duodecimo: 26 };
+        return `<div style="padding:10px;background:#1c140e;border:1px solid #4a3627;border-radius:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="font-size:1.2rem;">${shelf.icon}</span>
+                            <div>
+                                <strong style="font-size:0.82rem;color:#e0b566;">${lang === 'en' ? (shelf.name_en || shelf.name) : shelf.name}</strong>
+                                <span style="font-size:0.7rem;opacity:0.65;margin-left:6px;">(${shelf.format.toUpperCase()} • ${shelf.desc})</span>
+                            </div>
+                        </div>
+                        <span style="font-size:0.7rem;padding:2px 8px;background:#2e2117;border:1px solid #5a4432;border-radius:4px;color:#e0b566;">${lang === 'en' ? 'Occupied' : 'Obsazeno'}: ${booksInShelf.length} / ${shelf.capacity}</span>
+                    </div>
+                    <div style="display:flex;align-items:flex-end;gap:6px;min-height:60px;padding:8px;background:#120c08;border-top:2px solid #3d2b1f;border-radius:4px;overflow-x:auto;">
+                        ${booksInShelf.length === 0
+                ? `<div style="width:100%;text-align:center;font-size:0.72rem;opacity:0.4;font-style:italic;padding:10px 0;">${lang === 'en' ? 'Shelf is empty — books can be filed here from the catalogue detail.' : 'Police je prázdná — knihy sem můžete založit z detailu katalogu.'}</div>`
+                : booksInShelf.map(b => {
+                    const catData = LibraryDB.getBookCatalogData(b.id);
+                    const isCorrectFormat = catData.format.recommendedShelf === sKey;
+                    const spineColor = spineColors[catData.formatKey] || '#4a3627';
+                    const spineHeight = spineHeights[catData.formatKey] || 30;
+                    return `<div style="position:relative;cursor:pointer;width:30px;height:${spineHeight}px;background:${spineColor};border:1px solid rgba(197,160,89,0.4);border-radius:3px 3px 0 0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;flex-shrink:0;" onclick="UI.openCatalogModal('${b.id}', '1465')" title="${b.title}">
+                                    ${!isCorrectFormat ? '<span style="position:absolute;top:-2px;right:-2px;font-size:0.6rem;">⚠️</span>' : ''}
+                                </div>`;
+                }).join('')
+            }
+                    </div>
+                </div>`;
+    }).join('')}
+        </div>
+    </div>`;
+
+    // Příručka formátů
+    html += `<div style="padding:14px 16px;background:rgba(139,111,60,0.06);border:1px solid rgba(197,160,89,0.25);border-radius:8px;font-size:0.75rem;">
+        <div style="font-weight:bold;font-size:0.82rem;margin-bottom:8px;">📖 ${lang === 'en' ? "Armarius's handbook for format cataloguing" : 'Příručka Armaria pro formátovou katalogizaci'}:</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+            <div><strong>📜 2° Folio:</strong> ${lang === 'en' ? '1 sheet fold (height >38 cm). Lectionaries and large theological summae. Lower plutei, up to 14 kg.' : '1 lom archu (výška >38 cm). Kancionály a velké teologické sumy. Patří do spodních plutei a váží až 14 kg.'}</div>
+            <div><strong>📕 4° Quarto:</strong> ${lang === 'en' ? '2 sheet folds (height 26–35 cm). Chronicles and herbaria. Middle shelf rows.' : '2 lomy archu (výška 26–35 cm). Formát kronik a herbářů. Střední řady regálů.'}</div>
+            <div><strong>📘 8° Octavo:</strong> ${lang === 'en' ? '3 sheet folds (height 16–25 cm). Rules, tracts, daily reading. Upper shelves.' : '3 lomy archu (výška 16–25 cm). Běžné řehole, traktáty a denní četba. Horní police.'}</div>
+            <div><strong>📙 12° Duodecimo:</strong> ${lang === 'en' ? '4 sheet folds (height <15 cm). Pocket breviaries and vademeca. Lockable drawers.' : '4 lomy archu (výška <15 cm). Kapesní brevíře a vademeca. Ukládají se do uzamykatelných zásuvek.'}</div>
+        </div>
+    </div>`;
+
+    container.innerHTML = html;
 };
 
 // ===============================================

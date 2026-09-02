@@ -168,14 +168,27 @@
             user-select: none;
             padding: 0;
         }
+
         .help-question-btn:hover {
             background: rgba(197, 160, 89, 0.4);
             transform: scale(1.18);
         }
+
         @keyframes helpQuestionPulse {
-            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(197, 160, 89, 0.5)); }
-            50% { transform: scale(1.15); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.9)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(197, 160, 89, 0.5)); }
+            0% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 2px rgba(197, 160, 89, 0.5));
+            }
+
+            50% {
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.9));
+            }
+
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 2px rgba(197, 160, 89, 0.5));
+            }
         }
 
         .tutorial-guide-bar {
@@ -197,7 +210,11 @@
             gap: 12px;
             color: #f4ecd8;
         }
-        .tutorial-guide-content { flex: 1; }
+
+        .tutorial-guide-content {
+            flex: 1;
+        }
+
         .tutorial-guide-badge {
             font-size: 0.95rem;
             font-weight: bold;
@@ -205,16 +222,19 @@
             font-family: 'Cinzel Decorative', serif;
             margin-bottom: 4px;
         }
+
         .tutorial-guide-desc {
             font-size: 0.85rem;
             line-height: 1.35;
             opacity: 0.95;
         }
+
         .tutorial-guide-actions {
             display: flex;
             align-items: center;
             gap: 8px;
         }
+
         .tutorial-btn-skip {
             background: rgba(197, 160, 89, 0.2);
             border: 1px solid var(--accent-gold);
@@ -225,7 +245,11 @@
             cursor: pointer;
             white-space: nowrap;
         }
-        .tutorial-btn-skip:hover { background: rgba(197, 160, 89, 0.4); }
+
+        .tutorial-btn-skip:hover {
+            background: rgba(197, 160, 89, 0.4);
+        }
+
         .tutorial-btn-close {
             background: none;
             border: none;
@@ -234,12 +258,23 @@
             cursor: pointer;
             padding: 4px 8px;
         }
-        .tutorial-btn-close:hover { color: #fff; }
+
+        .tutorial-btn-close:hover {
+            color: #fff;
+        }
 
         @keyframes tutorialArrowBounce {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-10px) scale(1.12); }
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.12);
+            }
         }
+
         .tutorial-arrow-pulse {
             position: fixed;
             z-index: 9999;
@@ -250,10 +285,12 @@
             animation: tutorialArrowBounce 1.2s infinite ease-in-out;
             filter: drop-shadow(0 0 10px #ffd700);
         }
+
         .tutorial-arrow-pulse .arrow-icon {
             font-size: 2.2rem;
             line-height: 1;
         }
+
         .tutorial-arrow-pulse .arrow-label {
             background: #2c241b;
             color: #ffd700;
@@ -263,7 +300,7 @@
             font-weight: bold;
             font-size: 0.8rem;
             white-space: nowrap;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
         }
 
         .screen-header-row {
@@ -493,6 +530,7 @@
             .res-tracker-title-text {
                 display: none;
             }
+
             .res-pill {
                 padding: 2px 5px;
             }
@@ -1647,8 +1685,8 @@
             color: var(--ink-primary);
         }
 
-        .card > div:not(.item-icon):not(.craft-btn):not(.action-btn),
-        .action-card > div:not(.item-icon):not(.craft-btn):not(.action-btn) {
+        .card>div:not(.item-icon):not(.craft-btn):not(.action-btn),
+        .action-card>div:not(.item-icon):not(.craft-btn):not(.action-btn) {
             flex: 1;
             min-width: 0;
         }
@@ -1727,14 +1765,27 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
+            0% {
+                opacity: 0.7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.7;
+            }
         }
 
         @keyframes bounce {
-            from { transform: scale(1); }
-            to { transform: scale(1.05); }
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.05);
+            }
         }
 
         /* coquina-dashboard-mrd (9.8.2026): grid stanic ve Vaření — mirror
@@ -1746,6 +1797,7 @@
             grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
             gap: 12px;
         }
+
         .coquina-station {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -1755,69 +1807,151 @@
             position: relative;
             overflow: hidden;
         }
+
         .coquina-station::before {
             content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
             background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
             opacity: 0.5;
         }
+
         .coquina-station-head {
-            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
             margin-bottom: 8px;
         }
-        .coquina-station-title { display: flex; align-items: center; gap: 7px; }
+
+        .coquina-station-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
         .coquina-station-name {
-            font-family: 'Cinzel', serif; font-size: 0.86rem;
-            color: var(--accent-gold); letter-spacing: 0.4px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.86rem;
+            color: var(--accent-gold);
+            letter-spacing: 0.4px;
         }
+
         .coquina-station-tier {
-            font-family: 'Cinzel', serif; font-size: 0.56rem; letter-spacing: 1.2px;
-            text-transform: uppercase; opacity: 0.5;
-            border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 5px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.56rem;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            opacity: 0.5;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 2px 5px;
         }
-        .coquina-flame { display: inline-block; animation: coquina-flicker 1.6s ease-in-out infinite; }
+
+        .coquina-flame {
+            display: inline-block;
+            animation: coquina-flicker 1.6s ease-in-out infinite;
+        }
+
         @keyframes coquina-flicker {
-            0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
-            50% { opacity: 0.55; transform: scale(0.82) rotate(-3deg); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+
+            50% {
+                opacity: 0.55;
+                transform: scale(0.82) rotate(-3deg);
+            }
         }
-        .coquina-brewing { position: relative; }
+
+        .coquina-brewing {
+            position: relative;
+        }
+
         .coquina-brewing::after {
-            content: '♨'; position: absolute; top: -7px; left: 1px;
-            font-size: 0.68rem; opacity: 0; color: var(--accent-gold);
+            content: '♨';
+            position: absolute;
+            top: -7px;
+            left: 1px;
+            font-size: 0.68rem;
+            opacity: 0;
+            color: var(--accent-gold);
             animation: coquina-rise 2.6s ease-in infinite;
         }
+
         @keyframes coquina-rise {
-            0% { transform: translateY(4px); opacity: 0; }
-            30% { opacity: 0.7; }
-            100% { transform: translateY(-12px); opacity: 0; }
+            0% {
+                transform: translateY(4px);
+                opacity: 0;
+            }
+
+            30% {
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: translateY(-12px);
+                opacity: 0;
+            }
         }
+
         /* summary elementy bez nativního markeru (list-style:none) — vlastní ▾.
            Zúženo na .coquina-summary (ne všechny .coquina-station summary),
            CheeseSystem.render() má svou vlastní ▾ vloženou v textu (jiný vzor) —
            obecný selektor by jí přidal druhou šipku navrch. */
-        .coquina-summary { list-style: none; }
-        .coquina-summary::-webkit-details-marker { display: none; }
-        .coquina-summary::after {
-            content: '▾'; float: right; opacity: 0.55; transition: transform 0.15s;
+        .coquina-summary {
+            list-style: none;
         }
-        details[open] > .coquina-summary::after { transform: rotate(180deg); }
+
+        .coquina-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .coquina-summary::after {
+            content: '▾';
+            float: right;
+            opacity: 0.55;
+            transition: transform 0.15s;
+        }
+
+        details[open]>.coquina-summary::after {
+            transform: rotate(180deg);
+        }
+
         /* design-pokorna (accessibility) i OS prefers-reduced-motion — bez animací */
         body.design-pokorna .coquina-flame,
         body.design-pokorna .coquina-brewing::after {
             animation: none !important;
         }
+
         @media (prefers-reduced-motion: reduce) {
-            .coquina-flame, .coquina-brewing::after { animation: none !important; }
+
+            .coquina-flame,
+            .coquina-brewing::after {
+                animation: none !important;
+            }
         }
 
         /* svetlo-detail-mrd (9.8.2026): poetické popisky světel — výchozí
            1 řádek + tečičky, klik odhalí celý text. */
         .coquina-light-desc {
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            max-width: 100%; cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            cursor: pointer;
         }
+
         .coquina-light-desc.expanded {
-            white-space: normal; overflow: visible; text-overflow: clip;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
         }
 
         /* Mobile-friendly touch targets */
@@ -1825,7 +1959,9 @@
             .craft-btn {
                 min-height: 40px;
             }
-            .filter-btn, .time-btn {
+
+            .filter-btn,
+            .time-btn {
                 min-width: auto;
                 min-height: 32px;
             }
@@ -1842,7 +1978,7 @@
 
         .filter-btn,
         .time-btn {
-            background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(240,230,205,0.5) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(240, 230, 205, 0.5) 100%);
             color: var(--ink-primary);
             border: 1px solid var(--accent-gold, #c5a059);
             padding: 5px 12px;
@@ -1854,7 +1990,7 @@
             white-space: nowrap;
             border-radius: 2px;
             transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .filter-btn:hover,
@@ -1874,7 +2010,7 @@
 
         body.theme-dark .filter-btn,
         body.theme-dark .time-btn {
-            background: linear-gradient(180deg, rgba(40,32,24,0.8) 0%, rgba(20,16,12,0.9) 100%);
+            background: linear-gradient(180deg, rgba(40, 32, 24, 0.8) 0%, rgba(20, 16, 12, 0.9) 100%);
             color: var(--ink-primary);
         }
 
@@ -1886,8 +2022,12 @@
             line-height: 1.15;
             word-break: break-word;
         }
+
         @media (max-width: 420px) {
-            .entity-tab-btn { font-size: 0.6rem !important; padding: 4px 4px !important; }
+            .entity-tab-btn {
+                font-size: 0.6rem !important;
+                padding: 4px 4px !important;
+            }
         }
 
         nav {
@@ -2022,9 +2162,18 @@
             pointer-events: auto;
             transition: opacity 0.4s;
         }
-        .ns-toast--error { border-color: #c0392b; }
-        .ns-toast--warn { border-color: #e0a030; }
-        .ns-toast--fade { opacity: 0; }
+
+        .ns-toast--error {
+            border-color: #c0392b;
+        }
+
+        .ns-toast--warn {
+            border-color: #e0a030;
+        }
+
+        .ns-toast--fade {
+            opacity: 0;
+        }
 
         .ns-toast-accum {
             display: inline-block;
@@ -2037,7 +2186,10 @@
             font-size: 0.8rem;
             pointer-events: auto;
         }
-        .ns-accum-item { margin-right: 10px; }
+
+        .ns-accum-item {
+            margin-right: 10px;
+        }
 
         .ns-panel-tab {
             position: fixed;
@@ -2054,9 +2206,13 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            box-shadow: -2px 2px 8px rgba(0,0,0,0.3);
+            box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.3);
         }
-        .ns-tab-icon { font-size: 1.1rem; }
+
+        .ns-tab-icon {
+            font-size: 1.1rem;
+        }
+
         .ns-tab-badge {
             background: #c0392b;
             color: #fff;
@@ -2083,6 +2239,7 @@
             flex-direction: column;
             overflow: hidden;
         }
+
         .ns-panel-head {
             display: flex;
             align-items: center;
@@ -2092,11 +2249,13 @@
             background: rgba(197, 160, 89, 0.08);
             flex-shrink: 0;
         }
+
         .ns-panel-title {
             font-family: 'Cinzel Decorative';
             font-weight: bold;
             font-size: 0.9rem;
         }
+
         .ns-panel-close {
             background: none;
             border: none;
@@ -2105,12 +2264,17 @@
             opacity: 0.6;
             color: var(--ink-primary);
         }
-        .ns-panel-close:hover { opacity: 1; }
+
+        .ns-panel-close:hover {
+            opacity: 1;
+        }
+
         .ns-panel-body {
             overflow-y: auto;
             padding: 8px;
             flex: 1;
         }
+
         .ns-panel-empty {
             padding: 24px 12px;
             text-align: center;
@@ -2118,6 +2282,7 @@
             font-style: italic;
             font-size: 0.85rem;
         }
+
         .ns-panel-item {
             display: flex;
             align-items: flex-start;
@@ -2129,15 +2294,41 @@
             font-size: 0.8rem;
             color: var(--ink-primary);
         }
+
         .ns-panel-item--unread {
             background: rgba(197, 160, 89, 0.14);
             border-left: 3px solid var(--accent-gold);
         }
-        .ns-item-icon { font-size: 1rem; flex-shrink: 0; }
-        .ns-item-body { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-        .ns-item-msg { line-height: 1.3; }
-        .ns-item-count { opacity: 0.6; font-size: 0.75rem; }
-        .ns-item-meta { opacity: 0.55; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; }
+
+        .ns-item-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .ns-item-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .ns-item-msg {
+            line-height: 1.3;
+        }
+
+        .ns-item-count {
+            opacity: 0.6;
+            font-size: 0.75rem;
+        }
+
+        .ns-item-meta {
+            opacity: 0.55;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
         .ns-item-close {
             background: none;
             border: none;
@@ -2147,13 +2338,18 @@
             flex-shrink: 0;
             color: var(--ink-primary);
         }
-        .ns-item-close:hover { opacity: 1; }
+
+        .ns-item-close:hover {
+            opacity: 1;
+        }
+
         .ns-panel-footer {
             padding: 8px 16px;
             border-top: 1px solid rgba(197, 160, 89, 0.3);
             text-align: center;
             flex-shrink: 0;
         }
+
         .ns-panel-clear {
             background: none;
             border: 1px solid var(--accent-gold);
@@ -2163,7 +2359,10 @@
             font-size: 0.75rem;
             cursor: pointer;
         }
-        .ns-panel-clear:hover { background: rgba(197, 160, 89, 0.15); }
+
+        .ns-panel-clear:hover {
+            background: rgba(197, 160, 89, 0.15);
+        }
 
         @media (max-width: 700px) {
             .ns-panel {
@@ -2176,7 +2375,11 @@
                 border: 3px solid var(--border-color);
                 max-height: 60vh;
             }
-            .ns-panel-tab { top: auto; bottom: 90px; }
+
+            .ns-panel-tab {
+                top: auto;
+                bottom: 90px;
+            }
         }
 
         .garden-grid {
@@ -2662,7 +2865,7 @@
             padding: 20px 15px;
             text-align: center;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.12), inset 0 0 10px rgba(197, 160, 89, 0.08);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), inset 0 0 10px rgba(197, 160, 89, 0.08);
             overflow: hidden;
         }
 
@@ -2919,8 +3122,15 @@
         }
 
         @keyframes canonical-pulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
 
         #canonical-badge .canonical-name {
@@ -3076,7 +3286,7 @@
             border: 2px solid rgba(197, 160, 89, 0.7) !important;
             border-radius: 6px;
             background: radial-gradient(circle at center, #f8eed0 0%, #d5bf8a 100%) !important;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.25), 0 0 6px rgba(197, 160, 89, 0.2) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 6px rgba(197, 160, 89, 0.2) !important;
             transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -3085,7 +3295,7 @@
             background: radial-gradient(circle at center, #3d3023 0%, #1a130c 100%) !important;
             border-color: rgba(197, 160, 89, 0.6) !important;
             color: #f0e6cf;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 0 10px rgba(0, 180, 240, 0.2) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 180, 240, 0.2) !important;
         }
 
         .card:hover .item-icon {
@@ -3280,6 +3490,7 @@
                 transform: scale(0.985) translateY(6px);
                 filter: blur(1px);
             }
+
             100% {
                 opacity: 1;
                 transform: scale(1) translateY(0);
@@ -3304,9 +3515,11 @@
          viz core/managers/SaveManager.js). Skrývá se přes JS
          (SaveManager._hideLoadingGate()), NIKDY ne přes CSS default —
          musí bránit interakci i kdyby JS chyba nastala jinde. -->
-    <div id="save-loading-gate" style="position:fixed; inset:0; z-index:99999; background:var(--bg-parchment,#fcf5e5); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; font-family:'Crimson Text',serif;">
+    <div id="save-loading-gate"
+        style="position:fixed; inset:0; z-index:99999; background:var(--bg-parchment,#fcf5e5); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; font-family:'Crimson Text',serif;">
         <div style="font-size:2.2rem;">📜</div>
-        <div id="save-loading-gate-text" style="color:var(--ink-primary,#2c241b); font-size:1rem; opacity:0.8;">Načítám uložený postup…</div>
+        <div id="save-loading-gate-text" style="color:var(--ink-primary,#2c241b); font-size:1rem; opacity:0.8;">Načítám
+            uložený postup…</div>
     </div>
 
     <!-- Google Tag Manager (noscript) -->
@@ -3424,46 +3637,70 @@
             </h2>
 
             <p style="font-size: 0.85rem; line-height: 1.55; font-style: italic; opacity: 0.9; margin-bottom: 20px; padding: 12px 14px; border-left: 3px solid var(--accent-gold); background: rgba(197,160,89,0.08);"
-                data-i18n="about.devNote">Vězte, bratřie, že Scriptorium jest dílem živým a rukama našima neustále hněteným. Svět klášterní den ode dne o nové zvyklosti, statky a bratrská spojení s říší CHRONICON utěšeně vzrůstá. Při kvapu takovém občasně se blud nějaký zjeví, anebo dílo, jež k popisu svému ještě zcela nepřiléhá. Za svatou trpělivost vaši a za každou milostivou zvěst o nápravu díky vám vzdáváme. Neboť příbytek náš kámen po kameni se buduje, přesně tak, jak svatá skriptoria kdysi rostla svazek po svazku.</p>
+                data-i18n="about.devNote">Vězte, bratřie, že Scriptorium jest dílem živým a rukama našima neustále
+                hněteným. Svět klášterní den ode dne o nové zvyklosti, statky a bratrská spojení s říší CHRONICON
+                utěšeně vzrůstá. Při kvapu takovém občasně se blud nějaký zjeví, anebo dílo, jež k popisu svému ještě
+                zcela nepřiléhá. Za svatou trpělivost vaši a za každou milostivou zvěst o nápravu díky vám vzdáváme.
+                Neboť příbytek náš kámen po kameni se buduje, přesně tak, jak svatá skriptoria kdysi rostla svazek po
+                svazku.</p>
 
-            <div style="margin-bottom: 20px; padding: 16px; background: rgba(197,160,89,0.12); border: 2px solid var(--accent-gold); border-radius: 8px; text-align: center;">
-                <h3 style="margin: 0 0 8px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">🧭 PRŮVODCE HROU (TUTORIAL)</h3>
+            <div
+                style="margin-bottom: 20px; padding: 16px; background: rgba(197,160,89,0.12); border: 2px solid var(--accent-gold); border-radius: 8px; text-align: center;">
+                <h3 style="margin: 0 0 8px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">🧭 PRŮVODCE
+                    HROU (TUTORIAL)</h3>
                 <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px; opacity: 0.95;">
-                    Spusť interaktivního průvodce prvním dnem v klášteře. Animované šipky tě provedou sběrem surovin, výrobou nože, lovem tuku, výrobou a rozsvícením svíčky až k prvnímu výzkumu ve Scriptoriu.
+                    Spusť interaktivního průvodce prvním dnem v klášteře. Animované šipky tě provedou sběrem surovin,
+                    výrobou nože, lovem tuku, výrobou a rozsvícením svíčky až k prvnímu výzkumu ve Scriptoriu.
                 </p>
                 <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-                    <button id="btn-toggle-tutorial" class="craft-btn" onclick="TutorialSystem.startTutorialFromModal()" style="font-weight: bold; padding: 8px 16px; font-size: 0.95rem;">
+                    <button id="btn-toggle-tutorial" class="craft-btn" onclick="TutorialSystem.startTutorialFromModal()"
+                        style="font-weight: bold; padding: 8px 16px; font-size: 0.95rem;">
                         🚀 SPUSTIT TUTORIAL REŽIM
                     </button>
-                    <button id="btn-reset-tutorial" class="craft-btn" onclick="TutorialSystem.resetTutorial()" style="display:none; padding: 8px 12px; font-size: 0.85rem; opacity: 0.85;">
+                    <button id="btn-reset-tutorial" class="craft-btn" onclick="TutorialSystem.resetTutorial()"
+                        style="display:none; padding: 8px 12px; font-size: 0.85rem; opacity: 0.85;">
                         🔄 RESTARTOVAT
                     </button>
                 </div>
             </div>
 
             <!-- OPISOVÁNÍ RUKOPISŮ & DENNÍ ŘÁD GUIDE -->
-            <div style="margin-bottom: 20px; padding: 16px; background: var(--bg-card); border: 1px solid var(--accent-gold); border-radius: 6px;">
-                <h3 style="margin: 0 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative'; font-size: 1.1rem;">
+            <div
+                style="margin-bottom: 20px; padding: 16px; background: var(--bg-card); border: 1px solid var(--accent-gold); border-radius: 6px;">
+                <h3
+                    style="margin: 0 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative'; font-size: 1.1rem;">
                     ✒️ HERNÍ MECHANIKA: OPISOVÁNÍ RUKOPISŮ
                 </h3>
                 <p style="font-size: 0.88rem; line-height: 1.5; margin-bottom: 8px;">
                     Opisování středověkých kodexů je hlavní duchovní i vědeckou prací v klášterním skriptoriu.
                 </p>
                 <ul style="font-size: 0.85rem; margin: 0 0 12px 18px; padding: 0; line-height: 1.5;">
-                    <li><strong>Aktivní rukopis:</strong> Vyber si z 6 vzácných kodexů (od 10 folií u Žaltáře sv. Anselma až po 120 folií u monumentálního Codex Gigas).</li>
-                    <li><strong>Spotřeba surovin:</strong> Každé opsané folium spotřebuje <strong>1 Inkoust</strong>, <strong>1 Pergamen</strong> a trochu tvé energie (Vigor).</li>
-                    <li><strong>Způsob opisování:</strong> Můžeš pisat ručně po 1 či 5 foliích, nebo zapnout <strong>Automatiku</strong> (opisuje automaticky každých 2,5 s).</li>
-                    <li><strong>Odměny a bonusy:</strong> Za každé folium získáváš <strong>+3 Zápisky</strong> (Vědění) a XP. Dokončení celého kodexu přináší balík Zápisků, Pergamenu a trvalé zvýšení efektivity psaní.</li>
+                    <li><strong>Aktivní rukopis:</strong> Vyber si z 6 vzácných kodexů (od 10 folií u Žaltáře sv.
+                        Anselma až po 120 folií u monumentálního Codex Gigas).</li>
+                    <li><strong>Spotřeba surovin:</strong> Každé opsané folium spotřebuje <strong>1 Inkoust</strong>,
+                        <strong>1 Pergamen</strong> a trochu tvé energie (Vigor).
+                    </li>
+                    <li><strong>Způsob opisování:</strong> Můžeš pisat ručně po 1 či 5 foliích, nebo zapnout
+                        <strong>Automatiku</strong> (opisuje automaticky každých 2,5 s).
+                    </li>
+                    <li><strong>Odměny a bonusy:</strong> Za každé folium získáváš <strong>+3 Zápisky</strong> (Vědění)
+                        a XP. Dokončení celého kodexu přináší balík Zápisků, Pergamenu a trvalé zvýšení efektivity
+                        psaní.</li>
                 </ul>
 
-                <h3 style="margin: 14px 0 8px; color: var(--accent-gold); font-family: 'Cinzel Decorative'; font-size: 1.05rem;">
+                <h3
+                    style="margin: 14px 0 8px; color: var(--accent-gold); font-family: 'Cinzel Decorative'; font-size: 1.05rem;">
                     📜 HERNÍ MECHANIKA: DENNÍ ŘÁD (HORARIUM)
                 </h3>
                 <ul style="font-size: 0.85rem; margin: 0 0 0 18px; padding: 0; line-height: 1.5;">
-                    <li><strong>7 Kanonických hodin:</strong> Vigilie (2–5h), Laudes (5–7h), Prima (7–12h), Sexta (12–15h), Nona (15–18h), Vesperae (18–20h) a Completorium (20–24h).</li>
-                    <li><strong>Časové okno:</strong> Každou modlitbu a povinnost lze odříkat <strong>pouze ve vyhrazeném klášterním čase</strong>. Mimo toto okno tlačítko čeká.</li>
-                    <li><strong>Včasný bonus:</strong> Splnění povinnosti v přesný čas dává navíc významné bonusové odměny (Vigor, Svíčky, Zápisky).</li>
-                    <li><strong>Dokonalý den:</strong> Splnění všech 7 hodin v jednom dni odemkne bonus <i>Dokonalý denní řád</i> a zvyšuje denní sérii (Streak).</li>
+                    <li><strong>7 Kanonických hodin:</strong> Vigilie (2–5h), Laudes (5–7h), Prima (7–12h), Sexta
+                        (12–15h), Nona (15–18h), Vesperae (18–20h) a Completorium (20–24h).</li>
+                    <li><strong>Časové okno:</strong> Každou modlitbu a povinnost lze odříkat <strong>pouze ve
+                            vyhrazeném klášterním čase</strong>. Mimo toto okno tlačítko čeká.</li>
+                    <li><strong>Včasný bonus:</strong> Splnění povinnosti v přesný čas dává navíc významné bonusové
+                        odměny (Vigor, Svíčky, Zápisky).</li>
+                    <li><strong>Dokonalý den:</strong> Splnění všech 7 hodin v jednom dni odemkne bonus <i>Dokonalý
+                            denní řád</i> a zvyšuje denní sérii (Streak).</li>
                 </ul>
             </div>
 
@@ -3564,7 +3801,8 @@
             <!-- Layer 3: UI content wrapper -->
             <div class="header-content">
                 <div class="logo-container">
-                    <button id="tutorial-help-btn" class="help-question-btn" onclick="UI.openAboutModal()" title="Nápověda & Průvodce hrou">❓</button>
+                    <button id="tutorial-help-btn" class="help-question-btn" onclick="UI.openAboutModal()"
+                        title="Nápověda & Průvodce hrou">❓</button>
                     <svg width="28" height="28" viewBox="0 0 100 100">
                         <g transform="rotate(45 50 50)">
                             <rect x="25" y="10" width="50" height="25" fill="#c5a059" stroke="#2c241b" stroke-width="6"
@@ -3597,7 +3835,9 @@
                         </span>
                     </div>
                     <span id="lunar-display" title="Lunární fáze" style="font-size:0.85rem; cursor:default;">🌕</span>
-                    <span id="alignment-display" title="Duchovní profil" onclick="UI.switchScreen('lore', document.getElementById('nav-lore')); UI.switchLoreTab('calendarium', document.getElementById('lore-tab-calendarium'));" style="font-size:0.78rem; cursor:pointer; opacity:0.85;"></span>
+                    <span id="alignment-display" title="Duchovní profil"
+                        onclick="UI.switchScreen('lore', document.getElementById('nav-lore')); UI.switchLoreTab('calendarium', document.getElementById('lore-tab-calendarium'));"
+                        style="font-size:0.78rem; cursor:pointer; opacity:0.85;"></span>
                     <span class="separator">•</span>
                     <div id="vigor-mini"></div>
                     <span class="separator">•</span>
@@ -3609,10 +3849,14 @@
                         <span id="research-count">0</span>
                     </div>
                     <span class="separator">•</span>
-                    <div id="chronicon-header-pill" onclick="ChroniconSystem.openModal()" style="display:inline-flex; align-items:center; gap:4px; background:rgba(197,160,89,0.18); border:1px solid rgba(197,160,89,0.45); border-radius:12px; padding:2px 8px; cursor:pointer; font-size:0.72rem; color:var(--accent-gold); transition:all 0.2s;" title="Chronicon – Živý svět Olomoucka 1465">
+                    <div id="chronicon-header-pill" onclick="ChroniconSystem.openModal()"
+                        style="display:inline-flex; align-items:center; gap:4px; background:rgba(197,160,89,0.18); border:1px solid rgba(197,160,89,0.45); border-radius:12px; padding:2px 8px; cursor:pointer; font-size:0.72rem; color:var(--accent-gold); transition:all 0.2s;"
+                        title="Chronicon – Živý svět Olomoucka 1465">
                         <span>📜</span>
-                        <span style="font-family:'Cinzel Decorative'; font-weight:bold; letter-spacing:0.5px;">CHRONICON</span>
-                        <span id="chronicon-header-badge" style="display:none; background:#c0392b; width:7px; height:7px; border-radius:50%;"></span>
+                        <span
+                            style="font-family:'Cinzel Decorative'; font-weight:bold; letter-spacing:0.5px;">CHRONICON</span>
+                        <span id="chronicon-header-badge"
+                            style="display:none; background:#c0392b; width:7px; height:7px; border-radius:50%;"></span>
                     </div>
                     <span class="separator">•</span>
                     <span id="date-display"
@@ -3651,18 +3895,22 @@
                     <!-- Calendarium quick-glance (kalendar-widget-audit-25-8-2026.md §2)
                          — gate mirror CalendarSystem.render() (tech_astronomy + crafted
                          perpetuum_calendarium), display:none dokud odemčeno. -->
-                    <div class="hpill" id="pill-calendarium" onclick="CalendarSystem.openTab()" title="Calendarium" style="display:none;">
+                    <div class="hpill" id="pill-calendarium" onclick="CalendarSystem.openTab()" title="Calendarium"
+                        style="display:none;">
                         <span id="pill-calendarium-icon">🌙</span>
                         <span class="hpill-val" id="pill-calendarium-val">–</span>
                     </div>
-                    <div class="hpill" id="pill-canonical" onclick="CanonicalHours.pray()" title="Modlitba" style="display:none;">
+                    <div class="hpill" id="pill-canonical" onclick="CanonicalHours.pray()" title="Modlitba"
+                        style="display:none;">
                         <span id="pill-canonical-icon">🙏</span>
                         <span class="hpill-val">Modli se</span>
                     </div>
-                    <div class="hpill" id="pill-chronicon" onclick="ChroniconSystem.openModal()" title="Chronicon – Živý svět Olomoucka 1465">
+                    <div class="hpill" id="pill-chronicon" onclick="ChroniconSystem.openModal()"
+                        title="Chronicon – Živý svět Olomoucka 1465">
                         <span>📯</span>
                         <span class="hpill-val" id="pill-chronicon-val">1465</span>
-                        <span id="chronicon-header-badge-mobile" style="display:none; background:#c0392b; width:6px; height:6px; border-radius:50%; margin-left:2px;"></span>
+                        <span id="chronicon-header-badge-mobile"
+                            style="display:none; background:#c0392b; width:6px; height:6px; border-radius:50%; margin-left:2px;"></span>
                     </div>
                     <div class="hpill" id="cat-pill" onclick="pillToggle('cat')" style="display:none;">
                         <span id="cat-pill-label">🐈</span>
@@ -3723,9 +3971,11 @@
                         Athanor</button>
                     <button id="home-tab-foculus" class="filter-btn" onclick="UI.switchHomeTab('foculus', this)">🔥
                         <span data-i18n="fireplace.foculusTab"></span></button>
-                    <button id="home-tab-templum" class="filter-btn" style="display:none;" onclick="UI.switchHomeTab('templum', this)">⛪
+                    <button id="home-tab-templum" class="filter-btn" style="display:none;"
+                        onclick="UI.switchHomeTab('templum', this)">⛪
                         Templum</button>
-                    <button id="home-tab-infirmarium" class="filter-btn" style="display:none;" onclick="UI.switchHomeTab('infirmarium', this)">🩺
+                    <button id="home-tab-infirmarium" class="filter-btn" style="display:none;"
+                        onclick="UI.switchHomeTab('infirmarium', this)">🩺
                         Infirmarium</button>
                 </div>
 
@@ -3747,7 +3997,9 @@
                             <!-- svetlo-detail-mrd (9.8.2026): poetické popisky bývají delší
                                  než původní krátký text — výchozí 1 řádek + tečičky, klik
                                  rozbalí na plné znění (třída .expanded, viz CSS níže). -->
-                            <div id="light-desc" class="text-sm coquina-light-desc" onclick="this.classList.toggle('expanded')" title="Klikni pro celý text">Tma halí knihy.</div>
+                            <div id="light-desc" class="text-sm coquina-light-desc"
+                                onclick="this.classList.toggle('expanded')" title="Klikni pro celý text">Tma halí knihy.
+                            </div>
                         </div>
                         <!-- svetlo-tlacitka-fix (7.8.2026): vlastní sloupcový kontejner —
                              na úzkém displeji se obě tlačítka (mají-li obě fuel) naskládají
@@ -3756,8 +4008,8 @@
                         <div style="display:flex; flex-direction:column; gap:4px; margin-left:auto;">
                             <button id="btn-light-torch" class="craft-btn" onclick="Game.lightSource('torch')" disabled
                                 style="display:none;">ZAPÁLIT LOUČ</button>
-                            <button id="btn-light-candle" class="craft-btn" onclick="Game.lightSource('candle')" disabled
-                                style="display:none;">ZAPÁLIT SVÍČKU</button>
+                            <button id="btn-light-candle" class="craft-btn" onclick="Game.lightSource('candle')"
+                                disabled style="display:none;">ZAPÁLIT SVÍČKU</button>
                         </div>
                     </div>
 
@@ -3768,30 +4020,36 @@
                                 data-i18n="screens.scavenge"></span></button>
                         <button id="home-sub-mine" class="filter-btn" onclick="UI.switchHomeSubTab('mine', this)">⛏️
                             <span data-i18n="screens.mine"></span></button>
-                        <button id="home-sub-cooking" class="filter-btn" onclick="UI.switchHomeSubTab('cooking', this)">🍲
+                        <button id="home-sub-cooking" class="filter-btn"
+                            onclick="UI.switchHomeSubTab('cooking', this)">🍲
                             <span data-i18n="screens.cooking">Vaření</span></button>
                         <!-- mlynar-vlastni-mlyn-mrd.md §4.5 (16.8.2026) — žádnej data-i18n
                              (i18n hard rule, nesahat do cs.js/en.js bez aktuálních souborů
                              od Ondrexe), statickej text, doplnit i18n klíč později.
                              display:none defaultně — UI.renderAll() odhaluje po tech_susarna_industria,
                              mirror lore-tab-porta vzoru. -->
-                        <button id="home-sub-drying" class="filter-btn" onclick="UI.switchHomeSubTab('drying', this)" style="display:none;">🌾
+                        <button id="home-sub-drying" class="filter-btn" onclick="UI.switchHomeSubTab('drying', this)"
+                            style="display:none;">🌾
                             Sušárna</button>
                         <!-- Vápenice — gate na GameState.storage.vapenice.built (ui.js renderAll),
                              ne na tech (tech_calcaria je už req_tech pro stavbu samotnou). -->
-                        <button id="home-sub-vapenice" class="filter-btn" onclick="UI.switchHomeSubTab('vapenice', this)" style="display:none;">🏭
+                        <button id="home-sub-vapenice" class="filter-btn"
+                            onclick="UI.switchHomeSubTab('vapenice', this)" style="display:none;">🏭
                             Vápenice</button>
                         <!-- Vodní mlýn — gate na GameState.storage.mill.tier >= 2 (ui.js renderAll),
                              mirror Vápenice vzoru přesně. mlynar-vlastni-mlyn-mrd.md §4.7, 16.8.2026. -->
-                        <button id="home-sub-mill" class="filter-btn" onclick="UI.switchHomeSubTab('mill', this)" style="display:none;">🏛️
+                        <button id="home-sub-mill" class="filter-btn" onclick="UI.switchHomeSubTab('mill', this)"
+                            style="display:none;">🏛️
                             Mlýn</button>
                         <!-- Furnus (Pekárna) — gate na GameState.storage.furnus.built, mirror
                              Vápenice přesně. dilny-pozemky-mrd.md v0.3, 25.8.2026. -->
-                        <button id="home-sub-furnus" class="filter-btn" onclick="UI.switchHomeSubTab('furnus', this)" style="display:none;">🍞
+                        <button id="home-sub-furnus" class="filter-btn" onclick="UI.switchHomeSubTab('furnus', this)"
+                            style="display:none;">🍞
                             Pekárna</button>
                         <!-- Kovárna — gate na GameState.storage.kovarna.built, mirror
                              Furnus přesně. kovarna-dilna-mrd.md v0.6, 30.8.2026. -->
-                        <button id="home-sub-kovarna" class="filter-btn" onclick="UI.switchHomeSubTab('kovarna', this)" style="display:none;">🔨
+                        <button id="home-sub-kovarna" class="filter-btn" onclick="UI.switchHomeSubTab('kovarna', this)"
+                            style="display:none;">🔨
                             Kovárna</button>
                     </div>
 
@@ -3847,12 +4105,14 @@
                         <!-- fireplace-tier2-layout-mrd (10.8.2026): 2 sloupce (animace|info),
                              flex-wrap přirozeně složí pod sebe na úzkém displeji, žádná
                              media query potřeba. -->
-                        <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start; margin-bottom:14px;">
+                        <div
+                            style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start; margin-bottom:14px;">
                             <div style="position:relative; width:210px; max-width:100%; flex-shrink:0; margin:0 auto;">
                                 <div id="fireplace-visual-foculus"
                                     style="display:block; width:210px; height:224px; max-width:100%; background-image:url('/img/hearth_base_dead.png'); background-size:100% 100%; background-repeat:no-repeat; border-radius:8px; border:1px solid var(--ink-secondary, #6b5d4f); image-rendering:pixelated;">
                                 </div>
-                                <div id="cat-lane-top" style="position:absolute; bottom:0; left:0; right:0; height:70px;">
+                                <div id="cat-lane-top"
+                                    style="position:absolute; bottom:0; left:0; right:0; height:70px;">
                                 </div>
                             </div>
                             <div id="fireplace-fuel-panel"
@@ -3860,10 +4120,12 @@
                                 <div
                                     style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:4px;">
                                     <strong id="fireplace-status-text" style="color:var(--ink-secondary);"></strong>
-                                    <span id="fireplace-time-left" style="font-weight:bold; color:var(--accent-gold);">0h
+                                    <span id="fireplace-time-left"
+                                        style="font-weight:bold; color:var(--accent-gold);">0h
                                         0m</span>
                                 </div>
-                                <div id="fireplace-temp-fuel-line" style="font-size:0.76rem; opacity:0.7; margin-bottom:10px;"></div>
+                                <div id="fireplace-temp-fuel-line"
+                                    style="font-size:0.76rem; opacity:0.7; margin-bottom:10px;"></div>
                                 <div
                                     style="height:8px; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden; margin-bottom:14px; border:1px solid rgba(197,160,89,0.3);">
                                     <div id="fireplace-fuel-bar"
@@ -3873,19 +4135,23 @@
                                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                                     <button class="filter-btn" onclick="FireplaceSystem.addFuel('stick')"
                                         id="btn-fuel-stick" style="flex:1; min-width:80px;">+ Větev</button>
-                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')" id="btn-fuel-log"
-                                        style="flex:1; min-width:80px;">+ Poleno</button>
-                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('charcoal')" id="btn-fuel-charcoal"
-                                        style="flex:1; min-width:80px;" title="+8h, nejdéle hoří">+ Uhlí</button>
-                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('wood')" id="btn-fuel-wood"
-                                        style="flex:1; min-width:80px;" title="+2h">+ Dřevo</button>
+                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('log')"
+                                        id="btn-fuel-log" style="flex:1; min-width:80px;">+ Poleno</button>
+                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('charcoal')"
+                                        id="btn-fuel-charcoal" style="flex:1; min-width:80px;"
+                                        title="+8h, nejdéle hoří">+ Uhlí</button>
+                                    <button class="filter-btn" onclick="FireplaceSystem.addFuel('wood')"
+                                        id="btn-fuel-wood" style="flex:1; min-width:80px;" title="+2h">+ Dřevo</button>
                                 </div>
                             </div>
                         </div>
-                        <div id="foculus-tech-locked" style="display:none; margin-top:16px; padding:16px; border:1px dashed rgba(197,160,89,0.4); border-radius:8px; text-align:center; background:rgba(0,0,0,0.15);">
+                        <div id="foculus-tech-locked"
+                            style="display:none; margin-top:16px; padding:16px; border:1px dashed rgba(197,160,89,0.4); border-radius:8px; text-align:center; background:rgba(0,0,0,0.15);">
                             <div style="font-size:1.4rem; margin-bottom:6px;">🔒</div>
-                            <div style="font-style:italic; font-size:0.9rem; color:var(--accent-gold);" data-i18n="fireplace.foculusSubLocked">
-                                Další rituály Ohniště (čaje, kávoviny, sušení, kadidelnice...) vyžadují výzkum technologie Meteorologica.
+                            <div style="font-style:italic; font-size:0.9rem; color:var(--accent-gold);"
+                                data-i18n="fireplace.foculusSubLocked">
+                                Další rituály Ohniště (čaje, kávoviny, sušení, kadidelnice...) vyžadují výzkum
+                                technologie Meteorologica.
                             </div>
                         </div>
                         <div id="foculus-tea" style="display:none; margin-top:12px;"></div>
@@ -4112,8 +4378,9 @@
                             onclick="UI.switchLoreTab('research', this)" data-i18n="lore.tabResearch">Research</button>
                         <button id="lore-tab-tasks" class="filter-btn" onclick="UI.switchLoreTab('tasks', this)"
                             data-i18n="lore.tabTasks">📜 Denní řád</button>
-                        <button id="lore-tab-manuscripts" class="filter-btn" style="display:none;" onclick="UI.switchLoreTab('manuscripts', this)"
-                            data-i18n="lore.tabManuscripts">✒️ Opisování rukopisů</button>
+                        <button id="lore-tab-manuscripts" class="filter-btn" style="display:none;"
+                            onclick="UI.switchLoreTab('manuscripts', this)" data-i18n="lore.tabManuscripts">✒️ Opisování
+                            rukopisů</button>
                         <button id="lore-tab-codex" class="filter-btn" onclick="UI.switchLoreTab('codex', this)"
                             data-i18n="lore.tabCodex">Codex</button>
                         <button id="lore-tab-notebooks" class="filter-btn" onclick="UI.switchLoreTab('notebooks', this)"
@@ -4127,8 +4394,10 @@
                             onclick="UI.switchLoreTab('calendarium', this)">📅 Calendarium</button>
                         <button id="lore-tab-persona" class="filter-btn" onclick="UI.switchLoreTab('persona', this)">🧑
                             Persona</button>
-                        <button id="lore-tab-porta" class="filter-btn" onclick="UI.switchLoreTab('porta', this)" style="display:none;">🕊️ Porta</button>
-                        <button id="lore-tab-commitments" class="filter-btn" onclick="UI.switchLoreTab('commitments', this)" style="display:none;">📋 Zakázky</button>
+                        <button id="lore-tab-porta" class="filter-btn" onclick="UI.switchLoreTab('porta', this)"
+                            style="display:none;">🕊️ Porta</button>
+                        <button id="lore-tab-commitments" class="filter-btn"
+                            onclick="UI.switchLoreTab('commitments', this)" style="display:none;">📋 Zakázky</button>
                     </div>
                     <div id="lore-research-content" style="margin-top:20px;"></div>
                     <div id="lore-tasks-content" style="margin-top:20px; display:none;"></div>
@@ -4164,10 +4433,15 @@
                             data-i18n="library.tabKronika">📖 Kronika</button>
                         <button id="lib-tab-kraj" class="filter-btn" onclick="UI.switchLibraryTab('kraj', this)">🌍
                             Kraj</button>
-                        <button id="lib-tab-studovna" class="filter-btn" onclick="UI.switchLibraryTab('studovna', this)">📖
+                        <button id="lib-tab-studovna" class="filter-btn"
+                            onclick="UI.switchLibraryTab('studovna', this)">📖
                             Studovna</button>
-                        <button id="lib-tab-vypujcky" class="filter-btn" onclick="UI.switchLibraryTab('vypujcky', this)">📤
+                        <button id="lib-tab-vypujcky" class="filter-btn"
+                            onclick="UI.switchLibraryTab('vypujcky', this)">📤
                             Výpůjčky</button>
+                        <button id="lib-tab-katalog" class="filter-btn"
+                            onclick="UI.switchLibraryTab('katalog', this)">📇
+                            Katalogizace</button>
                         <button id="lib-tab-opat" class="filter-btn" onclick="UI.switchLibraryTab('opat', this)">👤
                             Opat</button>
                     </div>
@@ -4179,6 +4453,7 @@
                     <div id="library-kraj-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-studovna-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-vypujcky-content" style="margin-top:20px; display:none;"></div>
+                    <div id="library-katalog-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-opat-content" style="margin-top:20px; display:none;"></div>
                 </div>
             </div>
@@ -4277,8 +4552,10 @@
                     <strong data-i18n="settingsUI.designStyleLabel">⚜️ Vzhled objektů a karet</strong>
                     <select id="design-style-selector" onchange="Game.setDesignStyle(this.value)"
                         style="width:100%; padding:8px; margin-top:8px; font-family:'Crimson Text'; font-size:1rem; background:var(--bg-card); border:1px solid var(--border-color); color:var(--ink-primary); border-radius:3px;">
-                        <option value="marniva" data-i18n="settingsUI.designMarniva">✨ Marnivá (nový světský Art Deco vzhled)</option>
-                        <option value="pokorna" data-i18n="settingsUI.designPokorna">🪨 Pokorná (starší prostší vzhled)</option>
+                        <option value="marniva" data-i18n="settingsUI.designMarniva">✨ Marnivá (nový světský Art Deco
+                            vzhled)</option>
+                        <option value="pokorna" data-i18n="settingsUI.designPokorna">🪨 Pokorná (starší prostší vzhled)
+                        </option>
                     </select>
                     <div class="text-sm" style="margin-top:8px; color:var(--ink-secondary);"
                         data-i18n="settingsUI.designStyleDesc">
@@ -4402,8 +4679,10 @@
 
                 <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px;">
                     <h3 data-i18n="settingsUI.backup">💾 Záloha Save</h3>
-                    <div id="save-last-info" style="font-size: 12px; color: #aaa; margin-bottom: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.07);">
-                        💾 <span data-i18n="settingsUI.lastSaveLabel">Poslední uložení:</span> <span id="save-last-time">—</span>
+                    <div id="save-last-info"
+                        style="font-size: 12px; color: #aaa; margin-bottom: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.07);">
+                        💾 <span data-i18n="settingsUI.lastSaveLabel">Poslední uložení:</span> <span
+                            id="save-last-time">—</span>
                     </div>
                     <p style="font-size: 13px; color: #888; margin-bottom: 10px;" data-i18n="settingsUI.backupDesc">
                         Exportuj save jako zálohu nebo přenes na jiné zařízení.

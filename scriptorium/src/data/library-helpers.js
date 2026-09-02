@@ -49,7 +49,7 @@ const EasterEggsDB = {
             reward: { book: 'book_rota_libraria_legend' },
             secret: true
         },
-	{
+        {
             id: 'defenestrace_detective',
             name: 'Pravda padá z okna',
             desc: 'Zjisti, co se skutečně stalo na Pražském hradě. (Přečti knihu: Apologie stavův)',
@@ -98,9 +98,9 @@ const EasterEggsDB = {
             secret: false
         }
     ],
-    
+
     specialItems: {
-		'mattioli_woodcut': {
+        'mattioli_woodcut': {
             name: 'Mattioliho dřevořez',
             icon: '🪵',
             type: 'lore',
@@ -109,7 +109,7 @@ const EasterEggsDB = {
             lore: `Když toto staré, zčernalé dřevo otočíš proti světlu, uvidíš mistrovskou práci. Je na něm neuvěřitelně detailně vyřezán kořen mandragory. Zbytky zaschlé, drolící se tiskařské černě z roku 1562 se stále paličatě drží v těch nejjemnějších rýhách vyrytých dlátkem. 
 Kolikrát asi tento kousek dřeva tvrdě projel pod obrovským tlakem lisu Jiřího Melantricha, než byl pro své opotřebení odhozen do zaprášeného rohu dílny?`
         },
-		
+
         'netolicky_legacy': {
             name: 'Netolického hořká pozůstalost',
             icon: '📜',
@@ -221,7 +221,7 @@ The monastery's holdings include books of craft and nature — Theophilus on col
 const ScribeNPC = {
     name: 'Mistr Bartoloměj, Starý Písař',
     icon: '🖋️',
-    
+
     dialogues: {
         first_visit: {
             text: `*Starý muž s hlubokými vráskami a prsty navždy zčernalými od duběnkového inkoustu pomalu zvedne zrak od svého pulpitu. Ve vzduchu je cítit těžká, starobylá vůně pergamenu a včelího vosku.*
@@ -241,7 +241,7 @@ But... though I hold thy craft in contempt from the very depths of my heart, I s
             options: ['Ano, mistře. Vypravuj!', 'Možná později, lisy nepočkají.'],
             options_en: ['Aye, master. Speak on!', 'Perhaps another time — the presses wait not.']
         },
-        
+
         trade_info: {
             text: `*Písař se na tebe upřeně zadívá, jeho oči jsou kalné věkem, ale mysl zůstává ostrá jako břitva.*
 
@@ -257,7 +257,7 @@ In exchange, I shall reveal to thee the secret of one book from thine own librar
             options: ['Vyměnit (3x Papír)', 'Ne, děkuji, papír je drahý.'],
             options_en: ['Trade (3x Paper)', 'No, thank thee — paper is dear.']
         },
-        
+
         random_wisdom: [
             `"Slavný pan Johannes Gutenberg sice změnil svět, ale zemřel v bídě a zapomnění, obrán o své vlastní dílo. Zrádný Fust naopak zemřel pohádkově bohatý, obklopen luxusem. Ptáš se, kdo z nich byl úspěšnější? Záleží na tom, čím ten úspěch měříš. Penězi? Nebo historickým odkazem?"`,
             `"Dnešní hořká ironie: Většina vašich drahých tiskařů sází a tiskne tisíce Biblí a učené traktáty v latině, ale sami neumí přečíst jediné slovo! Byli to zpočátku jen hrubí řemeslníci od kovu a lisu, kováři slov, ne skuteční učenci. Skutečná vzdělanost za tiskařským lisem přišla až mnohem, mnohem později."`,
@@ -298,7 +298,7 @@ In exchange, I shall reveal to thee the secret of one book from thine own librar
             `"Fools from the south, they say, now brew potions the Church calls heretical, and an inquisitor already sniffs about the cloister. In my day, it sufficed to copy one ill-worded gloss into the margin, and thou didst burn for it, book and all. Be wary, lad — the flame travels from my ink to your brimstone faster than thou thinkest."`,
             `"University students of old did not buy a book whole — they hired a quire, copied it, returned it, hired the next. Pecie, it was called. The stationer watched over every leaf as over the apple of his eye. Thy presses sell whole volumes outright. Faster, aye. But the student who copied every word himself knew it by heart. Thine, who merely bought the book, may never even read it."`
         ],
-        
+
         after_trade: {
             text: `*Starý písař se třesoucí rukou převezme tvůj papír. Opatrně ho pohladí bříšky prstů, jako by hodnotil jeho samotnou duši, a zkoumá ho proti mihotavému světlu svíčky.*
 
@@ -325,160 +325,220 @@ Yet thou hast kept thy word without complaint, and thy hunger for knowledge is p
     // ================================================
     topics: [
         // ── PÁSMO A (vztah 0) — obecné řemeslo ───────────────────────────────
-        { id: 't01', minRelation: 0,
-          title: 'Jak se dělal pergamen', title_en: 'How parchment was made',
-          text: `"Kůže, chlapče. Ovčí, kozí, telecí. Namočená do vápna, aby pustila srst, napjatá na rám a škrábaná půlměsícovým nožem, dokud není tenká jako tvé svědomí. Pak se leští pemzou. Trvá to týdny. Žádný stroj ti nedá pergamen za den."`,
-          text_en: `"Hide, lad. Sheep, goat, calf. Soaked in lime till the hair lets go, stretched on a frame, and scraped with a half-moon knife till it's thin as thy conscience. Then polished with pumice. It taketh weeks. No machine shall give thee parchment in a day."` },
+        {
+            id: 't01', minRelation: 0,
+            title: 'Jak se dělal pergamen', title_en: 'How parchment was made',
+            text: `"Kůže, chlapče. Ovčí, kozí, telecí. Namočená do vápna, aby pustila srst, napjatá na rám a škrábaná půlměsícovým nožem, dokud není tenká jako tvé svědomí. Pak se leští pemzou. Trvá to týdny. Žádný stroj ti nedá pergamen za den."`,
+            text_en: `"Hide, lad. Sheep, goat, calf. Soaked in lime till the hair lets go, stretched on a frame, and scraped with a half-moon knife till it's thin as thy conscience. Then polished with pumice. It taketh weeks. No machine shall give thee parchment in a day."`
+        },
 
-        { id: 't02', minRelation: 0,
-          title: 'Jak se dělal inkoust', title_en: 'How the ink was made',
-          text: `"Duběnky z dubu, zelená skalice, arabská guma a voda. Necháš to stát, procedíš, a máš inkoust, co se zakousne do kůže a zčerná navěky. Tvůj tiskařský inkoust ze sazí? Ten leží na povrchu jako lež. Můj se stal součástí stránky."`,
-          text_en: `"Oak-galls, green vitriol, gum arabic, and water. Let it stand, strain it, and thou hast ink that bites into the skin and blackens forever. Thy printer's ink of soot? That lieth upon the surface like a falsehood. Mine became part of the page itself."` },
+        {
+            id: 't02', minRelation: 0,
+            title: 'Jak se dělal inkoust', title_en: 'How the ink was made',
+            text: `"Duběnky z dubu, zelená skalice, arabská guma a voda. Necháš to stát, procedíš, a máš inkoust, co se zakousne do kůže a zčerná navěky. Tvůj tiskařský inkoust ze sazí? Ten leží na povrchu jako lež. Můj se stal součástí stránky."`,
+            text_en: `"Oak-galls, green vitriol, gum arabic, and water. Let it stand, strain it, and thou hast ink that bites into the skin and blackens forever. Thy printer's ink of soot? That lieth upon the surface like a falsehood. Mine became part of the page itself."`
+        },
 
-        { id: 't03', minRelation: 0,
-          title: 'Co je iniciála a rubrikace', title_en: 'What is an initial and rubrication',
-          text: `"Rubrica — červená hlinka nebo rumělka. Prvá litera na stránce se maluje tou barvou, aby oko vědělo: tady začíná nová myšlenka. My tomu říkáme rubrikace. Tvůj lis to všechno tiskne černě, jednotvárně, jako by na začátku nezáleželo."`,
-          text_en: `"Rubrica — red ochre, or cinnabar. The first letter on a page is painted in that colour, so the eye knoweth: here beginneth a new thought. We call it rubrication. Thy press printeth it all in black, monotonous, as though beginnings mattered not at all."` },
+        {
+            id: 't03', minRelation: 0,
+            title: 'Co je iniciála a rubrikace', title_en: 'What is an initial and rubrication',
+            text: `"Rubrica — červená hlinka nebo rumělka. Prvá litera na stránce se maluje tou barvou, aby oko vědělo: tady začíná nová myšlenka. My tomu říkáme rubrikace. Tvůj lis to všechno tiskne černě, jednotvárně, jako by na začátku nezáleželo."`,
+            text_en: `"Rubrica — red ochre, or cinnabar. The first letter on a page is painted in that colour, so the eye knoweth: here beginneth a new thought. We call it rubrication. Thy press printeth it all in black, monotonous, as though beginnings mattered not at all."`
+        },
 
-        { id: 't04', minRelation: 0,
-          title: 'Jak dlouho trvá opsat Bibli', title_en: 'How long it takes to copy a Bible',
-          text: `"Dobrý rok, chlapče. Někdy déle, má-li být zdobená. Ruka bolí, oči slzí, ale každé slovo je tvoje, protože jsi ho sám napsal. Tvůj lis to udělá za pár týdnů a nikdo, kdo to vytiskl, přitom nepřečetl jediný verš."`,
-          text_en: `"A good year, lad. Longer, should it be adorned. The hand aches, the eyes weep, but every word is thine own, for thou hast written it thyself. Thy press doth it in a few weeks, and not one who printed it hath read a single verse thereof."` },
+        {
+            id: 't04', minRelation: 0,
+            title: 'Jak dlouho trvá opsat Bibli', title_en: 'How long it takes to copy a Bible',
+            text: `"Dobrý rok, chlapče. Někdy déle, má-li být zdobená. Ruka bolí, oči slzí, ale každé slovo je tvoje, protože jsi ho sám napsal. Tvůj lis to udělá za pár týdnů a nikdo, kdo to vytiskl, přitom nepřečetl jediný verš."`,
+            text_en: `"A good year, lad. Longer, should it be adorned. The hand aches, the eyes weep, but every word is thine own, for thou hast written it thyself. Thy press doth it in a few weeks, and not one who printed it hath read a single verse thereof."`
+        },
 
-        { id: 't05', minRelation: 0,
-          title: 'Kdo byl Johannes Gutenberg', title_en: 'Who was Johannes Gutenberg',
-          text: `"Muž z Mohuče, co spojil kov, olej a lis do jedné pekelné mašiny. Kolem roku 1450. Jeho čtyřicetidvouřádková Bible ukázala světu, co tvůj cech dovede. A přesto zemřel v bídě, obraný o vlastní dílo tím zrádcem Fustem. Zapamatuj si to jméno — Fust, ne Faust."`,
-          text_en: `"A man of Mainz who bound metal, oil, and press into one infernal machine. Round about 1450. His forty-two-line Bible showed the world what thy guild could do. And yet he died in poverty, stripped of his own life's work by that traitor Fust. Remember the name well — Fust, not Faust."` },
+        {
+            id: 't05', minRelation: 0,
+            title: 'Kdo byl Johannes Gutenberg', title_en: 'Who was Johannes Gutenberg',
+            text: `"Muž z Mohuče, co spojil kov, olej a lis do jedné pekelné mašiny. Kolem roku 1450. Jeho čtyřicetidvouřádková Bible ukázala světu, co tvůj cech dovede. A přesto zemřel v bídě, obraný o vlastní dílo tím zrádcem Fustem. Zapamatuj si to jméno — Fust, ne Faust."`,
+            text_en: `"A man of Mainz who bound metal, oil, and press into one infernal machine. Round about 1450. His forty-two-line Bible showed the world what thy guild could do. And yet he died in poverty, stripped of his own life's work by that traitor Fust. Remember the name well — Fust, not Faust."`
+        },
 
-        { id: 't06', minRelation: 0,
-          title: 'Co je inkunábule', title_en: 'What is an incunable',
-          text: `"Latinsky 'in cunabulis' — v kolébce. Tak se říká každé knize vytištěné před rokem 1501. Vaše řemeslo je ještě v plenkách, chlapče. Jestli přežije padesát let, uvidíme, jaké z toho vyroste dítě."`,
-          text_en: `"Latin — 'in cunabulis.' In the cradle. So is called every book printed before the year 1501. Thy craft is yet in its swaddling clothes, lad. Should it survive fifty years, we shall see what manner of child grows from it."` },
+        {
+            id: 't06', minRelation: 0,
+            title: 'Co je inkunábule', title_en: 'What is an incunable',
+            text: `"Latinsky 'in cunabulis' — v kolébce. Tak se říká každé knize vytištěné před rokem 1501. Vaše řemeslo je ještě v plenkách, chlapče. Jestli přežije padesát let, uvidíme, jaké z toho vyroste dítě."`,
+            text_en: `"Latin — 'in cunabulis.' In the cradle. So is called every book printed before the year 1501. Thy craft is yet in its swaddling clothes, lad. Should it survive fifty years, we shall see what manner of child grows from it."`
+        },
 
         // ── PÁSMO B (vztah 15) — hlubší řemeslo ──────────────────────────────
-        { id: 't07', minRelation: 15,
-          title: 'Iluminace a zlacení', title_en: 'Illumination and gilding',
-          text: `"Zlatý plátek, vaječný bílek jako pojivo, a modř z tlučeného lazuritu — dražší než samo zlato, dovážená až z Persie. Znal jsem jeptišku, co si štětec s lazuritem olizovala, aby nezplýtvala ani zrnkem. Tvůj lis neumí ani ždibec téhle barvy."`,
-          text_en: `"Gold leaf, egg-white for a binder, and blue from crushed lapis lazuli — dearer than gold itself, brought all the way from Persia. I knew a nun who licked her brush clean of lapis so as not to waste a single grain. Thy press knoweth not so much as a speck of that colour."` },
+        {
+            id: 't07', minRelation: 15,
+            title: 'Iluminace a zlacení', title_en: 'Illumination and gilding',
+            text: `"Zlatý plátek, vaječný bílek jako pojivo, a modř z tlučeného lazuritu — dražší než samo zlato, dovážená až z Persie. Znal jsem jeptišku, co si štětec s lazuritem olizovala, aby nezplýtvala ani zrnkem. Tvůj lis neumí ani ždibec téhle barvy."`,
+            text_en: `"Gold leaf, egg-white for a binder, and blue from crushed lapis lazuli — dearer than gold itself, brought all the way from Persia. I knew a nun who licked her brush clean of lapis so as not to waste a single grain. Thy press knoweth not so much as a speck of that colour."`
+        },
 
-        { id: 't08', minRelation: 15,
-          title: 'Kolik stála kniha', title_en: 'What a book cost',
-          text: `"Zdobená Bible? Tolik co usedlost s poli a kravou k tomu. Slyšel jsem o klášteře, co za jeden žaltář dal celé stádo ovcí. Knihu jsi nekupoval jako věc — kupoval jsi kus něčího života."`,
-          text_en: `"An adorned Bible? As much as a farmstead, with fields and a cow besides. I heard of a monastery that gave a whole flock of sheep for a single psalter. Thou didst not buy a book as a thing — thou boughtst a piece of another man's life."` },
+        {
+            id: 't08', minRelation: 15,
+            title: 'Kolik stála kniha', title_en: 'What a book cost',
+            text: `"Zdobená Bible? Tolik co usedlost s poli a kravou k tomu. Slyšel jsem o klášteře, co za jeden žaltář dal celé stádo ovcí. Knihu jsi nekupoval jako věc — kupoval jsi kus něčího života."`,
+            text_en: `"An adorned Bible? As much as a farmstead, with fields and a cow besides. I heard of a monastery that gave a whole flock of sheep for a single psalter. Thou didst not buy a book as a thing — thou boughtst a piece of another man's life."`
+        },
 
-        { id: 't09', minRelation: 15,
-          title: 'Univerzity a systém pecia', title_en: 'Universities and the pecia system',
-          text: `"V Paříži i Boloni to funguje takhle: univerzita schválí přesný opis, rozstříhá ho na sešitky — pecie — a stationarius je půjčuje studentům, sešitek po sešitku, na opsání. Poctivý stationarius účtuje poplatek podle pravidel. Ne každý je poctivý."`,
-          text_en: `"In Paris and in Bologna it worketh thus: the university approveth an exact copy, cutteth it into gatherings — pecia — and a stationarius lends them out to students, gathering by gathering, for copying. An honest stationarius chargeth the fee by the rule. Not every one is honest."` },
+        {
+            id: 't09', minRelation: 15,
+            title: 'Univerzity a systém pecia', title_en: 'Universities and the pecia system',
+            text: `"V Paříži i Boloni to funguje takhle: univerzita schválí přesný opis, rozstříhá ho na sešitky — pecie — a stationarius je půjčuje studentům, sešitek po sešitku, na opsání. Poctivý stationarius účtuje poplatek podle pravidel. Ne každý je poctivý."`,
+            text_en: `"In Paris and in Bologna it worketh thus: the university approveth an exact copy, cutteth it into gatherings — pecia — and a stationarius lends them out to students, gathering by gathering, for copying. An honest stationarius chargeth the fee by the rule. Not every one is honest."`
+        },
 
-        { id: 't10', minRelation: 15,
-          title: 'Církevní dohled nad texty', title_en: "The Church's watch over texts",
-          text: `"Žádný jednotný seznam zakázaných knih zatím neexistuje, chlapče — to přijde později, uvidíš. Ale biskup má oči a inkvizitor má uši, a leckterý spis skončil v ohni dřív, než si ho kdokoli přečetl. Opatrnost byla vždycky levnější než lítost."`,
-          text_en: `"No single roll of forbidden books existeth yet, lad — that shall come later, thou shalt see. But a bishop hath eyes, and an inquisitor hath ears, and many a tract hath ended in the fire before any man read it through. Caution hath ever been cheaper than regret."` },
+        {
+            id: 't10', minRelation: 15,
+            title: 'Církevní dohled nad texty', title_en: "The Church's watch over texts",
+            text: `"Žádný jednotný seznam zakázaných knih zatím neexistuje, chlapče — to přijde později, uvidíš. Ale biskup má oči a inkvizitor má uši, a leckterý spis skončil v ohni dřív, než si ho kdokoli přečetl. Opatrnost byla vždycky levnější než lítost."`,
+            text_en: `"No single roll of forbidden books existeth yet, lad — that shall come later, thou shalt see. But a bishop hath eyes, and an inquisitor hath ears, and many a tract hath ended in the fire before any man read it through. Caution hath ever been cheaper than regret."`
+        },
 
-        { id: 't11', minRelation: 15,
-          title: 'Stationarius a knižní veletrhy', title_en: 'The stationarius and the book fairs',
-          text: `"Znáš ho, toho dealera od univerzity, co sem přijíždí po jarním a podzimním veletrhu? Dobrý obchodník, ale opatrně — přiúčtuje si podíl z pecia navíc, co žákovi nikdy nepřizná. Kupuj od něj inkoust a pergamen, ne důvěru."`,
-          text_en: `"Thou knowest him — that university dealer who cometh after the spring and autumn fairs? A fair tradesman, but mind thyself — he skimmeth an extra cut from the pecia fee he never discloseth to the student. Buy ink and vellum from him. Not trust."` },
+        {
+            id: 't11', minRelation: 15,
+            title: 'Stationarius a knižní veletrhy', title_en: 'The stationarius and the book fairs',
+            text: `"Znáš ho, toho dealera od univerzity, co sem přijíždí po jarním a podzimním veletrhu? Dobrý obchodník, ale opatrně — přiúčtuje si podíl z pecia navíc, co žákovi nikdy nepřizná. Kupuj od něj inkoust a pergamen, ne důvěru."`,
+            text_en: `"Thou knowest him — that university dealer who cometh after the spring and autumn fairs? A fair tradesman, but mind thyself — he skimmeth an extra cut from the pecia fee he never discloseth to the student. Buy ink and vellum from him. Not trust."`
+        },
 
-        { id: 't12', minRelation: 15,
-          title: 'Vazba knihy', title_en: 'Binding a book',
-          text: `"Dřevěné desky, potažené kůží, a nakonec kování — kovové spony a rohy, co drží desky pevně u sebe, ať vlhko nebo sucho. Neokovaná kniha čeká na kováře jako nevěsta na ženicha. Bez kování se stránky kroutí a kniha umírá zevnitř."`,
-          text_en: `"Wooden boards, covered in leather, and at the last, the fittings — metal clasps and corner-pieces that hold the boards fast together, be it damp or dry. An unfitted book awaiteth the smith as a bride awaiteth her groom. Without its fittings, the pages warp and the book dieth from within."` },
+        {
+            id: 't12', minRelation: 15,
+            title: 'Vazba knihy', title_en: 'Binding a book',
+            text: `"Dřevěné desky, potažené kůží, a nakonec kování — kovové spony a rohy, co drží desky pevně u sebe, ať vlhko nebo sucho. Neokovaná kniha čeká na kováře jako nevěsta na ženicha. Bez kování se stránky kroutí a kniha umírá zevnitř."`,
+            text_en: `"Wooden boards, covered in leather, and at the last, the fittings — metal clasps and corner-pieces that hold the boards fast together, be it damp or dry. An unfitted book awaiteth the smith as a bride awaiteth her groom. Without its fittings, the pages warp and the book dieth from within."`
+        },
 
         // ── PÁSMO C (vztah 35) — drby o skutečných postavách ─────────────────
-        { id: 't13', minRelation: 35,
-          title: 'Fust a legenda o Faustovi', title_en: 'Fust and the legend of Faust',
-          text: `"Lidé slyší jméno Fust a jméno Faust a v hospodě jim to splyne v jedno. Prostý lid věřil, že tolik identických stránek nemůže udělat člověk — musí to být čarodějnictví, pakt s ďáblem. Pravda je prostší a horší: Fust prostě obral Gutenberga o dílo a zbohatl na tom."`,
-          text_en: `"Folk hear the name Fust and the name Faust, and in the tavern the two run together. The common people believed so many identical pages could not be the work of man — it must be sorcery, a pact with the devil. The truth is plainer, and worse: Fust simply robbed Gutenberg of his life's work, and grew rich upon it."` },
+        {
+            id: 't13', minRelation: 35,
+            title: 'Fust a legenda o Faustovi', title_en: 'Fust and the legend of Faust',
+            text: `"Lidé slyší jméno Fust a jméno Faust a v hospodě jim to splyne v jedno. Prostý lid věřil, že tolik identických stránek nemůže udělat člověk — musí to být čarodějnictví, pakt s ďáblem. Pravda je prostší a horší: Fust prostě obral Gutenberga o dílo a zbohatl na tom."`,
+            text_en: `"Folk hear the name Fust and the name Faust, and in the tavern the two run together. The common people believed so many identical pages could not be the work of man — it must be sorcery, a pact with the devil. The truth is plainer, and worse: Fust simply robbed Gutenberg of his life's work, and grew rich upon it."`
+        },
 
-        { id: 't14', minRelation: 35,
-          title: 'Jiří Melantrich', title_en: 'Jiří Melantrich',
-          text: `"Ne obyčejný tiskař v zástěře — obchodní dravec s čichem na krev a peníze. Takoví přežívají a zakládají dynastie. Slabí a příliš poctiví mizí beze stopy. Nelíbí se mi to, ale historie mu za pravdu dává."`,
-          text_en: `"No common printer in an apron — a beast of commerce with a nose for blood and coin. Such men survive and found dynasties. The weak, and those too honest by half, vanish without trace. I like it not, yet history proveth him right."` },
+        {
+            id: 't14', minRelation: 35,
+            title: 'Jiří Melantrich', title_en: 'Jiří Melantrich',
+            text: `"Ne obyčejný tiskař v zástěře — obchodní dravec s čichem na krev a peníze. Takoví přežívají a zakládají dynastie. Slabí a příliš poctiví mizí beze stopy. Nelíbí se mi to, ale historie mu za pravdu dává."`,
+            text_en: `"No common printer in an apron — a beast of commerce with a nose for blood and coin. Such men survive and found dynasties. The weak, and those too honest by half, vanish without trace. I like it not, yet history proveth him right."`
+        },
 
-        { id: 't15', minRelation: 35,
-          title: 'Nicolas Jenson a benátská antikva', title_en: 'Nicolas Jenson and the Venetian roman type',
-          text: `"Benátčan, co navrhl písmo podle humanistických rukopisů — tak čitelné, že z něj později vzešly Times i Garamond. I mezi tiskaři jsou tedy řemeslníci se vkusem. Jenson mě skoro obměkčil. Skoro."`,
-          text_en: `"A Venetian who designed a type after the humanist hand — so legible that Times and Garamond themselves later sprang from it. So even among printers there are craftsmen of taste. Jenson near softened my heart toward thy trade. Near."` },
+        {
+            id: 't15', minRelation: 35,
+            title: 'Nicolas Jenson a benátská antikva', title_en: 'Nicolas Jenson and the Venetian roman type',
+            text: `"Benátčan, co navrhl písmo podle humanistických rukopisů — tak čitelné, že z něj později vzešly Times i Garamond. I mezi tiskaři jsou tedy řemeslníci se vkusem. Jenson mě skoro obměkčil. Skoro."`,
+            text_en: `"A Venetian who designed a type after the humanist hand — so legible that Times and Garamond themselves later sprang from it. So even among printers there are craftsmen of taste. Jenson near softened my heart toward thy trade. Near."`
+        },
 
-        { id: 't16', minRelation: 35,
-          title: 'Aldus Manutius a kapesní vydání', title_en: 'Aldus Manutius and the pocket edition',
-          text: `"Griffo vyřezal pro Manutia kurzívu napodobující úsporný rukopis kancléřů — a Manutius z ní udělal kapesní Vergilia. První kniha, co se vešla do brašny na cesty. Praktický nápad. Přiznávám to nerad."`,
-          text_en: `"Griffo cut a cursive type for Manutius, in imitation of the chancery scribe's economical hand — and Manutius made of it a pocket Virgil. The first book small enough for a traveller's satchel. A practical notion. I own it grudgingly."` },
+        {
+            id: 't16', minRelation: 35,
+            title: 'Aldus Manutius a kapesní vydání', title_en: 'Aldus Manutius and the pocket edition',
+            text: `"Griffo vyřezal pro Manutia kurzívu napodobující úsporný rukopis kancléřů — a Manutius z ní udělal kapesní Vergilia. První kniha, co se vešla do brašny na cesty. Praktický nápad. Přiznávám to nerad."`,
+            text_en: `"Griffo cut a cursive type for Manutius, in imitation of the chancery scribe's economical hand — and Manutius made of it a pocket Virgil. The first book small enough for a traveller's satchel. A practical notion. I own it grudgingly."`
+        },
 
-        { id: 't17', minRelation: 35,
-          title: 'Zakázané a nebezpečné knihy', title_en: 'Forbidden and dangerous books',
-          text: `"Některé spisy se opisují jen potají, mezi důvěryhodnýma rukama, a nikdy nahlas. Kacířské myšlenky mají zvláštní moc přitahovat právě ty, co je hledají nejpilněji. Já vím o jedné takové. Ale to tajemství si nechám pro sebe, chlapče."`,
-          text_en: `"Some tracts are copied only in secret, among trusted hands, and never spoken aloud. Heretical notions have a strange power to draw in precisely those who seek them most diligently. I know of one such. But that secret I shall keep to myself, lad."` },
+        {
+            id: 't17', minRelation: 35,
+            title: 'Zakázané a nebezpečné knihy', title_en: 'Forbidden and dangerous books',
+            text: `"Některé spisy se opisují jen potají, mezi důvěryhodnýma rukama, a nikdy nahlas. Kacířské myšlenky mají zvláštní moc přitahovat právě ty, co je hledají nejpilněji. Já vím o jedné takové. Ale to tajemství si nechám pro sebe, chlapče."`,
+            text_en: `"Some tracts are copied only in secret, among trusted hands, and never spoken aloud. Heretical notions have a strange power to draw in precisely those who seek them most diligently. I know of one such. But that secret I shall keep to myself, lad."`
+        },
 
-        { id: 't18', minRelation: 35,
-          title: 'Klášterní knihovna před tiskem', title_en: 'The monastic library before printing',
-          text: `"Ticho scriptoria, chlapče — to bylo posvátnější než leckterá mše. Řady mnichů, každý nad svým pulpitem, škrábání brku a nic víc. Žádný klapot, žádný spěch. Jen slovo za slovem, jako modlitba bez konce."`,
-          text_en: `"The silence of the scriptorium, lad — holier than many a mass. Rows of monks, each at his own desk, the scratch of the quill and nothing more. No clacking, no haste. Only word after word, like a prayer without end."` },
+        {
+            id: 't18', minRelation: 35,
+            title: 'Klášterní knihovna před tiskem', title_en: 'The monastic library before printing',
+            text: `"Ticho scriptoria, chlapče — to bylo posvátnější než leckterá mše. Řady mnichů, každý nad svým pulpitem, škrábání brku a nic víc. Žádný klapot, žádný spěch. Jen slovo za slovem, jako modlitba bez konce."`,
+            text_en: `"The silence of the scriptorium, lad — holier than many a mass. Rows of monks, each at his own desk, the scratch of the quill and nothing more. No clacking, no haste. Only word after word, like a prayer without end."`
+        },
 
         // ── PÁSMO D (vztah 50) — otevírá se osobně ───────────────────────────
-        { id: 't19', minRelation: 50,
-          title: 'Jak se stal písařem', title_en: 'How he became a scribe',
-          text: `"Byl jsem osmý syn, chlapče, žádná půda pro mě nezbyla. Opat si všiml, že mám klidnou ruku. To stačilo. V třinácti jsem poprvé vzal brk — a už jsem ho nepustil, celých padesát let."`,
-          text_en: `"I was an eighth son, lad, no land left over for me. The abbot noticed I had a steady hand. That sufficed. At thirteen I first took up the quill — and never let it go again, these fifty years past."` },
+        {
+            id: 't19', minRelation: 50,
+            title: 'Jak se stal písařem', title_en: 'How he became a scribe',
+            text: `"Byl jsem osmý syn, chlapče, žádná půda pro mě nezbyla. Opat si všiml, že mám klidnou ruku. To stačilo. V třinácti jsem poprvé vzal brk — a už jsem ho nepustil, celých padesát let."`,
+            text_en: `"I was an eighth son, lad, no land left over for me. The abbot noticed I had a steady hand. That sufficed. At thirteen I first took up the quill — and never let it go again, these fifty years past."`
+        },
 
-        { id: 't20', minRelation: 50,
-          title: 'Co čeká starého písaře', title_en: 'What awaits an old scribe',
-          text: `"Řemeslo, co umím, umírá se mnou. Nikdo mladý se už neučí opisovat tak, jak jsem se učil já. Až zemřu, možná já sám budu poslední, kdo si pamatuje, jak se správně ořezává brk. To je zvláštní tíha, nést v sobě konec něčeho."`,
-          text_en: `"The craft I know is dying with me. No young man learns to copy as I once learned. When I die, I may well be the last who remembers how properly to trim a quill. It is a strange weight, to carry within oneself the end of a thing."` },
+        {
+            id: 't20', minRelation: 50,
+            title: 'Co čeká starého písaře', title_en: 'What awaits an old scribe',
+            text: `"Řemeslo, co umím, umírá se mnou. Nikdo mladý se už neučí opisovat tak, jak jsem se učil já. Až zemřu, možná já sám budu poslední, kdo si pamatuje, jak se správně ořezává brk. To je zvláštní tíha, nést v sobě konec něčeho."`,
+            text_en: `"The craft I know is dying with me. No young man learns to copy as I once learned. When I die, I may well be the last who remembers how properly to trim a quill. It is a strange weight, to carry within oneself the end of a thing."`
+        },
 
-        { id: 't21', minRelation: 50,
-          title: 'Proč někteří přešli k tiskařům', title_en: 'Why some went over to the printers',
-          text: `"Chudoba, chlapče, ne zrada srdce. Mnozí z mých bratří skončili jako sazeči, protože hlad je silnější než přesvědčení. Přizpůsobili se fyzicky. Jestli se přizpůsobili i uvnitř, na to jsem se nikdy neodvážil zeptat."`,
-          text_en: `"Poverty, lad, not treachery of the heart. Many of my brothers ended as compositors of type, for hunger is stronger than conviction. They bent in body. Whether they bent within as well, I never dared to ask."` },
+        {
+            id: 't21', minRelation: 50,
+            title: 'Proč někteří přešli k tiskařům', title_en: 'Why some went over to the printers',
+            text: `"Chudoba, chlapče, ne zrada srdce. Mnozí z mých bratří skončili jako sazeči, protože hlad je silnější než přesvědčení. Přizpůsobili se fyzicky. Jestli se přizpůsobili i uvnitř, na to jsem se nikdy neodvážil zeptat."`,
+            text_en: `"Poverty, lad, not treachery of the heart. Many of my brothers ended as compositors of type, for hunger is stronger than conviction. They bent in body. Whether they bent within as well, I never dared to ask."`
+        },
 
-        { id: 't22', minRelation: 50,
-          title: 'Kdo dnes čte knihy', title_en: 'Who reads books now',
-          text: `"Levnější knihy znamenají víc čtenářů, i takových, co by si dřív nemohli dovolit ani jedinou stránku. To je čestně řečeno dobrá věc. Jen mě mrzí, že spolu s tím mizí úcta k tomu, co čtou."`,
-          text_en: `"Cheaper books mean more readers, even such as could not once afford a single page. That is, in honesty, a good thing. I am only grieved that, along with it, reverence for what is read seems to fade away."` },
+        {
+            id: 't22', minRelation: 50,
+            title: 'Kdo dnes čte knihy', title_en: 'Who reads books now',
+            text: `"Levnější knihy znamenají víc čtenářů, i takových, co by si dřív nemohli dovolit ani jedinou stránku. To je čestně řečeno dobrá věc. Jen mě mrzí, že spolu s tím mizí úcta k tomu, co čtou."`,
+            text_en: `"Cheaper books mean more readers, even such as could not once afford a single page. That is, in honesty, a good thing. I am only grieved that, along with it, reverence for what is read seems to fade away."`
+        },
 
-        { id: 't23', minRelation: 50,
-          title: 'Psaní pro Boha vs. pro zisk', title_en: 'Writing for God versus writing for profit',
-          text: `"Když jsem opisoval žaltář, dělal jsem to pro Boha, ne pro peníze — i když jsem peníze taky potřeboval, nejsem hlupák. Ale úmysl v srdci mění tah pera. Tvůj lis nemá srdce, natož úmysl."`,
-          text_en: `"When I copied a psalter, I did it for God, not for coin — though I needed coin as well, I am no fool. But the intent in one's heart changes the very stroke of the pen. Thy press hath no heart, still less an intent."` },
+        {
+            id: 't23', minRelation: 50,
+            title: 'Psaní pro Boha vs. pro zisk', title_en: 'Writing for God versus writing for profit',
+            text: `"Když jsem opisoval žaltář, dělal jsem to pro Boha, ne pro peníze — i když jsem peníze taky potřeboval, nejsem hlupák. Ale úmysl v srdci mění tah pera. Tvůj lis nemá srdce, natož úmysl."`,
+            text_en: `"When I copied a psalter, I did it for God, not for coin — though I needed coin as well, I am no fool. But the intent in one's heart changes the very stroke of the pen. Thy press hath no heart, still less an intent."`
+        },
 
-        { id: 't24', minRelation: 50,
-          title: 'Co pro něj znamená "Opus Dei"', title_en: 'What "Opus Dei" means to him',
-          text: `"Opus Dei, správně vzato, je modlitba hodinek, ne moje opisování — to vím dobře, nejsem neuk. Ale sám pro sebe jsem si to slovo vypůjčil. Psaní se pro mě stalo mým vlastním Božím dílem. Možná neprávem. Ale upřímně."`,
-          text_en: `"Opus Dei, rightly taken, is the prayer of the hours, not my copying — that much I know well, I am no ignoramus. But for myself, I have borrowed the word. Writing became, for me, my own work of God. Wrongly, perhaps. But in earnest."` },
+        {
+            id: 't24', minRelation: 50,
+            title: 'Co pro něj znamená "Opus Dei"', title_en: 'What "Opus Dei" means to him',
+            text: `"Opus Dei, správně vzato, je modlitba hodinek, ne moje opisování — to vím dobře, nejsem neuk. Ale sám pro sebe jsem si to slovo vypůjčil. Psaní se pro mě stalo mým vlastním Božím dílem. Možná neprávem. Ale upřímně."`,
+            text_en: `"Opus Dei, rightly taken, is the prayer of the hours, not my copying — that much I know well, I am no ignoramus. But for myself, I have borrowed the word. Writing became, for me, my own work of God. Wrongly, perhaps. But in earnest."`
+        },
 
         // ── PÁSMO E (vztah 65) — zranitelnost ─────────────────────────────────
-        { id: 't25', minRelation: 65,
-          title: 'Zhoršující se zrak', title_en: 'His failing eyesight',
-          text: `"Oči už nejsou, co bývaly, chlapče. Léta skloněná nad stránkou při svíčce si vyberou svou daň — mnoho písařů oslepne dřív, než zestárnou. Čtu teď pomaleji, s bolestí. To ti neříkám rád. Ale říkám ti to."`,
-          text_en: `"The eyes are not what they were, lad. Years bent over the page by candlelight take their toll — many a scribe goes blind before he grows old. I read more slowly now, and with pain. I tell thee this unwillingly. But I tell thee."` },
+        {
+            id: 't25', minRelation: 65,
+            title: 'Zhoršující se zrak', title_en: 'His failing eyesight',
+            text: `"Oči už nejsou, co bývaly, chlapče. Léta skloněná nad stránkou při svíčce si vyberou svou daň — mnoho písařů oslepne dřív, než zestárnou. Čtu teď pomaleji, s bolestí. To ti neříkám rád. Ale říkám ti to."`,
+            text_en: `"The eyes are not what they were, lad. Years bent over the page by candlelight take their toll — many a scribe goes blind before he grows old. I read more slowly now, and with pain. I tell thee this unwillingly. But I tell thee."`
+        },
 
-        { id: 't26', minRelation: 65,
-          title: 'Lítost nad bratřími, co odešli', title_en: 'Grief for the brothers who left',
-          text: `"Znal jsem tři, co odešli k lisu. Jeden zemřel bohatý, dva v bídě. Nikdy jsem s žádným z nich už nepromluvil, hrdost mi to nedovolila. Teď je pozdě. To je má vlastní vina, ne jejich, a nesu ji potichu."`,
-          text_en: `"I knew three who went over to the press. One died rich, two in poverty. I never spoke with any of them again — pride would not allow it. Now it is too late. That is my own fault, not theirs, and I bear it quietly."` },
+        {
+            id: 't26', minRelation: 65,
+            title: 'Lítost nad bratřími, co odešli', title_en: 'Grief for the brothers who left',
+            text: `"Znal jsem tři, co odešli k lisu. Jeden zemřel bohatý, dva v bídě. Nikdy jsem s žádným z nich už nepromluvil, hrdost mi to nedovolila. Teď je pozdě. To je má vlastní vina, ne jejich, a nesu ji potichu."`,
+            text_en: `"I knew three who went over to the press. One died rich, two in poverty. I never spoke with any of them again — pride would not allow it. Now it is too late. That is my own fault, not theirs, and I bear it quietly."`
+        },
 
-        { id: 't27', minRelation: 65,
-          title: 'Strach ze zapomnění', title_en: 'Fear of being forgotten',
-          text: `"Bojím se, chlapče, že až zemřu, nezbude po mně nic než pár knih, co ani nebudou nést mé jméno — písaři se nepodepisují, to by byla pýcha. Kdo si mě bude pamatovat? Možná ty. To je víc, než jsem čekal."`,
-          text_en: `"I fear, lad, that when I die, nothing shall remain of me but a few books that will not even bear my name — scribes do not sign their work, that would be pride. Who shall remember me? Perhaps thou. That is more than I expected."` },
+        {
+            id: 't27', minRelation: 65,
+            title: 'Strach ze zapomnění', title_en: 'Fear of being forgotten',
+            text: `"Bojím se, chlapče, že až zemřu, nezbude po mně nic než pár knih, co ani nebudou nést mé jméno — písaři se nepodepisují, to by byla pýcha. Kdo si mě bude pamatovat? Možná ty. To je víc, než jsem čekal."`,
+            text_en: `"I fear, lad, that when I die, nothing shall remain of me but a few books that will not even bear my name — scribes do not sign their work, that would be pride. Who shall remember me? Perhaps thou. That is more than I expected."`
+        },
 
-        { id: 't28', minRelation: 65,
-          title: 'Co dělá v noci, když nemůže spát', title_en: 'What he does at night when he cannot sleep',
-          text: `"Chodím do skriptoria a dotýkám se hřbetů knih po tmě, po paměti, bez svíčky, abych šetřil oči. Poznám je po hmatu, jako staré přátele. To ti nikdo jiný neřekne, ani ty ho o tom nežádej."`,
-          text_en: `"I go to the scriptorium and touch the spines of the books in the dark, by memory, without a candle, to spare my eyes. I know them by touch, as one knows old friends. No one else shall tell thee this — nor shalt thou ask it of any other."` },
+        {
+            id: 't28', minRelation: 65,
+            title: 'Co dělá v noci, když nemůže spát', title_en: 'What he does at night when he cannot sleep',
+            text: `"Chodím do skriptoria a dotýkám se hřbetů knih po tmě, po paměti, bez svíčky, abych šetřil oči. Poznám je po hmatu, jako staré přátele. To ti nikdo jiný neřekne, ani ty ho o tom nežádej."`,
+            text_en: `"I go to the scriptorium and touch the spines of the books in the dark, by memory, without a candle, to spare my eyes. I know them by touch, as one knows old friends. No one else shall tell thee this — nor shalt thou ask it of any other."`
+        },
 
         // ── PÁSMO F (vztah 80) — nejhlubší ────────────────────────────────────
-        { id: 't29', minRelation: 80,
-          title: 'Proč vlastně zůstal v klášteře', title_en: 'Why he truly stayed in the monastery',
-          text: `"Mohl jsem odejít, chlapče, jako ti druzí. Nezůstal jsem z povinnosti ani ze strachu. Zůstal jsem, protože jsem tu jednou, dávno, něco slíbil — komu a co, to ti povím, až budu vědět, že to uneseš."`,
-          text_en: `"I could have left, lad, as those others did. I stayed not from duty, nor from fear. I stayed because, once, long ago, I made a promise here — to whom, and what, I shall tell thee when I know thou canst bear it."` },
+        {
+            id: 't29', minRelation: 80,
+            title: 'Proč vlastně zůstal v klášteře', title_en: 'Why he truly stayed in the monastery',
+            text: `"Mohl jsem odejít, chlapče, jako ti druzí. Nezůstal jsem z povinnosti ani ze strachu. Zůstal jsem, protože jsem tu jednou, dávno, něco slíbil — komu a co, to ti povím, až budu vědět, že to uneseš."`,
+            text_en: `"I could have left, lad, as those others did. I stayed not from duty, nor from fear. I stayed because, once, long ago, I made a promise here — to whom, and what, I shall tell thee when I know thou canst bear it."`
+        },
 
-        { id: 't30', minRelation: 80,
-          title: 'Co si o tobě myslí teď', title_en: 'What he thinks of thee now',
-          text: `"Přišel jsi ke mně jako tiskař, co si myslí, že lis nahradí duši. Teď vidím něco jiného — vytrvalost, a snad i úctu k tomu, co pomíjí. Nejsi jako oni, chlapče. Nevím, jestli jsi to už věděl. Já jsem si tím dlouho nebyl jistý."`,
-          text_en: `"Thou camest to me as a printer who believed the press could replace the soul. Now I see something else — perseverance, and perhaps even reverence for that which passes away. Thou art not like the others, lad. I know not if thou knewest that already. I myself was long uncertain of it."` }
+        {
+            id: 't30', minRelation: 80,
+            title: 'Co si o tobě myslí teď', title_en: 'What he thinks of thee now',
+            text: `"Přišel jsi ke mně jako tiskař, co si myslí, že lis nahradí duši. Teď vidím něco jiného — vytrvalost, a snad i úctu k tomu, co pomíjí. Nejsi jako oni, chlapče. Nevím, jestli jsi to už věděl. Já jsem si tím dlouho nebyl jistý."`,
+            text_en: `"Thou camest to me as a printer who believed the press could replace the soul. Now I see something else — perseverance, and perhaps even reverence for that which passes away. Thou art not like the others, lad. I know not if thou knewest that already. I myself was long uncertain of it."`
+        }
     ],
 
     state: {
@@ -519,32 +579,32 @@ const LibraryStateTemplate = {
 
 const LibraryHelpers = {
     // Kontrola, které knihy jsou odemčené
-    checkLibraryUnlocks: function() {
+    checkLibraryUnlocks: function () {
         if (!GameState.library) {
             GameState.library = JSON.parse(JSON.stringify(LibraryStateTemplate.library));
         }
-        
+
         if (!GameState.library.startDate) {
             GameState.library.startDate = Date.now();
         }
-        
+
         const daysPassed = Math.floor(
             (Date.now() - GameState.library.startDate) / (24 * 60 * 60 * 1000)
         );
-        
+
         // Migrace: book_faust_secret omylem odemčená starým loopem (unlockDay 0)
         // Odebrat, pokud hráč nezískal achievement faust_pact poctivě.
         const faustIdx = GameState.library.unlockedBooks.indexOf('book_faust_secret');
         if (faustIdx !== -1 &&
             !(GameState.achievements && GameState.achievements.unlocked &&
-              GameState.achievements.unlocked.includes('faust_pact'))) {
+                GameState.achievements.unlocked.includes('faust_pact'))) {
             GameState.library.unlockedBooks.splice(faustIdx, 1);
         }
-        
+
         let newUnlocks = 0;
         LibraryDB.books.forEach(book => {
             if (book.unlockDay > 0 &&
-                book.unlockDay <= daysPassed && 
+                book.unlockDay <= daysPassed &&
                 !GameState.library.unlockedBooks.includes(book.id)) {
                 GameState.library.unlockedBooks.push(book.id);
                 if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
@@ -552,7 +612,7 @@ const LibraryHelpers = {
                 newUnlocks++;
             }
         });
-        
+
         // Kronika našeho kláštera (kronika-nasi-mrd, 28.8.2026) — vlastní
         // odemčení mimo obecnou unlockDay smyčku: tech + min. 30 dní + min.
         // 50 záznamů v kronika (živá historie tohoto konkrétního průchodu).
@@ -577,7 +637,7 @@ const LibraryHelpers = {
             ChroniconSystem._reportLibraryFondIfNewDay();
         }
     },
-    
+
     // Přečtení knihy
     // Veřejný vstupní bod — kliknutí na "Číst". Pokud je aktivní eye_strain
     // (monastery-decay-mrd), čtení netrvá okamžitě, ale spustí 6h odpočet
@@ -585,7 +645,7 @@ const LibraryHelpers = {
     // skutečné čtení (_doReadBook). Běží na pozadí jako timed scavenge akce —
     // timestamp-based, přežije zavření/reload. Zatímco timer běží, žádnou
     // jinou knihu nelze začít číst (viz UI.renderLibrary gate).
-    readBook: function(bookId) {
+    readBook: function (bookId) {
         const book = LibraryDB.books.find(b => b.id === bookId);
         if (!book) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -617,7 +677,7 @@ const LibraryHelpers = {
         if (timer) {
             if (timer.bookId !== bookId) {
                 // Jiná kniha, zatímco odpočet běží — odmítnout, ostatní jsou zamčené
-                UI.notify(lang==='en' ? 'Eyes too strained — finish the current book first.' : 'Oči jsou přepracované — nejprve dočti rozečtenou knihu.', true);
+                UI.notify(lang === 'en' ? 'Eyes too strained — finish the current book first.' : 'Oči jsou přepracované — nejprve dočti rozečtenou knihu.', true);
                 return;
             }
             if (Date.now() < timer.endTime) {
@@ -642,8 +702,8 @@ const LibraryHelpers = {
                 if (Math.random() < 0.03) {
                     Game.removeItem('oculi', 1);
                     const brokeMsg = Math.random() < 0.5
-                        ? (lang==='en' ? 'Your spectacles slipped and shattered on the flagstones.' : 'Brýle ti sklouzly a praskly o dlažbu.')
-                        : (lang==='en' ? 'Your spectacles have wandered off somewhere — perhaps a crow took them.' : 'Brýle se ti někde zatoulaly — možná je má vrána.');
+                        ? (lang === 'en' ? 'Your spectacles slipped and shattered on the flagstones.' : 'Brýle ti sklouzly a praskly o dlažbu.')
+                        : (lang === 'en' ? 'Your spectacles have wandered off somewhere — perhaps a crow took them.' : 'Brýle se ti někde zatoulaly — možná je má vrána.');
                     UI.notifyPanel('👓💥 ' + brokeMsg, 'warning');
                     Game.addKronikaEntry('minor', '👓 Brýle při čtení přišly vniveč.', '👓 The spectacles were lost while reading.', '👓 Oculi lecturae perierunt.');
                 }
@@ -657,8 +717,8 @@ const LibraryHelpers = {
             GameState.library.readingTimer = { bookId, startTime: Date.now(), endTime: Date.now() + restMs };
             Game.save();
             UI.notify(hasBeryllus
-                ? (lang==='en' ? '🥴 Eyes too strained to read quickly — the beryllus helps: 3 hours needed.' : '🥴 Oči jsou přepracované, beryllus čtení zkrátí — 3 hodiny.')
-                : (lang==='en' ? '🥴 Eyes too strained to read quickly — 6 hours needed.' : '🥴 Oči jsou přepracované, čtení potrvá — 6 hodin.'), true);
+                ? (lang === 'en' ? '🥴 Eyes too strained to read quickly — the beryllus helps: 3 hours needed.' : '🥴 Oči jsou přepracované, beryllus čtení zkrátí — 3 hodiny.')
+                : (lang === 'en' ? '🥴 Eyes too strained to read quickly — 6 hours needed.' : '🥴 Oči jsou přepracované, čtení potrvá — 6 hodin.'), true);
             if (typeof UI.renderLibrary === 'function') UI.renderLibrary();
             return;
         }
@@ -667,7 +727,7 @@ const LibraryHelpers = {
     },
 
     // Skutečné provedení čtení — původní obsah readBook(), beze změny.
-    _doReadBook: function(bookId, book, lang) {
+    _doReadBook: function (bookId, book, lang) {
         if (!GameState.library.readBooks.includes(bookId)) {
             GameState.library.readBooks.push(bookId);
         }
@@ -694,7 +754,7 @@ const LibraryHelpers = {
                 GardenSystem.renderVinohrad();
             }
         }
-        
+
         // Show modal with book content — live chronicle gets the dedicated
         // page-turn reader (kronika-nasi-mrd, 28.8.2026), everything else
         // keeps the existing simple modal.
@@ -703,9 +763,9 @@ const LibraryHelpers = {
         } else {
             UI.showBookModal(book);
         }
-        
+
         Game.save();
-        
+
         // Check Easter egg achievements
         LibraryHelpers.checkEasterEggs();
 
@@ -722,7 +782,7 @@ const LibraryHelpers = {
     },
 
     // Odemknutí knihy výzkumem (dříve než unlockDay)
-    unlockBookByResearch: function(bookId) {
+    unlockBookByResearch: function (bookId) {
         const book = LibraryDB.books.find(b => b.id === bookId);
         if (!book || !book.unlockResearch) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -747,17 +807,17 @@ const LibraryHelpers = {
         NotificationSystem.panel('📚 ' + (lang === 'en' ? 'Book unlocked: ' : 'Kniha odemčena: ') + book.title, 'system');
         if (typeof UI.renderLibrary === 'function') UI.renderLibrary();
     },
-    
+
     // Kontrola Easter eggs
-    checkEasterEggs: function() {
+    checkEasterEggs: function () {
         if (!GameState.library) return;
-        
+
         EasterEggsDB.achievements.forEach(egg => {
             if (GameState.achievements.unlocked.includes(egg.id)) return;
-            
+
             if (egg.condition()) {
                 GameState.achievements.unlocked.push(egg.id);
-                
+
                 // Grant reward
                 if (egg.reward.book) {
                     GameState.library.unlockedBooks.push(egg.reward.book);
@@ -770,15 +830,15 @@ const LibraryHelpers = {
                 if (egg.reward.research) {
                     Game.addItem('research', egg.reward.research);
                 }
-                
+
                 Game.save();
             }
         });
     },
-    
+
     // Cena obchodu s Bartolomějem — stupně dle podílu odemčené knihovny (unlockedBooks/total).
     // Sjednocená škála pro scribeTrade i scribeTradeChoice (design rozhodnutí 26.8.2026).
-    getScribePrice: function() {
+    getScribePrice: function () {
         const total = (typeof LibraryDB !== 'undefined' && LibraryDB.books) ? LibraryDB.books.length : 0;
         const unlocked = (GameState.library && GameState.library.unlockedBooks) ? GameState.library.unlockedBooks.length : 0;
         const ratio = total > 0 ? unlocked / total : 0;
@@ -794,7 +854,7 @@ const LibraryHelpers = {
     // (nejmenší kategorie, 'technical' bucket), stejná filozofie jako
     // signatura/secundo folio v katalog. modalu. Zuby (skutečné riziko
     // krádeže/nájezdu) přijdou později s C2/D2 — teď jen instalace.
-    getSmallestCategory: function() {
+    getSmallestCategory: function () {
         if (typeof LibraryDB === 'undefined' || !LibraryDB.books) return null;
         const counts = {};
         LibraryDB.books.forEach(b => { counts[b.category] = (counts[b.category] || 0) + 1; });
@@ -808,7 +868,7 @@ const LibraryHelpers = {
     // Vrátí nejsilnější aktivní tier pro danou knihu, nebo null. Pořadí
     // síly: secreta (jen 'technical') > catena (nejmenší kategorie) >
     // anathema (celý fond). Používá se pro badge v seznamu i modalu.
-    getBookProtection: function(book) {
+    getBookProtection: function (book) {
         if (!book || !GameState.library || !GameState.library.protection) return null;
         const p = GameState.library.protection;
         if (p.secreta && book.category === 'technical') return 'secreta';
@@ -817,7 +877,7 @@ const LibraryHelpers = {
         return null;
     },
 
-    applyAnathema: function() {
+    applyAnathema: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_anathema')) return;
         if (GameState.library.protection && GameState.library.protection.anathema) {
@@ -836,7 +896,7 @@ const LibraryHelpers = {
         UI.notify(lang === 'en' ? 'The curse is written. 🖋️' : 'Kletba je napsána. 🖋️');
     },
 
-    applyCatena: function() {
+    applyCatena: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_catena')) return;
         if (!GameState.library.protection || !GameState.library.protection.anathema) {
@@ -859,7 +919,7 @@ const LibraryHelpers = {
         UI.notify(lang === 'en' ? 'The chains are fitted. ⛓️' : 'Řetězy jsou osazené. ⛓️');
     },
 
-    applyLibrariaSecreta: function() {
+    applyLibrariaSecreta: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_libraria_secreta')) return;
         const rank = GameState.rank && GameState.rank.monastic;
@@ -897,7 +957,7 @@ const LibraryHelpers = {
     DEGRADE_SEASON_MOD: [0.7, 0.5, 1.0, 1.8], // jaro, léto, podzim, zima
     SEASON_IDX: { spring: 0, summer: 1, autumn: 2, winter: 3 },
 
-    tickBookCondition: function() {
+    tickBookCondition: function () {
         if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_conservatio')) return;
         const now = Date.now();
         if (now - (GameState.library.conditionLastTick || 0) < 24 * 60 * 60 * 1000) return;
@@ -926,7 +986,7 @@ const LibraryHelpers = {
         Game.save();
     },
 
-    maintainLibrary: function() {
+    maintainLibrary: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_conservatio')) return;
         if ((GameState.inventory.herb_blue || 0) < 2) {
@@ -945,7 +1005,7 @@ const LibraryHelpers = {
         UI.notify(lang === 'en' ? `🌿 Fond aired and dusted. ${count} volumes eased.` : `🌿 Fond vyvětrán a oprášen. ${count} svazků ulehčeno.`);
     },
 
-    repairBook: function(bookId) {
+    repairBook: function (bookId) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_conservatio')) return;
         const c = GameState.library.bookCondition && GameState.library.bookCondition[bookId];
@@ -974,7 +1034,7 @@ const LibraryHelpers = {
     // — reuse soft-locku v readBook() beze změny. Větev tady: garantované
     // vrácení (žádné riziko, žádná ekonomika, žádný Chronicon), erudition
     // boost bratrovi místo influence/reputation.
-    tickLoans: function() {
+    tickLoans: function () {
         const loans = GameState.library.loanedBooks;
         if (!loans) return;
         const now = Date.now();
@@ -1057,7 +1117,7 @@ const LibraryHelpers = {
     // pendingCtenar/pendingVypujcka), notifikace + modal (Odložit/Vyřešit
     // v ChroniconSystem.checkPendingAdvisory), skutečné schválení až
     // přes resolveInternalLoanRequest() z pultu v Knihovně.
-    checkInternalLoanInterest: function() {
+    checkInternalLoanInterest: function () {
         if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_lenten_reading')) return;
         if (!GameState.dormitorium || !GameState.dormitorium.brothers) return;
         if (!GameState.library || !GameState.library.unlockedBooks || GameState.library.unlockedBooks.length === 0) return;
@@ -1104,7 +1164,7 @@ const LibraryHelpers = {
     // v Knihovna→Výpůjčky. Zamítnutí NEMÁ dopad (aktivní rozhodnutí hráče,
     // stejná logika jako u Chronicon decline) — dopad má jen ignorování
     // (viz checkRequestExpiry).
-    resolveInternalLoanRequest: function(choiceId) {
+    resolveInternalLoanRequest: function (choiceId) {
         const req = GameState.library.pendingInternalLoan;
         if (!req) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -1129,7 +1189,7 @@ const LibraryHelpers = {
     // Časové okno na rozhodnutí — 8h základ + až +16h dle důvěry (0-100
     // škála: vztah u Chronicon kontaktu, loyalty u bratra). vypujcky-
     // notifikace-mrd (29.8.2026).
-    getRequestWindowMs: function(trustScore) {
+    getRequestWindowMs: function (trustScore) {
         const t = Math.max(0, Math.min(100, trustScore || 0));
         return (8 + (t / 100) * 16) * 60 * 60 * 1000;
     },
@@ -1138,7 +1198,7 @@ const LibraryHelpers = {
     // stejná kadence jako checkInternalLoanInterest (7×/den). Ignorování
     // MÁ dopad (na rozdíl od aktivního zamítnutí) — mirror "nechat
     // čekat je horší než rovnou odmítnout".
-    checkRequestExpiry: function() {
+    checkRequestExpiry: function () {
         const now = Date.now();
 
         // Interní — expirace = tichý zánik + malý pokles mood bratra.
@@ -1186,7 +1246,7 @@ const LibraryHelpers = {
     // cenové škály a měny (papír, ne groše — jeho vlastní ekonomika).
     // Dražší tier (×2) než náhodný obchod, protože shání konkrétní ztracený
     // titul, ne cokoliv volného.
-    buybackLoanedBook: function(bookId) {
+    buybackLoanedBook: function (bookId) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const loan = GameState.library.loanedBooks && GameState.library.loanedBooks[bookId];
         if (!loan || !loan.lost) return;
@@ -1207,7 +1267,7 @@ const LibraryHelpers = {
     // Nechat být = žádný ekonomický/vztahový dopad, ale kniha to nese na
     // sobě (D2 condition), + drobná odměna za všímavost. Cluster B
     // (knihovna-rozsireni-mrd, 29.8.2026).
-    confrontForgery: function(bookId) {
+    confrontForgery: function (bookId) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const rec = GameState.library.suspectedForgery && GameState.library.suspectedForgery[bookId];
         if (!rec) return;
@@ -1229,7 +1289,7 @@ const LibraryHelpers = {
         UI.notify(lang === 'en' ? `Confronted. ${rec.deposit}g compensation received.` : `Konfrontováno. Přijato ${rec.deposit}g náhrady.`);
     },
 
-    ignoreForgery: function(bookId) {
+    ignoreForgery: function (bookId) {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const rec = GameState.library.suspectedForgery && GameState.library.suspectedForgery[bookId];
         if (!rec) return;
@@ -1243,9 +1303,9 @@ const LibraryHelpers = {
     },
 
     // NPC Písař - obchod
-    scribeTrade: function() {
+    scribeTrade: function () {
         const cost = LibraryHelpers.getScribePrice();
-        
+
         // Check if player has enough
         if ((GameState.inventory.paper || 0) < cost) {
             UI.notify(t('library_lore.npc_scribe.err_paper'), true);
@@ -1255,7 +1315,7 @@ const LibraryHelpers = {
         // Unlock random book — kontrola dostupnosti PŘED odebráním papíru
         // (bug fix 29.8.2026: dřív se papír odečetl vždy, i když už žádná
         // kniha nezbývala, a hráč nedostal nic zpátky).
-        const locked = LibraryDB.books.filter(b => 
+        const locked = LibraryDB.books.filter(b =>
             !GameState.library.unlockedBooks.includes(b.id) &&
             b.unlockDay > 0 // Not special books
         );
@@ -1267,13 +1327,13 @@ const LibraryHelpers = {
 
         // Remove items
         Game.removeItem('paper', cost);
-        
+
         {
             const randomBook = locked[Math.floor(Math.random() * locked.length)];
             GameState.library.unlockedBooks.push(randomBook.id);
             if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
             GameState.library.acquisitionDates[randomBook.id] = Date.now();
-            
+
             GameState.library.scribeState.totalTrades++;
             GameState.library.scribeState.lastTrade = Date.now();
 
@@ -1282,17 +1342,17 @@ const LibraryHelpers = {
                 PersonaSystem.addInfluence('bartolomej', 4);
                 PersonaSystem.addInfluence('scholars', 1);
             }
-            
+
             // Trik pro získání názvu knihy rovnou ze slovníku
             const currentLang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language) || 'cs';
             const dict = currentLang === 'en' ? STRINGS_en : STRINGS_cs;
-            
+
             // Robustní fallback: STRINGS_en → book._en pole → STRINGS_cs → LibraryDB
-            const bookTitle = dict.library_lore?.books?.[randomBook.id]?.title || 
-                             (currentLang === 'en' && randomBook.title_en) ||
-                             STRINGS_cs.library_lore?.books?.[randomBook.id]?.title || 
-                             randomBook.title;
-            
+            const bookTitle = dict.library_lore?.books?.[randomBook.id]?.title ||
+                (currentLang === 'en' && randomBook.title_en) ||
+                STRINGS_cs.library_lore?.books?.[randomBook.id]?.title ||
+                randomBook.title;
+
             UI.notifyPanel(`${t('library_lore.npc_scribe.notify_book')} "${bookTitle}"`, 'system');
 
             // NOVÉ: reakce písaře po obchodu (dosud nevyužitý dialog)
@@ -1302,18 +1362,18 @@ const LibraryHelpers = {
                 icon: '🖋️',
                 title: ScribeNPC.name,
                 text: (currentLang === 'en' && ScribeNPC.dialogues.after_trade.text_en
-                        ? ScribeNPC.dialogues.after_trade.text_en
-                        : ScribeNPC.dialogues.after_trade.text).replace(/\n/g, '<br>'),
+                    ? ScribeNPC.dialogues.after_trade.text_en
+                    : ScribeNPC.dialogues.after_trade.text).replace(/\n/g, '<br>'),
                 choices: [{
                     label: (currentLang === 'en' && ScribeNPC.dialogues.after_trade.options_en
                         ? ScribeNPC.dialogues.after_trade.options_en[0]
                         : ScribeNPC.dialogues.after_trade.options[0]),
                     type: 'primary',
-                    effect: _loyaltyReady ? function() { LibraryHelpers._showBartolomejLoyalty(); } : function() {}
+                    effect: _loyaltyReady ? function () { LibraryHelpers._showBartolomejLoyalty(); } : function () { }
                 }]
             });
         } // end randomBook block
-        
+
         Game.save();
         if (typeof UI.renderLibrary === 'function') {
             UI.renderLibrary();
@@ -1323,7 +1383,7 @@ const LibraryHelpers = {
     },
 
     // NPC Písař - výběr konkrétní knihy (odemčeno vztahem ≥25, MRD krok 3, cena dle getScribePrice())
-    scribeTradeChoice: function() {
+    scribeTradeChoice: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const rel = (GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej) || 0;
         if (rel < 25) {
@@ -1346,13 +1406,13 @@ const LibraryHelpers = {
         const dict = lang === 'en' ? STRINGS_en : STRINGS_cs;
         const bookChoices = locked.map(book => {
             const bookTitle = dict.library_lore?.books?.[book.id]?.title ||
-                             (lang === 'en' && book.title_en) ||
-                             STRINGS_cs.library_lore?.books?.[book.id]?.title ||
-                             book.title;
+                (lang === 'en' && book.title_en) ||
+                STRINGS_cs.library_lore?.books?.[book.id]?.title ||
+                book.title;
             return {
                 label: bookTitle,
                 type: 'default',
-                effect: function() {
+                effect: function () {
                     Game.removeItem('paper', CHOICE_COST);
                     GameState.library.unlockedBooks.push(book.id);
                     if (!GameState.library.acquisitionDates) GameState.library.acquisitionDates = {};
@@ -1372,7 +1432,7 @@ const LibraryHelpers = {
         bookChoices.push({
             label: lang === 'en' ? 'Never mind' : 'Nakonec ne',
             type: 'default',
-            effect: function() {}
+            effect: function () { }
         });
         NotificationSystem.modal({
             icon: '🖋️',
@@ -1385,7 +1445,7 @@ const LibraryHelpers = {
     },
 
     // NPC Písař - návštěva/rozhovor (dosud nevyužitý first_visit + random_wisdom dialog)
-    scribeVisit: function() {
+    scribeVisit: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.library.scribeState.visited) {
             const fv = ScribeNPC.dialogues.first_visit;
@@ -1398,7 +1458,7 @@ const LibraryHelpers = {
                     {
                         label: useEn ? fv.options_en[0] : fv.options[0],
                         type: 'primary',
-                        effect: function() {
+                        effect: function () {
                             GameState.library.scribeState.visited = true;
                             Game.save();
                             LibraryHelpers._showRandomWisdom();
@@ -1407,7 +1467,7 @@ const LibraryHelpers = {
                     {
                         label: useEn ? fv.options_en[1] : fv.options[1],
                         type: 'default',
-                        effect: function() {
+                        effect: function () {
                             GameState.library.scribeState.visited = true;
                             Game.save();
                         }
@@ -1420,7 +1480,7 @@ const LibraryHelpers = {
     },
 
     // Pomocná: zobrazí náhodnou moudrost písaře
-    _showRandomWisdom: function() {
+    _showRandomWisdom: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const useEn = lang === 'en' && ScribeNPC.dialogues.random_wisdom_en;
         const lines = useEn ? ScribeNPC.dialogues.random_wisdom_en : ScribeNPC.dialogues.random_wisdom;
@@ -1429,12 +1489,12 @@ const LibraryHelpers = {
             icon: '🖋️',
             title: ScribeNPC.name,
             text: lines[idx].replace(/\n/g, '<br>'),
-            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }]
+            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: function () { } }]
         });
     },
 
     // NPC Písař - téma k rozhovoru (30 témat, denní limit 1×, checklist — MRD krok 4/5)
-    scribeAskTopic: function() {
+    scribeAskTopic: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const st = GameState.library.scribeState;
         if (!st.askedTopics) st.askedTopics = [];
@@ -1461,7 +1521,7 @@ const LibraryHelpers = {
         const topicChoices = available.map(top => ({
             label: lang === 'en' ? top.title_en : top.title,
             type: 'default',
-            effect: function() {
+            effect: function () {
                 st.askedTopics.push(top.id);
                 st.lastTopicAt = Date.now();
                 if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
@@ -1479,7 +1539,7 @@ const LibraryHelpers = {
                     choices: [{
                         label: lang === 'en' ? 'Close' : 'Zavřít',
                         type: 'default',
-                        effect: capstoneReady ? function() { LibraryHelpers._showBartolomejSecret(); } : function() {}
+                        effect: capstoneReady ? function () { LibraryHelpers._showBartolomejSecret(); } : function () { }
                     }]
                 });
                 if (typeof UI.renderLibrary === 'function') UI.renderLibrary();
@@ -1495,7 +1555,7 @@ const LibraryHelpers = {
     },
 
     // Uznání po 5. obchodu — jednorázové (MRD krok 5, totalTrades)
-    _showBartolomejLoyalty: function() {
+    _showBartolomejLoyalty: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         GameState.library.scribeState.loyaltyShown = true;
         Game.save();
@@ -1510,12 +1570,12 @@ const LibraryHelpers = {
 
 "Popáté už jsi mi donesl svůj papír, chlapče. Popáté sis nestěžoval na cenu, popáté jsi počkal, až domluvím. Možná už nejsi jen 'ten tiskař' — možná jsi prostě ten, co chodí. To už něco znamená, i pro starého muže, jako jsem já."`
             ).replace(/\n/g, '<br>'),
-            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }]
+            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: function () { } }]
         });
     },
 
     // Kapitola/capstone — jednorázové odemčení po zeptání se na témata 29 i 30 (MRD krok 4)
-    _showBartolomejSecret: function() {
+    _showBartolomejSecret: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         GameState.library.scribeState.bartolomejSecretShown = true;
         if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addMilestone) {
@@ -1532,18 +1592,18 @@ const LibraryHelpers = {
 "It was Brother Prokop, my master, who taught me to hold a quill. Upon his deathbed, forty years past, he made me swear I would finish his final work by hand — and never, so long as I lived, let it pass through any press. It was a foolish vow, an old man's promise to a dying elder. But I have kept it. That manuscript lies locked in the lower drawer to this day, unfinished, for I never dared complete it myself after his death.
 
 Now thou knowest, lad, why thy press wounds me so. It is not the craft. It is a vow I made to a man who has not heard, these forty years, whether I keep it."`
-            : `*Starý písař tě chytne za rukáv, hlas se mu chvěje víc než obvykle.*
+                : `*Starý písař tě chytne za rukáv, hlas se mu chvěje víc než obvykle.*
 
 "Byl to bratr Prokop, můj mistr, kdo mě naučil držet brk. Na smrtelné posteli, před čtyřiceti lety, mě přiměl přísahat, že dokončím jeho poslední dílo rukou — a že ho nikdy, dokud budu živ, nenechám projít žádným lisem. Byl to hloupý slib starého muže umírajícímu staršímu muži. Ale držel jsem ho. Ten rukopis leží dodnes zamčený ve spodní přihrádce, nedokončený, protože jsem se ho po jeho smrti nikdy neodvážil sám dopsat.
 
 Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o slib, který jsem dal muži, co už čtyřicet let neslyší, jestli ho držím."`).replace(/\n/g, '<br>'),
-            choices: [{ label: lang === 'en' ? 'I will keep thy secret, master.' : 'Zachovám tvé tajemství, mistře.', type: 'primary', effect: function() {} }]
+            choices: [{ label: lang === 'en' ? 'I will keep thy secret, master.' : 'Zachovám tvé tajemství, mistře.', type: 'primary', effect: function () { } }]
         });
     },
 
     // NPC Písař - živý rozhovor (Claude Haiku 4.5 přes Vercel /api/bartolomej-chat)
     // Denní kvóta → po vyčerpání výkonová degradace na bezplatnou _showRandomWisdom() (viz MRD)
-    scribeAIChat: function() {
+    scribeAIChat: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const st = GameState.library.scribeState;
         if (!st.aiQuota) st.aiQuota = { count: 0, resetAt: 0 };
@@ -1582,14 +1642,14 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
                 </button>
                 <div id="bartolomej-chat-reply" style="margin-top:10px; font-style:italic; min-height:20px;"></div>
             `,
-            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: function() {} }]
+            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'default', effect: function () { } }]
         });
     },
 
     // Odešle zprávu z #bartolomej-chat-input na backend a zobrazí odpověď v modalu
     // Pomocná: sesbírá pár konkrétních faktů o hráči pro Bartolomějův kontext.
     // Jen typovaná pole (žádnej syrovej text) — backend je stejně znovu validuje.
-    _gatherAIContext: function() {
+    _gatherAIContext: function () {
         const daysPlayed = GameState.library && GameState.library.startDate
             ? Math.floor((Date.now() - GameState.library.startDate) / 86400000)
             : null;
@@ -1601,13 +1661,13 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
             bartolomejRel: GameState.persona && GameState.persona.influence && GameState.persona.influence.bartolomej,
             booksRead: GameState.library && GameState.library.readBooks ? GameState.library.readBooks.length : null,
             hasReadRuralia: !!(GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes('book_ruralia_apibus')),
-            hasGrandHive: !!(GameState.apiary && GameState.apiary.some(function(h) { return h.grand; })),
+            hasGrandHive: !!(GameState.apiary && GameState.apiary.some(function (h) { return h.grand; })),
             weekday: weekday,
             scribePrice: (typeof LibraryHelpers !== 'undefined') ? LibraryHelpers.getScribePrice() : null
         };
     },
 
-    scribeAISend: function() {
+    scribeAISend: function () {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const input = document.getElementById('bartolomej-chat-input');
         const replyEl = document.getElementById('bartolomej-chat-reply');
@@ -1623,38 +1683,216 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: message.slice(0, 300), lang, context: LibraryHelpers._gatherAIContext() })
         })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-            replyEl.textContent = data && data.reply
-                ? data.reply
-                : (lang === 'en' ? 'He falls silent.' : 'Odmlčí se.');
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                replyEl.textContent = data && data.reply
+                    ? data.reply
+                    : (lang === 'en' ? 'He falls silent.' : 'Odmlčí se.');
 
-            if (data && !data.filtered) {
-                const st = GameState.library.scribeState;
-                if (!st.aiQuota) st.aiQuota = { count: 0, resetAt: Date.now() };
-                st.aiQuota.count++;
-                if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
-                    PersonaSystem.addInfluence('bartolomej', 1);
+                if (data && !data.filtered) {
+                    const st = GameState.library.scribeState;
+                    if (!st.aiQuota) st.aiQuota = { count: 0, resetAt: Date.now() };
+                    st.aiQuota.count++;
+                    if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addInfluence) {
+                        PersonaSystem.addInfluence('bartolomej', 1);
+                    }
+                    Game.save();
                 }
-                Game.save();
+                input.disabled = false;
+                input.value = '';
+            })
+            .catch(function () {
+                replyEl.textContent = lang === 'en'
+                    ? 'He falls silent — something interrupted him.'
+                    : 'Odmlčí se — něco ho vyrušilo.';
+                input.disabled = false;
+            });
+    },
+
+    // ================================================
+    // KATALOGIZAČNÍ SYSTÉM & FORMÁTOVÉ REGÁLY — Řád bratra Marka (M.A.R.C.)
+    // katalogizace-mrd (2.9.2026) — přepis z návrhu (Bouvard), sjednoceno
+    // s konvencí projektu (plain object místo ES6 class, tech gate na
+    // tech_marc, opravená ekonomika přes CellariumSystem.addGrose, MARC/
+    // RDA odkazy nahrazeny fiktivním "Řádem bratra Marka" — jediný
+    // anachronismus-jako-vtip ve hře, backronym M.A.R.C. schovaný v
+    // latinském jméně, ne přiznaný jako fakt.
+    // ================================================
+    LibraryCatalogSystem: {
+        init: function () {
+            if (!GameState.library) GameState.library = {};
+            if (!GameState.library.cataloguedBooks) GameState.library.cataloguedBooks = {};
+            if (typeof GameState.library.catalogExp !== 'number') GameState.library.catalogExp = 0;
+            if (!GameState.library.shelves) {
+                GameState.library.shelves = {
+                    pluteus_inferior: [],
+                    pluteus_medius: [],
+                    pluteus_superior: [],
+                    scrinium_parvum: [],
+                };
             }
-            input.disabled = false;
-            input.value = '';
-        })
-        .catch(function() {
-            replyEl.textContent = lang === 'en'
-                ? 'He falls silent — something interrupted him.'
-                : 'Odmlčí se — něco ho vyrušilo.';
-            input.disabled = false;
-        });
-    }
+        },
+
+        getRanks: function () {
+            return [
+                { id: 'rank_novice', minExp: 0, title: 'Novic Armaria', title_en: 'Novice Cataloguer', icon: '🧑‍🦲', perk: 'Základní zkouška formátů a měření' },
+                { id: 'rank_scriptor', minExp: 50, title: 'Scriptor Titulorum (Písař záhlaví)', title_en: 'Scriptor of Headings', icon: '📜', perk: 'Zpřístupněn Řád bratra Marka — ověřování autorské autority' },
+                { id: 'rank_bibliothecarius', minExp: 150, title: 'Bibliothecarius Ordinarius', title_en: 'Monastery Librarian', icon: '📘', perk: 'Odolnost fondu +25 % proti opotřebení' },
+                { id: 'rank_magister', minExp: 300, title: 'Magister Registrorum', title_en: 'Master of Registers', icon: '🏛️', perk: 'Odolnost fondu +50 %, bonus +20 % k odměnám za výpůjčky' },
+                { id: 'rank_archon', minExp: 500, title: 'Vrchní Armarius Olomoucký', title_en: 'Grand Armarius 1465', icon: '👑', perk: 'Maximální prestiž fondu, zlaté pečetní razítko a trvalá ochrana' },
+            ];
+        },
+
+        getCurrentRank: function () {
+            this.init();
+            const exp = (GameState.library && GameState.library.catalogExp) || 0;
+            const ranks = this.getRanks();
+            let current = ranks[0];
+            let next = null;
+            for (let i = 0; i < ranks.length; i++) {
+                if (exp >= ranks[i].minExp) { current = ranks[i]; next = ranks[i + 1] || null; }
+            }
+            return { current: current, next: next, exp: exp };
+        },
+
+        isCatalogued: function (bookId) {
+            this.init();
+            return !!(GameState.library && GameState.library.cataloguedBooks && GameState.library.cataloguedBooks[bookId]);
+        },
+
+        getCatalogRecord: function (bookId) {
+            this.init();
+            return this.isCatalogued(bookId) ? GameState.library.cataloguedBooks[bookId] : null;
+        },
+
+        // Zakládání do regálu — čistě organizační krok, ne "akce" ve
+        // smyslu spotřeby zdrojů, proto bez vlastního tech-gate kontroly
+        // (submitExam, co tohle volá, gate už má).
+        shelveBook: function (bookId, targetShelfId) {
+            this.init();
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const catData = LibraryDB.getBookCatalogData ? LibraryDB.getBookCatalogData(bookId) : null;
+            if (!catData) return { success: false, message: lang === 'en' ? 'Volume not found.' : 'Svazek nenalezen.' };
+
+            const shelves = GameState.library.shelves;
+            Object.keys(shelves).forEach(sKey => {
+                if (Array.isArray(shelves[sKey])) shelves[sKey] = shelves[sKey].filter(id => id !== bookId);
+            });
+            if (!shelves[targetShelfId]) shelves[targetShelfId] = [];
+            shelves[targetShelfId].push(bookId);
+
+            if (GameState.library.cataloguedBooks && GameState.library.cataloguedBooks[bookId]) {
+                GameState.library.cataloguedBooks[bookId].shelfId = targetShelfId;
+            }
+
+            const targetShelf = LibraryDB.shelves ? LibraryDB.shelves[targetShelfId] : null;
+            const isMatch = catData.format && catData.format.recommendedShelf === targetShelfId;
+
+            let warnText = '';
+            if (!isMatch) {
+                if (catData.formatKey === 'folio' && targetShelfId === 'pluteus_superior') {
+                    warnText = lang === 'en' ? ' ⚠️ Warning: a heavy folio (over 5 kg) bends the upper shelf boards!' : ' ⚠️ Varování: Těžký foliant (váha přes 5 kg) na horní polici prohýbá prkna!';
+                } else if (catData.formatKey === 'duodecimo' && targetShelfId === 'pluteus_inferior') {
+                    warnText = lang === 'en' ? ' ⚠️ Careful: a small pocket volume can be lost behind massive folios!' : ' ⚠️ Pozor: Drobný kapesní svazek se může ztratit za masivními folianty!';
+                } else {
+                    warnText = ` (${lang === 'en' ? 'Recommended shelf for this format' : 'Doporučený regál pro tento formát je'}: ${catData.format ? catData.format.shelfName : targetShelfId}).`;
+                }
+            }
+            return {
+                success: true,
+                message: lang === 'en'
+                    ? `📚 Volume "${catData.title}" filed on: ${targetShelf ? (targetShelf.name_en || targetShelf.name) : targetShelfId}.${warnText}`
+                    : `📚 Svazek "${catData.title}" byl založen do: ${targetShelf ? targetShelf.name : targetShelfId}.${warnText}`,
+            };
+        },
+
+        // Katalogizační zkouška — skutečná "akce", gate na tech_marc.
+        // 4 kroky (I.–IV. dle Řádu bratra Marka), stejná logika jako
+        // původní návrh, jen bez MARC 100/650 odkazů v textu.
+        submitExam: function (bookId, chosenFormatKey, chosenHeading, chosenCategory, chosenShelfId) {
+            this.init();
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            if (!GameState.researchedTechs || !GameState.researchedTechs.includes('tech_marc')) {
+                return { success: false, message: lang === 'en' ? 'The Order of Brother Marek is not yet studied.' : 'Řád bratra Marka ještě není vyzkoumaný.' };
+            }
+            const expected = LibraryDB.getBookCatalogData ? LibraryDB.getBookCatalogData(bookId) : null;
+            if (!expected) return { success: false, message: lang === 'en' ? 'Book not found.' : 'Kniha nenalezena.' };
+
+            let score = 0;
+            const totalSteps = 4;
+            const details = [];
+
+            if (chosenFormatKey === expected.formatKey) {
+                score++;
+                details.push(lang === 'en' ? 'I. ✓ Correct bibliographic format and sheet fold' : 'I. ✓ Správné určení bibliografického formátu a lomu archu');
+            } else {
+                details.push(lang === 'en'
+                    ? `I. ✗ Wrong format (chosen ${chosenFormatKey}, actual: ${expected.formatKey} – ${expected.format.name})`
+                    : `I. ✗ Chybný formát (zvoleno ${chosenFormatKey}, skutečnost: ${expected.formatKey} – ${expected.format.name})`);
+            }
+
+            if (chosenHeading && chosenHeading.trim().toLowerCase() === expected.author.trim().toLowerCase()) {
+                score++;
+                details.push(lang === 'en' ? "II. ✓ Correct unified author heading (Brother Marek's rule)" : 'II. ✓ Správná unifikovaná autorská autorita (dle bratra Marka)');
+            } else {
+                details.push(lang === 'en' ? `II. ✗ Author heading was not exact (author: ${expected.author})` : `II. ✗ Autorské záhlaví nebylo přesné (autor: ${expected.author})`);
+            }
+
+            if (chosenCategory === expected.category) {
+                score++;
+                details.push(lang === 'en' ? "III. ✓ Correct subject classification (Brother Marek's rule)" : 'III. ✓ Správné věcné zařazení do oborového třídníku (dle bratra Marka)');
+            } else {
+                details.push(lang === 'en' ? `III. ✗ Wrong subject class (belongs to: ${expected.category})` : `III. ✗ Chybná oborová třída (patří do: ${expected.category})`);
+            }
+
+            if (chosenShelfId === (expected.format && expected.format.recommendedShelf)) {
+                score++;
+                details.push(lang === 'en' ? `IV. ✓ Correct format shelving (${expected.format.shelfName})` : `IV. ✓ Vzorové formátové založení do regálu (${expected.format.shelfName})`);
+            } else {
+                details.push(lang === 'en' ? `IV. ~ Book filed at ${chosenShelfId} (recommended: ${expected.format ? expected.format.recommendedShelf : ''})` : `IV. ~ Kniha založena do ${chosenShelfId} (doporučeno: ${expected.format ? expected.format.recommendedShelf : ''})`);
+            }
+
+            const ratio = score / totalSteps;
+            let expEarned = 15, researchReward = 5, groshenReward = 5;
+            let ratingTitle = lang === 'en' ? 'Satisfactory record' : 'Uspokojivá evidence';
+            if (ratio === 1.0) {
+                expEarned = 40; researchReward = 15; groshenReward = 20;
+                ratingTitle = lang === 'en' ? '🌟 A flawless, masterful cataloguing (Optimum Armarii)' : '🌟 Dokonalá mistrovská katalogizace (Optimum Armarii)';
+            } else if (ratio >= 0.75) {
+                expEarned = 25; researchReward = 10; groshenReward = 12;
+                ratingTitle = lang === 'en' ? '✓ A proper and accurate bibliographic record' : '✓ Řádná a přesná bibliografická evidence';
+            }
+
+            const record = {
+                formatKey: chosenFormatKey, shelfId: chosenShelfId, cataloguedAt: Date.now(),
+                score: score, maxScore: totalSteps, ratingTitle: ratingTitle,
+                callNumber: expected.callNumber, signatureBartolomej: expected.signatureBartolomej,
+                verifiedBy: 'Armarius 1465',
+            };
+            GameState.library.cataloguedBooks[bookId] = record;
+            GameState.library.catalogExp = (GameState.library.catalogExp || 0) + expEarned;
+            this.shelveBook(bookId, chosenShelfId);
+
+            if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('research', researchReward);
+            if (groshenReward > 0 && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                CellariumSystem.addGrose(groshenReward, {
+                    title: lang === 'en' ? 'Cataloguing fee' : 'Katalogizační poplatek',
+                    source: lang === 'en' ? 'Brother Marek' : 'Bratr Marek',
+                    source_en: 'Brother Marek',
+                });
+            }
+            Game.save();
+
+            return { success: true, score: score, totalSteps: totalSteps, expEarned: expEarned, researchReward: researchReward, groshenReward: groshenReward, ratingTitle: ratingTitle, details: details, record: record, expected: expected };
+        },
+    },
 };
 
 // ================================================
 // 8. LENDING COUNTER MECHANICS & 1970s LIBRARIAN DESK UI
 // ================================================
 
-(function() {
+(function () {
     class LibraryManager {
         constructor() {
             this.init();
@@ -1812,7 +2050,7 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
     window.LibraryManager = new LibraryManager();
 })();
 
-window.renderLendingWindowUI = function() {
+window.renderLendingWindowUI = function () {
     const activeVisitor = window.LibraryManager ? window.LibraryManager.getActiveVisitor() : null;
     const internalLoans = window.LibraryManager ? window.LibraryManager.getInternalLoans() : [];
     const externalLoans = window.LibraryManager ? window.LibraryManager.getExternalLoans() : [];
@@ -2180,7 +2418,7 @@ window.renderLendingWindowUI = function() {
 
 window.LibraryUI = window.LibraryUI || {};
 
-window.LibraryUI.ringLendingBell = function() {
+window.LibraryUI.ringLendingBell = function () {
     if (window.LibraryManager && window.LibraryManager.spawnVisitor) {
         const newVisitor = window.LibraryManager.spawnVisitor();
         if (newVisitor) {
@@ -2204,7 +2442,7 @@ window.LibraryUI.ringLendingBell = function() {
     else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
 };
 
-window.LibraryUI.inspectVisitor = function(visitorId) {
+window.LibraryUI.inspectVisitor = function (visitorId) {
     const visitor = window.LibraryManager ? window.LibraryManager.getVisitorById(visitorId) : null;
     if (!visitor) return;
 
@@ -2227,7 +2465,7 @@ window.LibraryUI.inspectVisitor = function(visitorId) {
     }
 };
 
-window.LibraryUI.stampCurrentLoan = function() {
+window.LibraryUI.stampCurrentLoan = function () {
     if (window.SoundManager && window.SoundManager.play) {
         window.SoundManager.play('stamp');
     }
@@ -2245,7 +2483,7 @@ window.LibraryUI.stampCurrentLoan = function() {
     else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
 };
 
-window.LibraryUI.sendRemindMessenger = function(loanId) {
+window.LibraryUI.sendRemindMessenger = function (loanId) {
     if (window.LibraryManager && window.LibraryManager.sendRemindMessenger) {
         const res = window.LibraryManager.sendRemindMessenger(loanId);
         if (window.Game && window.Game.showNotification) {
@@ -2256,7 +2494,7 @@ window.LibraryUI.sendRemindMessenger = function(loanId) {
     else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
 };
 
-window.LibraryUI.openCatalogForLending = function() {
+window.LibraryUI.openCatalogForLending = function () {
     const visitor = window.LibraryManager ? window.LibraryManager.getActiveVisitor() : null;
     if (window.Game && window.Game.showNotification) {
         if (visitor) {
@@ -2272,7 +2510,7 @@ window.LibraryUI.openCatalogForLending = function() {
     else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
 };
 
-window.LibraryUI.dustLibraryBooks = function() {
+window.LibraryUI.dustLibraryBooks = function () {
     if (window.LibraryManager && window.LibraryManager.dustBooks) {
         const res = window.LibraryManager.dustBooks();
         if (window.Game && window.Game.showNotification) {
@@ -2283,7 +2521,7 @@ window.LibraryUI.dustLibraryBooks = function() {
     else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
 };
 
-window.LibraryUI.lendBookToVisitor = function(visitorId) {
+window.LibraryUI.lendBookToVisitor = function (visitorId) {
     const visitor = window.LibraryManager ? window.LibraryManager.getVisitorById(visitorId) : null;
     if (!visitor) return;
 
@@ -2315,7 +2553,7 @@ window.LibraryUI.lendBookToVisitor = function(visitorId) {
     }
 };
 
-window.LibraryUI.rejectVisitor = function(visitorId) {
+window.LibraryUI.rejectVisitor = function (visitorId) {
     if (window.LibraryManager && window.LibraryManager.rejectVisitor) {
         const res = window.LibraryManager.rejectVisitor(visitorId);
         if (window.Game && window.Game.showNotification) {
@@ -2326,7 +2564,7 @@ window.LibraryUI.rejectVisitor = function(visitorId) {
     else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
 };
 
-window.LibraryUI.returnBook = function(loanId) {
+window.LibraryUI.returnBook = function (loanId) {
     if (window.LibraryManager && window.LibraryManager.returnBook) {
         const res = window.LibraryManager.returnBook(loanId);
         if (window.Game && window.Game.showNotification) {
@@ -2337,7 +2575,7 @@ window.LibraryUI.returnBook = function(loanId) {
     else if (window.Game && window.Game.updateUI) { window.Game.updateUI(); }
 };
 
-window.LibraryUI.openReturnDialog = function() {
+window.LibraryUI.openReturnDialog = function () {
     const internalLoans = window.LibraryManager ? window.LibraryManager.getInternalLoans() : [];
     const externalLoans = window.LibraryManager ? window.LibraryManager.getExternalLoans() : [];
     const allLoans = [...internalLoans, ...externalLoans];
@@ -2360,7 +2598,7 @@ window.LibraryUI.openReturnDialog = function() {
     }
 };
 
-window.LibraryUI.openLedgerModal = function() {
+window.LibraryUI.openLedgerModal = function () {
     const internalLoans = window.LibraryManager ? window.LibraryManager.getInternalLoans() : [];
     const externalLoans = window.LibraryManager ? window.LibraryManager.getExternalLoans() : [];
     const text = `

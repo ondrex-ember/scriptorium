@@ -2432,6 +2432,316 @@ Open it in the Reading Room and walk, leaf by leaf, through the real history of 
         'technical': { name: 'Řemesla a vědění', icon: '🔧', desc: 'Traktáty o řemeslech, technikách a přírodní vědě.' },
         'coquina': { name: 'Kuchařství', icon: '🍲', desc: 'Recepty, byliny a tajemství klášterní kuchyně.' },
         'valetudo': { name: 'Zdraví a péče', icon: '🩺', desc: 'Léčitelství, infirmárium a péče o tělo i duši.' }
+    },
+
+    // BIBLIOGRAFICKÉ FORMÁTY & BRATRA MARKA (M.A.R.C.)
+    // Historické formátové řazení (Size-Format Shelving) dle archového lomu
+    // ================================================
+    formats: {
+        'folio': {
+            id: 'folio',
+            code: '2°',
+            name: '2° Folio (Foliant)',
+            name_en: '2° Folio',
+            foldDesc: '1 lom archu (2 listy / 4 strany)',
+            heightRange: '38–48 cm',
+            minHeight: 38,
+            maxHeight: 52,
+            weight: 'Těžký svazek (5–14 kg)',
+            recommendedShelf: 'pluteus_inferior',
+            shelfName: 'Spodní zpevněný pult (Pluteus Inferior)',
+            icon: '📜',
+            material: 'Pergamen / Těžký hadrový papír',
+            desc: 'Velkoformátový svazek pro kancionály, atlasy a teologické sumy. Často opatřen řetězem (catena) proti krádeži.',
+            shelvingRule: 'Vyžaduje masivní dubové plutei dole. Při umístění na vyšší polici hrozí prohnutí a zřícení regálu!'
+        },
+        'quarto': {
+            id: 'quarto',
+            code: '4°',
+            name: '4° Quarto (Čtvrtka)',
+            name_en: '4° Quarto',
+            foldDesc: '2 lomy archu (4 listy / 8 stran)',
+            heightRange: '26–35 cm',
+            minHeight: 26,
+            maxHeight: 35,
+            weight: 'Střední svazek (1.5–3.5 kg)',
+            recommendedShelf: 'pluteus_medius',
+            shelfName: 'Střední police (Pluteus Medius)',
+            icon: '📕',
+            material: 'Hadrový papír / Jemný pergamen',
+            desc: 'Reprezentativní formát městských kronik, herbářů, právnických kompendií a univerzitních spisů.',
+            shelvingRule: 'Optimální pro střední řady regálů. Přehledný hřbet a pohodlná manipulace při studiu.'
+        },
+        'octavo': {
+            id: 'octavo',
+            code: '8°',
+            name: '8° Octavo (Osmerka)',
+            name_en: '8° Octavo',
+            foldDesc: '3 lomy archu (8 listů / 16 stran)',
+            heightRange: '16–25 cm',
+            minHeight: 16,
+            maxHeight: 25,
+            weight: 'Příruční svazek (0.5–1.2 kg)',
+            recommendedShelf: 'pluteus_superior',
+            shelfName: 'Horní police (Pluteus Superior)',
+            icon: '📘',
+            material: 'Italský hlazený papír',
+            desc: 'Standardní příruční formát pro řeholní předpisy, komentáře, traktáty a denní četbu bratří.',
+            shelvingRule: 'Lehké svazky patřící do horních polic. Snadné vyjmutí jednou rukou.'
+        },
+        'duodecimo': {
+            id: 'duodecimo',
+            code: '12°',
+            name: '12° Duodecimo (Kapesní svazek / Sedecimo)',
+            name_en: '12° Duodecimo',
+            foldDesc: '4 lomy archu (12–16 listů / 24–32 stran)',
+            heightRange: '10–15 cm',
+            minHeight: 10,
+            maxHeight: 15,
+            weight: 'Kapesní svazek (< 0.4 kg)',
+            recommendedShelf: 'scrinium_parvum',
+            shelfName: 'Kapesní zásuvka (Scrinium Parvum)',
+            icon: '📙',
+            material: 'Jemný tenký papír / Florencie',
+            desc: 'Kapesní formát pro osobní brevíře, cestovní itineráře, enchiridia a vademeca.',
+            shelvingRule: 'Drobné svazky musí být uloženy v uzamykatelné zásuvce nebo skříňce, aby nezapadly za velké folianty.'
+        }
+    },
+
+    shelves: {
+        'pluteus_inferior': {
+            id: 'pluteus_inferior',
+            name: 'Spodní zpevněný pult (Pluteus Inferior)',
+            name_en: 'Lower Heavy Pluteus',
+            format: 'folio',
+            icon: '🏛️',
+            capacity: 12,
+            desc: 'Masivní dubové desky ukotvené v podlaze se železnými tyčemi pro připoutání foliantů (libri catenati).'
+        },
+        'pluteus_medius': {
+            id: 'pluteus_medius',
+            name: 'Střední police kronik & herbářů (Pluteus Medius)',
+            name_en: 'Middle Stacks',
+            format: 'quarto',
+            icon: '📚',
+            capacity: 20,
+            desc: 'Střední řada polic ve výšce očí pro čtvrtkové kodexy, kroniky a ilustrované přírodovědné spisy.'
+        },
+        'pluteus_superior': {
+            id: 'pluteus_superior',
+            name: 'Horní police traktátů (Pluteus Superior)',
+            name_en: 'Upper Light Shelves',
+            format: 'octavo',
+            icon: '📖',
+            capacity: 35,
+            desc: 'Vyvýšené police pro osmerky, řehole a teologické komentáře. Přístupné z dřevěných knihovních schůdků.'
+        },
+        'scrinium_parvum': {
+            id: 'scrinium_parvum',
+            name: 'Kapesní zásuvka & Skříňka (Scrinium Parvum)',
+            name_en: 'Pocket Drawer / Scrinium',
+            format: 'duodecimo',
+            icon: '🗄️',
+            capacity: 25,
+            desc: 'Uzamykatelná zásuvka s plstěným polstrováním pro kapesní modlitební knížky a vzácná vademeca.'
+        }
+    },
+
+    // Deterministické generování nebo dohledání bohatých Markových metadat pro knihu
+    getBookCatalogData: function (bookOrId) {
+        const book = typeof bookOrId === 'string' ? this.books.find(b => b.id === bookOrId) : bookOrId;
+        if (!book) return null;
+
+        // Určení formátu dle ID nebo charakteru díla
+        const id = book.id;
+        let formatKey = 'octavo';
+        let dimensions = '21 × 14 × 3.5 cm';
+        let folios = '148 ff.';
+        let weightKg = 0.85;
+        let binding = 'Hovězina na bukových deskách, 1 mosazná spona';
+        let placeOfOrigin = 'Olomouc / Skriptorium sv. Mořice';
+        let headingAuthor = book.author || 'Anonymus';
+        let headingTitle = book.title;
+        let incipit = 'Incipit textus sancti...';
+
+        // Specifické profily historických děl
+        if (id === 'book_codex_gigas') {
+            formatKey = 'folio';
+            dimensions = '92 × 50 × 22 cm (Obří foliant)';
+            folios = '312 ff. pergamenových (z 160 oslích kůží)';
+            weightKg = 75.0;
+            binding = 'Dřevěné desky potažené kůží s masivními kovovými rohy a puklami';
+            placeOfOrigin = 'Podlažice u Chrudimi (Benediktinský klášter)';
+            headingAuthor = 'Hermannus Inclusus (Heřman Poustevník)';
+            headingTitle = 'Codex Gigas : Biblia sacra et chronica Boemorum cum figura Diaboli';
+            incipit = 'In principio creavit Deus caelum et terram...';
+        } else if (id === 'book_schedel') {
+            formatKey = 'folio';
+            dimensions = '46 × 32 × 7 cm (Velké folio)';
+            folios = '[20], 299, [6] ff. : 1809 dřevořezů';
+            weightKg = 6.8;
+            binding = 'Vepřovice s bohatým slepotiskem na dubovém dřevě';
+            placeOfOrigin = 'Nürnberg : Anton Koberger';
+            headingAuthor = 'Schedel, Hartmann, 1440–1514';
+            headingTitle = 'Liber chronicarum : cum figuris et ymaginibus ab inicio mundi';
+            incipit = 'In principio creavit Deus caelum et terram in principio erat verbum...';
+        } else if (id === 'book_bible_prazska' || id === 'book_kralice' || id === 'book_kralicka_bible' || id === 'book_kutnohorska_bible') {
+            formatKey = 'folio';
+            dimensions = '39 × 28 × 9 cm (Folio)';
+            folios = '610 ff. : 2 sloupce, iniciály v miniu';
+            weightKg = 7.4;
+            binding = 'Kůže na prkně se 2 litými sponami a kováním';
+            placeOfOrigin = 'Praha / Kutná Hora / Kralice';
+            headingAuthor = 'Biblia Bohemica';
+            headingTitle = `${book.title} / ze staročeských pramenů`;
+            incipit = 'Na počátku stvořil Bůh nebe i zemi...';
+        } else if (id === 'book_agricola') {
+            formatKey = 'folio';
+            dimensions = '36 × 25 × 5 cm (Folio)';
+            folios = '[12], 538 s., [72] s. : 292 dřevořezů';
+            weightKg = 4.2;
+            binding = 'Hladká pergamenová vazba s tkanicemi';
+            placeOfOrigin = 'Basilej : Hieronymus Froben';
+            headingAuthor = 'Agricola, Georgius, 1494–1555';
+            headingTitle = 'De re metallica libri XII : quibus officia, instrumenta, machinae...';
+            incipit = 'Cum saepe mecum cogitarem de metallica re...';
+        } else if (id === 'book_ars_magna') {
+            formatKey = 'folio';
+            dimensions = '38 × 26 × 4 cm (Folio s otočnými koly)';
+            folios = '[6], 214 ff. : kolorovaná rota kombinatorika';
+            weightKg = 3.9;
+            binding = 'Slepotisková useň, 2 spony, štítek na přední desce';
+            placeOfOrigin = 'Mallorca / Paříž';
+            headingAuthor = 'Llull, Ramon, 1232–1316';
+            headingTitle = 'Ars magna generalis et ultima : cum tabulis rotarum combinatoriarum';
+            incipit = 'Incipit liber qui vocatur Ars Magna et generalis...';
+        } else if (id === 'book_mattioli_herbar' || id === 'book_cerny_herbar') {
+            formatKey = 'quarto';
+            dimensions = '32 × 23 × 6 cm (Velké quarto)';
+            folios = '[8], 480 ff. : dřevořezy bylin';
+            weightKg = 3.2;
+            binding = 'Vepřovice s renesančními rolami a mosaznými rohy';
+            placeOfOrigin = 'Praha : Jiří Melantrich z Aventina';
+            headingAuthor = 'Mattioli, Pietro Andrea, 1501–1577';
+            headingTitle = 'Herbář jinak Bylinář velmi užitečný / z latiny přeložil Tadeáš Hájek z Hájku';
+            incipit = 'Všecky byliny a stromy k užitku lidskému stvořeny jsou...';
+        } else if (id === 'book_kosmas' || id === 'book_dalimil' || id === 'book_zbraslav' || id === 'book_hajek_kronika' || id === 'book_kronika_trojanska') {
+            formatKey = 'quarto';
+            dimensions = '29 × 20 × 4 cm (Quarto)';
+            folios = '184 ff. : kaligrafická bastarda, rubrikace';
+            weightKg = 2.1;
+            binding = 'Tmavá useň s ornamentálním tlačením a sponami';
+            placeOfOrigin = 'Praha / Plzeň / Zbraslav';
+            headingAuthor = book.author || 'Anonymus Bohemus';
+            headingTitle = `${book.title} / edita secundum antiquos codices`;
+            incipit = 'Incipit Chronica Boemorum vetustissima...';
+        } else if (id === 'book_koldin' || id === 'book_majestas' || id === 'book_rozmberk' || id === 'book_malleus' || id === 'book_malleus_maleficarum') {
+            formatKey = 'quarto';
+            dimensions = '31 × 22 × 5 cm (Quarto)';
+            folios = '[14], 320 ff. : právnická glosa';
+            weightKg = 2.6;
+            binding = 'Tuhá vazba s dřevěnými deskami a řetězovým očkem';
+            placeOfOrigin = 'Praha / Špýr';
+            headingAuthor = book.author || 'Koldín z Koldína, Pavel Kristián, 1530–1589';
+            headingTitle = `${book.title} : Iura municipalia regni Bohemiae`;
+            incipit = 'Cum iustitia sit constans et perpetua voluntas...';
+        } else if (id === 'book_manutius') {
+            formatKey = 'duodecimo';
+            dimensions = '14 × 9 × 2 cm (12° Kapesní aldinka)';
+            folios = '112 ff. : nová kurzíva / italika';
+            weightKg = 0.22;
+            binding = 'Měkký pergamenný obal s koženými tkanicemi';
+            placeOfOrigin = 'Benátky : In aedibus Aldi Manutii';
+            headingAuthor = 'Manutius, Aldus, 1449–1515';
+            headingTitle = 'Opera classica in forma enchiridii / impressa manu Aldina';
+            incipit = 'Festina lente. Lectori salutem dicit Aldus...';
+        } else if (id === 'book_voynich' || id === 'book_voynichuv_rukopis') {
+            formatKey = 'duodecimo';
+            dimensions = '15 × 11 × 4 cm (Kapesní kodex nerozluštitelný)';
+            folios = '102 ff. pergamenových : neznámé písmo a rostliny';
+            weightKg = 0.38;
+            binding = 'Prostý starý pergamen bez nápisů';
+            placeOfOrigin = 'Neznámé skriptorium (Střední Evropa)';
+            headingAuthor = 'Ignotus Auctor (Neznámý tvůrce)';
+            headingTitle = 'Codex Voynich : Cypher Manuscript of botanical and cosmological tables';
+            incipit = 'Fachys ykal ar ataiin shol shory cthegos...';
+        } else if (id === 'book_michna_loutna' || id === 'book_kristan_mor' || id === 'book_klaudyan' || id === 'book_faust_secret') {
+            formatKey = 'duodecimo';
+            dimensions = '13 × 9 × 1.8 cm (12° Duodecimo)';
+            folios = '64 ff. : notový záznam a modlitby';
+            weightKg = 0.18;
+            binding = 'Papírová lepenka potažená brokátem';
+            placeOfOrigin = 'Praha / Jindřichův Hradec';
+            headingAuthor = book.author || 'Michna z Otradovic, Adam, ca 1600–1676';
+            headingTitle = `${book.title} : Písně a modlitby`;
+            incipit = 'Předmluva k pobožnému čtenáři a hudebníku...';
+        } else {
+            // Výchozí zařazení dle kategorie
+            if (book.category === 'history' || book.category === 'viticis') {
+                formatKey = 'quarto';
+                dimensions = '28 × 19 × 3.8 cm (4° Quarto)';
+                folios = '196 ff.';
+                weightKg = 1.9;
+            } else if (book.category === 'technical' || book.category === 'conflict') {
+                formatKey = 'quarto';
+                dimensions = '27 × 18 × 3.2 cm (4° Quarto)';
+                folios = '162 ff.';
+                weightKg = 1.6;
+            } else {
+                formatKey = 'octavo';
+                dimensions = '20 × 13 × 2.8 cm (8° Octavo)';
+                folios = '124 ff.';
+                weightKg = 0.75;
+            }
+        }
+
+        const fmt = this.formats[formatKey] || this.formats['octavo'];
+
+        // Deterministická signatura (Markova signatura)
+        const catIdx = this.books.filter(b => b.category === book.category).findIndex(b => b.id === book.id) + 1;
+        const fmtCode = fmt.code.replace('°', '');
+        const catShort = (book.category || 'gen').substring(0, 4).toUpperCase();
+        const callNumber = `${fmt.id.substring(0, 3).toUpperCase()}-${catShort}-${String(catIdx).padStart(2, '0')}`;
+
+        // Secundo folio
+        const paras = (book.content || '').split('\n\n').map(p => p.trim()).filter(Boolean);
+        let secundoFolio = '';
+        if (paras.length > 1) {
+            const clean = paras[1].replace(/\*\*/g, '').replace(/^[^\wÀ-ž]+/, '');
+            const words = clean.split(/\s+/).slice(0, 6).join(' ');
+            secundoFolio = words + '…';
+        } else if (paras.length > 0) {
+            secundoFolio = paras[0].split(/\s+/).slice(0, 5).join(' ') + '…';
+        }
+
+        return {
+            bookId: book.id,
+            title: book.title,
+            author: book.author || 'Anonymus',
+            category: book.category,
+            year: book.year,
+            formatKey: formatKey,
+            format: fmt,
+            callNumber: callNumber,
+            signatureBartolomej: String(((typeof UI !== 'undefined' && UI.BARTOLOMEJ_TRIDA) ? UI.BARTOLOMEJ_TRIDA[book.category] : 100) + catIdx),
+            dimensions: dimensions,
+            folios: folios,
+            weightKg: weightKg,
+            binding: binding,
+            placeOfOrigin: placeOfOrigin,
+            secundoFolio: secundoFolio,
+            incipit: incipit,
+            // Markova struktura
+            marc: {
+                tag084: callNumber,
+                fieldAuthor: headingAuthor,
+                fieldTitle: `${headingTitle} / ${book.author || 'anonymus'}`,
+                fieldOrigin: `${placeOfOrigin}, ${book.year || 'Anno Domini 1465'}`,
+                fieldPhysical: `${folios} ; ${dimensions}`,
+                fieldNote: `Vazba: ${binding}. Provenience: Knihovna kláštera v Olomouci. Secundo folio: "${secundoFolio}"`,
+                fieldSubject: `Kategorie: ${(this.categories[book.category] && this.categories[book.category].name) || book.category} | Středověké rukopisy a prvotisky`
+            }
+        };
     }
 };
 
