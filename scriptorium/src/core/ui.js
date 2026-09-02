@@ -4660,7 +4660,7 @@ UI.openCatalogModal = function (bookId, defaultTab) {
                     </div>
 
                     <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #8b6f3c;padding-top:10px;font-size:0.8rem;color:#554020;">
-                        <div>Regálové uložení: <strong>${record ? (LibraryDB.shelves[record.shelfId]?.name || record.shelfId) : catData.format.shelfName}</strong></div>
+                        <div>Regálové uložení: <strong>${record && record.shelfId ? (LibraryDB.shelves[record.shelfId]?.name || record.shelfId) : (record ? '⚠️ nezaloženo (plná police)' : catData.format.shelfName)}</strong></div>
                         <div style="border:2px solid #8b2b2b;color:#8b2b2b;padding:2px 8px;border-radius:3px;font-weight:bold;transform:rotate(-2deg);">
                             ${isCatalogued ? '✓ VERIFICATUM 1465' : 'NEZAEVIDOVÁNO'}
                         </div>
@@ -4824,7 +4824,7 @@ UI.switchCatalogModalTab = function (bookId, tab) {
                     <strong>Secundo Folio:</strong> <em>"${catData.secundoFolio}"</em>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #8b6f3c;padding-top:10px;font-size:0.8rem;color:#554020;">
-                    <div>Regálové uložení: <strong>${record ? (LibraryDB.shelves[record.shelfId]?.name || record.shelfId) : catData.format.shelfName}</strong></div>
+                    <div>Regálové uložení: <strong>${record && record.shelfId ? (LibraryDB.shelves[record.shelfId]?.name || record.shelfId) : (record ? '⚠️ nezaloženo (plná police)' : catData.format.shelfName)}</strong></div>
                     <div style="border:2px solid #8b2b2b;color:#8b2b2b;padding:2px 8px;border-radius:3px;font-weight:bold;transform:rotate(-2deg);">
                         ${isCatalogued ? '✓ VERIFICATUM 1465' : 'NEZAEVIDOVÁNO'}
                     </div>
@@ -4892,16 +4892,21 @@ UI.quickShelvePrompt = function (bookId) {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
     const shelves = LibraryDB.shelves;
-    const choices = Object.keys(shelves).map(sKey => ({
-        label: `${shelves[sKey].icon} ${lang === 'en' ? (shelves[sKey].name_en || shelves[sKey].name) : shelves[sKey].name}`,
-        type: 'default',
-        effect: () => {
-            const res = LibraryHelpers.LibraryCatalogSystem.shelveBook(bookId, sKey);
-            UI.notify(res.message);
-            if (document.getElementById('catalog-detail-modal')) document.getElementById('catalog-detail-modal').remove();
-            UI.renderCatalogTab();
-        }
-    }));
+    const shelfState = GameState.library.shelves || {};
+    const choices = Object.keys(shelves).map(sKey => {
+        const occ = (shelfState[sKey] || []).length;
+        const cap = LibraryHelpers.LibraryCatalogSystem.getShelfCapacity(sKey);
+        return {
+            label: `${shelves[sKey].icon} ${lang === 'en' ? (shelves[sKey].name_en || shelves[sKey].name) : shelves[sKey].name} (${occ}/${cap})`,
+            type: 'default',
+            effect: () => {
+                const res = LibraryHelpers.LibraryCatalogSystem.shelveBook(bookId, sKey);
+                UI.notify(res.message, !res.success);
+                if (res.success && document.getElementById('catalog-detail-modal')) document.getElementById('catalog-detail-modal').remove();
+                UI.renderCatalogTab();
+            }
+        };
+    });
 
     NotificationSystem.modal({
         icon: '🗄️',
@@ -5212,6 +5217,8 @@ UI.renderCatalogTab = function () {
         const booksInShelf = bookIdsInShelf.map(id => LibraryDB.books.find(b => b.id === id)).filter(Boolean);
         const spineColors = { folio: '#78350f', quarto: '#9a3412', octavo: '#1e3a8a', duodecimo: '#065f46' };
         const spineHeights = { folio: 52, quarto: 42, octavo: 34, duodecimo: 26 };
+        const effCapacity = LibraryHelpers.LibraryCatalogSystem.getShelfCapacity(sKey);
+        const ownedUnits = GameState.inventory['shelf_' + sKey] || 0;
         return `<div style="padding:10px;background:#1c140e;border:1px solid #4a3627;border-radius:6px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
                         <div style="display:flex;align-items:center;gap:8px;">
@@ -5221,7 +5228,10 @@ UI.renderCatalogTab = function () {
                                 <span style="font-size:0.7rem;opacity:0.65;margin-left:6px;">(${shelf.format.toUpperCase()} • ${shelf.desc})</span>
                             </div>
                         </div>
-                        <span style="font-size:0.7rem;padding:2px 8px;background:#2e2117;border:1px solid #5a4432;border-radius:4px;color:#e0b566;">${lang === 'en' ? 'Occupied' : 'Obsazeno'}: ${booksInShelf.length} / ${shelf.capacity}</span>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:0.7rem;padding:2px 8px;background:#2e2117;border:1px solid #5a4432;border-radius:4px;color:#e0b566;">${lang === 'en' ? 'Occupied' : 'Obsazeno'}: ${booksInShelf.length} / ${effCapacity}</span>
+                            ${ownedUnits > 0 ? `<button class="craft-btn" style="font-size:0.68rem;padding:3px 7px;min-width:auto;" onclick="LibraryHelpers.LibraryCatalogSystem.installShelfUnit('${sKey}');UI.renderCatalogTab();">${lang === 'en' ? 'Install' : 'Instalovat'} (${ownedUnits}×)</button>` : ''}
+                        </div>
                     </div>
                     <div style="display:flex;align-items:flex-end;gap:6px;min-height:60px;padding:8px;background:#120c08;border-top:2px solid #3d2b1f;border-radius:4px;overflow-x:auto;">
                         ${booksInShelf.length === 0

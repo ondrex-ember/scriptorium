@@ -2515,7 +2515,12 @@ Open it in the Reading Room and walk, leaf by leaf, through the real history of 
             name_en: 'Lower Heavy Pluteus',
             format: 'folio',
             icon: '🏛️',
-            capacity: 12,
+            // katalogizace-regaly-mrd (2.9.2026) — základ zmenšen (bylo 12),
+            // vynucuje se teď skutečně (shelveBook). Kalibrováno na reálné
+            // rozložení formátů (~67 knih: 5 folio, 5 quarto, 3 duodecimo,
+            // zbytek defaultně octavo) — folio/quarto/duodecimo stačí malý
+            // základ, octavo (pluteus_superior) potřebuje víc.
+            capacity: 3,
             desc: 'Masivní dubové desky ukotvené v podlaze se železnými tyčemi pro připoutání foliantů (libri catenati).'
         },
         'pluteus_medius': {
@@ -2524,7 +2529,7 @@ Open it in the Reading Room and walk, leaf by leaf, through the real history of 
             name_en: 'Middle Stacks',
             format: 'quarto',
             icon: '📚',
-            capacity: 20,
+            capacity: 3,
             desc: 'Střední řada polic ve výšce očí pro čtvrtkové kodexy, kroniky a ilustrované přírodovědné spisy.'
         },
         'pluteus_superior': {
@@ -2533,7 +2538,7 @@ Open it in the Reading Room and walk, leaf by leaf, through the real history of 
             name_en: 'Upper Light Shelves',
             format: 'octavo',
             icon: '📖',
-            capacity: 35,
+            capacity: 15,
             desc: 'Vyvýšené police pro osmerky, řehole a teologické komentáře. Přístupné z dřevěných knihovních schůdků.'
         },
         'scrinium_parvum': {
@@ -2542,7 +2547,7 @@ Open it in the Reading Room and walk, leaf by leaf, through the real history of 
             name_en: 'Pocket Drawer / Scrinium',
             format: 'duodecimo',
             icon: '🗄️',
-            capacity: 25,
+            capacity: 3,
             desc: 'Uzamykatelná zásuvka s plstěným polstrováním pro kapesní modlitební knížky a vzácná vademeca.'
         }
     },

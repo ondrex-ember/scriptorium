@@ -644,6 +644,14 @@ const CellariumSystem = {
       { itemId: 'seed_mulberry', basePrice: 12, dailyStock: 2 },
       { itemId: 'seed_quince', basePrice: 10, dailyStock: 2 },
       { itemId: 'truhla_ii', basePrice: 1700, dailyStock: 1 },
+      // katalogizace-regaly-mrd (2.9.2026) — dostupné na trhu bez ohledu na
+      // vztah (Bouvard: "nejdřív by to mělo být dostupné na trhu"), plochá
+      // cena, jen běžné denní tržní kolísání. Truhlář (Clientela) nabízí
+      // stejné kusy se slevou dle vztahu, viz contacts.js + contactBuyDiscountMult.
+      { itemId: 'shelf_pluteus_inferior', basePrice: 30, dailyStock: 2, req_tech: 'tech_marc' },
+      { itemId: 'shelf_pluteus_medius', basePrice: 30, dailyStock: 2, req_tech: 'tech_marc' },
+      { itemId: 'shelf_pluteus_superior', basePrice: 30, dailyStock: 2, req_tech: 'tech_marc' },
+      { itemId: 'shelf_scrinium_parvum', basePrice: 30, dailyStock: 2, req_tech: 'tech_marc' },
       { itemId: 'seed_sorb', basePrice: 18, dailyStock: 2 },
       { itemId: 'seed_rowan', basePrice: 8, dailyStock: 3 },
       { itemId: 'seed_linden', basePrice: 14, dailyStock: 2 },

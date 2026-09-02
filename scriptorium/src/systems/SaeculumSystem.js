@@ -1277,10 +1277,11 @@ const SaeculumSystem = {
   },
 
   // M1: nákup OD kontaktu (buyOffer) — sleva s rostoucím vztahem, strop 65 %
-  // při vztahu 100 (mlynar-vlastni-mlyn-mrd.md Fáze 1, 7.8.2026). Jen 'mlynar'
-  // teď — obecný mechanismus pro ostatní kontakty až bude druhý případ.
+  // při vztahu 100 (mlynar-vlastni-mlyn-mrd.md Fáze 1, 7.8.2026). Rozšířeno
+  // o 'truhlar' (katalogizace-regaly-mrd, 2.9.2026) — druhý případ, co
+  // komentář níž předjímal, stejná formule/strop, ne nová logika.
   contactBuyDiscountMult: function (contactId) {
-    if (contactId !== 'mlynar') return 1.0;
+    if (contactId !== 'mlynar' && contactId !== 'truhlar') return 1.0;
     const r = Math.min(100, (GameState.contactRelation || {})[contactId] || 0);
     return 1.0 - Math.min(0.65, (r / 100) * 0.65);
   },

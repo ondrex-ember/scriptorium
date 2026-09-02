@@ -398,5 +398,26 @@ const ContactsDB = {
         },
         desc: 'Univerzitní dealer knih a psacích potřeb. V Olomouci jen po jarním a podzimním knižním veletrhu.',
         desc_en: 'A university dealer in books and writing supplies. In Olomouc only after the spring and autumn book fairs.'
+    },
+    // katalogizace-regaly-mrd (2.9.2026) — Fáze 2b. Stejné 4 kusy jako trh
+    // (ENTITY_SHOP.market), ale se slevou dle vztahu (contactBuyDiscountMult
+    // v SaeculumSystem.js — mirror mlynar, ne nová cenová logika). Cena
+    // uvedená tady je ZÁKLAD před slevou, stejná jako na trhu — sleva se
+    // aplikuje až při nákupu, ne tady natvrdo.
+    truhlar: {
+        id: 'truhlar', name: 'Truhlář', name_en: 'The Cabinetmaker', icon: '🪑',
+        primaryAxis: 'guilds',
+        secondaryAxis: null,
+        unlockTech: 'tech_marc',
+        buyOffer: {
+            items: {
+                shelf_pluteus_inferior: { price: 30, stock: 2 },
+                shelf_pluteus_medius: { price: 30, stock: 2 },
+                shelf_pluteus_superior: { price: 30, stock: 2 },
+                shelf_scrinium_parvum: { price: 30, stock: 2 },
+            }
+        },
+        desc: 'Vyučil se u Truhlářského cechu, dřevo zná lépe než vlastní ruce. Zpočátku cizí, ale kdo se s ním sblíží, ušetří.',
+        desc_en: "Trained in the Cabinetmakers' Guild, knows wood better than his own hands. A stranger at first, but those who grow close to him save."
     }
 };

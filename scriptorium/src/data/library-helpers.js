@@ -1731,6 +1731,39 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
                     scrinium_parvum: [],
                 };
             }
+            if (!GameState.library.shelfUnits) {
+                GameState.library.shelfUnits = { pluteus_inferior: 0, pluteus_medius: 0, pluteus_superior: 0, scrinium_parvum: 0 };
+            }
+        },
+
+        // Efektivní kapacita = základ z LibraryDB (skromný, jen pár kusů) +
+        // 5 za každý nainstalovaný kus koupeného/postaveného nábytku.
+        // katalogizace-regaly-mrd (2.9.2026).
+        SHELF_UNIT_CAPACITY: 5,
+        getShelfCapacity: function (shelfId) {
+            this.init();
+            const base = (LibraryDB.shelves && LibraryDB.shelves[shelfId]) ? LibraryDB.shelves[shelfId].capacity : 0;
+            const units = (GameState.library.shelfUnits && GameState.library.shelfUnits[shelfId]) || 0;
+            return base + units * this.SHELF_UNIT_CAPACITY;
+        },
+
+        // Instalace koupeného kusu nábytku (item shelf_<shelfId> v inventáři)
+        // — spotřebuje 1 kus, natrvalo zvýší kapacitu dané police o
+        // SHELF_UNIT_CAPACITY. Žádný tech gate navíc — item samotný je
+        // dostupný jen s tech_marc (req_tech na trhu / unlockTech u Truhláře).
+        installShelfUnit: function (shelfId) {
+            this.init();
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            const itemId = 'shelf_' + shelfId;
+            if ((GameState.inventory[itemId] || 0) < 1) {
+                UI.notify(lang === 'en' ? 'You have no such furniture to install.' : 'Nemáš takový kus nábytku k instalaci.', true);
+                return;
+            }
+            Game.removeItem(itemId, 1);
+            GameState.library.shelfUnits[shelfId] = (GameState.library.shelfUnits[shelfId] || 0) + 1;
+            Game.save();
+            const shelfName = (LibraryDB.shelves && LibraryDB.shelves[shelfId]) ? (lang === 'en' ? (LibraryDB.shelves[shelfId].name_en || LibraryDB.shelves[shelfId].name) : LibraryDB.shelves[shelfId].name) : shelfId;
+            UI.notify(lang === 'en' ? `🔨 Installed: ${shelfName} (+${this.SHELF_UNIT_CAPACITY} capacity).` : `🔨 Nainstalováno: ${shelfName} (+${this.SHELF_UNIT_CAPACITY} kapacity).`);
         },
 
         getRanks: function () {
@@ -1778,7 +1811,21 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
             Object.keys(shelves).forEach(sKey => {
                 if (Array.isArray(shelves[sKey])) shelves[sKey] = shelves[sKey].filter(id => id !== bookId);
             });
+
+            // Kapacita — katalogizace-regaly-mrd (2.9.2026). Základ z
+            // LibraryDB.shelves[].capacity + 5 za každý nainstalovaný kus
+            // nábytku (getShelfCapacity). Dřív se nikde nevynucovalo, jen
+            // zobrazovalo — teď skutečná mez, ať má nákup regálů smysl.
             if (!shelves[targetShelfId]) shelves[targetShelfId] = [];
+            const cap = this.getShelfCapacity(targetShelfId);
+            if (shelves[targetShelfId].length >= cap) {
+                return {
+                    success: false,
+                    message: lang === 'en'
+                        ? `⚠️ The shelf is full (${cap}/${cap}) — buy more furniture from the market or the Cabinetmaker.`
+                        : `⚠️ Police je plná (${cap}/${cap}) — přikup nábytek na trhu nebo u Truhláře.`,
+                };
+            }
             shelves[targetShelfId].push(bookId);
 
             if (GameState.library.cataloguedBooks && GameState.library.cataloguedBooks[bookId]) {
@@ -1871,7 +1918,11 @@ Teď víš, chlapče, proč mě tvůj lis tolik bolí. Nejde o řemeslo. Jde o s
             };
             GameState.library.cataloguedBooks[bookId] = record;
             GameState.library.catalogExp = (GameState.library.catalogExp || 0) + expEarned;
-            this.shelveBook(bookId, chosenShelfId);
+            const shelfResult = this.shelveBook(bookId, chosenShelfId);
+            if (!shelfResult.success) {
+                details.push(shelfResult.message);
+                record.shelfId = null;
+            }
 
             if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('research', researchReward);
             if (groshenReward > 0 && typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
