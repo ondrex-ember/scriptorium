@@ -5174,6 +5174,14 @@ UI.renderCatalogTab = function () {
     const shelfState = GameState.library.shelves || {};
     const uncataloguedList = unlockedBooks.filter(b => !cataloguedBooks.includes(b.id));
 
+    // Nezaložené (orphan) svazky — zkatalogizované, ale bez shelfId (police
+    // byla plná v okamžiku zkoušky, viz TODO(D2)-styl edge case, 2.9.2026,
+    // nahlásil Bouvard: "6/46 katalogizováno, na policích jen 5"). Dřív
+    // v dashboardu neviditelné — čekací seznam je vyfiltruje (jsou
+    // zkatalogizované), v žádné polici nejsou. Teď vlastní sekce.
+    const shelvedIds = new Set(Object.values(shelfState).flat());
+    const orphanList = unlockedBooks.filter(b => cataloguedBooks.includes(b.id) && !shelvedIds.has(b.id));
+
     let html = '';
 
     // Hlavička — hodnost Armaria a stav fondu
@@ -5218,6 +5226,22 @@ UI.renderCatalogTab = function () {
     } else {
         html += `<div style="margin-bottom:16px;padding:10px 14px;background:rgba(90,154,90,0.1);border:1px solid #5a9a5a;border-radius:6px;font-size:0.78rem;">
             ✓ ${lang === 'en' ? 'Every available book in the fond is properly catalogued and given a shelfmark!' : 'Všechny dostupné knihy ve fondu jsou řádně zkatalogizovány a opatřeny signaturami!'}
+        </div>`;
+    }
+
+    // Nezaložené svazky — mirror sekce výš, ale pro knihy, co zkoušku
+    // zvládly, jenže cílová police byla plná (2.9.2026, viz komentář u
+    // orphanList). Tlačítko rovnou otevře quickShelvePrompt, ne znovu
+    // zkoušku.
+    if (orphanList.length > 0) {
+        html += `<div style="margin-bottom:16px;padding:14px 16px;background:rgba(180,83,9,0.1);border:2px solid #b45309;border-radius:8px;">
+            <div style="font-weight:bold;font-size:0.85rem;margin-bottom:10px;">⚠️ ${lang === 'en' ? `Catalogued but unshelved (${orphanList.length}) — the target shelf was full` : `Zkatalogizováno, ale nezaloženo (${orphanList.length}) — cílová police byla plná`}</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                ${orphanList.map(b => `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;background:rgba(255,255,255,0.06);border-radius:5px;">
+                    <div style="font-weight:bold;font-size:0.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.title}</div>
+                    <button class="craft-btn" style="font-size:0.72rem;padding:5px 10px;min-width:auto;background:#b45309;color:#fff;" onclick="UI.quickShelvePrompt('${b.id}')">🗄️ ${lang === 'en' ? 'Shelve' : 'Založit'}</button>
+                </div>`).join('')}
+            </div>
         </div>`;
     }
 
