@@ -2601,6 +2601,11 @@ const UI = {
             { id: 'flag_athanor', trigger: 'flag', icon: '⚗️', sender: 'unknown', condition: () => GameState.secrets && GameState.secrets.laboratoryUnlocked },
             { id: 'flag_athanor_nigredo', trigger: 'flag', icon: '🔥', sender: 'medicus', condition: () => GameState.athanor && (GameState.athanor.discovered || []).length > 0 },
             { id: 'flag_prima_cervisia', trigger: 'flag', icon: '🍺', sender: 'cellar', condition: () => (GameState.inventory['prima_cervisia'] || 0) > 0 || (GameState.craftedItems && GameState.craftedItems['prima_cervisia'] > 0) },
+            { id: 'flag_confectio', trigger: 'flag', icon: '🍯', sender: 'cellar', condition: () => {
+                if (!GameState.athanor || !GameState.athanor.discovered) return false;
+                const ids = ['berries+honey:coctio','apple+honey:coctio','honey+quince:coctio','honey+plum:coctio','cornel_cherry+honey:coctio','honey+wild_fruit:coctio','honey+quince+skorice:coctio'];
+                return ids.some(id => GameState.athanor.discovered.includes(id));
+            } },
 
             // Flag zprávy — Dvůr
             { id: 'flag_henhouse', trigger: 'flag', icon: '🐔', sender: 'porter', condition: () => GameState.henhouse && GameState.henhouse.built },
