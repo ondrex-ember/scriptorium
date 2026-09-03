@@ -26,7 +26,7 @@ const SokobanGame = {
             "subtitle": "Quiet cloister study table",
             "desc": "U krbu ve Foculu dohasínají polena. Bratr Bernard vám svěřil první dva manuskripty: Liber Herbalis a De Sphaera. Uložte je na osvětlené pulty.",
             "desc_en": "Brother Bernard left rare manuscripts scattered across the study tables. Guide each tome to its designated illuminated lectern.",
-            "parMoves": 14,
+            "parMoves": 17,
             "grid": [
                 [
                     "wall",
@@ -140,7 +140,7 @@ const SokobanGame = {
             "subtitle": "The grand archive hall of cloister scrolls",
             "desc": "Studený vzduch se mísí s vůní starého pergamenu. V této klenuté komnatě spočívají Hortus Sanitatis, Kosmova kronika a Biblia Sacra.",
             "desc_en": "Dust motes float in the candlelight. Three invaluable master treatises must be restored to the oak alcoves without blocking passages.",
-            "parMoves": 26,
+            "parMoves": 47,
             "grid": [
                 [
                     "wall",
@@ -478,7 +478,7 @@ const SokobanGame = {
             "subtitle": "RPG Mechanics Awakened: The Demon of Scribal Errors",
             "desc": "V Kapitulní síni se ozývá cinkání kopyt a šustění pergamenu. Skřet Titivillus sbírá vynechaná slova mnichů. Roztřiďte svazky dříve, než vám ukradne písmena!",
             "desc_en": "The scribe demon Titivillus lurks in the Chapter Hall, collecting dropped syllables and slips of the pen. Restore order!",
-            "parMoves": 28,
+            "parMoves": 30,
             "grid": [
                 [
                     "wall",
@@ -513,7 +513,7 @@ const SokobanGame = {
                 [
                     "wall",
                     "floor",
-                    "wall",
+                    "floor",
                     "floor",
                     "wall",
                     "floor",
@@ -833,7 +833,7 @@ const SokobanGame = {
                     "floor",
                     "floor",
                     "floor",
-                    "wall",
+                    "floor",
                     "floor",
                     "wall"
                 ],
@@ -1132,7 +1132,7 @@ const SokobanGame = {
             "subtitle": "The Spectral Black Dog: Faithful Guardian of Hallowed Soil",
             "desc": "Kostelní grim (věrný strážný pes) střeží hřbitovní bránu a posvátný první hrob. Uctěte legendy a životy svatých otců.",
             "desc_en": "The Church Grim keeps vigil by the ancient cemetery. Lay the Martyrologies and Golden Legend upon the blessed shrines.",
-            "parMoves": 42,
+            "parMoves": 46,
             "grid": [
                 [
                     "wall",
@@ -1314,7 +1314,7 @@ const SokobanGame = {
             "subtitle": "The Restless Dead: Shambling Horrors of Neglected Tombs",
             "desc": "Dva nemrtví kráčejí chodbami starobylých katakomb. Pečlivě se vyhněte stínům a navraťte spisy o věčném životě na oltáře.",
             "desc_en": "Shambling revenants wander through the forgotten ossuary. Safely navigate the codices of resurrection to holy ground.",
-            "parMoves": 46,
+            "parMoves": 52,
             "grid": [
                 [
                     "wall",
@@ -1349,8 +1349,8 @@ const SokobanGame = {
                 [
                     "wall",
                     "floor",
-                    "wall",
-                    "wall",
+                    "floor",
+                    "floor",
                     "floor",
                     "wall",
                     "floor",
