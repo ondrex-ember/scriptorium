@@ -90,7 +90,6 @@ const JS_MAIN = [
     'src/systems/SecretsSystem.js',
     'src/systems/TutorialSystem.js',
     'src/systems/athanor.js',
-    'src/systems/GamesSystem.js',
 
     // Mini-hry
     'src/games/memory.js',

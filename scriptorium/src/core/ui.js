@@ -2601,11 +2601,13 @@ const UI = {
             { id: 'flag_athanor', trigger: 'flag', icon: '⚗️', sender: 'unknown', condition: () => GameState.secrets && GameState.secrets.laboratoryUnlocked },
             { id: 'flag_athanor_nigredo', trigger: 'flag', icon: '🔥', sender: 'medicus', condition: () => GameState.athanor && (GameState.athanor.discovered || []).length > 0 },
             { id: 'flag_prima_cervisia', trigger: 'flag', icon: '🍺', sender: 'cellar', condition: () => (GameState.inventory['prima_cervisia'] || 0) > 0 || (GameState.craftedItems && GameState.craftedItems['prima_cervisia'] > 0) },
-            { id: 'flag_confectio', trigger: 'flag', icon: '🍯', sender: 'cellar', condition: () => {
-                if (!GameState.athanor || !GameState.athanor.discovered) return false;
-                const ids = ['berries+honey:coctio','apple+honey:coctio','honey+quince:coctio','honey+plum:coctio','cornel_cherry+honey:coctio','honey+wild_fruit:coctio','honey+quince+skorice:coctio'];
-                return ids.some(id => GameState.athanor.discovered.includes(id));
-            } },
+            {
+                id: 'flag_confectio', trigger: 'flag', icon: '🍯', sender: 'cellar', condition: () => {
+                    if (!GameState.athanor || !GameState.athanor.discovered) return false;
+                    const ids = ['berries+honey:coctio', 'apple+honey:coctio', 'honey+quince:coctio', 'honey+plum:coctio', 'cornel_cherry+honey:coctio', 'honey+wild_fruit:coctio', 'honey+quince+skorice:coctio'];
+                    return ids.some(id => GameState.athanor.discovered.includes(id));
+                }
+            },
 
             // Flag zprávy — Dvůr
             { id: 'flag_henhouse', trigger: 'flag', icon: '🐔', sender: 'porter', condition: () => GameState.henhouse && GameState.henhouse.built },
@@ -3932,6 +3934,25 @@ const UI = {
         }
         h += `</div>`;
 
+        // Sokoban — Knihovní uspořádání (Ars Bibliothecae)
+        const hasSokobanScroll = GameState.inventory['sokoban_scroll'] > 0;
+        const hasSokobanTech = GameState.researchedTechs.includes('tech_sokoban');
+        h += `<div class="game-card ${hasSokobanTech ? '' : 'locked'}">`;
+        if (!hasSokobanTech) h += `<span class="game-lock-badge">🔒</span>`;
+        h += `<span class="game-icon">📚</span>`;
+        h += `<div class="game-title">${t('games.sokobanName')}</div>`;
+        h += `<div class="game-desc">${t('games.sokobanDesc')}</div>`;
+        if (!hasSokobanTech) {
+            h += `<div class="game-unlock-text">${t('games.sokobanTech')}</div>`;
+        } else if (!hasSokobanScroll) {
+            h += `<div class="game-unlock-text">${t('games.sokobanCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="SokobanGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+        } else {
+            h += `<button class="craft-btn" onclick="SokobanGame.start()">${t('games.btnPlay')}</button>`;
+            h += `<button class="craft-btn" onclick="SokobanGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+        }
+        h += `</div>`;
+
         // Hnefatafl
         const hasHnefatafl = GameState.inventory['hnefatafl_board'] > 0;
         const hasHnefataflTech = GameState.researchedTechs.includes('tech_hnefatafl');
@@ -3966,6 +3987,7 @@ const UI = {
         if (hasSenet && SenetGame.gameActive) SenetGame.render();
         if (hasBackgammon && BackgammonGame.gameActive) BackgammonGame.render();
         if (hasDraughts && DraughtsGame.gameActive) DraughtsGame.render();
+        if (hasSokobanScroll && SokobanGame.gameActive) SokobanGame.render();
         if (hasHnefatafl && HnefataflGame.gameActive) HnefataflGame.render();
     },
 
@@ -5013,11 +5035,11 @@ UI.openCataloguingExam = function (bookId) {
                     <select id="exam-shelf" style="width:100%;background:#1c140e;color:#fff;border:1px solid #8b6f3c;padding:8px;border-radius:4px;font-size:0.9rem;" required>
                         <option value="">-- Vyberte polici nebo skříňku --</option>
                         ${shelfKeys.map(k => {
-                            const occ = (shelfStateForExam[k] || []).length;
-                            const cap = LibraryHelpers.LibraryCatalogSystem.getShelfCapacity(k);
-                            const full = occ >= cap;
-                            return `<option value="${k}" ${full ? 'disabled' : ''}>${shelves[k].icon} ${shelves[k].name} (${occ}/${cap}${full ? ' — plná' : ''})</option>`;
-                        }).join('')}
+        const occ = (shelfStateForExam[k] || []).length;
+        const cap = LibraryHelpers.LibraryCatalogSystem.getShelfCapacity(k);
+        const full = occ >= cap;
+        return `<option value="${k}" ${full ? 'disabled' : ''}>${shelves[k].icon} ${shelves[k].name} (${occ}/${cap}${full ? ' — plná' : ''})</option>`;
+    }).join('')}
                     </select>
                 </div>
 
