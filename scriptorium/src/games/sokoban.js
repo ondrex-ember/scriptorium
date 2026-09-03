@@ -950,7 +950,7 @@ const SokobanGame = {
             "subtitle": "Lord of the Flies: Decay, Flies and Pestilence",
             "desc": "Belzebub krouží se svým rojem much po starých sklepních skladech. Manuskripty o alchymii a pohřbívání musí být uloženy do bezpečí.",
             "desc_en": "Beelzebub and his swarm descend upon the cellar archives. Purify the vault with ancient alchemical treatises.",
-            "parMoves": 40,
+            "parMoves": 44,
             "grid": [
                 [
                     "wall",
@@ -990,7 +990,7 @@ const SokobanGame = {
                     "floor",
                     "floor",
                     "floor",
-                    "wall",
+                    "floor",
                     "floor",
                     "floor",
                     "floor",
