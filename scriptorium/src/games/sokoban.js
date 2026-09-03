@@ -2169,9 +2169,9 @@ const SokobanGame = {
             </div>
         `;
 
-        // Hrací deska
+        // Hrací deska + D-Pad — responzivní (PC: vedle sebe, mobil: pod sebou)
+        h += `<div class="sokoban-playarea">`;
         h += `
-            <div style="display:flex; justify-content:center; margin: 4px 0;">
                 <div style="display:inline-grid; grid-template-columns: repeat(${cols}, ${cellSize}px); grid-template-rows: repeat(${rows}, ${cellSize}px); gap: 2px; padding: 8px; background: rgba(0,0,0,0.1); border: 2px solid var(--accent-gold, #c5a059); border-radius: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.2);">
         `;
 
@@ -2226,25 +2226,27 @@ const SokobanGame = {
             }
         }
 
-        h += '</div></div>';
+        h += '</div>'; // konec mřížky
 
-        // Tlačítka ovládání & D-Pad pro mobilní dotyk
+        // Dotykový/klikací D-Pad — PC: vedle desky (větší), mobil: pod deskou
         h += `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:8px;">
-                <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                    <button class="craft-btn" onclick="SokobanGame.undo()" style="background:var(--accent-gold, #c5a059); padding:5px 10px; font-size:0.8rem;">↩️ Zpět (Z)</button>
-                    <button class="craft-btn" onclick="SokobanGame.reset()" style="background:var(--accent-wax, #8b3a2b); padding:5px 10px; font-size:0.8rem;">🔄 Restart (R)</button>
-                    <button class="craft-btn" onclick="SokobanGame.showRules()" style="padding:5px 10px; font-size:0.8rem;">📜 Pravidla</button>
-                </div>
-                <!-- Dotykový D-Pad pro mobily a tablety -->
-                <div style="display:grid; grid-template-columns:repeat(3, 34px); grid-template-rows:repeat(2, 28px); gap:2px;">
-                    <div></div>
-                    <button class="craft-btn" onclick="SokobanGame.move('up')" style="padding:0; line-height:26px; font-size:12px;">▲</button>
-                    <div></div>
-                    <button class="craft-btn" onclick="SokobanGame.move('left')" style="padding:0; line-height:26px; font-size:12px;">◀</button>
-                    <button class="craft-btn" onclick="SokobanGame.move('down')" style="padding:0; line-height:26px; font-size:12px;">▼</button>
-                    <button class="craft-btn" onclick="SokobanGame.move('right')" style="padding:0; line-height:26px; font-size:12px;">▶</button>
-                </div>
+            <div class="sokoban-dpad">
+                <div></div>
+                <button class="craft-btn sokoban-dpad-btn" onclick="SokobanGame.move('up')">▲</button>
+                <div></div>
+                <button class="craft-btn sokoban-dpad-btn" onclick="SokobanGame.move('left')">◀</button>
+                <button class="craft-btn sokoban-dpad-btn" onclick="SokobanGame.move('down')">▼</button>
+                <button class="craft-btn sokoban-dpad-btn" onclick="SokobanGame.move('right')">▶</button>
+            </div>
+        `;
+        h += '</div>'; // konec .sokoban-playarea
+
+        // Tlačítka ovládání — vždy pod hrací plochou i D-Padem
+        h += `
+            <div class="sokoban-actions">
+                <button class="craft-btn" onclick="SokobanGame.undo()" style="background:var(--accent-gold, #c5a059); padding:5px 10px; font-size:0.8rem;">↩️ Zpět (Z)</button>
+                <button class="craft-btn" onclick="SokobanGame.reset()" style="background:var(--accent-wax, #8b3a2b); padding:5px 10px; font-size:0.8rem;">🔄 Restart (R)</button>
+                <button class="craft-btn" onclick="SokobanGame.showRules()" style="padding:5px 10px; font-size:0.8rem;">📜 Pravidla</button>
             </div>
             <div style="font-size:0.72rem; opacity:0.65; margin-top:6px; text-align:center;">
                 Ovládání: Šipky / WASD • Krok zpět: Z • Restart: R • Klášterní kodexy lze pouze TLAČIT!

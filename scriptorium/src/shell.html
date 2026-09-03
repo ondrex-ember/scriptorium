@@ -3062,6 +3062,68 @@
             border-color: #4a3f32;
         }
 
+        /* ============================================
+           SOKOBAN — Aula Ludi responzivní deska + D-Pad
+           ============================================ */
+
+        .sokoban-playarea {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin: 4px 0;
+        }
+
+        .sokoban-dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 48px);
+            grid-template-rows: repeat(2, 48px);
+            gap: 5px;
+            align-self: center;
+        }
+
+        .sokoban-dpad-btn {
+            width: 48px;
+            height: 48px;
+            padding: 0;
+            line-height: 1;
+            font-size: 18px;
+        }
+
+        .sokoban-actions {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 700px) {
+            .sokoban-playarea {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .sokoban-dpad {
+                grid-template-columns: repeat(3, 58px);
+                grid-template-rows: repeat(2, 58px);
+                gap: 6px;
+            }
+
+            .sokoban-dpad-btn {
+                width: 58px;
+                height: 58px;
+                font-size: 22px;
+            }
+
+            #sokoban-modal .game-modal-content {
+                width: 99vw;
+                max-width: 99vw;
+                padding: 12px 10px;
+            }
+        }
+
         /* ═══════════════════════════════════════════════════════
         CANONICAL HOURS BADGE - COMPACT VERSION
         ═══════════════════════════════════════════════════════ */
