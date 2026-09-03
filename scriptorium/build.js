@@ -104,6 +104,7 @@ const JS_MAIN = [
     'src/games/draughts.js',
     'src/games/hnefatafl.js',
     'src/games/TavernDice.js',
+    'src/games/sokoban.js',
 
     // i18n — MUSÍ být před Game a UI
     'src/i18n/cs.js',               // Čeština (master)

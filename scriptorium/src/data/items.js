@@ -300,6 +300,15 @@ const ItemsDB = {
     "karnoffel_deck": { name: "Karnöffel Balíček", name_en: "Karnöffel Deck", icon: "🎴", type: "tool", cat: "tool", desc: "Nejstarší trumfová hra. 1426.", desc_en: "Oldest trump card game. 1426." },
     "french_deck": { name: "Francouzský Balíček", name_en: "French Deck", icon: "🂡", type: "tool", cat: "tool", desc: "52 karet se čtyřmi barvami.", desc_en: "52 cards in four suits." },
     "rithmomachia_board": { name: "Rithmomachia Deska", name_en: "Rithmomachia Board", icon: "🔢", type: "tool", cat: "tool", desc: "Bitva čísel — na univerzitách.", desc_en: "Battle of Numbers — taught at universities." },
+    "sokoban_scroll": {
+        name: "Knihovní plán",
+        name_en: "Library Floor Plan",
+        icon: "📚",
+        type: "tool",
+        cat: "tool",
+        desc: "Plán regálů a čtecích pultů knihovny. Odemkne hru Knihovní uspořádání v Aula Ludi.",
+        desc_en: "Floor plan of shelves and lecterns. Unlocks the Monastic Cataloguing game in Aula Ludi."
+    },
 
     // EASTER EGG
     "netolicky_legacy": { name: "Netolického pozůstalost", name_en: "Netolický's Legacy", icon: "📜", type: "lore", desc: "Starý dokument z tiskárny.", desc_en: "An old document from the print shop." },

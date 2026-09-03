@@ -1827,6 +1827,14 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         memoryDesc: 'Match pairs of discovered items!',
         memoryCraft: 'Craft Playing Cards',
 
+        // Sokoban — Monastic Cataloguing
+        sokobanName: 'Monastic Cataloguing',
+        sokobanDesc: 'Sokoban — shelve sacred codices onto lecterns!',
+        sokobanTech: 'Tech: Monastic Cataloguing (8 Research)',
+        sokobanCraft: 'Craft Library Floor Plan',
+        sokobanNeedScroll: 'Thou needest a Library Floor Plan (sokoban_scroll)!',
+        sokobanWon: 'Library chamber successfully organized!',
+
         // Royal Game of Ur
         urName: 'Royal Game of Ur',
         urDesc: 'The world\'s oldest game (2600 BCE)',

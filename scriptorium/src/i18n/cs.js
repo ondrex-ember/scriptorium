@@ -1032,6 +1032,14 @@ const STRINGS_cs = {
         urPlaySolo: 'Solo 🧩',
         urNeedBoard: 'Nemáš hrací desku Ur!',
 
+        // Sokoban — Knihovní uspořádání
+        sokobanName: 'Knihovní uspořádání',
+        sokobanDesc: 'Sokoban — roztřiď staré kodexy na pulty!',
+        sokobanTech: 'Tech: Knihovní uspořádání (8 Research)',
+        sokobanCraft: 'Vyrobit Knihovní plán',
+        sokobanNeedScroll: 'Nemáš Knihovní plán (sokoban_scroll)!',
+        sokobanWon: 'Komnata knihovny úspěšně roztříděna!',
+
         // Royal Game of Ur - VS AI mode
         urTitleVs: 'Royal Game of Ur',
         urSubtitleVs: 'Hra proti AI',

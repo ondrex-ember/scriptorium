@@ -5,7 +5,7 @@
 
 const GamesSystem = {
 
-    render: function() {
+    render: function () {
         const el = document.getElementById('library-games-content');
         if (!el) return;
 
@@ -185,6 +185,26 @@ const GamesSystem = {
         }
         h += `</div>`;
 
+
+        // Sokoban — Knihovní uspořádání (Ars Bibliothecae)
+        const hasSokobanScroll = GameState.inventory['sokoban_scroll'] > 0;
+        const hasSokobanTech = GameState.researchedTechs.includes('tech_sokoban');
+        h += `<div class="game-card ${hasSokobanTech ? '' : 'locked'}">`;
+        if (!hasSokobanTech) h += `<span class="game-lock-badge">🔒</span>`;
+        h += `<span class="game-icon">📚</span>`;
+        h += `<div class="game-title">${t('games.sokobanName')}</div>`;
+        h += `<div class="game-desc">${t('games.sokobanDesc')}</div>`;
+        if (!hasSokobanTech) {
+            h += `<div class="game-unlock-text">${t('games.sokobanTech')}</div>`;
+        } else if (!hasSokobanScroll) {
+            h += `<div class="game-unlock-text">${t('games.sokobanCraft')}</div>`;
+            h += `<button class="craft-btn" onclick="SokobanGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+        } else {
+            h += `<button class="craft-btn" onclick="SokobanGame.start()">${t('games.btnPlay')}</button>`;
+            h += `<button class="craft-btn" onclick="SokobanGame.showRules()" style="background: var(--accent-gold);">${t('games.btnRules')}</button>`;
+        }
+        h += `</div>`;
+
         // Hnefatafl
         const hasHnefataflBoard = GameState.inventory['hnefatafl_board'] > 0;
         const hasHnefataflTech = GameState.researchedTechs.includes('tech_hnefatafl');
@@ -218,5 +238,6 @@ const GamesSystem = {
         if (hasBackgammonBoard && typeof BackgammonGame !== 'undefined' && BackgammonGame.gameActive) BackgammonGame.render();
         if (hasDraughtsBoard && typeof DraughtsGame !== 'undefined' && DraughtsGame.gameActive) DraughtsGame.render();
         if (hasHnefataflBoard && typeof HnefataflGame !== 'undefined' && HnefataflGame.gameActive) HnefataflGame.render();
+        if (hasSokobanScroll && typeof SokobanGame !== 'undefined' && SokobanGame.gameActive) SokobanGame.render();
     }
 };

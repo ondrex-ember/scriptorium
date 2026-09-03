@@ -96,6 +96,16 @@ const RecipesDB = [
     locked: true,
     desc: "Kniha šedesáti čtyř proměn. Odhaluje skrytý řád vesmíru."
   },
+  {
+    id: "sokoban_scroll",
+    output: "sokoban_scroll",
+    qty: 1,
+    req: { paper: 3, ink: 1, stick: 1 },
+    cat: "lore",
+    locked: true,
+    desc: "Kreslený pergamenový plán knihovních komnat a pultů.",
+    desc_en: "Drawn parchment floor plan of library chambers and lecterns."
+  },
 
   // PŘIDAT na konec pole RecipesDB (před poslední ]):
 
