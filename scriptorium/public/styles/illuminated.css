@@ -1314,3 +1314,217 @@ body.design-iluminovana #lore-research-content .card strong {
         font-size: 0.82rem !important;
     }
 }
+
+/* =====================================================================
+   PHASE 2.4 — TEXTURE + REAL DETAILS
+   ---------------------------------------------------------------------
+   Corrects the remaining gap against the approved target:
+   - visible paper/parchment texture in manuscript areas
+   - image details sink into parchment instead of sitting as hard inserts
+   - flowers are explicitly visible in the active manuscript section
+   - Mourka/cat becomes clearly visible again
+   - keeps illuminated initials introduced earlier
+
+   CSS + 3 decorative assets only.
+   No HTML, JS, state, saves, handlers, mechanics, weather or theme logic.
+   ===================================================================== */
+
+/* Stronger parchment material across the manuscript page. */
+body.design-iluminovana #lore-manuscripts-content {
+    background:
+        linear-gradient(180deg,
+            rgba(255,253,246,0.96),
+            rgba(247,240,224,0.97)) !important;
+}
+
+/* Resource strip */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(1) {
+    background-image:
+        linear-gradient(90deg,
+            rgba(244,230,196,0.58),
+            rgba(255,253,245,0.92) 28%,
+            rgba(255,253,245,0.92) 72%,
+            rgba(244,230,196,0.58)),
+        url("/rooms/parchment-texture.webp") !important;
+    background-size: cover, 320px 320px !important;
+    background-repeat: no-repeat, repeat !important;
+}
+
+/* Dormitorium strip */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(2) {
+    background-image:
+        linear-gradient(90deg,
+            rgba(255,252,241,0.95),
+            rgba(247,238,215,0.86)),
+        url("/rooms/parchment-texture.webp") !important;
+    background-size: cover, 360px 360px !important;
+    background-repeat: no-repeat, repeat !important;
+}
+
+/* Active manuscript card:
+   true parchment texture first, then a transparent flowers/window vignette
+   that dissolves into the paper on the left and below. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3) {
+    position: relative;
+    overflow: hidden !important;
+    background-image:
+        linear-gradient(180deg,
+            rgba(255,252,244,0.97),
+            rgba(248,241,225,0.97)),
+        url("/rooms/parchment-texture.webp") !important;
+    background-size: cover, 320px 320px !important;
+    background-repeat: no-repeat, repeat !important;
+    box-shadow:
+        0 3px 8px rgba(46,29,17,0.08),
+        inset 0 0 18px rgba(144,103,56,0.04) !important;
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    top: 0;
+    right: 0;
+    width: min(42%, 360px);
+    height: 100%;
+    opacity: 0.95;
+    background:
+        url("/rooms/scriptorium-flowers-vignette.webp") right top / contain no-repeat;
+    filter: saturate(0.95);
+}
+
+/* gentle paper mist to let the image melt into the parchment, not cut out */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    inset: 0;
+    background:
+        radial-gradient(circle at 78% 24%,
+            rgba(255,252,244,0.02) 0%,
+            rgba(255,252,244,0.08) 22%,
+            rgba(255,252,244,0.32) 46%,
+            rgba(255,252,244,0.62) 70%,
+            rgba(255,252,244,0.00) 100%),
+        linear-gradient(90deg,
+            rgba(255,252,244,0.96) 0%,
+            rgba(255,252,244,0.94) 45%,
+            rgba(255,252,244,0.54) 78%,
+            rgba(255,252,244,0.14) 100%),
+        linear-gradient(180deg,
+            rgba(255,252,244,0.08) 0%,
+            rgba(255,252,244,0.24) 48%,
+            rgba(255,252,244,0.90) 100%);
+}
+
+/* real content above decorative layers */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3) > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Headline bar calmer, but with visible material */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(4) {
+    position: relative;
+    background:
+        linear-gradient(90deg,
+            rgba(248,241,226,0.82),
+            rgba(255,253,246,0.35) 46%,
+            rgba(248,241,226,0.70) 100%),
+        url("/rooms/parchment-texture.webp") !important;
+    background-size: cover, 340px 340px !important;
+    background-repeat: no-repeat, repeat !important;
+    border-bottom-color: rgba(170,132,71,0.32) !important;
+}
+
+/* Make Mourka actually visible and place her into the codex zone, not as a tiny hint. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(4)::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    right: 6px;
+    top: -8px;
+    width: min(31%, 300px);
+    height: 128px;
+    opacity: 0.92;
+    background: url("/rooms/scriptorium-cat-large-vignette.webp") right center / contain no-repeat !important;
+}
+
+/* Slight extra cat continuation over the empty right side above the grid. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) {
+    position: relative;
+    background:
+        linear-gradient(180deg,
+            rgba(255,253,246,0.06),
+            rgba(255,253,246,0.00)),
+        url("/rooms/parchment-texture.webp") !important;
+    background-size: cover, 360px 360px !important;
+    background-repeat: no-repeat, repeat !important;
+    padding-top: 8px !important;
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5)::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    right: 8px;
+    top: -26px;
+    width: min(30%, 280px);
+    height: 150px;
+    opacity: 0.34;
+    background: url("/rooms/scriptorium-cat-large-vignette.webp") right center / contain no-repeat;
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div {
+    position: relative;
+    z-index: 1;
+    background-image:
+        linear-gradient(135deg,
+            rgba(255,253,245,0.97),
+            rgba(242,231,203,0.86)),
+        url("/rooms/parchment-texture.webp") !important;
+    background-size: cover, 260px 260px !important;
+    background-repeat: no-repeat, repeat !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.36),
+        0 2px 5px rgba(45,28,15,0.08) !important;
+}
+
+/* Research cards share paper texture too, so the style feels materially unified. */
+body.design-iluminovana #lore-research-content .card {
+    background-image:
+        linear-gradient(180deg,
+            rgba(255,253,246,0.97),
+            rgba(244,235,213,0.95)),
+        url("/rooms/parchment-texture.webp") !important;
+    background-size: cover, 260px 260px !important;
+    background-repeat: no-repeat, repeat !important;
+}
+
+/* Mobile: keep details smaller but still visible. */
+@media (max-width: 500px) {
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)::before {
+        width: 46%;
+        height: 135px;
+        opacity: 0.82;
+        background-size: auto 135px;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(4)::before {
+        width: 145px;
+        height: 88px;
+        top: -4px;
+        opacity: 0.60;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(5)::before {
+        width: 132px;
+        height: 90px;
+        top: -10px;
+        opacity: 0.22;
+    }
+}
