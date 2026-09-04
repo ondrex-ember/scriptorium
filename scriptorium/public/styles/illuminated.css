@@ -727,3 +727,274 @@ body.design-iluminovana #lore-manuscripts-content::before {
         opacity: 0.30;
     }
 }
+
+/* =====================================================================
+   PHASE 2.2 — TARGET ALIGNMENT
+   ---------------------------------------------------------------------
+   Brings Opisování closer to the approved mock-up:
+   - NO repeated full-room background in the content
+   - window/flowers as a transparent vignette on the active manuscript
+   - Mourka/books as a separate vignette above the codex grid
+   - illuminated initials on the six fixed manuscript cards
+   - stronger manuscript borders / calmer parchment hierarchy
+
+   CSS + two decorative image assets only.
+   No JS, HTML, state, handlers, timers, mechanics or save logic.
+   ===================================================================== */
+
+/* Remove all broad repeated-room echoes introduced in earlier phases. */
+body.design-iluminovana #lore-manuscripts-content::before {
+    display: none !important;
+    content: none !important;
+}
+
+/* ─── Active manuscript: clean parchment first, vignette second ─── */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3) {
+    overflow: hidden !important;
+    isolation: isolate;
+    background:
+        linear-gradient(180deg,
+            rgba(255,253,245,0.985) 0%,
+            rgba(249,242,224,0.97) 100%) !important;
+    border: 1px solid #aa8447 !important;
+    outline: 1px solid rgba(170,132,71,0.20) !important;
+    outline-offset: -5px !important;
+}
+
+/* Transparent window + flower detail. This is deliberately NOT a full-room
+   image, and its alpha fades into the parchment on the left/bottom. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    top: 0;
+    right: 0;
+    width: min(43%, 430px);
+    height: 100%;
+    background: url("/rooms/scriptorium-window-vignette.webp") right top / cover no-repeat;
+    opacity: 0.62;
+}
+
+/* Real controls stay above the decorative vignette. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3) > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Keep the title/progress text readable over the vignette. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)
+    div[style*="font-size:1.15rem"] {
+    color: #24384b !important;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.72);
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)
+    div[style*="color:#3182ce"] {
+    color: #2e6387 !important;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.65);
+}
+
+/* More manuscript-like empty folios. */
+body.design-iluminovana #lore-manuscripts-content div[title^="Folium"] {
+    border-color: #a98248 !important;
+    background:
+        linear-gradient(135deg, #fffaf0 0%, #eadbb7 100%) !important;
+    box-shadow:
+        inset -2px 0 0 rgba(94,63,28,0.07),
+        0 1px 1px rgba(54,35,18,0.08) !important;
+}
+
+/* ─── Codex heading + Mourka vignette ─────────────────────────── */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(4) {
+    min-height: 60px !important;
+    padding: 11px 310px 10px 34px !important;
+    overflow: visible !important;
+    border-bottom: 1px solid rgba(170,132,71,0.36) !important;
+    background:
+        linear-gradient(to right,
+            rgba(197,160,89,0.035),
+            rgba(255,255,255,0.02)) !important;
+}
+
+/* Override the earlier small cat background implementation. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(4)::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    top: -24px;
+    right: 4px;
+    width: 300px;
+    height: 112px;
+    opacity: 0.82;
+    background:
+        url("/rooms/scriptorium-cat-vignette.webp") right center / contain no-repeat !important;
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(4)::after {
+    content: "❧";
+    position: absolute;
+    z-index: 1;
+    left: 255px;
+    right: auto;
+    bottom: -10px;
+    padding: 0 8px;
+    color: #aa8447;
+    background: var(--bg-parchment);
+    font-size: 1rem;
+}
+
+/* ─── Codex grid / illuminated initial cards ──────────────────── */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) {
+    position: relative;
+    z-index: 1;
+    gap: 12px !important;
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div {
+    min-height: 76px !important;
+    padding: 13px 14px 12px 76px !important;
+    border: 1px solid rgba(170,132,71,0.58) !important;
+    outline: 1px solid rgba(170,132,71,0.10);
+    outline-offset: -4px;
+    border-radius: 2px !important;
+    background:
+        linear-gradient(135deg,
+            rgba(255,253,245,0.96),
+            rgba(243,232,205,0.83)) !important;
+}
+
+/* Replace Phase 2's generic book medallion with illuminated initials.
+   The manuscript DB/order is fixed in the current renderer. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div::before {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border: 2px solid #ae8747;
+    outline: 1px solid #5d3420;
+    outline-offset: -5px;
+    border-radius: 2px;
+    color: #e7c878;
+    font-family: "Cinzel Decorative", "Cinzel", Georgia, serif;
+    font-size: 2.05rem;
+    font-weight: 700;
+    line-height: 1;
+    text-shadow:
+        0 1px 0 #24150d,
+        0 0 3px rgba(234,201,118,0.35);
+    background:
+        radial-gradient(circle at 32% 22%, rgba(37,83,122,0.92), transparent 38%),
+        linear-gradient(135deg, #25496b 0%, #18324d 52%, #7b2e20 100%);
+    box-shadow:
+        inset 0 0 0 3px rgba(214,177,91,0.12),
+        0 2px 4px rgba(44,26,14,0.15);
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:nth-child(1)::before { content: "Z"; }
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:nth-child(2)::before { content: "R"; }
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:nth-child(3)::before { content: "Z"; }
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:nth-child(4)::before { content: "H"; }
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:nth-child(5)::before { content: "H"; }
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:nth-child(6)::before { content: "C"; }
+
+/* Selected codex gets rubric edge and slightly warmer parchment. */
+@supports selector(:has(*)) {
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:has(> span) {
+        border-color: #a57b3e !important;
+        background:
+            linear-gradient(135deg,
+                rgba(245,230,188,0.93),
+                rgba(255,250,233,0.97)) !important;
+        box-shadow:
+            inset 4px 0 0 #8f2f1f,
+            0 2px 6px rgba(45,28,15,0.10) !important;
+    }
+}
+
+/* The original inline 📖 remains textual content. De-emphasize it so the
+   illuminated initial becomes the visual anchor without altering renderer JS. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div
+    > div > div:first-child {
+    color: #24384b !important;
+    font-family: "Cinzel", Georgia, serif !important;
+}
+
+/* Buttons closer to approved target. */
+body.design-iluminovana #lore-manuscripts-content button[onclick="UI.copyFolium(1)"],
+body.design-iluminovana #lore-manuscripts-content button[onclick="UI.copyFolium(5)"] {
+    background:
+        linear-gradient(180deg, #7e3c12 0%, #4f2508 100%) !important;
+    border: 1px solid #b98b3f !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,240,198,0.22),
+        0 2px 5px rgba(50,25,11,0.24) !important;
+}
+
+body.design-iluminovana #lore-manuscripts-content button[onclick="UI.toggleManuscriptAutomation()"] {
+    background:
+        linear-gradient(180deg, #2f6595 0%, #1f4b72 100%) !important;
+    border: 1px solid #9a8048 !important;
+}
+
+/* ─── Responsive alignment ─────────────────────────────────────── */
+@media (max-width: 800px) {
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(4) {
+        padding-right: 210px !important;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(4)::before {
+        width: 205px;
+        height: 88px;
+        top: -14px;
+        opacity: 0.68;
+    }
+}
+
+@media (max-width: 500px) {
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)::after {
+        width: 48%;
+        height: 128px;
+        opacity: 0.34;
+        background-size: auto 128px;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(4) {
+        min-height: 50px !important;
+        padding: 9px 118px 8px 28px !important;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(4)::before {
+        width: 125px;
+        height: 66px;
+        top: -8px;
+        opacity: 0.44;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(4)::after {
+        display: none;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div {
+        min-height: 67px !important;
+        padding: 11px 10px 10px 60px !important;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div::before {
+        left: 9px;
+        width: 40px;
+        height: 48px;
+        font-size: 1.55rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div {
+        transition: none !important;
+    }
+}
