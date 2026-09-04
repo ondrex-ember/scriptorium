@@ -957,7 +957,63 @@ const FarmyardSystem = {
         }
     },
 
-    // Dodatek 27.7.2026 — pasivní organický přírůstek, NEZÁVISLE na
+    // eventy-audit-mrd (04.09.2026) §4.2 Fáze 2 — vlk i pro ŘÁDNĚ USTÁJENÁ
+    // zvířata, ne jen volné stádo (looseHerdDailyTick výš). Záměrně MNOHEM
+    // vzácnější než liška/kuna (1 %, ne 8 %) — ohrada je skutečná
+    // překážka, na rozdíl od kurníku/klece. Historicky: vlk byl na Moravě
+    // v 15. stol. přítomný, ale řídký (vrchol výskytu až 17. stol. za
+    // třicetileté války) — "malá šance" z zadání sedí. Ovčinec/kozinec:
+    // libovolné zvíře. Chlév: JEN telata (a.mature===false) — dospělá
+    // kráva/býk se vlkovi neberou, přesně jak žádáno. Žádná mitigace teď
+    // (žoldnéř/hlídací pes — příště, dle dohody).
+    WOLF_PEN_CHANCE: 0.01,
+    WOLF_PEN_FLOOR: 2,
+    wolfPenTick: function () {
+        if (!GameState.wolfPen) GameState.wolfPen = { lastTick: 0 };
+        const now = Date.now();
+        if (now - (GameState.wolfPen.lastTick || 0) < this.DAY_MS) return;
+        GameState.wolfPen.lastTick = now;
+
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const notify = (pen) => {
+            if (typeof NotificationSystem === 'undefined' || !NotificationSystem.panel) return;
+            const names = {
+                sheepfold: { cs: 'ovčince', en: 'the sheepfold' },
+                goatpen:   { cs: 'kozince',  en: 'the goat pen' },
+                cowbyre:   { cs: 'chléva',   en: 'the cow byre' },
+            };
+            const nm = names[pen] || { cs: pen, en: pen };
+            NotificationSystem.panel('🐺 ' + (lang === 'en'
+                ? `A wolf slipped past the fence at ${nm.en} — one animal lost.`
+                : `Vlk se protáhl kolem ohrady u ${nm.cs} — ztraceno jedno zvíře.`), 'warning');
+        };
+
+        // Ovčinec — starý integer model (GameState.sheepfold.sheep), ne animals[].
+        const sf = GameState.sheepfold;
+        if (sf && sf.built && (sf.sheep || 0) > this.WOLF_PEN_FLOOR && Math.random() < this.WOLF_PEN_CHANCE) {
+            sf.sheep -= 1;
+            notify('sheepfold');
+        }
+
+        // Kozinec — libovolné zvíře z ohrady.
+        const gp = GameState.goatpen;
+        if (gp && gp.built && Array.isArray(gp.animals) && gp.animals.length > this.WOLF_PEN_FLOOR && Math.random() < this.WOLF_PEN_CHANCE) {
+            gp.animals.splice(0, 1);
+            notify('goatpen');
+        }
+
+        // Chlév — jen telata (mature === false). Dospělý dobytek vlk nebere.
+        const cb = GameState.cowbyre;
+        if (cb && cb.built && Array.isArray(cb.animals)) {
+            const calfIdx = cb.animals.findIndex(a => a.mature === false);
+            if (calfIdx >= 0 && cb.animals.length > this.WOLF_PEN_FLOOR && Math.random() < this.WOLF_PEN_CHANCE) {
+                cb.animals.splice(calfIdx, 1);
+                notify('cowbyre');
+            }
+        }
+
+        if (typeof Game !== 'undefined') Game.save();
+    },
     // manuálním hnízdění. Roste jen do POPULATION_AUTO_CEILING (13), bez
     // ohledu na tier kapacitu — zbytek do plné kapacity musí hráč doplnit
     // sám (hnízdění/nákup). Nově narozený kus je vždy nevycvičený.

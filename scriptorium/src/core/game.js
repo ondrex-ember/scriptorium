@@ -904,6 +904,8 @@ const Game = {
                     // Kurník/Klec — denní riziko liška/kuna/lasička (eventy-audit-mrd §4.3 Fáze 2, mirror Columbarium)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.henhousePredatorTick) FarmyardSystem.henhousePredatorTick();
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.rabbitryPredatorTick) FarmyardSystem.rabbitryPredatorTick();
+                    // Ovčinec/Kozinec/Chlév — denní riziko vlka, ustájená zvířata (eventy-audit-mrd §4.2 Fáze 2)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.wolfPenTick) FarmyardSystem.wolfPenTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumRegrowTick) FarmyardSystem.columbariumRegrowTick();
                     // Columbarium — dokončení výcviku (self-guarded přes readyAt, holubnik-mrd)
