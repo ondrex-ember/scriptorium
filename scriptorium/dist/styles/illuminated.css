@@ -223,3 +223,259 @@ body.design-iluminovana #lore-manuscripts-content > * {
         transition: none !important;
     }
 }
+
+
+/* =====================================================================
+   PHASE 1.1 — VISUAL POLISH
+   ---------------------------------------------------------------------
+   CSS only. No mechanics, handlers, IDs, state or render functions.
+   ===================================================================== */
+
+body.design-iluminovana {
+    --illum-rubric: #8f2f1f;
+    --illum-rubric-dark: #672014;
+    --illum-brass: #aa8447;
+    --illum-brass-soft: rgba(170, 132, 71, 0.34);
+    --illum-brass-faint: rgba(170, 132, 71, 0.15);
+    --illum-leather: #26180f;
+    --illum-leather-2: #342116;
+}
+
+/* 1. Keep the hero title readable regardless of the light/dark room crop. */
+body.design-iluminovana #screen-lore > .screen-header-row {
+    position: relative;
+}
+
+body.design-iluminovana #screen-lore > .screen-header-row::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    inset: 0 38% 0 -12px;
+    background:
+        linear-gradient(90deg,
+            rgba(16, 10, 7, 0.76) 0%,
+            rgba(16, 10, 7, 0.48) 52%,
+            rgba(16, 10, 7, 0.00) 100%);
+}
+
+body.design-iluminovana #screen-lore > .screen-header-row h2 {
+    text-shadow:
+        0 2px 2px rgba(0, 0, 0, 0.92),
+        0 0 18px rgba(0, 0, 0, 0.60),
+        0 0 4px rgba(197, 160, 89, 0.50) !important;
+}
+
+/* 2. Iluminovaná has its own restrained rubric/brass active language.
+      Theme still controls parchment, ink and overall palette. */
+body.design-iluminovana #screen-lore .filter-btn {
+    border-color: var(--illum-brass) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 1px 2px rgba(41, 25, 14, 0.12) !important;
+}
+
+body.design-iluminovana #screen-lore .filter-btn:hover {
+    border-color: #c4a260 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        0 2px 5px var(--illum-brass-faint) !important;
+}
+
+body.design-iluminovana #screen-lore .filter-btn.active {
+    background:
+        linear-gradient(180deg, #9f3925 0%, var(--illum-rubric) 46%, var(--illum-rubric-dark) 100%) !important;
+    color: #fff4dc !important;
+    border-color: #c4a260 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 236, 188, 0.34),
+        inset 0 -1px 0 rgba(72, 20, 12, 0.42),
+        0 2px 5px rgba(37, 18, 10, 0.22),
+        0 0 5px var(--illum-brass-soft) !important;
+}
+
+/* 3. Research cards: aged brass rather than neon/theme-orange outlines. */
+body.design-iluminovana #lore-research-content .card {
+    border-color: var(--illum-brass) !important;
+    outline-color: var(--illum-brass-faint) !important;
+    box-shadow:
+        0 2px 6px rgba(46, 29, 17, 0.10),
+        inset 0 0 16px rgba(115, 76, 36, 0.035) !important;
+}
+
+body.design-iluminovana #lore-research-content .card:hover {
+    border-color: #ba9552 !important;
+    box-shadow:
+        0 3px 8px rgba(46, 29, 17, 0.14),
+        inset 0 0 18px rgba(115, 76, 36, 0.05) !important;
+}
+
+/* Research title / completion hierarchy.
+   Works with the current generated card structure without changing markup. */
+body.design-iluminovana #lore-research-content .card strong {
+    color: color-mix(in srgb, var(--ink-primary) 78%, var(--illum-rubric) 22%);
+    letter-spacing: 0.015em;
+}
+
+body.design-iluminovana #lore-research-content .card .item-icon {
+    border: 1px solid var(--illum-brass) !important;
+    box-shadow:
+        inset 0 0 8px rgba(255,255,255,0.18),
+        0 1px 4px rgba(63, 39, 20, 0.18) !important;
+}
+
+/* Existing inline HOTOVO uses var(--accent-gold); override it locally
+   without touching UI.renderScriptorium(). */
+body.design-iluminovana #lore-research-content .card > div:last-child > span {
+    color: var(--illum-brass) !important;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+}
+
+/* Study buttons: manuscript rubric, but keep disabled logic untouched. */
+body.design-iluminovana #lore-research-content .craft-btn:not(:disabled) {
+    background:
+        linear-gradient(180deg, #963421 0%, #7f291b 100%) !important;
+    color: #fff4df !important;
+    border-color: #b78b46 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 238, 195, 0.22),
+        0 2px 4px rgba(46, 21, 12, 0.20) !important;
+}
+
+/* 4. Main room navigation — same buttons and handlers, new material only. */
+body.design-iluminovana nav {
+    background:
+        linear-gradient(90deg, rgba(255,255,255,0.025), transparent 18%, transparent 82%, rgba(0,0,0,0.22)),
+        linear-gradient(180deg, var(--illum-leather-2), var(--illum-leather)) !important;
+    border-color: var(--illum-brass) !important;
+    box-shadow:
+        inset -1px 0 0 rgba(255, 223, 156, 0.06),
+        inset 0 0 22px rgba(0,0,0,0.24);
+}
+
+body.design-iluminovana .nav-btn {
+    color: #b9aa92 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.65);
+}
+
+body.design-iluminovana .nav-btn:hover:not(:disabled) {
+    color: #ead8ae !important;
+    text-shadow: 0 0 6px rgba(196, 162, 96, 0.45) !important;
+}
+
+body.design-iluminovana .nav-btn > span:first-child {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 4px;
+    border: 1px solid rgba(170, 132, 71, 0.42);
+    border-radius: 4px;
+    background:
+        radial-gradient(circle at 45% 38%, rgba(255,244,215,0.10), transparent 58%),
+        rgba(12, 8, 6, 0.23);
+    box-shadow:
+        inset 0 0 7px rgba(0,0,0,0.22),
+        0 1px 2px rgba(0,0,0,0.28);
+    filter: saturate(0.82) sepia(0.10);
+}
+
+body.design-iluminovana .nav-btn.active {
+    color: #f0d58e !important;
+    text-shadow:
+        0 0 5px rgba(197, 160, 89, 0.60),
+        0 1px 2px #000 !important;
+}
+
+body.design-iluminovana .nav-btn.active > span:first-child {
+    border-color: #d1a752;
+    background:
+        radial-gradient(circle at 50% 35%, rgba(255, 219, 130, 0.22), transparent 55%),
+        linear-gradient(180deg, rgba(120, 42, 25, 0.54), rgba(45, 20, 13, 0.62));
+    box-shadow:
+        inset 0 0 8px rgba(255, 213, 113, 0.14),
+        0 0 7px rgba(197, 160, 89, 0.42);
+    filter: saturate(0.92) sepia(0.04);
+}
+
+/* Replace the previous bright gold/cyan active indicator. */
+body.design-iluminovana .nav-btn.active::after {
+    background: linear-gradient(90deg, transparent, #bd9248, #e1c06e, #bd9248, transparent) !important;
+    box-shadow: 0 0 5px rgba(197, 160, 89, 0.55) !important;
+}
+
+/* Desktop: active indicator follows the vertical room rail. */
+@media (min-width: 768px) {
+    body.design-iluminovana .nav-btn {
+        border: 1px solid transparent !important;
+        border-radius: 4px;
+    }
+
+    body.design-iluminovana .nav-btn.active {
+        background:
+            linear-gradient(90deg, rgba(124, 43, 25, 0.22), rgba(197, 160, 89, 0.055)) !important;
+        border-color: rgba(170, 132, 71, 0.32) !important;
+    }
+
+    body.design-iluminovana .nav-btn.active::after {
+        top: 12% !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: -3px !important;
+        width: 3px !important;
+        height: 76% !important;
+        background: linear-gradient(180deg, transparent, #b68b43, #dfbc68, #b68b43, transparent) !important;
+    }
+}
+
+/* Mobile: keep the original bottom-nav geometry, only calm the visuals. */
+@media (max-width: 767px) {
+    body.design-iluminovana nav {
+        background:
+            linear-gradient(180deg, var(--illum-leather-2), var(--illum-leather)) !important;
+    }
+
+    body.design-iluminovana .nav-btn > span:first-child {
+        width: 28px;
+        height: 28px;
+        margin-bottom: 2px;
+    }
+
+    body.design-iluminovana .nav-btn.active::after {
+        top: -10px !important;
+        left: 20% !important;
+        right: auto !important;
+        width: 60% !important;
+        height: 2px !important;
+    }
+}
+
+/* 5. Mobile hero is intentionally tighter than Phase 1. */
+@media (max-width: 500px) {
+    body.design-iluminovana #screen-lore::before {
+        height: 172px;
+        background-position: center top, center top, 53% 41%;
+    }
+
+    body.design-iluminovana #screen-lore > .screen-header-row {
+        min-height: 72px;
+        padding-top: 6px;
+        padding-bottom: 8px;
+    }
+
+    body.design-iluminovana #screen-lore > .screen-header-row::before {
+        inset: 0 26% 0 -10px;
+    }
+
+    body.design-iluminovana #screen-lore > .screen-header-row h2 {
+        font-size: 1.34rem;
+    }
+}
+
+/* Fallback for browsers that do not support color-mix().
+   It is placed after the color-mix rule on purpose. */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+    body.design-iluminovana #lore-research-content .card strong {
+        color: var(--ink-primary);
+    }
+}
