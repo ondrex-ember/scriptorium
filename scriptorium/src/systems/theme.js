@@ -75,22 +75,27 @@ const ThemeSystem = {
     },
     
     applyDesignStyle: function(styleName, silent = false) {
-        if (styleName !== 'pokorna' && styleName !== 'marniva') {
+        const allowedStyles = ['pokorna', 'marniva', 'iluminovana'];
+        if (!allowedStyles.includes(styleName)) {
             styleName = 'marniva';
         }
-        
-        document.body.classList.remove('design-pokorna', 'design-marniva');
+
+        document.body.classList.remove('design-pokorna', 'design-marniva', 'design-iluminovana');
         document.body.classList.add('design-' + styleName);
-        
+
         const oldStyle = GameState.settings.designStyle;
         GameState.settings.designStyle = styleName;
         if (typeof Game !== 'undefined' && Game.save) Game.save();
-        
+
         if (!silent && styleName !== oldStyle) {
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
-            const label = styleName === 'pokorna' 
-                ? (lang === 'en' ? 'Style: Humble 🪨' : 'Vzhled: Pokorná 🪨')
-                : (lang === 'en' ? 'Style: Vanity ✨' : 'Vzhled: Marnivá ✨');
+            const labels = {
+                pokorna: { cs: 'Vzhled: Pokorná 🪨', en: 'Style: Humble 🪨' },
+                marniva: { cs: 'Vzhled: Marnivá ✨', en: 'Style: Vanity ✨' },
+                iluminovana: { cs: 'Vzhled: Iluminovaná 📜', en: 'Style: Illuminated 📜' }
+            };
+            const selected = labels[styleName] || labels.marniva;
+            const label = lang === 'en' ? selected.en : selected.cs;
             if (typeof UI !== 'undefined' && UI.notify) UI.notify(label);
         }
     },
