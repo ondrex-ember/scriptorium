@@ -245,3 +245,372 @@ body.design-iluminovana #lore-manuscripts-content > * {
             0 0 4px rgba(197, 160, 89, 0.65) !important;
     }
 }
+
+/* =====================================================================
+   PHASE 2 — SCRIPTORIUM MANUSCRIPT PANELS
+   ---------------------------------------------------------------------
+   Presentation-only refinement of #lore-manuscripts-content.
+   No JavaScript, handlers, IDs, state, mechanics, timers or save data.
+   Requires the existing /rooms/scriptorium.webp asset from Phase 1.
+   ===================================================================== */
+
+/* Reduce the broad ghost image from Phase 1 now that the main manuscript
+   panel gets its own focused room-art band. */
+body.design-iluminovana #lore-manuscripts-content::before {
+    opacity: 0.075 !important;
+    height: 150px !important;
+}
+
+/* ─── Resource strip ─────────────────────────────────────────────── */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(1) {
+    padding: 12px 16px !important;
+    margin-bottom: 14px !important;
+    border: 1px solid var(--illum-brass-soft) !important;
+    border-radius: 4px !important;
+    background:
+        linear-gradient(90deg,
+            rgba(197,160,89,0.045),
+            rgba(255,255,255,0.11) 48%,
+            rgba(197,160,89,0.045)) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.22),
+        0 1px 3px rgba(45,28,15,0.06) !important;
+}
+
+/* ─── Dormitorium / Scriptor status card ───────────────────────── */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(2) {
+    border-color: var(--illum-brass) !important;
+    border-radius: 4px !important;
+    background:
+        linear-gradient(90deg,
+            rgba(255,252,241,0.94),
+            rgba(248,239,215,0.84)) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.30),
+        0 2px 6px rgba(45,28,15,0.08) !important;
+}
+
+/* Do not let the old bright left status bars dominate Iluminovaná. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(2) {
+    border-left-color: var(--illum-rubric) !important;
+    border-left-width: 4px !important;
+}
+
+/* Status card CTA only — existing onclick remains untouched. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(2) .craft-btn {
+    background:
+        linear-gradient(180deg, #963421 0%, #742416 100%) !important;
+    color: #fff4df !important;
+    border: 1px solid #b58a48 !important;
+    border-radius: 3px !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,239,198,0.24),
+        0 2px 5px rgba(48,22,12,0.18) !important;
+}
+
+/* ─── Main manuscript work panel ───────────────────────────────── */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3) {
+    border-color: var(--illum-brass) !important;
+    border-radius: 4px !important;
+    box-shadow:
+        0 3px 10px rgba(46,29,17,0.09),
+        inset 0 0 24px rgba(133,92,44,0.03) !important;
+
+    /* Room art behaves like the requested section-title background:
+       visible near the top, then gently disappears into parchment. */
+    background-color: #fbf7ee !important;
+    background-image:
+        linear-gradient(
+            to bottom,
+            rgba(251,247,238,0.28) 0%,
+            rgba(251,247,238,0.72) 38%,
+            rgba(251,247,238,0.94) 72%,
+            #fbf7ee 100%
+        ),
+        url("/rooms/scriptorium.webp") !important;
+    background-repeat: no-repeat, no-repeat !important;
+    background-position: center top, center 54% !important;
+    background-size: 100% 165px, cover !important;
+}
+
+/* The four existing corner marks remain in place; tone their inline gold. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3) > div[style*="position:absolute"] {
+    border-color: var(--illum-brass) !important;
+}
+
+/* Active manuscript subheading: muted lapis, not electric browser-blue. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)
+    > div[style*="text-transform:uppercase"] {
+    color: #315d78 !important;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.32);
+}
+
+/* Manuscript title. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)
+    div[style*="font-size:1.15rem"] {
+    color: #35281e !important;
+}
+
+/* Progress number. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)
+    div[style*="color:#3182ce"] {
+    color: #376d8c !important;
+}
+
+/* Progress rule + diamond. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)
+    div[style*="background:#90cdf4"] {
+    background: rgba(83,129,150,0.58) !important;
+}
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(3)
+    div[style*="background:#90cdf4"] > div {
+    background: #587f91 !important;
+}
+
+/* Folio markers become tiny parchment folios instead of cyan UI squares. */
+body.design-iluminovana #lore-manuscripts-content div[title^="Folium"] {
+    width: 17px !important;
+    height: 18px !important;
+    border: 1px solid #a88955 !important;
+    border-radius: 2px !important;
+    background:
+        linear-gradient(135deg,
+            rgba(255,252,235,0.96),
+            rgba(225,209,171,0.82)) !important;
+    box-shadow:
+        inset -2px 0 0 rgba(122,91,48,0.08),
+        0 1px 1px rgba(55,35,18,0.08) !important;
+}
+
+/* Completed folios are detected from the existing stronger blue inline style. */
+body.design-iluminovana #lore-manuscripts-content div[title^="Folium"][style*="background:#3182ce"] {
+    background:
+        linear-gradient(180deg, #496f78 0%, #2f5662 100%) !important;
+    border-color: #b39150 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.16),
+        0 0 3px rgba(170,132,71,0.18) !important;
+}
+
+/* ─── Copying buttons ───────────────────────────────────────────── */
+body.design-iluminovana #lore-manuscripts-content button[onclick="UI.copyFolium(1)"],
+body.design-iluminovana #lore-manuscripts-content button[onclick="UI.copyFolium(5)"] {
+    background:
+        linear-gradient(180deg, #784014 0%, #502706 100%) !important;
+    color: #fff5df !important;
+    border-color: #b58a48 !important;
+    border-radius: 3px !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,238,195,0.22),
+        0 2px 4px rgba(46,21,12,0.20) !important;
+    letter-spacing: 0.015em;
+}
+
+body.design-iluminovana #lore-manuscripts-content button[onclick="UI.copyFolium(1)"]:hover,
+body.design-iluminovana #lore-manuscripts-content button[onclick="UI.copyFolium(5)"]:hover {
+    filter: brightness(1.08);
+}
+
+/* Automation stays a distinct "mechanical" action, but becomes muted lapis. */
+body.design-iluminovana #lore-manuscripts-content button[onclick="UI.toggleManuscriptAutomation()"] {
+    background:
+        linear-gradient(180deg, #3b6d91 0%, #284f70 100%) !important;
+    color: #fff8e8 !important;
+    border-color: #9a814e !important;
+    border-radius: 3px !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.17),
+        0 2px 4px rgba(30,41,46,0.18) !important;
+}
+
+/* ─── Manuscript list heading ───────────────────────────────────── */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(4) {
+    position: relative;
+    margin: 2px 0 12px !important;
+    padding: 7px 0 8px 30px !important;
+    color: #4b3524 !important;
+    font-family: "Cinzel", serif !important;
+    border-bottom: 1px solid var(--illum-brass-soft);
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(4)::after {
+    content: "❧";
+    position: absolute;
+    right: 8px;
+    bottom: -10px;
+    padding: 0 7px;
+    color: var(--illum-brass);
+    background: var(--bg-parchment);
+    font-size: 1rem;
+}
+
+/* ─── Manuscript selection cards ───────────────────────────────── */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) {
+    gap: 10px !important;
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div {
+    position: relative;
+    min-height: 58px;
+    padding: 11px 14px 11px 42px !important;
+    border: 1px solid var(--illum-brass-soft) !important;
+    border-radius: 3px !important;
+    background:
+        linear-gradient(135deg,
+            rgba(255,253,244,0.90),
+            rgba(242,231,203,0.69)) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        0 1px 3px rgba(45,28,15,0.055);
+    transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+/* Small illuminated-book medallion using only CSS and existing content. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div::before {
+    content: "✦";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    color: #d8bd76;
+    font-size: 0.78rem;
+    border: 1px solid #9d763e;
+    border-radius: 2px;
+    background:
+        linear-gradient(90deg,
+            transparent 46%,
+            rgba(235,207,132,0.30) 47%,
+            rgba(235,207,132,0.30) 53%,
+            transparent 54%),
+        linear-gradient(180deg, #733122, #4e2118);
+    box-shadow:
+        inset 0 0 0 2px rgba(238,205,120,0.10),
+        0 1px 3px rgba(44,25,15,0.17);
+}
+
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:hover {
+    transform: translateY(-1px);
+    border-color: var(--illum-brass) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        0 3px 7px rgba(45,28,15,0.10);
+}
+
+/* Selected manuscript already contains the direct child AKTIVNÍ span. */
+@supports selector(:has(*)) {
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:has(> span) {
+        border-color: #a97c3c !important;
+        background:
+            linear-gradient(135deg,
+                rgba(238,220,174,0.74),
+                rgba(250,244,224,0.92)) !important;
+        box-shadow:
+            inset 3px 0 0 var(--illum-rubric),
+            0 2px 5px rgba(45,28,15,0.09);
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div:has(> span)::before {
+        background:
+            linear-gradient(90deg,
+                transparent 46%,
+                rgba(236,213,151,0.30) 47%,
+                rgba(236,213,151,0.30) 53%,
+                transparent 54%),
+            linear-gradient(180deg, #8f3825, #642519);
+        box-shadow:
+            inset 0 0 0 2px rgba(238,205,120,0.15),
+            0 0 5px rgba(170,132,71,0.24);
+    }
+}
+
+/* Active label. */
+body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div > span {
+    color: var(--illum-rubric) !important;
+}
+
+/* ─── Mobile layout refinements ─────────────────────────────────── */
+@media (max-width: 500px) {
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(1) {
+        padding: 11px 12px !important;
+        gap: 8px 14px !important;
+        font-size: 0.78rem !important;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(2) {
+        padding: 13px 14px !important;
+        gap: 10px !important;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(2) .craft-btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 42px;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(3) {
+        padding: 14px !important;
+        background-size: 100% 138px, auto 150px !important;
+        background-position: center top, center top !important;
+    }
+
+    /* Existing main action row contains the left two-button group and
+       the automation button. Modern Chrome/Safari support :has(); if a
+       browser does not, the existing flex wrapping remains unchanged. */
+    @supports selector(:has(*)) {
+        body.design-iluminovana #lore-manuscripts-content
+            div:has(> button[onclick="UI.toggleManuscriptAutomation()"]) {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            align-items: stretch !important;
+            width: 100%;
+        }
+
+        body.design-iluminovana #lore-manuscripts-content
+            div:has(> button[onclick="UI.toggleManuscriptAutomation()"])
+            > div:has(> button[onclick="UI.copyFolium(1)"]) {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+            width: 100%;
+        }
+    }
+
+    body.design-iluminovana #lore-manuscripts-content button[onclick="UI.copyFolium(1)"],
+    body.design-iluminovana #lore-manuscripts-content button[onclick="UI.copyFolium(5)"],
+    body.design-iluminovana #lore-manuscripts-content button[onclick="UI.toggleManuscriptAutomation()"] {
+        width: 100% !important;
+        justify-content: center !important;
+        min-height: 42px;
+        padding: 8px 10px !important;
+        font-size: 0.76rem !important;
+    }
+
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div {
+        min-height: 64px;
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+    }
+}
+
+/* Narrow phones: stack the two manual copying actions as well, preventing
+   long Czech labels from squeezing or wrapping awkwardly. */
+@media (max-width: 360px) {
+    @supports selector(:has(*)) {
+        body.design-iluminovana #lore-manuscripts-content
+            div:has(> button[onclick="UI.toggleManuscriptAutomation()"])
+            > div:has(> button[onclick="UI.copyFolium(1)"]) {
+            grid-template-columns: 1fr !important;
+        }
+    }
+}
+
+/* Reduced motion: remove the tiny hover lift. */
+@media (prefers-reduced-motion: reduce) {
+    body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div {
+        transition: none !important;
+    }
+}
