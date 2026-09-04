@@ -614,6 +614,7 @@ body.design-iluminovana #lore-manuscripts-content > div:nth-child(5) > div > spa
         transition: none !important;
     }
 }
+<<<<<<< HEAD
 
 /* =====================================================================
    PHASE 2.1 — DETAIL CROPS, NO DUPLICATED FULL ROOM
@@ -727,3 +728,5 @@ body.design-iluminovana #lore-manuscripts-content::before {
         opacity: 0.30;
     }
 }
+=======
+>>>>>>> e7ded3a8c35cc01022b109d6d6f71cf46569a936
