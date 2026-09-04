@@ -605,7 +605,7 @@ const FarmyardSystem = {
             const fedAgoD = st.lastFedAt ? Math.floor((Date.now() - st.lastFedAt) / 3600000) : null;
             const fedTxtD = fedAgoD === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoD < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoD + 'h ago' : 'před ~' + fedAgoD + 'h');
             const hayNeededD = st.animals.length;
-            const canFeedD = (GameState.inventory['hay'] || 0) >= hayNeededD;
+            const canFeedD = (GameState.inventory['hay'] || 0) >= hayNeededD && this.getHunger('donkeyStall') < 90;
             h += `<div style="font-size:0.82rem; margin-bottom:6px;">🌾 ${lang === 'en' ? 'Last fed' : 'Krmeno'}: <strong>${fedTxtD}</strong></div>`;
             h += '<button class="craft-btn" style="margin-bottom:10px;" onclick="FarmyardSystem.feedPen(\'donkeyStall\')" ' + (canFeedD ? '' : 'disabled') + '>🌾 ' + t('farmyard.feed') + ' (' + (lang === 'en' ? 'have' : 'máš') + ' ' + (GameState.inventory['hay'] || 0) + '/' + hayNeededD + ')</button>';
         }
@@ -1313,7 +1313,7 @@ const FarmyardSystem = {
             const fedAgoP = st.lastFedAt ? Math.floor((Date.now() - st.lastFedAt) / 3600000) : null;
             const fedTxtP = fedAgoP === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoP < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoP + 'h ago' : 'před ~' + fedAgoP + 'h');
             const hayNeeded = st.animals.length;
-            const canFeedP = (GameState.inventory['hay'] || 0) >= hayNeeded;
+            const canFeedP = (GameState.inventory['hay'] || 0) >= hayNeeded && this.getHunger(pen) < 90;
             h += `<div style="font-size:0.82rem; margin-bottom:6px;">🌾 ${lang === 'en' ? 'Last fed' : 'Krmeno'}: <strong>${fedTxtP}</strong></div>`;
             h += '<button class="craft-btn" style="margin-bottom:10px;" onclick="FarmyardSystem.feedPen(\'' + pen + '\')" ' + (canFeedP ? '' : 'disabled') + '>🌾 ' + t('farmyard.feed') + ' (' + (lang === 'en' ? 'have' : 'máš') + ' ' + (GameState.inventory['hay'] || 0) + '/' + hayNeeded + ')</button>';
         }
