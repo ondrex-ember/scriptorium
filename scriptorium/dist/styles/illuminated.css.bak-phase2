@@ -1,0 +1,247 @@
+/*
+ * Scriptorium — Iluminovaná design, Phase 1
+ * ------------------------------------------------------------
+ * Scope: visual layer only.
+ * No gameplay IDs, onclick handlers, state objects or mechanics are changed.
+ *
+ * Phase 1 intentionally styles Scriptorium (#screen-lore) first.
+ * Other rooms retain the existing base/Marnivá appearance until their
+ * own room artwork is added in later phases.
+ */
+
+/* Keep the new design isolated from Pokorná and Marnivá. */
+body.design-iluminovana {
+    --illum-room-edge: rgba(34, 23, 14, 0.62);
+    --illum-gold-soft: rgba(197, 160, 89, 0.42);
+    --illum-gold-faint: rgba(197, 160, 89, 0.18);
+    --illum-paper-glow: rgba(255, 248, 229, 0.30);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SCRIPTORIUM — room image behind the page title + tabs
+   Dynamic outdoor/weather header above stays untouched.
+   ───────────────────────────────────────────────────────────── */
+body.design-iluminovana #screen-lore {
+    position: relative;
+    isolation: isolate;
+}
+
+/* Room artwork is a presentation-only layer and never receives clicks. */
+body.design-iluminovana #screen-lore::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    height: 230px;
+
+    background-image:
+        linear-gradient(
+            to bottom,
+            rgba(18, 12, 8, 0.06) 0%,
+            rgba(18, 12, 8, 0.16) 44%,
+            var(--bg-parchment) 100%
+        ),
+        linear-gradient(
+            to right,
+            rgba(10, 7, 5, 0.28) 0%,
+            rgba(10, 7, 5, 0.02) 35%,
+            rgba(10, 7, 5, 0.04) 76%,
+            rgba(10, 7, 5, 0.22) 100%
+        ),
+        url("/rooms/scriptorium.webp");
+
+    background-position: center top, center top, center 44%;
+    background-size: cover, cover, cover;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid var(--illum-gold-soft);
+    box-shadow: inset 0 -18px 24px -18px var(--bg-parchment);
+}
+
+/* Keep real controls above the decorative room layer. */
+body.design-iluminovana #screen-lore > .screen-header-row,
+body.design-iluminovana #screen-lore > #lore-overlay,
+body.design-iluminovana #screen-lore > #lore-content-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+/* Title stays in the same wireframe location; only its presentation changes. */
+body.design-iluminovana #screen-lore > .screen-header-row {
+    min-height: 104px;
+    align-items: flex-end;
+    padding: 12px 4px 14px;
+}
+
+body.design-iluminovana #screen-lore > .screen-header-row h2 {
+    margin: 0;
+    color: #f6e8bf !important;
+    font-family: "Cinzel Decorative", serif !important;
+    font-size: clamp(1.48rem, 4.8vw, 2.15rem);
+    letter-spacing: 0.055em;
+    text-shadow:
+        0 2px 2px rgba(0, 0, 0, 0.85),
+        0 0 14px rgba(0, 0, 0, 0.48),
+        0 0 5px rgba(197, 160, 89, 0.58);
+}
+
+/* Remove the generic Art Nouveau divider only from this hero title.
+   The artwork itself becomes the divider. */
+body.design-iluminovana #screen-lore > .screen-header-row h2::after {
+    display: none !important;
+}
+
+/* Top Scriptorium tab rail: same DOM/wrapping behavior, manuscript skin. */
+body.design-iluminovana #lore-content-wrapper > .filter-bar {
+    margin-top: 0 !important;
+    padding: 5px 4px 11px !important;
+    gap: 6px !important;
+    border-bottom: 1px solid var(--illum-gold-faint);
+}
+
+body.design-iluminovana #screen-lore .filter-btn {
+    min-height: 34px;
+    padding: 6px 11px !important;
+    background: var(--bg-card) !important;
+    color: var(--ink-primary) !important;
+    border: 1px solid var(--accent-gold) !important;
+    border-radius: 3px !important;
+    box-shadow:
+        inset 0 1px 0 var(--illum-paper-glow),
+        0 1px 3px rgba(0, 0, 0, 0.10) !important;
+    font-family: "Cinzel Decorative", serif !important;
+    letter-spacing: 0.025em;
+}
+
+body.design-iluminovana #screen-lore .filter-btn:hover {
+    background: var(--bg-card) !important;
+    border-color: var(--accent-gold) !important;
+    box-shadow:
+        inset 0 1px 0 var(--illum-paper-glow),
+        0 2px 7px var(--illum-gold-faint) !important;
+}
+
+/* Active tabs use the active THEME accent. Winter therefore stays winter,
+   dark stays dark, etc.; Design and Theme remain independent systems. */
+body.design-iluminovana #screen-lore .filter-btn.active {
+    background: var(--accent-wax) !important;
+    color: #ffffff !important;
+    border-color: var(--accent-gold) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 2px 8px rgba(0, 0, 0, 0.24),
+        0 0 8px var(--illum-gold-soft) !important;
+}
+
+/* Research cards: same grid and same elements; only the material changes. */
+body.design-iluminovana #lore-research-content .card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--accent-gold) !important;
+    outline: 1px solid var(--illum-gold-faint) !important;
+    outline-offset: -4px !important;
+    border-radius: 3px !important;
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.10),
+        inset 0 0 18px rgba(197, 160, 89, 0.045) !important;
+}
+
+/* Manuscript page gets a very faint second echo of the room art.
+   It fades immediately so generated inline panels remain fully readable. */
+body.design-iluminovana #lore-manuscripts-content {
+    position: relative;
+    isolation: isolate;
+}
+
+body.design-iluminovana #lore-manuscripts-content::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    left: -4px;
+    right: -4px;
+    top: 0;
+    height: 190px;
+    opacity: 0.14;
+    background-image:
+        linear-gradient(to bottom, transparent 0%, var(--bg-parchment) 100%),
+        url("/rooms/scriptorium.webp");
+    background-position: center top, center 58%;
+    background-size: cover, cover;
+    background-repeat: no-repeat;
+}
+
+body.design-iluminovana #lore-manuscripts-content > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* The existing mobile interaction model is preserved. */
+@media (max-width: 500px) {
+    body.design-iluminovana #screen-lore::before {
+        top: -20px;
+        height: 205px;
+        background-position: center top, center top, 53% 42%;
+    }
+
+    body.design-iluminovana #screen-lore > .screen-header-row {
+        min-height: 88px;
+        padding-top: 8px;
+        padding-bottom: 10px;
+    }
+
+    body.design-iluminovana #screen-lore > .screen-header-row h2 {
+        font-size: 1.48rem;
+    }
+
+    body.design-iluminovana #screen-lore .filter-btn {
+        min-height: 36px;
+        padding: 6px 10px !important;
+        font-size: 0.70rem !important;
+    }
+}
+
+/* On PC, allow the room art a little more breathing room without changing
+   any column/grid/navigation mechanics. */
+@media (min-width: 751px) {
+    body.design-iluminovana #screen-lore::before {
+        height: 255px;
+        background-position: center top, center top, center 48%;
+    }
+
+    body.design-iluminovana #screen-lore > .screen-header-row {
+        min-height: 126px;
+        padding-bottom: 18px;
+    }
+}
+
+/* Accessibility: no extra decorative motion is introduced. */
+@media (prefers-reduced-motion: reduce) {
+    body.design-iluminovana #screen-lore::before,
+    body.design-iluminovana #lore-manuscripts-content::before {
+        transition: none !important;
+    }
+}
+
+/* =====================================================================
+   PHASE 1.2 — MOBILE HERO HOTFIX
+   Removes the large dark title rectangle introduced by Phase 1.1
+   on mobile/tablet widths. Visual only.
+   ===================================================================== */
+
+@media (max-width: 767px) {
+    body.design-iluminovana #screen-lore > .screen-header-row::before {
+        display: none !important;
+        content: none !important;
+    }
+
+    body.design-iluminovana #screen-lore > .screen-header-row h2 {
+        color: #f7e9bd !important;
+        text-shadow:
+            0 2px 2px rgba(0, 0, 0, 0.95),
+            0 0 10px rgba(0, 0, 0, 0.92),
+            0 0 22px rgba(0, 0, 0, 0.72),
+            0 0 4px rgba(197, 160, 89, 0.65) !important;
+    }
+}
