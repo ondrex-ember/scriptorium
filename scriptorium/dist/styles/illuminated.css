@@ -727,7 +727,6 @@ body.design-iluminovana #lore-manuscripts-content::before {
         opacity: 0.30;
     }
 }
-<<<<<<< HEAD
 
 /* =====================================================================
    PHASE 2.2 — TARGET ALIGNMENT
@@ -999,5 +998,3 @@ body.design-iluminovana #lore-manuscripts-content button[onclick="UI.toggleManus
         transition: none !important;
     }
 }
-=======
->>>>>>> 35598c2c9843f488288a33a87515eff0862c47ee
