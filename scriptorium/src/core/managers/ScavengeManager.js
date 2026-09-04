@@ -480,6 +480,7 @@ const ScavengeManager = {
         Game._saveHint.actions++;
         Game._checkSaveHint();
         if (typeof EventsSystem !== 'undefined') EventsSystem.onAction();
+        if (typeof EventFeedScheduler !== 'undefined') EventFeedScheduler.onAction();
 
         // Valetudo — riziko nachlazení při mokrém počasí (venkovní akce)
         if (typeof HealthSystem !== 'undefined' && typeof WeatherSystem !== 'undefined' && !HealthSystem.isActive('cold')) {

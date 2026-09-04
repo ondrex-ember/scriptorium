@@ -1046,6 +1046,80 @@ const EventsSystem = {
                     }
                 }
             ]
+        },
+
+        // eventy-audit-mrd (04.09.2026) §2.3/§4.7 Fáze 1 — sucho a vánice už
+        // dnes mechanicky fungují (WeatherSystem.countDryDays/isFrostDay,
+        // reálné počasí Prahy), ale tiše — hráč to nikdy neuvidí jako
+        // pojmenovanou událost. Tyhle dva eventy nic mechanicky nemění,
+        // jen zviditelňují to, co se už počítá. Jedna volba "Rozumím" —
+        // žádný nový efekt, žádné riziko pro existující výpočty.
+        {
+            id: 'weather_drought_wave',
+            icon: '🌵',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'The Wells Run Low' : 'Studně vysychají',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*No rain in days. The garden beds crack, the vines droop, and the fields wait for water that does not come. What is watered by hand will hold — the rest suffers.*'
+                    : '*Už dlouho nepršelo. Záhony pukají, réva svěsila listy, pole čekají na vodu, která nepřichází. Co je zaléváno ručně, to vydrží — zbytek trpí.*';
+            },
+            cooldownDays: 12,
+            trigger: () => {
+                if (typeof WeatherSystem === 'undefined' || !WeatherSystem.countDryDays) return false;
+                const hasGarden = (GameState.garden && GameState.garden.length)
+                    || (GameState.fields && GameState.fields.length)
+                    || (GameState.vinea && GameState.vinea.length);
+                if (!hasGarden) return false;
+                return WeatherSystem.countDryDays(3).dry >= 3;
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Understood' : 'Rozumím',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Note it in the chronicle. Watering by hand is the only remedy.'
+                        : 'Zaznamenat do kroniky. Ruční zálivka je jediná náprava.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const msg = en ? 'The dry spell is noted. Unwatered crops will suffer.' : 'Sucho zaznamenáno. Nezalévané plodiny ponesou následky.';
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                }
+            ]
+        },
+        {
+            id: 'weather_blizzard_local',
+            icon: '🌨️',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'Snow Closes the Roads' : 'Vánice uzavírá cesty',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*The blizzard has raged since dawn. Drifts pile against the gate, and no sensible traveller sets out today. The monastery is, for now, alone with the snow.*'
+                    : '*Vánice zuří od svítání. Závěje se hromadí u brány a žádný rozumný poutník dnes nevyráží na cestu. Klášter je zatím sám se sněhem.*';
+            },
+            cooldownDays: 20,
+            trigger: () => {
+                if (typeof WeatherSystem === 'undefined' || !WeatherSystem.cache || !WeatherSystem.cache.current) return false;
+                const code = WeatherSystem.cache.current.weather_code;
+                const isSnow = code !== undefined && code !== null && ((code >= 71 && code <= 77) || (code >= 85 && code <= 86));
+                if (!isSnow) return false;
+                return !WeatherSystem.isFrostDay || WeatherSystem.isFrostDay(-5);
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Understood' : 'Rozumím',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en')
+                        ? 'Note it in the chronicle.'
+                        : 'Zaznamenat do kroniky.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const msg = en ? 'The blizzard is noted in the chronicle.' : 'Vánice zaznamenána do kroniky.';
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                }
+            ]
         }
     ],
 

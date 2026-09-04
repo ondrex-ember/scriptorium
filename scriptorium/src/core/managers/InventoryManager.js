@@ -85,6 +85,7 @@ const InventoryManager = {
         Game._saveHint.actions++;
         Game._checkSaveHint();
         if (typeof EventsSystem !== 'undefined') EventsSystem.onAction();
+        if (typeof EventFeedScheduler !== 'undefined') EventFeedScheduler.onAction();
 
         // Vigor check — těžké recepty vyžadují Vigor >= 25, lehké >= 10
         if (typeof VigorSystem !== 'undefined') {

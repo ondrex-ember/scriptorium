@@ -899,6 +899,64 @@ const FarmyardSystem = {
         }
     },
 
+    // eventy-audit-mrd (04.09.2026) §4.3 Fáze 2 — stejný vzor jako
+    // columbariumPredatorTick výš (liška/kuna/lasička loví přes ohrazení,
+    // historicky doloženo). SMALL_PREDATOR_FLOOR nižší než u holubníku
+    // (2, ne 5) — Kurník/Klec bývají menší chovy. Mitigace "level >= 2 =
+    // imunita" je připravená v datech (stejné pole jako Columbarium), ale
+    // tahle session nepřidává žádné tlačítko/tech na zvýšení levelu —
+    // dokud nic level nezvýší, riziko běží pořád. Navazující krok, ne
+    // teď: "vybílit Kurník/Klec" upgrade/tech, co level nastaví na 2.
+    SMALL_PREDATOR_FLOOR: 2,
+    henhousePredatorTick: function () {
+        const h = GameState.henhouse;
+        if (!h || !h.built || !Array.isArray(h.hens) || h.hens.length <= 0) return;
+        if (h.level === undefined) h.level = 1;
+        if (h.level >= 2) return;
+        const now = Date.now();
+        if (now - (h.lastPredatorTick || 0) < this.DAY_MS) return;
+        h.lastPredatorTick = now;
+        if (Math.random() < this.PREDATOR_CHANCE) {
+            const loss = this.PREDATOR_LOSS_MIN + Math.floor(Math.random() * (this.PREDATOR_LOSS_MAX - this.PREDATOR_LOSS_MIN + 1));
+            const maxLoss = Math.max(0, h.hens.length - this.SMALL_PREDATOR_FLOOR);
+            const actualLoss = Math.min(loss, maxLoss);
+            if (actualLoss > 0) {
+                h.hens.splice(0, actualLoss);
+                if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                    NotificationSystem.panel('🦊 ' + (lang === 'en'
+                        ? `A fox got into the henhouse — ${actualLoss} hen(s) lost.`
+                        : `Liška se dostala do kurníku — ztraceno ${actualLoss} slepic(e).`), 'warning');
+                }
+                if (typeof Game !== 'undefined') Game.save();
+            }
+        }
+    },
+    rabbitryPredatorTick: function () {
+        const r = GameState.rabbitry;
+        if (!r || !r.built || !Array.isArray(r.animals) || r.animals.length <= 0) return;
+        if (r.level === undefined) r.level = 1;
+        if (r.level >= 2) return;
+        const now = Date.now();
+        if (now - (r.lastPredatorTick || 0) < this.DAY_MS) return;
+        r.lastPredatorTick = now;
+        if (Math.random() < this.PREDATOR_CHANCE) {
+            const loss = this.PREDATOR_LOSS_MIN + Math.floor(Math.random() * (this.PREDATOR_LOSS_MAX - this.PREDATOR_LOSS_MIN + 1));
+            const maxLoss = Math.max(0, r.animals.length - this.SMALL_PREDATOR_FLOOR);
+            const actualLoss = Math.min(loss, maxLoss);
+            if (actualLoss > 0) {
+                r.animals.splice(0, actualLoss);
+                if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                    NotificationSystem.panel('🦡 ' + (lang === 'en'
+                        ? `A weasel dug into the rabbit hutch — ${actualLoss} rabbit(s) lost.`
+                        : `Lasička se prokopala do klece — ztraceno ${actualLoss} králík(ů).`), 'warning');
+                }
+                if (typeof Game !== 'undefined') Game.save();
+            }
+        }
+    },
+
     // Dodatek 27.7.2026 — pasivní organický přírůstek, NEZÁVISLE na
     // manuálním hnízdění. Roste jen do POPULATION_AUTO_CEILING (13), bez
     // ohledu na tier kapacitu — zbytek do plné kapacity musí hráč doplnit

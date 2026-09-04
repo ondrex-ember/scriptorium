@@ -58,6 +58,7 @@ const JS_MAIN = [
     'src/systems/canonical.js',     // CanonicalHours
     'src/systems/notifications.js', // NotificationSystem
     'src/systems/ChroniconSystem.js', // ChroniconSystem
+    'src/systems/EventFeedScheduler.js', // EventFeedScheduler — eventy-audit-mrd Fáze 0
     'src/systems/events.js',        // EventsSystem
     'src/systems/rank.js',          // RankSystem
     'src/systems/notebook.js',      // NotebookSystem

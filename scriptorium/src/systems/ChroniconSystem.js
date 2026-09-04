@@ -559,10 +559,6 @@ const ChroniconSystem = {
         // Záznamy jsou od nejnovějšího — injectujeme od nejstaršího
         const entries = [...snap.chronicle].reverse();
 
-        const lang = (typeof GameState !== 'undefined' && GameState.settings && GameState.settings.language)
-            ? GameState.settings.language
-            : 'cs';
-
         // Syntetický timestamp základ: snap.generated odpovídá nejvyššímu tick číslu
         const snapTs    = snap.generated ? Date.parse(snap.generated) : Date.now();
         const maxTick   = snap.time && snap.time.total_tick != null ? snap.time.total_tick : 0;
@@ -579,26 +575,11 @@ const ChroniconSystem = {
                 return;
             }
 
-            // Panel notifikace
-            if (typeof NotificationSystem !== 'undefined') {
-                const icon = entry.icon ? entry.icon + ' ' : '';
-                const text = (lang === 'en' && entry.text_en)
-                    ? entry.text_en
-                    : (entry.text_cs || entry.text);
-                // Mapovat source na subkategorii pro správný label v panelu
-                const src = entry.source || '';
-                const cat = src === 'distant_events'
-                    ? 'chronicon_distant'
-                    : (src === 'local_events'
-                        ? 'chronicon_local'
-                        : (src === 'monastery_internal' || src === 'engine' || src === 'gm' || src === 'weather'
-                            ? 'chronicon_monastery'
-                            : 'chronicon'));
-                NotificationSystem.panel(icon + text, cat);
-            }
-
-            // Inject do GameState.kronika
-            ChroniconSystem._injectToKronika(entry, snapTs, maxTick);
+            // eventy-audit-mrd (04.09.2026) Fáze 0: dřív šlo panel+kronika
+            // rovnou tady (celá dávka najednou, synchronně). Teď jen
+            // ENQUEUE — EventFeedScheduler.onAction() to vypouští postupně,
+            // rozprostřené přes akce hráče (funguje i offline).
+            EventFeedScheduler.enqueue(entry, snapTs, maxTick);
 
             seen[id] = 1;
             added++;

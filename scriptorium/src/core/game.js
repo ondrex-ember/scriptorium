@@ -901,6 +901,9 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.checkMillwrightHireComplete) Game.checkMillwrightHireComplete();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
+                    // Kurník/Klec — denní riziko liška/kuna/lasička (eventy-audit-mrd §4.3 Fáze 2, mirror Columbarium)
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.henhousePredatorTick) FarmyardSystem.henhousePredatorTick();
+                    if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.rabbitryPredatorTick) FarmyardSystem.rabbitryPredatorTick();
                     // Columbarium — pasivní přírůstek do stropu 13 (self-guarded 24h, holubnik-mrd)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumRegrowTick) FarmyardSystem.columbariumRegrowTick();
                     // Columbarium — dokončení výcviku (self-guarded přes readyAt, holubnik-mrd)
