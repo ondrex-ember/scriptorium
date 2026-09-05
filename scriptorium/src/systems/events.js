@@ -2,6 +2,12 @@ const EventsSystem = {
     events: [
         {
             id: 'pellinga_swedish_siege',
+            // eventy-audit-mrd (05.09.2026) pending-timeout fix: pole "nego"
+            // (index 2, poslední) ztrácí 60 % knih — NENÍ to bezpečná volba.
+            // "wall" (index 1) ztrácí 0 % (vrátí se za 48h) — skutečně
+            // nejbezpečnější, proto explicitní timeoutIndex místo spoléhání
+            // na "poslední v poli".
+            timeoutIndex: 1,
             titleKey: 'events.swedish_siege.title',
             textKey: 'events.swedish_siege.text',
             image: '/events/pellinga_swedish_siege.jpg',
@@ -241,6 +247,11 @@ const EventsSystem = {
         // B-Haeresis — Nájezd Inkvizice (inquisitionHeat >= 80, důsledek kacířských lektvarů)
         {
             id: 'inq_raid',
+            // eventy-audit-mrd (05.09.2026) pending-timeout fix: poslední
+            // volba je "Podplatit notáře (1000 grošů)" — v žádném případě
+            // bezpečný auto-default. "Confess" (index 0) je deterministické,
+            // bez grošů, bez gamblingu.
+            timeoutIndex: 0,
             icon: '⚖️',
             title: () => (GameState.settings && GameState.settings.language === 'en') ? 'The Inquisition Comes' : 'Přijela Inkvizice',
             text: () => {
@@ -1120,6 +1131,176 @@ const EventsSystem = {
                     }
                 }
             ]
+        },
+
+        // eventy-audit-mrd (04.09.2026) §4.1 Fáze 3 — LOKÁLNĚ, abstraktní
+        // trigger (žádná Karavana/cestovní vrstva neexistuje, viz diskuze
+        // 05.09.2026 — ta je vlastní budoucí MRD). 4 odlišné varianty pro
+        // variabilitu, každá vlastní dlouhý cooldown, ať to v součtu není
+        // časté. Historicky: lapkovství na Moravě v 1. pol. 15. stol. je
+        // zdokumentovaný fenomén (rozpuštěné žoldnéřské družiny z
+        // husitských válek bez obživy).
+        {
+            id: 'road_lapkove_begging',
+            icon: '🥖',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'Hungry Men at the Gate' : 'Hladoví u brány',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*A ragged handful of men wait by the gate — soldiers with no company left to serve, or so they claim. They ask only for bread.*'
+                    : '*U brány čeká hrstka otrhaných mužů — vojáci bez roty, co by je živila, aspoň to tvrdí. Žádají jen o chléb.*';
+            },
+            cooldownDays: 14,
+            trigger: () => Math.random() < 0.03,
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Give alms' : 'Dát almužnu',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'A few loaves, freely given.' : 'Pár bochníků, dobrovolně.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        Game.addItem('bread', -Math.min(3, GameState.inventory['bread'] || 0));
+                        if (typeof PersonaSystem !== 'undefined') {
+                            if (PersonaSystem.addZboznost) PersonaSystem.addZboznost(1);
+                            if (PersonaSystem.addReputation) PersonaSystem.addReputation('lidovost', 2);
+                        }
+                        const msg = en ? 'The men bow and move on, fed.' : 'Muži se ukloní a sytí jdou dál.';
+                        return msg;
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Turn them away' : 'Odmítnout',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'The gate stays shut.' : 'Brána zůstává zavřená.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) PersonaSystem.addReputation('lidovost', -1);
+                        return en ? 'They leave without a word. Word of this will travel too.' : 'Odcházejí beze slova. I tohle se v kraji rozkřikne.';
+                    }
+                }
+            ]
+        },
+        {
+            id: 'road_lapkove_wounded',
+            icon: '🩹',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'The Wounded' : 'Zranění',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*Two men lie by the wall, bloodied and past fighting. Whatever band they belonged to, they were left behind.*'
+                    : '*Dva muži leží u zdi, zakrvácení a k boji už neschopní. Ať patřili k jakékoliv rotě, tahle je nechala napospas.*';
+            },
+            cooldownDays: 16,
+            trigger: () => Math.random() < 0.025,
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Take them to the Infirmarium' : 'Přijmout do Infirmária',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Bandages and broth cost a little.' : 'Obvazy a vývar něco stojí.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                            CellariumSystem.addGrose(-5, { title: en ? 'Care for the wounded' : 'Ošetření raněných', source: 'Infirmarium' });
+                        }
+                        if (typeof PersonaSystem !== 'undefined') {
+                            if (PersonaSystem.addZboznost) PersonaSystem.addZboznost(2);
+                            if (PersonaSystem.addReputation) PersonaSystem.addReputation('lidovost', 1);
+                        }
+                        return en ? 'They are carried in. One thanks you by name he does not give.' : 'Odnesou je dovnitř. Jeden děkuje jménem, které neřekne.';
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Send them away' : 'Poslat pryč',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Not our concern.' : 'Není to naše starost.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof PersonaSystem !== 'undefined') {
+                            if (PersonaSystem.addReputation) PersonaSystem.addReputation('lidovost', -1);
+                            if (PersonaSystem.addZboznost) PersonaSystem.addZboznost(-1);
+                        }
+                        return en ? 'They drag themselves elsewhere.' : 'Odvlečou se jinam.';
+                    }
+                }
+            ]
+        },
+        {
+            id: 'road_lapkove_armed',
+            icon: '⚔️',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'Armed Men on the Road' : 'Ozbrojená rota na cestě',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*A armed company blocks the path near the walls — not soldiers of any lord, just men with weapons and no one to answer to. They want payment to let goods pass unmolested.*'
+                    : '*Ozbrojená rota obsadila cestu kousek od zdí — nejsou ničí vojáci, jen muži se zbraněmi a bez pána. Chtějí zaplatit za to, že nechají zboží projít.*';
+            },
+            cooldownDays: 20,
+            trigger: () => Math.random() < 0.02,
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Pay them off (40 groše)' : 'Zaplatit výpalné (40 grošů)',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Cheaper than a fight.' : 'Levnější než rvačka.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                            CellariumSystem.addGrose(-40, { title: en ? 'Bandit toll' : 'Výpalné lapkům', source: 'Porta' });
+                        }
+                        return en ? 'Groše change hands. The road stays open.' : 'Groše mění majitele. Cesta zůstává volná.';
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Refuse' : 'Odmítnout',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Risk it.' : 'Riskovat.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (Math.random() < 0.5) {
+                            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) PersonaSystem.addReputation('slechta', 1);
+                            return en ? 'They grumble and let the matter drop.' : 'Zabručí a věc nechají být.';
+                        }
+                        const loss = Math.floor((GameState.inventory['paper'] || 0) * 0.2);
+                        if (loss > 0) Game.addItem('paper', -loss);
+                        return en ? `They take what they can carry — ${loss} paper lost.` : `Vezmou si, co unesou — ztraceno ${loss} papíru.`;
+                    }
+                }
+            ]
+        },
+        {
+            id: 'road_lapkove_mercenary',
+            icon: '🏴',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'A Mercenary Company' : 'Žoldnéřská tlupa',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*This is no ragged band — a proper mercenary company has made camp within sight of the walls, unpaid since whichever lord hired them ran out of coin. They are not asking politely.*'
+                    : '*Tohle není ledajaká tlupa — u zdí se utábořila pořádná žoldnéřská rota, nevyplacená od chvíle, co pánovi, co je najal, došly peníze. Neptají se zdvořile.*';
+            },
+            cooldownDays: 28,
+            trigger: () => (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) > 100 && Math.random() < 0.015,
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Negotiate (80 groše)' : 'Vyjednat (80 grošů)',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Expensive, but final.' : 'Drahé, ale definitivní.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                            CellariumSystem.addGrose(-80, { title: en ? 'Mercenary settlement' : 'Vyrovnání se žoldnéři', source: 'Porta' });
+                        }
+                        if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) PersonaSystem.addReputation('slechta', 1);
+                        return en ? 'A captain takes the sum and moves his company on.' : 'Hejtman vezme sumu a rotu odvede jinam.';
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Bar the gates' : 'Zavřít brány',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Wait it out.' : 'Vyčkat.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const loss = Math.floor((GameState.inventory['common_codex'] || 0) * 0.15);
+                        if (loss > 0) Game.addItem('common_codex', -loss);
+                        const currentGrose = typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0;
+                        const grLoss = Math.min(30, currentGrose);
+                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                            CellariumSystem.addGrose(-grLoss, { title: en ? 'Looted while gates held' : 'Vypleněno za zavřenými branami', source: 'Porta' });
+                        }
+                        return en ? `They camp three days and take what stragglers leave behind — ${loss} codices, ${grLoss} groše gone.` : `Utáboří se na tři dny a berou, co zůstane venku — ${loss} kodexů, ${grLoss} grošů pryč.`;
+                    }
+                }
+            ]
         }
     ],
 
@@ -1164,6 +1345,7 @@ const EventsSystem = {
             this.checkRandomEvents();
             this.checkRepeatableEvents();
         }
+        this.checkPendingTimeouts(); // eventy-audit-mrd (05.09.2026) — každou akci, levné (early-return když fronta prázdná)
     },
 
     // ── Náhodné eventy (akce-based, max 1/24h) ────────────────────────────────
@@ -1236,6 +1418,47 @@ const EventsSystem = {
         return this.events.find(e => e.id === id) ||
                this.repeatableEvents.find(e => e.id === id) ||
                null;
+    },
+
+    // eventy-audit-mrd (05.09.2026) — pending decision eventy z tohohle
+    // souboru dřív mohly viset v NotificationSystem.pendingDecisionEvents
+    // navěky (žádný timeout nikde v `notifications.js`). Netýká se to
+    // ostatních pending zdrojů (chronicon/calendar_*/game_confession apod.
+    // — mají source jiný než 'events', tenhle check je nechává být).
+    // Default volba PRIORITNĚ z event.timeoutIndex (explicitní, ověřené
+    // ručně — u pellinga_swedish_siege/inq_raid poslední volba v poli NENÍ
+    // bezpečná, viz komentáře u těch dvou eventů); jinak poslední index.
+    PENDING_TIMEOUT_DAYS: 3,
+    checkPendingTimeouts: function() {
+        if (typeof GameState === 'undefined' || !GameState.pendingDecisionEvents || !GameState.pendingDecisionEvents.length) return;
+        if (typeof NotificationSystem === 'undefined' || !NotificationSystem.resolvePendingEvent) return;
+
+        const now = Date.now();
+        const timeoutMs = this.PENDING_TIMEOUT_DAYS * 24 * 3600000;
+        const due = GameState.pendingDecisionEvents.filter(p => p.source === 'events' && (now - p.time) >= timeoutMs);
+        if (!due.length) return;
+
+        due.forEach(p => {
+            const event = this._findEventById(p.id);
+            if (!event || !event.choices || !event.choices.length) {
+                NotificationSystem.resolvePendingEvent(p.id); // definice zmizela/nekompatibilní — zahodit, ne nechat viset
+                return;
+            }
+            const idx = (event.timeoutIndex !== undefined) ? event.timeoutIndex : (event.choices.length - 1);
+            const choice = event.choices[idx] || event.choices[event.choices.length - 1];
+            const result = choice.action();
+            NotificationSystem.resolvePendingEvent(p.id);
+
+            if (NotificationSystem.panel) {
+                const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                const resolve = (val) => typeof val === 'function' ? val() : val;
+                const title = resolve(event.title) || p.title || '';
+                NotificationSystem.panel('⏳ ' + (lang === 'en'
+                    ? `Unanswered — "${title}" resolved on its own: ${result}`
+                    : `Nezodpovězeno — „${title}" se vyřešilo samo: ${result}`), 'warning');
+            }
+        });
+        Game.save();
     },
 
     showEvent: function(event) {
