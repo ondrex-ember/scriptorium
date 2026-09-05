@@ -1371,6 +1371,131 @@ const EventsSystem = {
                     }
                 }
             ]
+        },
+
+        // eventy-audit-mrd (04.09.2026) §4.4-4.6 Fáze 4 — poslední fáze
+        // z auditu. Dravec: denní/viditelný predátor, volba s agencí (na
+        // rozdíl od nočních tichých ticků liška/kuna/vlk z Fáze 2).
+        // Historicky ověřeno: jestřáb lesní je zdokumentovaný, agresivní
+        // predátor drůbeže — i v současnosti (ČSO/policejní záznamy z
+        // Kroměřížska 2023: chovatel slepic řešil opakované útoky
+        // jestřába pastí). Sokol/káně jako doplňkové druhy pro variabilitu.
+        {
+            id: 'predator_raptor_poultry',
+            icon: '🦅',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'A Hawk Over the Yard' : 'Jestřáb nad dvorem',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*A shadow circles low over the yard — goshawk, maybe a falcon. The hens scatter, the pigeons scatter. It only needs one moment of carelessness.*'
+                    : '*Nad dvorem krouží nízko stín — jestřáb, možná sokol. Slepice se rozprchnou, holubi taky. Stačí chvilka nepozornosti.*';
+            },
+            cooldownDays: 18,
+            trigger: () => {
+                const hens = (GameState.henhouse && GameState.henhouse.built && Array.isArray(GameState.henhouse.hens)) ? GameState.henhouse.hens.length : 0;
+                const pigeons = (GameState.columbarium && GameState.columbarium.built) ? (GameState.columbarium.count || 0) : 0;
+                if (hens + pigeons <= 0) return false;
+                return Math.random() < 0.025;
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Scare it off' : 'Zahnat křikem a klackem',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Quick reaction, no guarantee.' : 'Rychlá reakce, žádná záruka.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(6);
+                        if (Math.random() < 0.7) {
+                            return en ? 'It wheels away, empty-taloned.' : 'Odlétá pryč, s prázdnými spáry.';
+                        }
+                        const hens = (GameState.henhouse && Array.isArray(GameState.henhouse.hens)) ? GameState.henhouse.hens : [];
+                        if (hens.length > 0) { hens.splice(0, 1); return en ? 'Too slow — one hen taken.' : 'Pozdě — jedna slepice pryč.'; }
+                        if (GameState.columbarium && (GameState.columbarium.count || 0) > 0) { GameState.columbarium.count -= 1; return en ? 'Too slow — one pigeon taken.' : 'Pozdě — jeden holub pryč.'; }
+                        return en ? 'It leaves on its own.' : 'Odlétá sám od sebe.';
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Let it be' : 'Nechat být',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Saves effort, costs a bird.' : 'Šetříš síly, drůbež platí.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const hens = (GameState.henhouse && Array.isArray(GameState.henhouse.hens)) ? GameState.henhouse.hens : [];
+                        if (hens.length > 0) { hens.splice(0, 1); return en ? 'It stoops once — one hen gone.' : 'Jednou se snese — jedna slepice pryč.'; }
+                        if (GameState.columbarium && (GameState.columbarium.count || 0) > 0) { GameState.columbarium.count -= 1; return en ? 'It stoops once — one pigeon gone.' : 'Jednou se snese — jeden holub pryč.'; }
+                        return en ? 'It circles and moves on.' : 'Zakrouží a odletí jinam.';
+                    }
+                }
+            ]
+        },
+        {
+            id: 'weather_flood',
+            icon: '🌊',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'The River Runs High' : 'Rozvodněná řeka',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*Days of rain have swollen the streams past their banks. The lower beds and fields stand in water — what is not lost outright will rot at the root.*'
+                    : '*Dny deště vzedmuly potoky přes břehy. Nižší záhony a pole stojí ve vodě — co nezůstane úplně, to shnije v kořeni.*';
+            },
+            cooldownDays: 14,
+            trigger: () => {
+                if (typeof WeatherSystem === 'undefined' || !WeatherSystem.countWetDays) return false;
+                const hasGarden = (GameState.garden && GameState.garden.length) || (GameState.fields && GameState.fields.length);
+                if (!hasGarden) return false;
+                return WeatherSystem.countWetDays(3).wet >= 3;
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Understood' : 'Rozumím',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Note it in the chronicle.' : 'Zaznamenat do kroniky.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const msg = en ? 'The flood is noted. Low-lying beds will pay for it.' : 'Povodeň zaznamenána. Nízko položené záhony to odnesou.';
+                        EventsSystem._addKronika(msg);
+                        return msg;
+                    }
+                }
+            ]
+        },
+        {
+            id: 'accident_fire',
+            icon: '🔥',
+            title: () => (GameState.settings && GameState.settings.language === 'en') ? 'A Spark from the Forge' : 'Jiskra z výhně',
+            text: () => {
+                const en = GameState.settings && GameState.settings.language === 'en';
+                return en
+                    ? '*A stray spark catches in the woodpile by the smithy — the furnace has burned unwatched too long. Smoke, not yet flame, but not far from it.*'
+                    : '*Bludná jiskra chytla ve dřevníku vedle kovárny — pec hoří bez dozoru už dlouho. Zatím kouř, ne plamen, ale nedaleko k němu.*';
+            },
+            cooldownDays: 25,
+            trigger: () => {
+                const kov = GameState.storage && GameState.storage.kovarna;
+                if (!kov || !kov.built || !kov.furnace || !(kov.furnace.fuelMs > 0)) return false;
+                return Math.random() < 0.012;
+            },
+            choices: [
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Douse it now' : 'Uhasit rychle',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Costs effort, saves the fuel.' : 'Stojí sílu, zachrání palivo.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(8);
+                        return en ? 'Smothered in time. The furnace still burns.' : 'Uhašeno včas. Pec dál hoří.';
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Let it burn out' : 'Nechat dohořet',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'No effort — but the furnace goes cold, and repairs cost.' : 'Bez námahy — ale pec vychladne a oprava něco stojí.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const kov = GameState.storage && GameState.storage.kovarna;
+                        if (kov && kov.furnace) kov.furnace.fuelMs = 0;
+                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                            CellariumSystem.addGrose(-15, { title: en ? 'Furnace repair' : 'Oprava výhně', source: 'Kovárna' });
+                        }
+                        return en ? 'The furnace goes dark. Repairs cost 15 groše.' : 'Pec zhasne. Oprava stála 15 grošů.';
+                    }
+                }
+            ]
         }
     ],
 
