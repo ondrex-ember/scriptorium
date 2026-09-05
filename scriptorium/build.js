@@ -105,6 +105,7 @@ const JS_MAIN = [
     'src/games/hnefatafl.js',
     'src/games/TavernDice.js',
     'src/games/sokoban.js',
+    'src/games/RiskStack.js', // eventy-audit-mrd Fáze 3 — minihra pro lapkové
 
     // i18n — MUSÍ být před Game a UI
     'src/i18n/cs.js',               // Čeština (master)

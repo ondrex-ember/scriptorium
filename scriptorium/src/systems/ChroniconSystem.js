@@ -722,6 +722,18 @@ const ChroniconSystem = {
         if (adv.pending && adv.activeId) {
             const p = adv.pending;
             if (p.kind === 'ctenar' || p.kind === 'vypujcka') {
+                // eventy-audit-mrd (05.09.2026) — dřív se žádost ukázala
+                // (notifikace + gate modal) i bez postavené Studovny/pultu;
+                // hráč to zjistil, až proklikl "Vyřešit". Stejná tech-
+                // podmínka jako v _resolveAdvisory (choiceId==='accept'..)
+                // teď rozhoduje i tady — bez techu se zatím vůbec neukáže,
+                // Chronicon žádost neztrácí (adv.pending zůstává), zkusí
+                // se znovu příští tick, dokud tech nedojde.
+                const techOk = p.kind === 'ctenar'
+                    ? !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'))
+                    : !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_absentee_lending'));
+                if (!techOk) return;
+
                 ChroniconSystem._advisoryShownThisSession = true;
                 if (NotificationSystem.pendingEvent) {
                     NotificationSystem.pendingEvent({

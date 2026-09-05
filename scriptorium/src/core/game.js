@@ -138,6 +138,10 @@ const Game = {
                 GameState.inventory['tinderbox'] = 1;
             }
             setTimeout(() => UI.showFireoutModal(_daysSinceLastSeen), 600);
+            // eventy-audit-mrd (05.09.2026) — trvalý klikatelný záznam ve
+            // Zprávách z kláštera se teď registruje uvnitř
+            // UI.showFireoutModal() (sdílené pro obě volání — první
+            // zapálení i tenhle návrat), ať to není na dvou místech.
         }
 
         // --- 0b. KRONIKA (init guard) ---

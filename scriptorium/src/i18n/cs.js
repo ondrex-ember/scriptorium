@@ -442,12 +442,18 @@ const STRINGS_cs = {
     },
     fireout: {
         heading: 'Pracovna je studená',
-        btn: 'Hledat oheň →',
+        welcomeHeading: 'Krb čeká na první jiskru',
+        btnIgnite: '🔥 Rozežehnout',
+        btnGoto: '🏚️ K ohništi',
+        btnClose: 'Zavřít',
         absence: 'Nepřítomnost:',
         texts: [
             'Popel v krbu je studený. Úplně studený.<br><br>Trvalo ti to – ale vrátil ses. Pracovna čeká, tak jak jsi ji nechal. Pergamen na stole. Inkoust zatuhlý. Brko suché.<br><br>Jen krb je potřeba rozžehnout znovu.',
             'Vrátil ses po {days} {dayWord}.<br><br>V skriptoriu je ticho a chlad. Svíčka dohořela, louč vyprchala. Ale rukopisy na stole jsou stále tam. Pergamen čeká trpělivěji než lidé.<br><br>Stůl je připraven. Chybí jen teplo.',
             'Tři dny pryč. Možná víc.<br><br>Opat by řekl: <em>"Acedia – lenost ducha – je nepřítel písaře."</em> Ale ty jsi zpět. A to se počítá.<br><br>Rozžehni troud. Začni tam, kde jsi přestal.'
+        ],
+        welcomeTexts: [
+            'Krb je zatím studený — jako ostatně celá pracovna.<br><br>Máš troud, máš dřevo po ruce. Zbývá jen první jiskra.<br><br>Bez tepla a světla se nedá dlouho psát ani číst.'
         ],
         dayWord: { one: 'den', few: 'dny', many: 'dní' }
     },

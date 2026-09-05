@@ -302,6 +302,7 @@ const NotificationSystem = {
         calendar_imbolc:     ()   => `CalendarSystem.reopenImbolc()`,
         calendar_lughnasadh: ()   => `CalendarSystem.reopenLughnasadh()`,
         calendar_samhain:    ()   => `CalendarSystem.reopenSamhain()`,
+        fireout:             ()   => `UI.switchScreen('home')`,
     },
 
     _renderPendingItem: function(entry) {

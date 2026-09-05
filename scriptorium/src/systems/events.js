@@ -1223,6 +1223,10 @@ const EventsSystem = {
         {
             id: 'road_lapkove_armed',
             icon: '⚔️',
+            // eventy-audit-mrd (05.09.2026) pending-timeout: přidáním 3. volby
+            // (minihra) by "poslední index" znamenal auto-spuštění RiskStack
+            // bez hráče u toho — explicitní index 1 (Odmítnout) zůstává default.
+            timeoutIndex: 1,
             title: () => (GameState.settings && GameState.settings.language === 'en') ? 'Armed Men on the Road' : 'Ozbrojená rota na cestě',
             text: () => {
                 const en = GameState.settings && GameState.settings.language === 'en';
@@ -1257,12 +1261,43 @@ const EventsSystem = {
                         if (loss > 0) Game.addItem('paper', -loss);
                         return en ? `They take what they can carry — ${loss} paper lost.` : `Vezmou si, co unesou — ztraceno ${loss} papíru.`;
                     }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Play for it (dice)' : 'Hrát o štěstí (kostky)',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Win groše, or lose the goods trying.' : 'Vyhraješ groše, nebo o zboží přijdeš ve snaze.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof RiskStack === 'undefined') return en ? 'The dice are not at hand.' : 'Kostky nejsou po ruce.';
+                        RiskStack.open({}, (outcome) => {
+                            let msg;
+                            if (outcome.won) {
+                                const bonus = outcome.bank * 3;
+                                if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                                    CellariumSystem.addGrose(bonus, { title: en ? 'Bandit dice winnings' : 'Výhra ze sázky s lapky', source: 'Porta' });
+                                }
+                                msg = en ? `Luck holds — you walk away ${bonus} groše richer.` : `Štěstí drží — odcházíš o ${bonus} grošů bohatší.`;
+                            } else {
+                                const loss = Math.floor((GameState.inventory['paper'] || 0) * 0.2);
+                                if (loss > 0) Game.addItem('paper', -loss);
+                                msg = en ? `The dice turn — ${loss} paper lost.` : `Kostky se obrátí — ztraceno ${loss} papíru.`;
+                            }
+                            EventsSystem._addKronika(msg);
+                            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+                                NotificationSystem.modal({
+                                    title: t('events.ui.result'), text: msg,
+                                    choices: [{ label: t('events.ui.close'), type: 'primary', effect: () => { if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll(); } }]
+                                });
+                            }
+                        });
+                        return '';
+                    }
                 }
             ]
         },
         {
             id: 'road_lapkove_mercenary',
             icon: '🏴',
+            timeoutIndex: 1, // eventy-audit-mrd (05.09.2026) — stejný důvod jako u road_lapkove_armed
             title: () => (GameState.settings && GameState.settings.language === 'en') ? 'A Mercenary Company' : 'Žoldnéřská tlupa',
             text: () => {
                 const en = GameState.settings && GameState.settings.language === 'en';
@@ -1298,6 +1333,41 @@ const EventsSystem = {
                             CellariumSystem.addGrose(-grLoss, { title: en ? 'Looted while gates held' : 'Vypleněno za zavřenými branami', source: 'Porta' });
                         }
                         return en ? `They camp three days and take what stragglers leave behind — ${loss} codices, ${grLoss} groše gone.` : `Utáboří se na tři dny a berou, co zůstane venku — ${loss} kodexů, ${grLoss} grošů pryč.`;
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Play for it (dice)' : 'Hrát o štěstí (kostky)',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Higher stakes than the road bandits.' : 'Vyšší sázky než u obyčejných lapků.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof RiskStack === 'undefined') return en ? 'The dice are not at hand.' : 'Kostky nejsou po ruce.';
+                        RiskStack.open({}, (outcome) => {
+                            let msg;
+                            if (outcome.won) {
+                                const bonus = outcome.bank * 5;
+                                if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                                    CellariumSystem.addGrose(bonus, { title: en ? 'Mercenary dice winnings' : 'Výhra ze sázky se žoldnéři', source: 'Porta' });
+                                }
+                                msg = en ? `The captain grins — bad luck for him. You walk away ${bonus} groše richer.` : `Hejtman se křiví — smůla na jeho straně. Odcházíš o ${bonus} grošů bohatší.`;
+                            } else {
+                                const loss = Math.floor((GameState.inventory['common_codex'] || 0) * 0.15);
+                                if (loss > 0) Game.addItem('common_codex', -loss);
+                                const currentGrose = typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0;
+                                const grLoss = Math.min(30, currentGrose);
+                                if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                                    CellariumSystem.addGrose(-grLoss, { title: en ? 'Lost the dice game' : 'Prohra v kostkách', source: 'Porta' });
+                                }
+                                msg = en ? `The dice turn against you — ${loss} codices and ${grLoss} groše gone.` : `Kostky se obrátí proti tobě — ztraceno ${loss} kodexů a ${grLoss} grošů.`;
+                            }
+                            EventsSystem._addKronika(msg);
+                            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+                                NotificationSystem.modal({
+                                    title: t('events.ui.result'), text: msg,
+                                    choices: [{ label: t('events.ui.close'), type: 'primary', effect: () => { if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll(); } }]
+                                });
+                            }
+                        });
+                        return '';
                     }
                 }
             ]

@@ -414,12 +414,18 @@ const STRINGS_en = {
     },
     fireout: {
         heading: 'The Workshop Lies Cold',
-        btn: 'Seek the flame →',
+        welcomeHeading: 'The Hearth Awaits Its First Spark',
+        btnIgnite: '🔥 Light It',
+        btnGoto: '🏚️ To the Hearth',
+        btnClose: 'Close',
         absence: 'Away for:',
         texts: [
             'The ash in the hearth is cold. Utterly cold.<br><br>It took thee time — yet thou art returned. The workshop waits as thou didst leave it. Parchment on the desk. Ink congealed. Quill dry.<br><br>Only the fire needeth to be kindled anew.',
             'Thou hast been away {days} {dayWord}.<br><br>The scriptorium is silent and cold. The candle burned out, the torch long spent. Yet the manuscripts remain. Parchment waiteth more patiently than men.<br><br>The desk is ready. Only warmth is wanting.',
             'Three days gone. Perhaps more.<br><br>The abbot would say: <em>"Acedia — sloth of spirit — is the scribe\'s true enemy."</em> Yet thou art here now. And that doth count for something.<br><br>Strike the tinder. Begin where thou left off.'
+        ],
+        welcomeTexts: [
+            'The hearth stands cold — as does the whole workshop, for now.<br><br>Tinder is at hand, wood within reach. Only the first spark is missing.<br><br>Little can be written or read for long without warmth and light.'
         ],
         dayWord: { one: 'day', few: 'days', many: 'days' }
     },

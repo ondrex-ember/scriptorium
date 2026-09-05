@@ -4324,38 +4324,82 @@ const UI = {
         const modal = document.getElementById('welcome-modal');
         if (modal) modal.style.display = 'none';
         Analytics.welcomeModalClosed();
-        setTimeout(() => UI.notify(t('notify.kindleHint')), 400);
+        setTimeout(() => UI.showFireoutModal(0, true), 400);
         setTimeout(() => Game.checkDailyReward(), 600);
     },
 
-    showFireoutModal: function (daysSince) {
-        const days = Math.floor(daysSince);
+    // eventy-audit-mrd (05.09.2026) — sjednocený modal (varianta A z diskuze):
+    // stejná komponenta pro první zapálení (isFirstTime=true) i návrat po
+    // 3+ dnech (isFirstTime=false/undefined). Dřív měl jen jedno tlačítko,
+    // co jen zavíralo modal beze změny stavu — Zavřít bez zatopení =
+    // připomínka zmizela beze stopy. Teď 3 tlačítka + trvalý klikatelný
+    // záznam ve Zprávách z kláštera (řeší i to, že modal "se lehce ztratí").
+    showFireoutModal: function (daysSince, isFirstTime) {
         const lang = GameState.settings.language || 'cs';
         const L = STRINGS[lang] || STRINGS.cs;
         const fo = L.fireout;
 
-        // dayWord — CS má 3 tvary, EN má jen 2
-        let dayWord;
-        if (lang === 'cs') {
-            dayWord = days === 1 ? fo.dayWord.one : (days < 5 ? fo.dayWord.few : fo.dayWord.many);
+        const headEl  = document.getElementById('fireout-heading');
+        const textEl  = document.getElementById('fireout-text');
+        const daysEl  = document.getElementById('fireout-days');
+        const igniteBtn = document.getElementById('fireout-btn-ignite');
+        const gotoBtn   = document.getElementById('fireout-btn-goto');
+        const closeBtn  = document.getElementById('fireout-btn-close');
+
+        if (isFirstTime) {
+            if (headEl) headEl.textContent = fo.welcomeHeading;
+            if (textEl) textEl.innerHTML = fo.welcomeTexts[Math.floor(Math.random() * fo.welcomeTexts.length)];
+            if (daysEl) daysEl.style.display = 'none';
         } else {
-            dayWord = days === 1 ? fo.dayWord.one : fo.dayWord.many;
+            const days = Math.floor(daysSince);
+            let dayWord;
+            if (lang === 'cs') {
+                dayWord = days === 1 ? fo.dayWord.one : (days < 5 ? fo.dayWord.few : fo.dayWord.many);
+            } else {
+                dayWord = days === 1 ? fo.dayWord.one : fo.dayWord.many;
+            }
+            const texts = fo.texts.map(t => t.replace('{days}', days).replace('{dayWord}', dayWord));
+            if (headEl) headEl.textContent = fo.heading;
+            if (textEl) textEl.innerHTML = texts[Math.floor(Math.random() * texts.length)];
+            if (daysEl) {
+                daysEl.style.display = '';
+                daysEl.innerHTML = `${fo.absence} <strong>${days} ${dayWord}</strong>`;
+            }
         }
 
-        const texts = fo.texts.map(t => t.replace('{days}', days).replace('{dayWord}', dayWord));
+        if (igniteBtn) igniteBtn.textContent = fo.btnIgnite;
+        if (gotoBtn) gotoBtn.textContent = fo.btnGoto;
+        if (closeBtn) closeBtn.textContent = fo.btnClose;
 
-        const headEl = document.getElementById('fireout-heading');
-        const textEl = document.getElementById('fireout-text');
-        const daysEl = document.getElementById('fireout-days');
-        const btnEl = document.getElementById('fireout-btn');
-
-        if (headEl) headEl.textContent = fo.heading;
-        if (textEl) textEl.innerHTML = texts[Math.floor(Math.random() * texts.length)];
-        if (daysEl) daysEl.innerHTML = `${fo.absence} <strong>${days} ${dayWord}</strong>`;
-        if (btnEl) btnEl.textContent = fo.btn;
+        // Trvalý záznam ve Zprávách z kláštera — přežije zavření modalu,
+        // zmizí sám v LootModalManager.igniteFireplace() při skutečném
+        // zatopení. pendingEvent je idempotentní (update času, ne duplicita),
+        // bezpečné volat při každém zobrazení modalu.
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.pendingEvent) {
+            NotificationSystem.pendingEvent({
+                id: 'fireout',
+                icon: '🔥',
+                title: lang === 'en' ? 'The hearth needs lighting' : 'Krb čeká na zapálení',
+                source: 'fireout',
+            });
+        }
 
         const modal = document.getElementById('fireout-modal');
         if (modal) modal.style.display = 'flex';
+    },
+
+    fireoutIgnite: function () {
+        // Pořadí záměrně TAKHLE — closeFireoutModal() spouští re-render
+        // (checkEnvironment + renderAll). Kdyby ignite proběhlo až po
+        // zavření, ten re-render by na zlomek sekundy ukázal ještě
+        // vyhaslý stav (proto se krátce mihla karta "Vyhaslý krb").
+        if (typeof Game !== 'undefined' && Game.igniteFireplace) Game.igniteFireplace();
+        UI.closeFireoutModal();
+    },
+
+    fireoutGoto: function () {
+        UI.closeFireoutModal();
+        UI.switchScreen('home');
     },
 
     closeFireoutModal: function () {

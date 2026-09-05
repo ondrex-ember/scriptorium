@@ -11,6 +11,7 @@ const LootModalManager = {
         Game.removeItem('tinderbox', 1);
         const isFirstTime = !GameState.achievements?.stats?.fireplaceCount;
         GameState.flags.fireplaceLit = true;
+        if (typeof NotificationSystem !== 'undefined' && NotificationSystem.resolvePendingEvent) NotificationSystem.resolvePendingEvent('fireout');
         GameState.flags.forceDark = false;
         if (GameState.achievements) GameState.achievements.stats.fireplaceCount++;
         if (typeof FireplaceSystem !== 'undefined') {
