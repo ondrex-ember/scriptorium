@@ -3333,6 +3333,18 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
             locked_hint: 'Repairing and forging horseshoes at scale requires the Abbot\'s consent to build a smithy.',
             build_cost: 'Build cost: 25 rock, 15 planks, 10 charcoal, 1 anvil, 8 nails.',
         },
+        mercenaries: {
+            title: 'Request for Mercenary Protection',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot agrees — the Porta may arrange mercenary protection. Hire one at the Tavern.',
+            denied_groats: '❌ Abbot denied: The monastery cannot afford such a commitment (30 groats).',
+            kronika_submit: 'Petition submitted to the Abbot for mercenary protection. Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot approved mercenary protection. The Porta will arrange the hiring.',
+            kronika_denied: 'The Abbot denied the petition for mercenary protection. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised to inform the Porta of the matter.',
+            locked_hint: 'The roads beyond the monastery are dangerous. Only the Porta, with the Abbot\'s consent, can arrange a mercenary\'s protection.',
+        },
         land_u_hradby: {
             title: 'Request for the Wall-side Yard',
             submit_btn: 'Submit petition to the Abbot',

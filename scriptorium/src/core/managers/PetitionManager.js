@@ -132,6 +132,15 @@ const PetitionManager = {
             }
         }
 
+        // Validace podmínek — pro žoldnéřskou ochranu, vyroba-stavby-mrd
+        // navazuje (6.9.2026). Jen prostředky — žádná parcela/tech, mirror
+        // uživatelův popis ("pokud klášter vyjádří potřebu").
+        if (type === 'mercenaries') {
+            if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 30) {
+                UI.notify(t('abbotPetition.mercenaries.denied_groats'), true); return;
+            }
+        }
+
         // Validace podmínek — pro Dvůr u hradební zdi (parcela), mirror land_dvur_pekarsky.
         if (type === 'land_u_hradby') {
             if (!(GameState.flags && GameState.flags.pozemky_active)) {
@@ -204,7 +213,7 @@ const PetitionManager = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'kovarna', 'land_u_hradby', 'columbarium', 'domus_ii', 'domus_iii', 'probost'].forEach(type => {
+        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'kovarna', 'land_u_hradby', 'columbarium', 'domus_ii', 'domus_iii', 'probost', 'mercenaries'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -246,6 +255,10 @@ const PetitionManager = {
                 else if (!(GameState.landParcels && GameState.landParcels['u_hradby'] && GameState.landParcels['u_hradby'].status === 'owned')) deniedKey = 'denied_parcel';
                 else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 70) deniedKey = 'denied_groats';
                 else if ((GameState.inventory['anvil'] || 0) < 1) deniedKey = 'denied_anvil';
+            }
+
+            if (type === 'mercenaries') {
+                if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 30) deniedKey = 'denied_groats';
             }
 
             if (type === 'land_u_hradby') {

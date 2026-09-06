@@ -1568,8 +1568,15 @@ const CellariumSystem = {
         <button class="filter-btn${sub === 'lapkove' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='lapkove'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub === 'lapkove' ? 'var(--accent-gold)' : 'rgba(197,160,89,0.1)'}; color:${sub === 'lapkove' ? '#000' : 'var(--ink-primary)'};">
           🗡️ ${lang === 'en' ? 'The Lapkové Gang' : 'Parta Lapků'}
         </button>
+        <button class="filter-btn${sub === 'mercenaries' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='mercenaries'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub === 'mercenaries' ? 'var(--accent-gold)' : 'rgba(197,160,89,0.1)'}; color:${sub === 'mercenaries' ? '#000' : 'var(--ink-primary)'};">
+          🛡️ ${lang === 'en' ? 'Mercenaries' : 'Žoldnéři'}
+        </button>
       </div>
       `;
+
+      if (sub === 'mercenaries') {
+        return h + this._renderMercenariesSub(lang);
+      }
 
       if (sub === 'dice' || sub === 'lapkove') {
         h += `<div id="tavern-dice-container"></div>`;
@@ -2200,6 +2207,122 @@ const CellariumSystem = {
     return `<div style="background:rgba(197,90,60,0.1); border:1px solid #b05a3c; padding:10px 14px; border-radius:6px; margin-bottom:12px; font-size:0.78rem;">
       ⚠️ ${lang === 'en' ? `Selling smithy goods on the Market without ${gName}'s leave is fušerství — no fee, but suspicion grows and a raid may follow. Negotiate in Cellarium — Guilds.` : `Prodej kovářského zboží na Trhu bez svolení cechu ${gName} je fušerství — bez poplatku, ale podezření roste a časem hrozí nájezd. Vyjednej si to v Cellariu — Cechy.`}
     </div>`;
+  },
+
+  // vyroba-stavby-mrd navazuje (6.9.2026) — žoldnéřská ochrana, Fáze B.
+  // Shape (name/icon/role/hp/atk/ability) odpovídá archetypům z dodanýho
+  // boj-kódu (Strážce stezky/Lovec stop/Lesní vědma) — až Fáze C přeportuje
+  // samotný boj, čte přímo odsud, žádnej remap netřeba.
+  MERCENARY_ARCHETYPES: [
+    {
+      id: 'strazce', icon: '🛡️',
+      name: 'Strážce stezky', name_en: 'Trail Guardian',
+      role: 'Ocel a odhodlání', role_en: 'Steel and resolve',
+      desc: 'Vysoké zdraví a jistý úder. Umí podržet linii, když se stezka sevře.',
+      desc_en: 'High health and a steady blow. Holds the line when the trail closes in.',
+      hp: 125, atk: 16, ability: 'Opevnění: obnoví 12 HP.', ability_en: 'Fortify: restores 12 HP.',
+    },
+    {
+      id: 'lovec', icon: '🏹',
+      name: 'Lovec stop', name_en: 'Trail Hunter',
+      role: 'Tichý a přesný', role_en: 'Silent and precise',
+      desc: 'Rychlý střelec s vyšší šancí na kritický zásah.',
+      desc_en: 'A swift archer with a higher chance to land a critical hit.',
+      hp: 95, atk: 19, ability: 'Přesný výstřel: +15 % kritické šance.', ability_en: 'Aimed shot: +15% critical chance.',
+    },
+    {
+      id: 'vedma', icon: '🌿',
+      name: 'Lesní vědma', name_en: 'Forest Seer',
+      role: 'Čte znamení', role_en: 'Reads the signs',
+      desc: 'Křehká, ale dokáže zvrátit souboj léčivým rituálem.',
+      desc_en: 'Frail, but can turn the tide with a healing ritual.',
+      hp: 85, atk: 14, ability: 'Rituál mízy: obnoví 24 HP.', ability_en: 'Sap ritual: restores 24 HP.',
+    },
+  ],
+
+  hireMercenary: function (archId) {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    if (!(GameState.abbotPetition && GameState.abbotPetition.mercenaries && GameState.abbotPetition.mercenaries.status === 'approved')) {
+      UI.notify(lang === 'en' ? 'Requires Abbot approval first.' : 'Nejprve vyžaduje souhlas opata.', true); return;
+    }
+    if (GameState.mercenary) {
+      UI.notify(lang === 'en' ? 'You already have a mercenary.' : 'Žoldnéře už máš.', true); return;
+    }
+    const arch = this.MERCENARY_ARCHETYPES.find(a => a.id === archId);
+    if (!arch) return;
+    if (this.getGrose() < 50) {
+      UI.notify(lang === 'en' ? 'Not enough groats (50).' : 'Nedostatek grošů (50).', true); return;
+    }
+    this.addGrose(-50, { title: lang === 'en' ? 'Mercenary hire' : 'Najmutí žoldnéře', source: arch.name, source_en: arch.name_en });
+    GameState.mercenary = {
+      id: arch.id, icon: arch.icon,
+      name: arch.name, name_en: arch.name_en,
+      role: arch.role, role_en: arch.role_en,
+      hp: arch.hp, max: arch.hp, atk: arch.atk,
+      ability: arch.ability, ability_en: arch.ability_en,
+      // vyroba-stavby-mrd — iniciální zbraň, další postup (sekera/meč/luk) budoucí rozvoj.
+      equipment: { weapon: null },
+      hiredAt: Date.now(),
+    };
+    UI.notifyPanel('🛡️ ' + (lang === 'en' ? (arch.name_en + ' has joined as your mercenary.') : (arch.name + ' se přidal jako tvůj žoldnéř.')), 'success');
+    Game.addKronikaEntry('important',
+      'Najat žoldnéř: ' + arch.name + '.', 'Mercenary hired: ' + arch.name_en + '.', 'Mercenarius conductus est.'
+    );
+    Game.save();
+    if (typeof PersonaSystem !== 'undefined') PersonaSystem.rerenderIfOpen();
+    this.switchEntity('tavern');
+  },
+
+  _renderMercenariesSub: function (lang) {
+    if (!GameState.abbotPetition) GameState.abbotPetition = {};
+    const pet = GameState.abbotPetition.mercenaries;
+    let h = `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">
+      <h4 style="margin:0 0 8px 0; color:var(--ink-primary);">🛡️ ${lang === 'en' ? 'Mercenary Protection' : 'Žoldnéřská ochrana'}</h4>
+      <div style="font-size:0.82rem; opacity:0.75; font-style:italic;">
+        ${lang === 'en'
+        ? 'The roads beyond the walls are not always safe. A hired blade travels where the brothers cannot.'
+        : 'Cesty za zdmi nejsou vždy bezpečné. Najatá čepel jde tam, kam se bratři neodváží.'}
+      </div>
+    </div>`;
+
+    if (!pet || pet.status === 'none' || pet.status === 'denied') {
+      h += `<div style="opacity:0.7; font-size:0.85rem; margin-bottom:10px;">${t('abbotPetition.mercenaries.locked_hint')}</div>`;
+      h += `<button class="craft-btn" onclick="Game.submitAbbotPetition('mercenaries')">📜 ${t('abbotPetition.mercenaries.submit_btn')}</button>`;
+      return h;
+    }
+    if (pet.status === 'pending') {
+      const _toGameDate = (ts) => { const d = new Date(ts); return new Date(1465, d.getMonth(), d.getDate()); };
+      const sd = pet.submittedAt ? _toGameDate(pet.submittedAt).toLocaleDateString(lang === 'cs' ? 'cs-CZ' : 'en-GB') : '?';
+      const rd = pet.submittedAt ? _toGameDate(pet.submittedAt + 86400000).toLocaleDateString(lang === 'cs' ? 'cs-CZ' : 'en-GB') : '?';
+      h += `<div style="opacity:0.75; font-size:0.85rem; font-style:italic;">⏳ ${t('abbotPetition.mercenaries.pending').replace('{date}', sd).replace('{responseDate}', rd)}</div>`;
+      return h;
+    }
+
+    // approved
+    if (GameState.mercenary) {
+      const m = GameState.mercenary;
+      h += `<div style="padding:12px; background:rgba(90,154,90,0.08); border:1px solid rgba(90,154,90,0.4); border-radius:8px; font-size:0.85rem;">
+        ✅ ${lang === 'en' ? `You have already hired ${m.name_en}.` : `Už máš najatého žoldnéře: ${m.name}.`} ${lang === 'en' ? 'See him in Persona — Retinue.' : 'Najdeš ho v Persona — Družina.'}
+      </div>`;
+      return h;
+    }
+
+    h += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px;">`;
+    this.MERCENARY_ARCHETYPES.forEach(a => {
+      h += `<div style="padding:14px; background:rgba(0,0,0,0.03); border:1px solid rgba(197,160,89,0.3); border-radius:8px;">
+        <div style="font-size:1.8rem; text-align:center;">${a.icon}</div>
+        <div style="font-weight:bold; text-align:center; margin-top:4px;">${lang === 'en' ? a.name_en : a.name}</div>
+        <div style="font-size:0.72rem; opacity:0.6; text-align:center; font-style:italic;">${lang === 'en' ? a.role_en : a.role}</div>
+        <div style="font-size:0.75rem; opacity:0.8; margin:8px 0;">${lang === 'en' ? a.desc_en : a.desc}</div>
+        <div style="font-size:0.75rem; display:flex; justify-content:space-between; opacity:0.8; margin-bottom:6px;">
+          <span>❤️ ${a.hp}</span><span>⚔️ ${a.atk}</span>
+        </div>
+        <div style="font-size:0.72rem; opacity:0.65; margin-bottom:10px;">✦ ${lang === 'en' ? a.ability_en : a.ability}</div>
+        <button class="craft-btn" style="width:100%;" onclick="CellariumSystem.hireMercenary('${a.id}')">${lang === 'en' ? 'Hire (50g)' : 'Najmout (50g)'}</button>
+      </div>`;
+    });
+    h += `</div>`;
+    return h;
   },
 
   _renderKovarnaCraftList: function (lang) {

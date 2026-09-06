@@ -225,6 +225,8 @@ const PersonaSystem = {
                 onclick="PersonaSystem.switchTab('professio',this)">⚒️ ${lang==='en'?'Professio':'Professio'}</button>
             <button id="persona-tab-felis" class="filter-btn ${this._activeTab==='felis'?'active':''}"
                 onclick="PersonaSystem.switchTab('felis',this)">🐈‍⬛ Felis</button>
+            <button id="persona-tab-druzina" class="filter-btn ${this._activeTab==='druzina'?'active':''}"
+                onclick="PersonaSystem.switchTab('druzina',this)">🛡️ ${lang==='en'?'Retinue':'Družina'}</button>
             ${((GameState.inventory && (GameState.inventory['truhla_i'] > 0 || GameState.inventory['truhla_ii'] > 0))) ? `
             <button id="persona-tab-truhla" class="filter-btn ${this._activeTab==='truhla'?'active':''}"
                 onclick="PersonaSystem.switchTab('truhla',this)">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</button>` : ''}
@@ -237,6 +239,7 @@ const PersonaSystem = {
         h += `<div id="persona-subtab-influentia" style="${this._activeTab==='influentia'?'':'display:none'}">` + this._renderInfluentia(lang) + `</div>`;
         h += `<div id="persona-subtab-professio" style="${this._activeTab==='professio'?'':'display:none'}">` + this._renderProfessio(lang) + `</div>`;
         h += `<div id="persona-subtab-felis" style="${this._activeTab==='felis'?'':'display:none'}">` + this._renderFelis(lang) + `</div>`;
+        h += `<div id="persona-subtab-druzina" style="${this._activeTab==='druzina'?'':'display:none'}">` + this._renderDruzina(lang) + `</div>`;
         if (GameState.inventory && (GameState.inventory['truhla_i'] > 0 || GameState.inventory['truhla_ii'] > 0)) {
             h += `<div id="persona-subtab-truhla" style="${this._activeTab==='truhla'?'':'display:none'}">` + this._renderTruhla(lang) + `</div>`;
         }
@@ -248,7 +251,7 @@ const PersonaSystem = {
         this._activeTab = tab;
         document.querySelectorAll('#lore-persona-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        ['persona','vigor','valetudo','stats','influentia','professio','felis','truhla'].forEach(t => {
+        ['persona','vigor','valetudo','stats','influentia','professio','felis','druzina','truhla'].forEach(t => {
             const d = document.getElementById('persona-subtab-' + t);
             if (d) d.style.display = t === tab ? '' : 'none';
         });
@@ -1082,6 +1085,76 @@ const PersonaSystem = {
     // Re-render Felis subtab pokud je otevřen (po krmení)
     rerenderIfOpen: function() {
         if (this._activeTab === 'felis') this.render();
+    },
+
+    // ── Sekce 7: Družina — hráčův equip + žoldnéř (vyroba-stavby-mrd navazuje,
+    // 6.9.2026, Fáze A). Equipment sloty připraveny do budoucna (jen weapon
+    // teď, zbroj/další sloty přijdou s bojovým systémem) — zatím prázdné,
+    // žádná zbraň se nedá reálně nasadit. Žoldnéř placeholder — hiring
+    // (Fáze B, Hospoda mirror Conversi) ještě neexistuje, GameState.mercenary
+    // je zatím vždy null. Až Fáze B žoldnéře naplní, tahle sekce ho ukáže
+    // beze změny (tvar objektu už odpovídá archetypům z dodanýho kódu).
+    _ensureEquipment: function() {
+        if (!GameState.equipment) GameState.equipment = { weapon: null };
+        if (GameState.equipment.weapon === undefined) GameState.equipment.weapon = null;
+    },
+
+    _renderDruzina: function(lang) {
+        this._ensureEquipment();
+        const p = GameState.persona || {};
+        const eq = GameState.equipment;
+        const merc = GameState.mercenary || null;
+
+        const slot = (icon, label, item, emptyLabel) => `
+            <div style="display:flex; flex-direction:column; align-items:center; min-width:70px; padding:8px; border:2px dashed rgba(197,160,89,0.35); border-radius:8px; background:rgba(0,0,0,0.03);">
+                <span style="font-size:1.4rem; opacity:${item ? 1 : 0.35};">${item ? item.icon : icon}</span>
+                <span style="font-size:0.65rem; text-align:center; opacity:0.6; margin-top:2px;">${item ? (lang==='en'?item.name_en:item.name) : emptyLabel}</span>
+            </div>`;
+
+        let h = `<div style="padding:4px;">`;
+
+        // Hráčova karta
+        h += `<div style="padding:14px; background:rgba(197,160,89,0.06); border-radius:8px; border-left:3px solid var(--accent-gold); margin-bottom:14px;">
+            <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+                ${p.portrait ? `<img src="${p.portrait}" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:2px solid var(--accent-gold);">` : `<div style="font-size:2rem;">🧑</div>`}
+                <div>
+                    <div style="font-weight:bold; font-size:0.95rem;">${p.name || (lang==='en'?'You':'Ty')}</div>
+                    <div style="font-size:0.75rem; opacity:0.65; font-style:italic;">${lang==='en'?'Your own gear for the road':'Tvoje vlastní výbava na cestu'}</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                ${slot('⚔️', lang==='en'?'Weapon':'Zbraň', eq.weapon, lang==='en'?'Empty':'Prázdný')}
+            </div>
+            <div style="font-size:0.68rem; opacity:0.5; margin-top:8px; font-style:italic;">${lang==='en'?'Weapons not yet forgeable — slot reserved for future development.':'Zbraně zatím nejde vykovat — slot čeká na budoucí rozvoj.'}</div>
+        </div>`;
+
+        // Žoldnéřova karta (placeholder dokud Fáze B neodemkne hiring)
+        if (merc) {
+            h += `<div style="padding:14px; background:rgba(197,160,89,0.06); border-radius:8px; border-left:3px solid var(--accent-gold);">
+                <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+                    <div style="font-size:2rem;">${merc.icon || '🛡️'}</div>
+                    <div>
+                        <div style="font-weight:bold; font-size:0.95rem;">${merc.name}</div>
+                        <div style="font-size:0.75rem; opacity:0.65; font-style:italic;">${merc.role || ''}</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:14px; font-size:0.8rem; opacity:0.8; margin-bottom:10px;">
+                    <span>❤️ ${merc.hp}/${merc.max}</span>
+                    <span>⚔️ ${merc.atk}</span>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    ${slot('⚔️', lang==='en'?'Weapon':'Zbraň', merc.equipment && merc.equipment.weapon, lang==='en'?'Starting gear':'Počáteční výbava')}
+                </div>
+            </div>`;
+        } else {
+            h += `<div style="padding:20px; text-align:center; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
+                <div style="font-size:1.8rem;">🛡️</div>
+                <div style="font-style:italic; font-size:0.85rem; margin-top:6px;">${lang==='en'?"You've hired no mercenary yet. Look for one in the Tavern." : 'Zatím nemáš najatého žoldnéře. Poohlédni se po něm v Hospodě.'}</div>
+            </div>`;
+        }
+
+        h += `</div>`;
+        return h;
     },
 
     // ── Pomocné funkce ───────────────────────────────────────────────────────

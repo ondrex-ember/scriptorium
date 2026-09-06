@@ -2360,6 +2360,20 @@ const STRINGS_cs = {
             locked_hint: 'Oprava a kování podkov ve velkém vyžaduje souhlas opata ke stavbě kovárny.',
             build_cost: 'Stavba: 25 kamene, 15 fošen, 10 uhlí, 1 kovadlina, 8 hřebíků.',
         },
+        // vyroba-stavby-mrd navazuje (6.9.2026) — žoldnéřská ochrana, mirror
+        // kovarna přesně, jen bez parcel/tech gate (jen prostředky).
+        mercenaries: {
+            title: 'Žádost o žoldnéřskou ochranu',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat souhlasí — Porta smí zprostředkovat žoldnéřskou ochranu. Najmi si ho v Hospodě.',
+            denied_groats: '❌ Opat zamítl: Klášter nemá dostatek prostředků na takový závazek (30 grošů).',
+            kronika_submit: 'Odeslána žádost opatovi o žoldnéřskou ochranu. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil žoldnéřskou ochranu. Porta zprostředkuje najmutí.',
+            kronika_denied: 'Opat zamítl žádost o žoldnéřskou ochranu. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil, že o věci uvědomí Portu.',
+            locked_hint: 'Cesty mimo klášter jsou nebezpečné. Ochranu žoldnéře může zprostředkovat jen Porta se svolením opata.',
+        },
         land_u_hradby: {
             title: 'Žádost o dvůr u hradební zdi',
             submit_btn: 'Zaslat žádost opatovi',
