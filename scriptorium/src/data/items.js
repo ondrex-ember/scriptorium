@@ -984,6 +984,10 @@ const ItemsDB = {
     "velky_ul_1": { maxStack: 1, name: "Velký úl (I)", name_en: "Great Hive (I)", icon: "🛖", type: "mat", desc: "Zesílená konstrukce úlu — kulatina, lano a kování od kováře. Odemyká vylepšené včelstvo.", desc_en: "A reinforced hive structure — logs, rope, and blacksmith's ironwork. Unlocks an improved colony." },
     "velky_ul_2": { maxStack: 1, name: "Velký úl (II)", name_en: "Great Hive (II)", icon: "🛖", type: "mat", desc: "Dostavba Velkého úlu na plnou míru. Nejsilnější staveniště pro včelstvo v klášteře.", desc_en: "The Great Hive built out to its full measure. The strongest apiary structure in the monastery." },
     "craft_bench": { maxStack: 1, name: "Dílenský ponk", name_en: "Workbench", icon: "🛠️", type: "mat", desc: "Vlastní pracovní stůl v Dílně — nářadí po ruce, ne rozházené po lavici. Podle De Diversis Artibus.", desc_en: "A proper workbench in the Workshop — tools at hand, not scattered across a bench. After De Diversis Artibus." },
+    // vyroba-stavby-mrd navazuje (6.9.2026) — equip základ, Lapková patrola.
+    // type:"weapon" + atk_bonus je nový vzor — čte ho PersonaSystem (equip
+    // slot) a MercenaryBattle (boj). Budoucí sekera/meč/luk stejný shape.
+    "dagger": { maxStack: 1, name: "Dýka", name_en: "Dagger", icon: "🗡️", type: "weapon", atk_bonus: 5, desc: "Prostá čepel na opasku. Víc na obranu než na válku, ale lepší než holá pěst.", desc_en: "A plain blade at the belt. More for defence than war, but better than a bare fist." },
     "anvil": { maxStack: 1, name: "Kovadlina", name_en: "Anvil", icon: "⚒️", type: "mat", desc: "Těžká železná kovadlina. Nutná pro stavbu kovárny.", desc_en: "Heavy iron anvil. Required to build the smithy." },
 
     // ── HUTNÍ STAVBY ─────────────────────────────────────────────────────────

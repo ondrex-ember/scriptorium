@@ -966,6 +966,15 @@ const RecipesDB = [
     desc_en: "A proper workbench in the Workshop — tools at hand, not scattered across a bench."
   },
 
+  // vyroba-stavby-mrd navazuje (6.9.2026) — equip základ, gate tech_prima_arma.
+  {
+    id: "dagger", output: "dagger", qty: 1,
+    req: { iron_ingot: 1, wild_leather: 1, rope: 1 },
+    cat: "craft", locked: true, maxStack: 1,
+    desc: "Prostá čepel na opasku. Víc na obranu než na válku, ale lepší než holá pěst.",
+    desc_en: "A plain blade at the belt. More for defence than war, but better than a bare fist."
+  },
+
   // ── VÁPENICE — pálení a hašení vápna (budova sama je v buildStorage()) ──
   {
     id: "burn_lime", output: "vapno_paleny_fresh", qty: 1, req: { vapenec: 4, log: 3 }, cat: "craft", locked: true,

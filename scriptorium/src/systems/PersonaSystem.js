@@ -1099,10 +1099,39 @@ const PersonaSystem = {
         if (GameState.equipment.weapon === undefined) GameState.equipment.weapon = null;
     },
 
+    // vyroba-stavby-mrd navazuje (6.9.2026) — equip základ. Equip odebere
+    // kus z inventáře (InventoryManager.removeItem), unequip ho vrátí
+    // zpátky (Game.addItem) — mirror běžnýho "jedna zbraň, jeden slot"
+    // equipu. Budoucí sekera/meč/luk stejnou cestou, žádná změna tady netřeba.
+    equipWeapon: function() {
+        this._ensureEquipment();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (GameState.equipment.weapon) return;
+        const invIds = Object.keys(GameState.inventory || {});
+        const weaponId = invIds.find(id => (GameState.inventory[id] > 0) && typeof ItemsDB !== 'undefined' && ItemsDB[id] && ItemsDB[id].type === 'weapon');
+        if (!weaponId) {
+            UI.notify(lang === 'en' ? 'No weapon in your inventory. Craft one first.' : 'V inventáři nemáš žádnou zbraň. Nejprve nějakou vykuj.', true);
+            return;
+        }
+        InventoryManager.removeItem(weaponId, 1);
+        GameState.equipment.weapon = weaponId;
+        Game.save();
+        this.render();
+    },
+
+    unequipWeapon: function() {
+        if (!GameState.equipment || !GameState.equipment.weapon) return;
+        Game.addItem(GameState.equipment.weapon, 1);
+        GameState.equipment.weapon = null;
+        Game.save();
+        this.render();
+    },
+
     _renderDruzina: function(lang) {
         this._ensureEquipment();
         const p = GameState.persona || {};
         const eq = GameState.equipment;
+        const eqWeaponItem = eq.weapon && typeof ItemsDB !== 'undefined' ? ItemsDB[eq.weapon] : null;
         const merc = GameState.mercenary || null;
 
         const slot = (icon, label, item, emptyLabel) => `
@@ -1123,13 +1152,18 @@ const PersonaSystem = {
                 </div>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                ${slot('⚔️', lang==='en'?'Weapon':'Zbraň', eq.weapon, lang==='en'?'Empty':'Prázdný')}
+                <div onclick="PersonaSystem.${eq.weapon ? 'unequipWeapon' : 'equipWeapon'}()" title="${eq.weapon ? (lang==='en'?'Click to unequip':'Klikni pro sundání') : (lang==='en'?'Click to equip a weapon':'Klikni pro vybavení zbraní')}" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; min-width:70px; padding:8px; border:2px ${eq.weapon ? 'solid rgba(197,160,89,0.6)' : 'dashed rgba(197,160,89,0.35)'}; border-radius:8px; background:rgba(0,0,0,0.03);">
+                    <span style="font-size:1.4rem; opacity:${eqWeaponItem ? 1 : 0.35};">${eqWeaponItem ? eqWeaponItem.icon : '⚔️'}</span>
+                    <span style="font-size:0.65rem; text-align:center; opacity:0.6; margin-top:2px;">${eqWeaponItem ? (lang==='en'?eqWeaponItem.name_en:eqWeaponItem.name) : (lang==='en'?'Empty':'Prázdný')}</span>
+                    ${eqWeaponItem ? `<span style="font-size:0.6rem; color:#5a9a5a; margin-top:1px;">+${eqWeaponItem.atk_bonus} ⚔️</span>` : ''}
+                </div>
             </div>
-            <div style="font-size:0.68rem; opacity:0.5; margin-top:8px; font-style:italic;">${lang==='en'?'Weapons not yet forgeable — slot reserved for future development.':'Zbraně zatím nejde vykovat — slot čeká na budoucí rozvoj.'}</div>
+            <div style="font-size:0.68rem; opacity:0.5; margin-top:8px; font-style:italic;">${lang==='en'?'More weapon types (axe, sword, bow) are future development.':'Další druhy zbraní (sekera, meč, luk) jsou budoucí rozvoj.'}</div>
         </div>`;
 
         // Žoldnéřova karta (placeholder dokud Fáze B neodemkne hiring)
         if (merc) {
+            const mercWeaponItem = (merc.equipment && merc.equipment.weapon && typeof ItemsDB !== 'undefined') ? ItemsDB[merc.equipment.weapon] : null;
             h += `<div style="padding:14px; background:rgba(197,160,89,0.06); border-radius:8px; border-left:3px solid var(--accent-gold);">
                 <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
                     <div style="font-size:2rem;">${merc.icon || '🛡️'}</div>
@@ -1140,12 +1174,12 @@ const PersonaSystem = {
                 </div>
                 <div style="display:flex; gap:14px; font-size:0.8rem; opacity:0.8; margin-bottom:10px;">
                     <span>❤️ ${merc.hp}/${merc.max}</span>
-                    <span>⚔️ ${merc.atk}</span>
+                    <span>⚔️ ${merc.atk}${mercWeaponItem ? ` (+${mercWeaponItem.atk_bonus})` : ''}</span>
                 </div>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    ${slot('⚔️', lang==='en'?'Weapon':'Zbraň', merc.equipment && merc.equipment.weapon, lang==='en'?'Starting gear':'Počáteční výbava')}
+                    ${slot('⚔️', lang==='en'?'Weapon':'Zbraň', mercWeaponItem, lang==='en'?'Starting gear':'Počáteční výbava')}
                 </div>
-                <button class="craft-btn" style="margin-top:10px;" onclick="MercenaryBattle.open()">🗺️ ${lang==='en'?'Try a patrol':'Vyzkoušet hlídku'}</button>
+                <button class="craft-btn" style="margin-top:10px;" onclick="MercenaryBattle.open()">🗺️ ${lang==='en'?'The Lapkové Watch':'Lapková patrola'}</button>
             </div>`;
         } else {
             h += `<div style="padding:20px; text-align:center; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">

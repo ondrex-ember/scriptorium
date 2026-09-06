@@ -2260,8 +2260,10 @@ const CellariumSystem = {
       role: arch.role, role_en: arch.role_en,
       hp: arch.hp, max: arch.hp, atk: arch.atk,
       ability: arch.ability, ability_en: arch.ability_en,
-      // vyroba-stavby-mrd — iniciální zbraň, další postup (sekera/meč/luk) budoucí rozvoj.
-      equipment: { weapon: null },
+      // vyroba-stavby-mrd navazuje (6.9.2026) — iniciální zbraň, žoldnéř ji
+      // má svou vlastní (nespotřebovává hráčovu dýku z inventáře). Další
+      // postup (sekera/meč/luk) je budoucí rozvoj.
+      equipment: { weapon: 'dagger' },
       hiredAt: Date.now(),
     };
     UI.notifyPanel('🛡️ ' + (lang === 'en' ? (arch.name_en + ' has joined as your mercenary.') : (arch.name + ' se přidal jako tvůj žoldnéř.')), 'success');

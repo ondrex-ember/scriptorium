@@ -63,9 +63,14 @@ const MercenaryBattle = {
         const merc = (typeof GameState !== 'undefined') ? GameState.mercenary : null;
         if (!merc) { if (onResolve) onResolve({ result: 'abort' }); return; }
         this._resolve = onResolve;
+        // vyroba-stavby-mrd navazuje (6.9.2026) — equip základ. atk_bonus
+        // z equipnutý zbraně se připočítá k základnímu atk. Budoucí
+        // sekera/meč/luk fungujou stejnou cestou beze změny tady.
+        const playerWeapon = (typeof GameState !== 'undefined' && GameState.equipment && GameState.equipment.weapon && typeof ItemsDB !== 'undefined') ? ItemsDB[GameState.equipment.weapon] : null;
+        const mercWeapon = (merc.equipment && merc.equipment.weapon && typeof ItemsDB !== 'undefined') ? ItemsDB[merc.equipment.weapon] : null;
         this._party = [
-            { key: 'player', name: 'Ty', name_en: 'You', icon: '🧑', hp: 60, max: 60, atk: 8, crit: 10, buff: 0, dodge: 0 },
-            { key: 'merc', name: merc.name, name_en: merc.name_en, icon: merc.icon || '🛡️', hp: merc.max, max: merc.max, atk: merc.atk, crit: merc.id === 'lovec' ? 25 : 10, buff: 0, dodge: 0, ability: merc.ability, ability_en: merc.ability_en, archId: merc.id },
+            { key: 'player', name: 'Ty', name_en: 'You', icon: '🧑', hp: 60, max: 60, atk: 8 + (playerWeapon ? (playerWeapon.atk_bonus || 0) : 0), crit: 10, buff: 0, dodge: 0 },
+            { key: 'merc', name: merc.name, name_en: merc.name_en, icon: merc.icon || '🛡️', hp: merc.max, max: merc.max, atk: merc.atk + (mercWeapon ? (mercWeapon.atk_bonus || 0) : 0), crit: merc.id === 'lovec' ? 25 : 10, buff: 0, dodge: 0, ability: merc.ability, ability_en: merc.ability_en, archId: merc.id },
         ];
         const keys = Math.random() < 0.5 ? ['kapo', 'mazak'] : ['kapo', 'mazak', 'speh'];
         this._enemies = keys.map((k, i) => ({ ...this.ENEMY_TYPES[k], id: i, type: k, max: this.ENEMY_TYPES[k].hp, hp: this.ENEMY_TYPES[k].hp }));

@@ -338,6 +338,17 @@ const TechTree = [
     unlocks: ["craft_bench"], requires: ["tech_inventarium"]
   },
 
+  // vyroba-stavby-mrd navazuje (6.9.2026) — equip základ pro Lapkovou
+  // patrolu. Kořen budoucího zbraňového stromu — sekera/meč/luk techy
+  // (postupovka, budoucí rozvoj) na tenhle tech později navážou jako prereq.
+  {
+    id: "tech_prima_arma", name: "Prima Arma — První Zbraně", name_en: "Prima Arma — First Weapons",
+    cost: 18,
+    desc: "Dýka není zbraň pro válku, ale pro cestu — schová se do rukávu, poslouží při obraně na saeculumské stezce. Odemkne: Dýka.",
+    desc_en: "A dagger is no weapon of war, but of the road — hidden in a sleeve, it serves in defence on the saeculum trail. Unlocks: Dagger.",
+    unlocks: ["dagger"], requires: ["tech_inventarium"]
+  },
+
   // ── COQUINA TIER 1 — Dymná jizba, pasivní uzení (Ruralia Commoda) ───────
   // coquina-tier1-mrd (7.8.2026): brzy dostupný, existující Ohniště, žádná
   // nová stavba. Ne plná imunita rozkladu — jen prodloužená (smoked_meat_home).
