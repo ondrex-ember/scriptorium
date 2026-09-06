@@ -106,6 +106,7 @@ const JS_MAIN = [
     'src/games/TavernDice.js',
     'src/games/sokoban.js',
     'src/games/RiskStack.js', // eventy-audit-mrd Fáze 3 — minihra pro lapkové
+    'src/games/MercenaryBattle.js', // vyroba-stavby-mrd navazuje — žoldnéřská Fáze C
 
     // i18n — MUSÍ být před Game a UI
     'src/i18n/cs.js',               // Čeština (master)

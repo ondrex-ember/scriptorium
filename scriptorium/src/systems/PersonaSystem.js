@@ -1145,6 +1145,7 @@ const PersonaSystem = {
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     ${slot('⚔️', lang==='en'?'Weapon':'Zbraň', merc.equipment && merc.equipment.weapon, lang==='en'?'Starting gear':'Počáteční výbava')}
                 </div>
+                <button class="craft-btn" style="margin-top:10px;" onclick="MercenaryBattle.open()">🗺️ ${lang==='en'?'Try a patrol':'Vyzkoušet hlídku'}</button>
             </div>`;
         } else {
             h += `<div style="padding:20px; text-align:center; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
