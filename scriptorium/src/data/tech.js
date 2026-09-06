@@ -329,6 +329,15 @@ const TechTree = [
     unlocks: ["mousetrap", "fly_trap_paper"], requires: ["tech_almarium"]
   },
 
+  // vyroba-stavby-mrd (5.9.2026) — Dílenský ponk, Krok 2 (MVP vizuál).
+  {
+    id: "tech_officina_ordinata", name: "Officina Ordinata — Uspořádaná Dílna", name_en: "Officina Ordinata — The Ordered Workshop",
+    cost: 31,
+    desc: "De Diversis Artibus — traktát mnicha Theophila Presbytera (~1100), popis řemeslných postupů v klášterní dílně od kovu po sklo. Kdo má nářadí rozházené po lavici, ztrácí čas hledáním, ne prací. Odemkne: Dílenský ponk.",
+    desc_en: "De Diversis Artibus — a treatise by the monk Theophilus Presbyter (~1100), describing craft techniques in the monastic workshop, from metal to glass. A workbench with scattered tools wastes time searching, not working. Unlocks: the Workbench.",
+    unlocks: ["craft_bench"], requires: ["tech_inventarium"]
+  },
+
   // ── COQUINA TIER 1 — Dymná jizba, pasivní uzení (Ruralia Commoda) ───────
   // coquina-tier1-mrd (7.8.2026): brzy dostupný, existující Ohniště, žádná
   // nová stavba. Ne plná imunita rozkladu — jen prodloužená (smoked_meat_home).

@@ -826,8 +826,8 @@ const RecipesDB = [
     desc: "Dřevěné vědro na vodu.", desc_en: "Wooden bucket for water."
   },
   {
-    id: "watering_can", output: "watering_can", qty: 1, req: { plank: 2, rope: 2, wild_leather: 1 }, cat: "craft", locked: true,
-    desc: "Konev na zalévání zahrady.", desc_en: "Watering can for the garden."
+    id: "watering_can", output: "watering_can", qty: 1, req: { wicker: 2, rope: 2, wild_leather: 1 }, cat: "craft", locked: true,
+    desc: "Konev na zalévání zahrady. Pletená z proutí, ne z fošen.", desc_en: "Watering can for the garden. Woven from wicker, not planks."
   },
   {
     id: "barrel_tool", output: "barrel_tool", qty: 1, req: { plank: 6, rope: 3, smola: 2 }, cat: "craft", locked: true,
@@ -838,8 +838,8 @@ const RecipesDB = [
     desc: "Dřevěná bedna. +30 jednotek skladu v Inventariu.", desc_en: "Wooden crate. +30 units of storage in the Inventarium."
   },
   {
-    id: "convert_barrel_to_container", output: "storage_container", qty: 1, req: { barrel_tool: 1 }, cat: "craft", locked: true,
-    desc: "Přestavba sudu na skladovací kontejner. +50 jednotek skladu v Inventariu.", desc_en: "Rebuilding a barrel into a storage container. +50 units of storage in the Inventarium."
+    id: "convert_barrel_to_container", output: "storage_container", qty: 1, req: { barrel_tool: 2, plank: 2 }, cat: "craft", locked: true,
+    desc: "Přestavba dvou sudů na skladovací kontejner. +50 jednotek skladu v Inventariu.", desc_en: "Rebuilding two barrels into a storage container. +50 units of storage in the Inventarium."
   },
 
   // ── ŽELEZNÝ VÝROBNÍ ŘETĚZEC ─────────────────────────────────────────────
@@ -935,43 +935,16 @@ const RecipesDB = [
   },
 
   // ── VINOHRAD — stavby ─────────────────────────────────────────────────────
-  {
-    id: "prelum", output: "prelum", qty: 1,
-    req: { plank: 8, rope: 4, rock: 6, iron_ingot: 2 },
-    cat: "building", locked: true, maxStack: 1,
-    desc: "Vinný lis. Dřevěný rám, kamenná podlaha, železné šrouby. Odemkne zpracování hroznů.",
-    desc_en: "Wine press. Wooden frame, stone floor, iron screws. Unlocks grape processing."
-  },
-
-  {
-    id: "cella_fermentaria", output: "cella_fermentaria", qty: 1,
-    req: { plank: 10, rock: 8, rope: 3, clay: 4 },
-    cat: "building", locked: true, maxStack: 1,
-    desc: "Fermentační sklep. Hliněné nádoby, kamenné zdivo, chlad. Odemkne výrobu Vinum a Vinum Rubrum.",
-    desc_en: "Fermentation cellar. Clay vessels, stone masonry, cool air. Unlocks Vinum and Vinum Rubrum."
-  },
-
-  {
-    id: "foudres", output: "foudres", qty: 1,
-    req: { plank: 15, rope: 6, iron_ingot: 3 },
-    cat: "building", locked: true, maxStack: 1,
-    desc: "Velké dubové sudy. Víno zrající v sudu získá jantarovou barvu. Odemkne Vinum Praeclarum.",
-    desc_en: "Large oak barrels. Wine aged in the barrel gains amber colour. Unlocks Vinum Praeclarum."
-  },
-
-  {
-    id: "bedna_dilna", output: "bedna_dilna", qty: 1,
-    req: { plank: 12, iron_ingot: 4, rope: 5, wild_leather: 2 },
-    cat: "building", locked: true, maxStack: 1,
-    desc: "Bednářská dílna. Výroba sudů pro export vína. Odemkne řemeslo bednáře.",
-    desc_en: "Cooperage workshop. Craft barrels for wine export. Unlocks the cooper's craft."
-  },
-
+  // prelum/cella_fermentaria/foudres recepty smazány (5.9.2026) — mrtvá
+  // duplicita, reálná stavba jede přes InventoryManager.buildStorage() +
+  // Cellarium (tech_vinohrad → Vinea → Prelum → Cella fermentaria → Foudres).
+  // bedna_dilna recept smazán (5.9.2026) — nahrazen buildStorage/Cellarium
+  // stavbou (viz InventoryManager.buildStorage + CellariumSystem.js, gate tech_tonnellerie).
   // ── VČELÍN — Velký úl (Custos Apium, tier 1–2) ─────────────────────────────
   {
     id: "velky_ul_1", output: "velky_ul_1", qty: 1,
     req: { log: 15, rope: 8, kovani: 3 },
-    cat: "building", locked: true, maxStack: 1,
+    cat: "craft", locked: true, maxStack: 1,
     desc: "Zesílená konstrukce úlu — kulatina, lano a kování od kováře. Odemyká vylepšené včelstvo.",
     desc_en: "A reinforced hive structure — logs, rope, and blacksmith's ironwork. Unlocks an improved colony."
   },
@@ -979,9 +952,18 @@ const RecipesDB = [
   {
     id: "velky_ul_2", output: "velky_ul_2", qty: 1,
     req: { velky_ul_1: 1, log: 25, rope: 12, kovani: 6 },
-    cat: "building", locked: true, maxStack: 1,
+    cat: "craft", locked: true, maxStack: 1,
     desc: "Dostavba Velkého úlu na plnou míru. Nejsilnější staveniště pro včelstvo v klášteře.",
     desc_en: "The Great Hive built out to its full measure. The strongest apiary structure in the monastery."
+  },
+
+  // vyroba-stavby-mrd (5.9.2026) — Dílenský ponk, Krok 2 (MVP vizuál). Gate: tech_officina_ordinata.
+  {
+    id: "craft_bench", output: "craft_bench", qty: 1,
+    req: { plank: 10, rope: 4, iron_ingot: 2 },
+    cat: "craft", locked: true, maxStack: 1,
+    desc: "Vlastní pracovní stůl v Dílně — nářadí po ruce, ne rozházené po lavici.",
+    desc_en: "A proper workbench in the Workshop — tools at hand, not scattered across a bench."
   },
 
   // ── VÁPENICE — pálení a hašení vápna (budova sama je v buildStorage()) ──

@@ -239,8 +239,10 @@ const ScavengeManager = {
             if (this._seasonRoll('crayfish', 0.15)) Game.addItem('crayfish', 1);
             // Orobinec — kořen z mokřadu
             if (this._seasonRoll('cattail_root', 0.06)) Game.addItem('cattail_root', 1);
-            // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium)
-            if (this._seasonRoll('wicker', 0.20)) Game.addItem('wicker', 2);
+            // Proutí — vrbové pruty u mokřadu, běžný stavební materiál (Columbarium,
+            // Konev). Drop rate zvýšen 0.20→0.35 (5.9.2026) — Konev je raný tech
+            // (tech_writing_basics), proutí musí být reálně sehnatelné hned na startu.
+            if (this._seasonRoll('wicker', 0.35)) Game.addItem('wicker', 2);
             // Kachní vejce — vejce-druhy-mrd 7.8.2026, hnízdo u vody
             if (this._seasonRoll('duck_egg', 0.05)) Game.addItem('duck_egg', 1);
         }

@@ -1,7 +1,53 @@
+// vyroba-stavby-mrd (5.9.2026) — registr dílen z Pracovny pro kartový
+// přehled pod filtrem "🏗️ Stavby" ve Výrobě (viz UI.renderWorkshopCards).
+// Extensibilní pole — každá další dílna (Fornax, budoucí Mlynář-tier2 atd.)
+// jen přidá záznam sem, žádná jiná úprava netřeba. isUnlocked() vždy
+// odkazuje na existující zdroj pravdy dané dílny (systém nebo storage
+// flag), nikdy nedupluje podmínku ručně.
+const WORKSHOPS_REGISTRY = [
+    {
+        id: 'mill', subtab: 'mill', icon: '💧',
+        name: 'Vodní mlýn', name_en: 'Water Mill',
+        desc: 'Náhon žene kolo, kolo otáčí kamenem — obilí se mele samo, bez paží a mozolů.',
+        desc_en: 'The millrace turns the wheel, the wheel turns the stone — grain grinds itself, sparing arms and calluses.',
+        isUnlocked: () => (typeof MillSystem !== 'undefined' && MillSystem.isBuilt()),
+    },
+    {
+        id: 'kovarna', subtab: 'kovarna', icon: '🔨',
+        name: 'Kovárna', name_en: 'Smithy',
+        desc: 'Uhlí žhne, kladivo zvoní — železo se ohýbá jen tomu, kdo umí číst jeho barvu v ohni.',
+        desc_en: 'Coal glows, hammer rings — iron bends only for one who reads its colour in the fire.',
+        isUnlocked: () => !!(GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.built),
+    },
+    {
+        id: 'furnus', subtab: 'furnus', icon: '🍞',
+        name: 'Pekárna (Furnus)', name_en: 'Bakery (Furnus)',
+        desc: 'Kamenná pec drží žár celý den — chléb pro celý konvent se peče jinde než v kuchyni.',
+        desc_en: 'The stone oven holds its heat all day — bread for the whole convent bakes apart from the kitchen.',
+        isUnlocked: () => !!(GameState.storage && GameState.storage.furnus && GameState.storage.furnus.built),
+    },
+    {
+        id: 'vapenice', subtab: 'vapenice', icon: '🏭',
+        name: 'Vápenice', name_en: 'Lime Kiln',
+        desc: 'Vápenec hoří dny v ohni, pak se hasí vodou — základ malty i vydělané kůže.',
+        desc_en: 'Limestone burns for days in the fire, then is slaked with water — the base of both mortar and dressed hide.',
+        isUnlocked: () => !!(GameState.storage && GameState.storage.vapenice && GameState.storage.vapenice.built),
+    },
+    {
+        id: 'drying', subtab: 'drying', icon: '🌿',
+        name: 'Sušárna', name_en: 'Drying Yard',
+        desc: 'Vlastní sušicí plocha — víc surovin najednou, ve větším měřítku než u Foculu.',
+        desc_en: 'A dedicated drying yard — more materials at once, at a scale the hearth could never manage.',
+        isUnlocked: () => !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria')),
+    },
+];
+
 const UI = {
     currentInvFilter: 'all',
     currentFilter: 'all',
     currentScreen: 'home',
+    _benchRecipeId: null,
+    _lastCraftDiff: null,
     _dirty: { home: false, inv: false, craft: false, lore: false, garden: false },
     _hashInv: '', _hashCraft: '', _hashActions: '',
     // vypujcky-notifikace-mrd (29.8.2026) — "Vyřešit" v gate modalu vede
@@ -11,6 +57,15 @@ const UI = {
         if (!GameState.ui) GameState.ui = {};
         GameState.ui.libraryTab = 'vypujcky';
         UI.switchScreen('library');
+    },
+
+    // vyroba-stavby-mrd (5.9.2026) — "Do dílny" tlačítko z karty ve Výrobě.
+    // Pořadí volání je závazné: switchHomeTab('main') si interně resetuje
+    // subtab na 'scavenge', takže switchHomeSubTab musí přijít až po něm.
+    goToWorkshop: function (subtab) {
+        UI.switchScreen('home', document.getElementById('nav-home'));
+        UI.switchHomeTab('main');
+        UI.switchHomeSubTab(subtab, document.getElementById('home-sub-' + subtab));
     },
 
     switchScreen: function (name, btn) {
@@ -1232,12 +1287,139 @@ const UI = {
             this.currentInvFilter = 'all';
         }
     },
+    // vyroba-stavby-mrd (5.9.2026) — karty dílen z Pracovny pod filtrem
+    // "🏗️ Stavby". Ukazuje jen dílny, které hráč už reálně postavil/odemkl
+    // (progresivní seznam, ne katalog všeho možného).
+    renderWorkshopCards: function (lang) {
+        const built = WORKSHOPS_REGISTRY.filter(w => w.isUnlocked());
+        if (built.length === 0) {
+            return `<div style="grid-column:1/-1; text-align:center; padding:2rem 1rem; opacity:0.6;">
+                <div style="font-size:1.8rem;">🏗️</div>
+                <div style="margin-top:0.5rem;">${lang === 'en' ? 'No workshop stands in the Workshop yet. Research and build one first.' : 'Zatím žádná dílna v Pracovně nestojí. Nejprve nějakou prozkoumej a postav.'}</div>
+            </div>`;
+        }
+        return built.map(w => `
+            <div class="card" style="position:relative;">
+                <div class="item-icon">${w.icon}</div>
+                <div style="flex:1">
+                    <strong>${lang === 'en' ? w.name_en : w.name}</strong>
+                    <div class="text-sm">${lang === 'en' ? w.desc_en : w.desc}</div>
+                </div>
+                <button class="craft-btn" onclick="UI.goToWorkshop('${w.subtab}')">${lang === 'en' ? 'To workshop →' : 'Do dílny →'}</button>
+            </div>`).join('');
+    },
+
+    // vyroba-stavby-mrd (5.9.2026), rozšířeno (6.9.2026) — Dílenský ponk,
+    // interaktivní workspace. Recept se nikdy nehádá ani nekombinuje volně
+    // (na rozdíl od Athanoru) — jen zobrazuje týž recept, co dnes karta v
+    // listu, vizuálně jako sloty. Craft logika beze změny (Game.craft()).
+    _benchBuildNames: { cerna_kuchyne: { cs: 'Černá kuchyně', en: 'Black Kitchen' }, udirna: { cs: 'Udírna', en: 'Smokehouse' }, velky_hmozdir: { cs: 'Velký hmoždíř', en: 'Great Mortar' }, rozen: { cs: 'Rožeň', en: 'Spit' } },
+
+    loadOntoBench: function (id) {
+        UI._benchRecipeId = id;
+        UI.renderCraftBenchHeader((GameState.settings && GameState.settings.language) || 'cs');
+    },
+
+    craftFromBench: function () {
+        const id = UI._benchRecipeId;
+        if (!id) return;
+        const before = Object.assign({}, GameState.inventory);
+        Game.craft(id);
+        const after = GameState.inventory;
+        const changed = {};
+        new Set([...Object.keys(before), ...Object.keys(after)]).forEach(k => {
+            const d = (after[k] || 0) - (before[k] || 0);
+            if (d !== 0) changed[k] = d;
+        });
+        UI._lastCraftDiff = changed;
+        UI.renderCraftBenchHeader((GameState.settings && GameState.settings.language) || 'cs');
+    },
+
+    renderCraftBenchHeader: function (lang) {
+        const el = document.getElementById('craft-bench-header');
+        if (!el) return;
+        const has = (GameState.inventory && GameState.inventory.craft_bench) > 0;
+        if (!has) { el.innerHTML = ""; UI._benchRecipeId = null; return; }
+
+        const r = UI._benchRecipeId ? RecipesDB.find(x => x.id === UI._benchRecipeId) : null;
+        if (!r) {
+            UI._benchRecipeId = null;
+            let diffHtml = '';
+            if (UI._lastCraftDiff) {
+                const parts = Object.entries(UI._lastCraftDiff).map(([id, d]) => {
+                    const nm = (typeof iName === 'function') ? iName(id) : id;
+                    return `<span style="color:${d > 0 ? '#5a9a5a' : '#c0392b'};">${d > 0 ? '+' : ''}${d} ${nm}</span>`;
+                }).join(' &nbsp;·&nbsp; ');
+                diffHtml = `<div style="margin-top:8px; font-size:0.8rem;">${parts}</div>`;
+            }
+            el.innerHTML = `
+                <div style="text-align:center; margin:6px 0 4px; padding:12px; background:rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.1); border-radius:8px;">
+                    <div style="font-size:1.8rem;">🛠️</div>
+                    <h3 style="font-family:'Cinzel',serif; font-size:1.05rem; color:var(--accent-gold); letter-spacing:1px; margin:2px 0;">${lang === 'en' ? 'Workbench' : 'Dílenský ponk'}</h3>
+                    <p style="font-style:italic; font-size:0.75rem; opacity:0.6; margin:0;">${lang === 'en' ? 'Pick a recipe below.' : 'Vyber recept níže.'}</p>
+                    ${diffHtml}
+                </div>`;
+            return;
+        }
+
+        const prod = ItemsDB[r.output];
+        let can = true;
+        let slots = Object.entries(r.req).map(([id, amt]) => {
+            const item = ItemsDB[id];
+            const have = GameState.inventory[id] || 0;
+            const ok = amt === 0 ? !!have : have >= amt;
+            if (!ok) can = false;
+            const nm = (typeof iName === 'function') ? iName(id) : (item ? item.name : id);
+            return `<div style="display:flex; flex-direction:column; align-items:center; min-width:62px; padding:6px; border:2px solid ${ok ? 'rgba(90,154,90,0.6)' : 'rgba(192,57,43,0.6)'}; border-radius:8px; background:rgba(0,0,0,0.03);">
+                <span style="font-size:1.3rem;">${item ? item.icon : '📦'}</span>
+                <span style="font-size:0.65rem; text-align:center; opacity:0.8;">${nm}</span>
+                <span style="font-size:0.65rem; color:${ok ? '#5a9a5a' : '#c0392b'};">${have}/${amt}</span>
+            </div>`;
+        }).join('');
+        if (r.toolReq) {
+            const hasTool = r.toolReq.some(tr => (GameState.inventory[tr.item] > 0) || (GameState.inventory['worn_' + tr.item] > 0));
+            if (!hasTool) can = false;
+            const toolNames = r.toolReq.map(tr => iName(tr.item)).join('/');
+            slots += `<div style="display:flex; flex-direction:column; align-items:center; min-width:62px; padding:6px; border:2px solid ${hasTool ? 'rgba(90,154,90,0.6)' : 'rgba(192,57,43,0.6)'}; border-radius:8px; background:rgba(0,0,0,0.03);">
+                <span style="font-size:1.3rem;">🔧</span><span style="font-size:0.65rem; text-align:center; opacity:0.8;">${toolNames}</span></div>`;
+        }
+        if (r.needsBuild) {
+            const built = !!(GameState.storage && GameState.storage[r.needsBuild] && GameState.storage[r.needsBuild].built);
+            if (!built) can = false;
+            const nm = (UI._benchBuildNames[r.needsBuild] && UI._benchBuildNames[r.needsBuild][lang]) || r.needsBuild;
+            slots += `<div style="display:flex; flex-direction:column; align-items:center; min-width:62px; padding:6px; border:2px solid ${built ? 'rgba(90,154,90,0.6)' : 'rgba(192,57,43,0.6)'}; border-radius:8px; background:rgba(0,0,0,0.03);">
+                <span style="font-size:1.3rem;">🏛️</span><span style="font-size:0.65rem; text-align:center; opacity:0.8;">${nm}</span></div>`;
+        }
+        const btnLabel = r.id.startsWith('repair_') ? t('craft.repair') : (r.cat === 'food' ? t('craft.cook') : t('craft.btn'));
+        el.innerHTML = `
+            <div style="text-align:center; margin:6px 0 4px; padding:14px; background:rgba(0,0,0,0.04); border:1px solid rgba(0,0,0,0.1); border-radius:8px;">
+                <h3 style="font-family:'Cinzel',serif; font-size:0.95rem; color:var(--accent-gold); letter-spacing:1px; margin:0 0 8px;">${lang === 'en' ? 'Workbench' : 'Dílenský ponk'}</h3>
+                <div style="font-size:2rem;">${prod.icon}</div>
+                <div style="font-weight:bold; margin:4px 0 10px;">${iName(r.output)}</div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:12px;">${slots}</div>
+                <button class="craft-btn" onclick="UI.craftFromBench()" ${can ? '' : 'disabled'}>${btnLabel}</button>
+                <button class="filter-btn" style="margin-left:6px;" onclick="UI.loadOntoBench(null)">${lang === 'en' ? 'Clear' : 'Zrušit'}</button>
+            </div>`;
+    },
+
     renderCrafting: function () {
-        const _hCraft = JSON.stringify(GameState.unlockedRecipes) + JSON.stringify(GameState.inventory) + JSON.stringify(['cerna_kuchyne', 'udirna', 'velky_hmozdir', 'rozen'].map(b => GameState.storage && GameState.storage[b] && GameState.storage[b].built)) + (this.currentFilter || 'all');
+        // vyroba-stavby-mrd (5.9.2026): + WORKSHOPS_REGISTRY unlock signály
+        // (mill tier, kovarna/furnus/vapenice built, susarna tech), aby se
+        // "Stavby" karty přerenderovaly, jakmile hráč dílnu postaví/odemkne.
+        const _hCraft = JSON.stringify(GameState.unlockedRecipes) + JSON.stringify(GameState.inventory) + JSON.stringify(['cerna_kuchyne', 'udirna', 'velky_hmozdir', 'rozen', 'kovarna', 'furnus', 'vapenice'].map(b => GameState.storage && GameState.storage[b] && GameState.storage[b].built)) + ((GameState.storage && GameState.storage.mill && GameState.storage.mill.tier) || 0) + ((GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria')) ? 1 : 0) + (this.currentFilter || 'all');
         if (_hCraft === this._hashCraft) return;
         this._hashCraft = _hCraft;
         const el = document.getElementById('crafting-list'); el.innerHTML = "";
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const hasBench = (GameState.inventory && GameState.inventory.craft_bench) > 0;
+        UI.renderCraftBenchHeader(lang);
+
+        // "🏗️ Stavby" filtr — místo receptů (mrtvá kategorie, viz recipes.js
+        // cleanup 5.9.2026) ukazuje karty dílen z Pracovny.
+        if (this.currentFilter === 'building') {
+            el.innerHTML = UI.renderWorkshopCards(lang);
+            return;
+        }
 
         // coquina-vyroba-mrd (9.8.2026): needsBuild — recepty vázané na budovu
         // (Černá kuchyně, Udírna, Velký hmoždíř, Rožeň), mirror COOK_TYPES
@@ -1293,7 +1475,8 @@ const UI = {
             }
 
             const btnLabel = r.id.startsWith('repair_') ? t('craft.repair') : (r.cat === 'food' ? t('craft.cook') : t('craft.btn'));
-            return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0, -2)}</div>${researchBadge}</div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${btnLabel}</button></div>`;
+            const iconAttr = hasBench ? ` style="cursor:pointer;" onclick="UI.loadOntoBench('${r.id}')" title="${lang === 'en' ? 'Load onto workbench' : 'Naložit na ponk'}"` : '';
+            return `<div class="card${blindClass}" data-recipe-id="${r.id}" style="opacity:${can ? 1 : 0.6}; position:relative;"><div class="item-icon"${iconAttr}>${prod.icon}</div><div style="flex:1"><strong>${iName(r.output)}${blindIcon}${ownedStr}</strong><div class="text-sm">${reqStr.slice(0, -2)}</div>${researchBadge}</div><button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${btnLabel}</button></div>`;
         };
 
         // Seskupení receptů se stejným výstupem (a stejnou kategorií) do jedné
@@ -1354,7 +1537,8 @@ const UI = {
 
             const reqBlock = `<div class="text-sm">${parts.join(` <span style="opacity:0.5;">${orLabel}</span> `)}</div>`;
             const btnLabel = bestR && bestR.id.startsWith('repair_') ? t('craft.repair') : (fam[0].cat === 'food' ? t('craft.cook') : t('craft.btn'));
-            return `<div class="card" data-recipe-id="${bestId}" style="opacity:${anyCan ? 1 : 0.6}; position:relative;"><div class="item-icon">${prod.icon}</div><div style="flex:1"><strong>${iName(fam[0].output)}${ownedStr}</strong>${reqBlock}</div><button class="craft-btn" onclick="Game.craft('${bestId}')" ${anyCan ? '' : 'disabled'}>${btnLabel}</button></div>`;
+            const iconAttr = hasBench ? ` style="cursor:pointer;" onclick="UI.loadOntoBench('${bestId}')" title="${lang === 'en' ? 'Load onto workbench' : 'Naložit na ponk'}"` : '';
+            return `<div class="card" data-recipe-id="${bestId}" style="opacity:${anyCan ? 1 : 0.6}; position:relative;"><div class="item-icon"${iconAttr}>${prod.icon}</div><div style="flex:1"><strong>${iName(fam[0].output)}${ownedStr}</strong>${reqBlock}</div><button class="craft-btn" onclick="Game.craft('${bestId}')" ${anyCan ? '' : 'disabled'}>${btnLabel}</button></div>`;
         };
 
         const visible = RecipesDB.filter(r => {
@@ -1364,38 +1548,87 @@ const UI = {
             return true;
         });
 
+        const catOrder = ['stone', 'iron', 'craft', 'building', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore', 'mat'];
+        const catLabels = {
+            stone: lang === 'en' ? '🪨 Stone Tools' : '🪨 Kamenné nástroje',
+            iron: lang === 'en' ? '⚒️ Iron Tools' : '⚒️ Železné nástroje',
+            craft: lang === 'en' ? '🪵 Crafting' : '🪵 Řemeslo',
+            building: lang === 'en' ? '🏗️ Buildings' : '🏗️ Stavby',
+            fire: lang === 'en' ? '🕯️ Fire & Light' : '🕯️ Oheň & Světlo',
+            parchment: lang === 'en' ? '📜 Parchment' : '📜 Pergamen & Inkoust',
+            codex: lang === 'en' ? '📖 Codex' : '📖 Kodex & Tisk',
+            food: lang === 'en' ? '🍖 Food' : '🍖 Jídlo',
+            alchemy: lang === 'en' ? '⚗️ Alchemy' : '⚗️ Alchymie',
+            lore: lang === 'en' ? '🎲 Knowledge' : '🎲 Vědění & Hry',
+            mat: lang === 'en' ? '📦 Materials' : '📦 Materiály',
+        };
+        // keyPrefix odlišuje collapse-state klíče/ID mezi "Lze vyrobit" a "Chybí
+        // suroviny" sekcemi (bench mód) — bez prefixu (nebench) beze změny ID,
+        // takže stávající uiPrefs.craftCollapsed hodnoty zůstávají platné.
+        const buildListHTML = (families, keyPrefix) => {
+            let h = '';
+            if (this.currentFilter !== 'all') {
+                families.forEach(fam => { h += renderRecipeFamily(fam); });
+            } else {
+                catOrder.forEach(cat => {
+                    const catFamilies = families.filter(fam => fam[0].cat === cat);
+                    if (catFamilies.length === 0) return;
+                    const key = keyPrefix + cat;
+                    const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.craftCollapsed && GameState.uiPrefs.craftCollapsed[key]);
+                    h += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleCraftCategory('${key}')">
+                        <span id="craft-cat-chevron-${key}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
+                        <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span>
+                    </div>`;
+                    h += `<div id="craft-cat-body-${key}" style="display:${collapsed ? 'none' : 'contents'};">`;
+                    catFamilies.forEach(fam => { h += renderRecipeFamily(fam); });
+                    h += `</div>`;
+                });
+            }
+            return h;
+        };
+
         let _html = '';
-        if (this.currentFilter !== 'all') {
-            // Jednoduchý seznam bez nadpisů
-            groupByOutput(visible).forEach(fam => { _html += renderRecipeFamily(fam); });
+        if (!hasBench) {
+            // Beze změny — přesně dnešní chování, žádnej split.
+            _html = buildListHTML(groupByOutput(visible), '');
         } else {
-            // Seskupení podle kategorií s nadpisy
-            const catOrder = ['stone', 'iron', 'craft', 'building', 'fire', 'parchment', 'codex', 'food', 'alchemy', 'lore', 'mat'];
-            const catLabels = {
-                stone: lang === 'en' ? '🪨 Stone Tools' : '🪨 Kamenné nástroje',
-                iron: lang === 'en' ? '⚒️ Iron Tools' : '⚒️ Železné nástroje',
-                craft: lang === 'en' ? '🪵 Crafting' : '🪵 Řemeslo',
-                building: lang === 'en' ? '🏗️ Buildings' : '🏗️ Stavby',
-                fire: lang === 'en' ? '🕯️ Fire & Light' : '🕯️ Oheň & Světlo',
-                parchment: lang === 'en' ? '📜 Parchment' : '📜 Pergamen & Inkoust',
-                codex: lang === 'en' ? '📖 Codex' : '📖 Kodex & Tisk',
-                food: lang === 'en' ? '🍖 Food' : '🍖 Jídlo',
-                alchemy: lang === 'en' ? '⚗️ Alchemy' : '⚗️ Alchymie',
-                lore: lang === 'en' ? '🎲 Knowledge' : '🎲 Vědění & Hry',
-                mat: lang === 'en' ? '📦 Materials' : '📦 Materiály',
+            // Ponk aktivní: split na Lze vyrobit / Chybí suroviny. Recept se
+            // nikdy nehádá — canFamily mirror přesně logiku, co už renderRecipe/
+            // renderRecipeFamily počítají pro disabled stav tlačítka.
+            const canFamily = (fam) => {
+                if (fam.length === 1) {
+                    const r = fam[0];
+                    for (let [id, amt] of Object.entries(r.req)) {
+                        const has = GameState.inventory[id] || 0;
+                        if ((amt > 0 && has < amt) || (amt === 0 && !has)) return false;
+                    }
+                    if (r.needsBuild && !hasBuild(r.needsBuild)) return false;
+                    return true;
+                }
+                return fam.some(r => {
+                    for (let [id, amt] of Object.entries(r.req)) {
+                        const has = GameState.inventory[id] || 0;
+                        if ((amt > 0 && has < amt) || (amt === 0 && !has)) return false;
+                    }
+                    if (r.toolReq) {
+                        const hasTool = r.toolReq.some(tr => (GameState.inventory[tr.item] > 0) || (GameState.inventory['worn_' + tr.item] > 0));
+                        if (!hasTool) return false;
+                    }
+                    if (r.needsBuild && !hasBuild(r.needsBuild)) return false;
+                    return true;
+                });
             };
-            catOrder.forEach(cat => {
-                const catRecipes = visible.filter(r => r.cat === cat);
-                if (catRecipes.length === 0) return;
-                const collapsed = !!(GameState.uiPrefs && GameState.uiPrefs.craftCollapsed && GameState.uiPrefs.craftCollapsed[cat]);
-                _html += `<div style="grid-column:1/-1; margin:12px 0 6px; padding:4px 0; border-bottom:1px solid rgba(197,160,89,0.35); cursor:pointer; display:flex; align-items:center; gap:6px;" onclick="UI.toggleCraftCategory('${cat}')">
-                    <span id="craft-cat-chevron-${cat}" style="font-size:0.65rem; display:inline-block; transition:transform 0.15s; transform:rotate(${collapsed ? 0 : 90}deg);">▶</span>
-                    <span style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85;">${catLabels[cat]}</span>
-                </div>`;
-                _html += `<div id="craft-cat-body-${cat}" style="display:${collapsed ? 'none' : 'contents'};">`;
-                groupByOutput(catRecipes).forEach(fam => { _html += renderRecipeFamily(fam); });
-                _html += `</div>`;
-            });
+            const allFamilies = groupByOutput(visible);
+            const canFamilies = allFamilies.filter(canFamily);
+            const lockedFamilies = allFamilies.filter(fam => !canFamily(fam));
+            if (canFamilies.length) {
+                _html += `<div style="grid-column:1/-1; font-size:0.8rem; font-weight:bold; color:#5a9a5a; margin:4px 0 8px;">✅ ${lang === 'en' ? 'Ready to craft' : 'Lze vyrobit'}</div>`;
+                _html += buildListHTML(canFamilies, 'can_');
+            }
+            if (lockedFamilies.length) {
+                _html += `<div style="grid-column:1/-1; font-size:0.8rem; font-weight:bold; opacity:0.5; margin:16px 0 8px;">🔒 ${lang === 'en' ? 'Missing materials' : 'Chybí suroviny'}</div>`;
+                _html += buildListHTML(lockedFamilies, 'locked_');
+            }
         }
         el.innerHTML = _html;
     },
