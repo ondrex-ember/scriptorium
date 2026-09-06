@@ -465,7 +465,7 @@ const TavernDice = {
         <!-- Game Selector Tabs -->
         <div style="display: flex; gap: 8px; margin-bottom: 16px;">
           <button onclick="TavernDice.setGame('hazard')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='hazard'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='hazard'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
-            🎲 Hazard (2d6)
+            🎲 Hazard
           </button>
           <button onclick="TavernDice.setGame('passage')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='passage'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='passage'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
             🎲 Passage (3d6)
@@ -473,7 +473,19 @@ const TavernDice = {
           <button onclick="TavernDice.setGame('zara')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='zara'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='zara'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
             🎲 Zara (3d6)
           </button>
+          <button onclick="TavernDice.setGame('riskstack')" class="craft-btn" style="flex: 1; padding: 6px 4px; font-size: 0.7rem; white-space: normal; line-height: 1.25; background: ${this.activeGame==='riskstack'?'var(--accent-gold)':'rgba(255,255,255,0.08)'}; color: ${this.activeGame==='riskstack'?'#000':'#f5e6c8'}; border: 1px solid #c5a059;">
+            ♠️ Risk Stack
+          </button>
         </div>
+
+        <!-- Risk Stack má úplně vlastní layout (3 kola, lapkové, torch) — eventy-audit-mrd 05.09.2026 bod 3, samostatná větev mimo sdílenou sázka/hod šablonu hazard/passage/zara -->
+        ${this.activeGame === 'riskstack' ? (typeof RiskStack !== 'undefined' && RiskStack.renderTavern ? RiskStack.renderTavern(coins, lang) : '') + '</div>' : ''}
+    `;
+    if (this.activeGame === 'riskstack') {
+      el.innerHTML = h;
+      return;
+    }
+    h += `</div>
 
         <!-- Game Info & Controls -->
         <div style="background: rgba(0,0,0,0.35); padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px dashed rgba(197,160,89,0.3);">

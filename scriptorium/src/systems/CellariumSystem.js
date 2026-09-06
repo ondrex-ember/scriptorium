@@ -1558,19 +1558,32 @@ const CellariumSystem = {
     if (entity === 'tavern') {
       const sub = GameState.ui.tavernSubtab || 'shop';
       h += `
-      <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
         <button class="filter-btn${sub === 'shop' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='shop'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold;">
           🍺 ${lang === 'en' ? 'Tavern Store' : 'Šenk & Obchod'}
         </button>
         <button class="filter-btn${sub === 'dice' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='dice'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub === 'dice' ? 'var(--accent-gold)' : 'rgba(197,160,89,0.1)'}; color:${sub === 'dice' ? '#000' : 'var(--ink-primary)'};">
-          🎲 ${lang === 'en' ? 'Gambling Table' : 'Hazardní Stůl & Vrhcáby'}
+          🎲 ${lang === 'en' ? 'Hazard' : 'Hazard'}
+        </button>
+        <button class="filter-btn${sub === 'lapkove' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='lapkove'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub === 'lapkove' ? 'var(--accent-gold)' : 'rgba(197,160,89,0.1)'}; color:${sub === 'lapkove' ? '#000' : 'var(--ink-primary)'};">
+          🗡️ ${lang === 'en' ? 'The Lapkové Gang' : 'Parta Lapků'}
         </button>
       </div>
       `;
 
-      if (sub === 'dice') {
+      if (sub === 'dice' || sub === 'lapkove') {
         h += `<div id="tavern-dice-container"></div>`;
-        setTimeout(() => { if (typeof TavernDice !== 'undefined') TavernDice.render(); }, 20);
+        // eventy-audit-mrd (05.09.2026) bod 3 dodatek — samostatná záložka
+        // "Parta Lapků" skočí rovnou na Risk Stack (activeGame='riskstack')
+        // místo výchozí Hazard hry; Hazard záložka nechává activeGame beze
+        // změny (co bylo naposled zvoleno, výchozí 'hazard').
+        setTimeout(() => {
+            if (typeof TavernDice !== 'undefined') {
+                if (sub === 'lapkove') TavernDice.activeGame = 'riskstack';
+                else if (TavernDice.activeGame === 'riskstack') TavernDice.activeGame = 'hazard';
+                TavernDice.render();
+            }
+        }, 20);
         return h;
       }
 
@@ -2276,6 +2289,19 @@ const CellariumSystem = {
 
     const waterCount = GameState.inventory['water'] || 0;
     h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:12px;">💧 ${lang === 'en' ? 'Water for quenching' : 'Voda na kalení'}: <strong>${waterCount}</strong></div>`;
+
+    // eventy-audit-mrd sešitka (05.09.2026) — dřív podkovy nebyly v Kovárně
+    // vidět vůbec, jen mezi obecnými Zásobami. Sada_podkov/premium/worn už
+    // jako itemy existují (viz recipes.js — sada_podkov, cat:'iron'), jen
+    // jim chyběl vlastní řádek. Mirror stejného vzoru jako voda výš.
+    const podkovyOk = GameState.inventory['sada_podkov'] || 0;
+    const podkovyPrem = GameState.inventory['sada_podkov_premium'] || 0;
+    const podkovyWorn = GameState.inventory['worn_sada_podkov'] || 0;
+    if (podkovyOk + podkovyPrem + podkovyWorn > 0) {
+        h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:12px;">🧲 ${lang === 'en' ? 'Horseshoe sets' : 'Sady podkov'}:
+            <strong>${podkovyOk}</strong>${lang === 'en' ? ' ready' : ' hotových'}${podkovyPrem > 0 ? `, <strong>${podkovyPrem}</strong> ${lang === 'en' ? 'premium' : 'prémiových'}` : ''}${podkovyWorn > 0 ? `, <strong style="color:#b05a3c;">${podkovyWorn}</strong> ${lang === 'en' ? 'worn (needs repair)' : 'opotřebených (k opravě)'}` : ''}
+        </div>`;
+    }
 
     h += this._renderKovarnaTierPanel(tier, lang);
     h += this._renderKovarnaGuildReminder(lang);
