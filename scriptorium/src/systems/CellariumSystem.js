@@ -1566,7 +1566,7 @@ const CellariumSystem = {
           🎲 ${lang === 'en' ? 'Hazard' : 'Hazard'}
         </button>
         <button class="filter-btn${sub === 'lapkove' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='lapkove'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub === 'lapkove' ? 'var(--accent-gold)' : 'rgba(197,160,89,0.1)'}; color:${sub === 'lapkove' ? '#000' : 'var(--ink-primary)'};">
-          🗡️ ${lang === 'en' ? 'The Lapkové Gang' : 'Parta Lapků'}
+          🗡️ ${lang === 'en' ? 'The Lapkové Watch' : 'Lapková patrola'}
         </button>
         <button class="filter-btn${sub === 'mercenaries' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='mercenaries'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub === 'mercenaries' ? 'var(--accent-gold)' : 'rgba(197,160,89,0.1)'}; color:${sub === 'mercenaries' ? '#000' : 'var(--ink-primary)'};">
           🛡️ ${lang === 'en' ? 'Mercenaries' : 'Žoldnéři'}
@@ -1581,7 +1581,7 @@ const CellariumSystem = {
       if (sub === 'dice' || sub === 'lapkove') {
         h += `<div id="tavern-dice-container"></div>`;
         // eventy-audit-mrd (05.09.2026) bod 3 dodatek — samostatná záložka
-        // "Parta Lapků" skočí rovnou na Risk Stack (activeGame='riskstack')
+        // "Lapková patrola" skočí rovnou na Risk Stack (activeGame='riskstack')
         // místo výchozí Hazard hry; Hazard záložka nechává activeGame beze
         // změny (co bylo naposled zvoleno, výchozí 'hazard').
         setTimeout(() => {

@@ -224,7 +224,7 @@ const MercenaryBattle = {
         const mercAlive = merc.hp > 0;
         return `<div class="mb-panel" id="mb-battle">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                <h2 class="mb-h" style="font-size:22px;margin:0;">${lang === 'en' ? 'Lapkové camp' : 'Lapčí tábor'}</h2>
+                <h2 class="mb-h" style="font-size:22px;margin:0;">${lang === 'en' ? 'Lapkové camp' : 'Tábor lapků'}</h2>
                 <div class="mb-eyebrow">${lang === 'en' ? 'Round' : 'Kolo'} ${this._round}</div>
             </div>
             <div class="mb-battlefield">
@@ -387,7 +387,7 @@ const MercenaryBattle = {
         this._busy = false;
         const grose = 20 + Math.floor(Math.random() * 21);
         if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
-            CellariumSystem.addGrose(grose, { title: this._lang() === 'en' ? 'Patrol reward' : 'Odměna za hlídku', source: 'Porta' });
+            CellariumSystem.addGrose(grose, { title: this._lang() === 'en' ? 'Lapkové Watch reward' : 'Odměna z Lapkové patroly', source: 'Porta' });
         }
         const bonusPool = ['wild_leather', 'kovani'];
         const bonusId = bonusPool[Math.floor(Math.random() * bonusPool.length)];
@@ -418,7 +418,7 @@ const MercenaryBattle = {
         const k = this._resultKind;
         const data = {
             victory: ['✦', lang === 'en' ? 'Victory on the Trail' : 'Vítězství na stezce', lang === 'en' ? 'The camp falls silent. Saeculum will remember your step.' : 'Tábor utichl. Saeculum si bude pamatovat tvůj krok.'],
-            defeat: ['☠', lang === 'en' ? 'The Trail Broke You' : 'Stezka tě zlomila', lang === 'en' ? 'The Lapkové fire burned out — but not by your hand.' : 'Lapčí oheň dohořel, ale ne tvým přičiněním.'],
+            defeat: ['☠', lang === 'en' ? 'The Trail Broke You' : 'Stezka tě zlomila', lang === 'en' ? 'The Lapkové fire burned out — but not by your hand.' : 'Oheň lapků dohořel, ale ne tvým přičiněním.'],
             escape: ['↪', lang === 'en' ? 'Retreat into Dusk' : 'Ústup do šera', lang === 'en' ? 'You survived the night. Some trails come back around.' : 'Přežili jste noc. Některé stezky se vracejí později.'],
         }[k];
         let lootHtml = '';
@@ -433,7 +433,7 @@ const MercenaryBattle = {
         }
         return `<div class="mb-panel mb-result ${k}">
             <div class="seal">${data[0]}</div>
-            <div class="mb-eyebrow">${lang === 'en' ? 'Patrol result' : 'Výsledek hlídky'}</div>
+            <div class="mb-eyebrow">${lang === 'en' ? 'Lapkové Watch — result' : 'Výsledek Lapkové patroly'}</div>
             <h1>${data[1]}</h1>
             <p class="mb-muted">${data[2]}</p>
             ${lootHtml}
