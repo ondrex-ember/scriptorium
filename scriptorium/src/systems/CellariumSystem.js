@@ -2310,6 +2310,66 @@ const CellariumSystem = {
     return h;
   },
 
+  // vyroba-stavby-mrd (6.9.2026) — Bednářská dílna, mirror Kovárna vzoru
+  // (header karta + built-check + craft list). Bez vlastní pece/mechaniky —
+  // dřevozpracující řemeslo, ne kov/pekárna, žádnej ohňový sub-systém
+  // nebyl žádanej. Craft list = existující sud/bedna/kontejner recepty
+  // (žádný nový needsBuild gate — zůstávají dostupné i mimo dílnu, jen se
+  // tady navíc přehledně sbalí). Nové exportní recepty ("řemeslo bednáře"
+  // ve smyslu MRD) jsou budoucí práce, viz Memory.
+  _renderBednaDilnaCraftList: function (lang) {
+    if (typeof RecipesDB === 'undefined') return '';
+    const ids = ['barrel_tool', 'bedna', 'convert_barrel_to_container'];
+    const recipes = RecipesDB.filter(r => ids.includes(r.id) && (!r.locked || (GameState.unlockedRecipes && GameState.unlockedRecipes.includes(r.id))));
+    if (!recipes.length) return `<div style="opacity:0.6; font-style:italic; font-size:0.8rem; margin-top:10px;">${lang === 'en' ? 'Nothing to craft here yet — research the basics first.' : 'Zatím není co vyrábět — nejprve prozkoumej základy.'}</div>`;
+    let h = `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85; margin:10px 0 8px;">🛢️ ${lang === 'en' ? 'Cooperage' : 'Bednářství'}</div>`;
+    h += `<div style="display:grid; grid-template-columns:1fr; gap:6px;">`;
+    recipes.forEach(r => {
+      const prod = ItemsDB[r.output];
+      if (!prod) return;
+      let can = true;
+      let reqStr = '';
+      Object.entries(r.req || {}).forEach(([id, amt]) => {
+        const has = GameState.inventory[id] || 0;
+        const missing = (amt > 0 && has < amt) || (amt === 0 && !has);
+        if (missing) can = false;
+        const iN = (typeof iName === 'function') ? iName(id) : id;
+        reqStr += `<span style="${missing ? 'color:#b05a3c;' : ''}">${iN}${amt > 0 ? ' ' + has + '/' + amt : ''}</span> `;
+      });
+      if (prod.maxStack) {
+        const have = GameState.inventory[r.output] || 0;
+        if (have >= prod.maxStack) can = false;
+      }
+      h += `<div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:6px;">
+        <div style="font-size:1.3rem;">${prod.icon}</div>
+        <div style="flex:1; font-size:0.8rem;"><strong>${lang === 'en' ? (prod.name_en || prod.name) : prod.name}</strong><div style="font-size:0.68rem; opacity:0.75;">${reqStr}</div></div>
+        <button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${lang === 'en' ? 'Craft' : 'Vyrobit'}</button>
+      </div>`;
+    });
+    h += `</div>`;
+    return h;
+  },
+
+  renderBednaDilnaTab: function () {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    let h = `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">
+      <h4 style="margin:0 0 8px 0; color:var(--ink-primary);">🛢️ ${lang === 'en' ? 'Cooperage Workshop' : 'Bednářská dílna'}</h4>
+      <div style="font-size:0.82rem; opacity:0.75; font-style:italic;">
+        ${lang === 'en'
+        ? 'Staves and hoops instead of anvil and fire — barrels and crates take shape here, under one roof.'
+        : 'Dužiny a obruče místo kovadliny a ohně — sudy a bedny tu vznikají pod jednou střechou.'}
+      </div>
+    </div>`;
+
+    if (!(GameState.storage && GameState.storage.bedna_dilna && GameState.storage.bedna_dilna.built)) {
+      h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'Cooperage Workshop not yet built.' : 'Bednářská dílna ještě není postavena.'}</div>`;
+      return h;
+    }
+
+    h += this._renderBednaDilnaCraftList(lang);
+    return h;
+  },
+
   renderPozemkyPanel: function () {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (typeof LandParcelsDB === 'undefined') {
@@ -3195,6 +3255,14 @@ const CellariumSystem = {
         req_tech: hasTonn,
         req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
         req_label: lang === 'en' ? 'Requires: Foudres built' : 'Nutné: Foudres postaveny',
+      },
+      {
+        id: 'bedna_dilna', icon: '🛢️',
+        name: 'Bednářská dílna', name_en: 'Cooperage Workshop',
+        desc: 'Výroba sudů pro export vína. Odemkne řemeslo bednáře.',
+        desc_en: 'Crafts barrels for wine export. Unlocks the cooper\'s craft.',
+        cost: { plank: 12, iron_ingot: 4, rope: 5, wild_leather: 2 },
+        req_tech: hasTonn, req_build: true, req_label: null,
       },
     ];
     const renderBuilding = (b) => {

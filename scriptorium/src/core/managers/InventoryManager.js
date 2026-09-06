@@ -965,6 +965,11 @@ const InventoryManager = {
         if (!GameState.storage.velky_hmozdir) GameState.storage.velky_hmozdir = { built: false };
         if (!GameState.storage.rozen) GameState.storage.rozen = { built: false };
         if (!GameState.storage.susarna) GameState.storage.susarna = { built: false };
+        // vyroba-stavby-mrd (5.9.2026) — Bednářská dílna, dokončení slibu z
+        // popisu tech_tonnellerie ("Odemkne: Foudres + Bednářská dílna").
+        // Karta v CellariumSystem.js (Vinohrad build-array), req_tech: hasTonn,
+        // req_build: true (nezávislá na Foudres, stavitelná hned po techu).
+        if (!GameState.storage.bedna_dilna) GameState.storage.bedna_dilna = { built: false };
         if (!GameState.storage.old_cellars) GameState.storage.old_cellars = { built: false };
         if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = { built: false };
         if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = { built: false };
@@ -1097,6 +1102,9 @@ const InventoryManager = {
             // coquina-tier4-mrd (7.8.2026): panská kuchyně — hmoždíř na koření, rožeň na pečeně
             velky_hmozdir: { cut_stone: 30, hrebiky: 2 },
             rozen: { iron_ingot: 6, plank: 4, hrebiky: 3 },
+            // vyroba-stavby-mrd (6.9.2026) — Bednářská dílna, musí sedět s
+            // cost objektem v CellariumSystem.js (Vinohrad build-array).
+            bedna_dilna: { plank: 12, iron_ingot: 4, rope: 5, wild_leather: 2 },
         };
         // Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
         // Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.
@@ -1146,6 +1154,7 @@ const InventoryManager = {
             dormitorium_ii: 'Dormitorium II',
             dormitorium_iii: 'Dormitorium III',
             knihovna_grade_i: 'Knihovna — Stupeň I',
+            bedna_dilna: 'Bednářská dílna',
         };
         const n = names[type] || type;
         UI.notifyPanel('🏗️ ' + (lang === 'en' ? n + ' built.' : n + ' postaveno.'), 'system');

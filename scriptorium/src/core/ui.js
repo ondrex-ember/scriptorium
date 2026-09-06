@@ -40,6 +40,13 @@ const WORKSHOPS_REGISTRY = [
         desc_en: 'A dedicated drying yard — more materials at once, at a scale the hearth could never manage.',
         isUnlocked: () => !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria')),
     },
+    {
+        id: 'bedna_dilna', subtab: 'bedna_dilna', icon: '🛢️',
+        name: 'Bednářská dílna', name_en: 'Cooperage Workshop',
+        desc: 'Sudy a bedny pod jednou střechou — dřevo, obruče, smola. Základ pro export vína.',
+        desc_en: 'Barrels and crates under one roof — wood, hoops, pitch. The base for wine export.',
+        isUnlocked: () => !!(GameState.storage && GameState.storage.bedna_dilna && GameState.storage.bedna_dilna.built),
+    },
 ];
 
 const UI = {
@@ -275,6 +282,7 @@ const UI = {
         { elId: 'home-mill-content', fn: () => { const el = document.getElementById('home-mill-content'); if (el && typeof MillSystem !== 'undefined') el.innerHTML = MillSystem.render(); } },
         { elId: 'home-furnus-content', fn: () => { const el = document.getElementById('home-furnus-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderFurnusTab(); } },
         { elId: 'home-kovarna-content', fn: () => { const el = document.getElementById('home-kovarna-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderKovarnaTab(); } },
+        { elId: 'home-bedna_dilna-content', fn: () => { const el = document.getElementById('home-bedna_dilna-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderBednaDilnaTab(); } },
         // Zahrada (screen 'garden') — zahony pokrývá renderGarden() přímo
         { elId: 'garden-tab-dvur', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard(); } },
         { elId: 'garden-tab-sad', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderOrchard(); } },
@@ -331,6 +339,10 @@ const UI = {
         // Kovárna — gate na built, mirror Furnus přesně. kovarna-dilna-mrd.md v0.6, 30.8.2026.
         const _kovarnaBtn = document.getElementById('home-sub-kovarna');
         if (_kovarnaBtn) _kovarnaBtn.style.display = (GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.built) ? '' : 'none';
+
+        // Bednářská dílna — gate na built, mirror Kovárna přesně. vyroba-stavby-mrd, 6.9.2026.
+        const _bednaBtn = document.getElementById('home-sub-bedna_dilna');
+        if (_bednaBtn) _bednaBtn.style.display = (GameState.storage && GameState.storage.bedna_dilna && GameState.storage.bedna_dilna.built) ? '' : 'none';
 
         this.renderResourceTracker();
 
@@ -1406,7 +1418,7 @@ const UI = {
         // vyroba-stavby-mrd (5.9.2026): + WORKSHOPS_REGISTRY unlock signály
         // (mill tier, kovarna/furnus/vapenice built, susarna tech), aby se
         // "Stavby" karty přerenderovaly, jakmile hráč dílnu postaví/odemkne.
-        const _hCraft = JSON.stringify(GameState.unlockedRecipes) + JSON.stringify(GameState.inventory) + JSON.stringify(['cerna_kuchyne', 'udirna', 'velky_hmozdir', 'rozen', 'kovarna', 'furnus', 'vapenice'].map(b => GameState.storage && GameState.storage[b] && GameState.storage[b].built)) + ((GameState.storage && GameState.storage.mill && GameState.storage.mill.tier) || 0) + ((GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria')) ? 1 : 0) + (this.currentFilter || 'all');
+        const _hCraft = JSON.stringify(GameState.unlockedRecipes) + JSON.stringify(GameState.inventory) + JSON.stringify(['cerna_kuchyne', 'udirna', 'velky_hmozdir', 'rozen', 'kovarna', 'furnus', 'vapenice', 'bedna_dilna'].map(b => GameState.storage && GameState.storage[b] && GameState.storage[b].built)) + ((GameState.storage && GameState.storage.mill && GameState.storage.mill.tier) || 0) + ((GameState.researchedTechs && GameState.researchedTechs.includes('tech_susarna_industria')) ? 1 : 0) + (this.currentFilter || 'all');
         if (_hCraft === this._hashCraft) return;
         this._hashCraft = _hCraft;
         const el = document.getElementById('crafting-list'); el.innerHTML = "";
@@ -2636,6 +2648,7 @@ const UI = {
         const mill = document.getElementById('home-mill-content');
         const furnus = document.getElementById('home-furnus-content');
         const kovarna = document.getElementById('home-kovarna-content');
+        const bednaDilna = document.getElementById('home-bedna_dilna-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
@@ -2644,6 +2657,7 @@ const UI = {
         if (mill) mill.style.display = tab === 'mill' ? 'block' : 'none';
         if (furnus) furnus.style.display = tab === 'furnus' ? 'block' : 'none';
         if (kovarna) kovarna.style.display = tab === 'kovarna' ? 'block' : 'none';
+        if (bednaDilna) bednaDilna.style.display = tab === 'bedna_dilna' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
@@ -2672,6 +2686,10 @@ const UI = {
         // Kovárna — kovarna-dilna-mrd.md v0.6, 30.8.2026, mirror furnus dispatch.
         if (tab === 'kovarna' && kovarna && typeof CellariumSystem !== 'undefined') {
             kovarna.innerHTML = CellariumSystem.renderKovarnaTab();
+        }
+        // Bednářská dílna — vyroba-stavby-mrd, 6.9.2026, mirror kovarna dispatch.
+        if (tab === 'bedna_dilna' && bednaDilna && typeof CellariumSystem !== 'undefined') {
+            bednaDilna.innerHTML = CellariumSystem.renderBednaDilnaTab();
         }
     },
 
