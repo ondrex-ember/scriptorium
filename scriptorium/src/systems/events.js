@@ -1223,10 +1223,13 @@ const EventsSystem = {
         {
             id: 'road_lapkove_armed',
             icon: '⚔️',
-            // eventy-audit-mrd (05.09.2026) pending-timeout: přidáním 3. volby
-            // (minihra) by "poslední index" znamenal auto-spuštění RiskStack
-            // bez hráče u toho — explicitní index 1 (Odmítnout) zůstává default.
-            timeoutIndex: 1,
+            // eventy-audit-mrd (05.09.2026) diskuze bod 1+2 — 5cestné řešení
+            // encounteru místo 2-3 voleb. "Boj" bez žoldnéře záměrně NEspouští
+            // solo bitvu — MercenaryBattle.js má tohle už rozhodnuté v komentáři
+            // ("sólo cesta jde přes RiskStack, ne přes tenhle engine"), takže
+            // bez žoldnéře jen nasměruje do Družiny. Vzdát se = poslední index,
+            // jediná 100% předvídatelná volba → bezpečný timeout default.
+            timeoutIndex: 4,
             title: () => (GameState.settings && GameState.settings.language === 'en') ? 'Armed Men on the Road' : 'Ozbrojená rota na cestě',
             text: () => {
                 const en = GameState.settings && GameState.settings.language === 'en';
@@ -1238,8 +1241,8 @@ const EventsSystem = {
             trigger: () => Math.random() < 0.02,
             choices: [
                 {
-                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Pay them off (40 groše)' : 'Zaplatit výpalné (40 grošů)',
-                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Cheaper than a fight.' : 'Levnější než rvačka.',
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Ransom (40 groše)' : 'Výkupné (40 grošů)',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Guaranteed, costs groše.' : 'Jisté, stojí groše.',
                     action: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
                         if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
@@ -1249,57 +1252,47 @@ const EventsSystem = {
                     }
                 },
                 {
-                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Refuse' : 'Odmítnout',
-                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Risk it.' : 'Riskovat.',
-                    action: () => {
-                        const en = GameState.settings && GameState.settings.language === 'en';
-                        if (Math.random() < 0.5) {
-                            if (typeof PersonaSystem !== 'undefined' && PersonaSystem.addReputation) PersonaSystem.addReputation('slechta', 1);
-                            return en ? 'They grumble and let the matter drop.' : 'Zabručí a věc nechají být.';
-                        }
-                        const loss = Math.floor((GameState.inventory['paper'] || 0) * 0.2);
-                        if (loss > 0) Game.addItem('paper', -loss);
-                        return en ? `They take what they can carry — ${loss} paper lost.` : `Vezmou si, co unesou — ztraceno ${loss} papíru.`;
-                    }
-                },
-                {
                     label: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
-                        return GameState.mercenary ? (en ? 'The Lapkové Watch (mercenary)' : 'Lapková patrola (žoldnéř)') : (en ? 'The Lapkové Watch (dice)' : 'Lapková patrola (kostky)');
+                        return GameState.mercenary ? (en ? 'Fight (mercenary)' : 'Boj (se žoldnéřem)') : (en ? 'Fight (need a mercenary)' : 'Boj (chybí žoldnéř)');
                     },
                     desc: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
-                        return GameState.mercenary ? (en ? 'You are not alone this time.' : 'Tentokrát nejsi sám.') : (en ? 'Win groše, or lose the goods trying.' : 'Vyhraješ groše, nebo o zboží přijdeš ve snaze.');
+                        return GameState.mercenary ? (en ? 'Your retinue leads the charge.' : 'Tvoje družina vede útok.') : (en ? 'Hire one in Persona → Retinue first.' : 'Nejdřív najmi v Persona → Družina.');
                     },
-                    // vyroba-stavby-mrd navazuje (6.9.2026), Fáze D — guarded/unguarded
-                    // rozlišení. Bez žoldnéře beze změny (RiskStack), se žoldnéřem
-                    // jde stejná volba přes MercenaryBattle. Ztrátová sazba na
-                    // defeat/escape mirror původní RiskStack proherní větev přesně.
                     action: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
-                        if (GameState.mercenary) {
-                            if (typeof MercenaryBattle === 'undefined') return en ? 'Your mercenary is not at hand.' : 'Žoldnéř není po ruce.';
-                            MercenaryBattle.open((outcome) => {
-                                let msg;
-                                if (outcome.result === 'victory') {
-                                    msg = en ? 'Your mercenary leads the charge — the camp falls silent.' : 'Tvůj žoldnéř vede útok — tábor utichne.';
-                                } else if (outcome.result === 'escape') {
-                                    msg = en ? 'You and your mercenary slip away into the dark.' : 'Ty a tvůj žoldnéř zmizíte ve tmě.';
-                                } else {
-                                    const loss = Math.floor((GameState.inventory['paper'] || 0) * 0.2);
-                                    if (loss > 0) Game.addItem('paper', -loss);
-                                    msg = en ? `The fight turns against you — ${loss} paper lost.` : `Boj se obrátí proti vám — ztraceno ${loss} papíru.`;
-                                }
-                                EventsSystem._addKronika(msg);
-                                if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
-                                    NotificationSystem.modal({
-                                        title: t('events.ui.result'), text: msg,
-                                        choices: [{ label: t('events.ui.close'), type: 'primary', effect: () => { if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll(); } }]
-                                    });
-                                }
-                            });
-                            return '';
+                        if (!GameState.mercenary) {
+                            return en ? 'You have no one to fight at your side — yet.' : 'Nemáš po boku nikoho, s kým bojovat — zatím.';
                         }
+                        if (typeof MercenaryBattle === 'undefined') return en ? 'Your mercenary is not at hand.' : 'Žoldnéř není po ruce.';
+                        MercenaryBattle.open((outcome) => {
+                            let msg;
+                            if (outcome.result === 'victory') {
+                                msg = en ? 'Your mercenary leads the charge — the camp falls silent.' : 'Tvůj žoldnéř vede útok — tábor utichne.';
+                            } else if (outcome.result === 'escape') {
+                                msg = en ? 'You and your mercenary slip away into the dark.' : 'Ty a tvůj žoldnéř zmizíte ve tmě.';
+                            } else {
+                                const loss = Math.floor((GameState.inventory['paper'] || 0) * 0.2);
+                                if (loss > 0) Game.addItem('paper', -loss);
+                                msg = en ? `The fight turns against you — ${loss} paper lost.` : `Boj se obrátí proti vám — ztraceno ${loss} papíru.`;
+                            }
+                            EventsSystem._addKronika(msg);
+                            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+                                NotificationSystem.modal({
+                                    title: t('events.ui.result'), text: msg,
+                                    choices: [{ label: t('events.ui.close'), type: 'primary', effect: () => { if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll(); } }]
+                                });
+                            }
+                        });
+                        return '';
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Play for it (dice)' : 'Hrát o štěstí (kostky)',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Win groše, or lose the goods trying.' : 'Vyhraješ groše, nebo o zboží přijdeš ve snaze.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
                         if (typeof RiskStack === 'undefined') return en ? 'The dice are not at hand.' : 'Kostky nejsou po ruce.';
                         RiskStack.open({}, (outcome) => {
                             let msg;
@@ -1324,13 +1317,37 @@ const EventsSystem = {
                         });
                         return '';
                     }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Attempt to flee' : 'Pokus o útěk',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Might work. Might make it worse.' : 'Může vyjít. Může to zhoršit.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(10);
+                        if (Math.random() < 0.55) {
+                            return en ? 'You outrun them — nothing lost but breath.' : 'Utečeš jim — nic neztraceno, jen dech.';
+                        }
+                        const loss = Math.floor((GameState.inventory['paper'] || 0) * 0.35);
+                        if (loss > 0) Game.addItem('paper', -loss);
+                        return en ? `Caught mid-flight — ${loss} paper lost, and they are angrier for the chase.` : `Chyceni na útěku — ztraceno ${loss} papíru, a honička je jen rozzuřila.`;
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Surrender the goods' : 'Vzdát se',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'No risk — a known, fixed loss.' : 'Žádné riziko — jistá, pevná ztráta.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const loss = Math.floor((GameState.inventory['paper'] || 0) * 0.15);
+                        if (loss > 0) Game.addItem('paper', -loss);
+                        return en ? `You hand over ${loss} paper without a struggle.` : `Beze slova jim odevzdáš ${loss} papíru.`;
+                    }
                 }
             ]
         },
         {
             id: 'road_lapkove_mercenary',
             icon: '🏴',
-            timeoutIndex: 1, // eventy-audit-mrd (05.09.2026) — stejný důvod jako u road_lapkove_armed
+            timeoutIndex: 4, // eventy-audit-mrd (05.09.2026) — stejný důvod jako u road_lapkove_armed, "Vzdát se" je jediná 100% předvídatelná volba
             title: () => (GameState.settings && GameState.settings.language === 'en') ? 'A Mercenary Company' : 'Žoldnéřská tlupa',
             text: () => {
                 const en = GameState.settings && GameState.settings.language === 'en';
@@ -1342,7 +1359,7 @@ const EventsSystem = {
             trigger: () => (typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) > 100 && Math.random() < 0.015,
             choices: [
                 {
-                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Negotiate (80 groše)' : 'Vyjednat (80 grošů)',
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Ransom (80 groše)' : 'Výkupné (80 grošů)',
                     desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Expensive, but final.' : 'Drahé, ale definitivní.',
                     action: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
@@ -1354,60 +1371,52 @@ const EventsSystem = {
                     }
                 },
                 {
-                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Bar the gates' : 'Zavřít brány',
-                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Wait it out.' : 'Vyčkat.',
-                    action: () => {
-                        const en = GameState.settings && GameState.settings.language === 'en';
-                        const loss = Math.floor((GameState.inventory['common_codex'] || 0) * 0.15);
-                        if (loss > 0) Game.addItem('common_codex', -loss);
-                        const currentGrose = typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0;
-                        const grLoss = Math.min(30, currentGrose);
-                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
-                            CellariumSystem.addGrose(-grLoss, { title: en ? 'Looted while gates held' : 'Vypleněno za zavřenými branami', source: 'Porta' });
-                        }
-                        return en ? `They camp three days and take what stragglers leave behind — ${loss} codices, ${grLoss} groše gone.` : `Utáboří se na tři dny a berou, co zůstane venku — ${loss} kodexů, ${grLoss} grošů pryč.`;
-                    }
-                },
-                {
                     label: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
-                        return GameState.mercenary ? (en ? 'The Lapkové Watch (mercenary)' : 'Lapková patrola (žoldnéř)') : (en ? 'The Lapkové Watch (dice)' : 'Lapková patrola (kostky)');
+                        return GameState.mercenary ? (en ? 'Fight (mercenary)' : 'Boj (se žoldnéřem)') : (en ? 'Fight (need a mercenary)' : 'Boj (chybí žoldnéř)');
                     },
                     desc: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
-                        return GameState.mercenary ? (en ? 'Higher stakes than the road bandits — but you are not alone.' : 'Vyšší sázky než u obyčejných lapků — ale nejsi sám.') : (en ? 'Higher stakes than the road bandits.' : 'Vyšší sázky než u obyčejných lapků.');
+                        return GameState.mercenary ? (en ? 'Higher stakes than road bandits — but you are not alone.' : 'Vyšší sázky než u obyčejných lapků — ale nejsi sám.') : (en ? 'Hire one in Persona → Retinue first.' : 'Nejdřív najmi v Persona → Družina.');
                     },
-                    // vyroba-stavby-mrd navazuje (6.9.2026), Fáze D — mirror road_lapkove_armed přesně.
                     action: () => {
                         const en = GameState.settings && GameState.settings.language === 'en';
-                        if (GameState.mercenary) {
-                            if (typeof MercenaryBattle === 'undefined') return en ? 'Your mercenary is not at hand.' : 'Žoldnéř není po ruce.';
-                            MercenaryBattle.open((outcome) => {
-                                let msg;
-                                if (outcome.result === 'victory') {
-                                    msg = en ? 'Your mercenary leads the charge — the company scatters.' : 'Tvůj žoldnéř vede útok — rota se rozprchne.';
-                                } else if (outcome.result === 'escape') {
-                                    msg = en ? 'You and your mercenary slip away into the dark.' : 'Ty a tvůj žoldnéř zmizíte ve tmě.';
-                                } else {
-                                    const loss = Math.floor((GameState.inventory['common_codex'] || 0) * 0.15);
-                                    if (loss > 0) Game.addItem('common_codex', -loss);
-                                    const currentGrose = typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0;
-                                    const grLoss = Math.min(30, currentGrose);
-                                    if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
-                                        CellariumSystem.addGrose(-grLoss, { title: en ? 'Lost the fight' : 'Prohraný boj', source: 'Porta' });
-                                    }
-                                    msg = en ? `The fight turns against you — ${loss} codices and ${grLoss} groše gone.` : `Boj se obrátí proti vám — ztraceno ${loss} kodexů a ${grLoss} grošů.`;
-                                }
-                                EventsSystem._addKronika(msg);
-                                if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
-                                    NotificationSystem.modal({
-                                        title: t('events.ui.result'), text: msg,
-                                        choices: [{ label: t('events.ui.close'), type: 'primary', effect: () => { if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll(); } }]
-                                    });
-                                }
-                            });
-                            return '';
+                        if (!GameState.mercenary) {
+                            return en ? 'You have no one to fight at your side — yet.' : 'Nemáš po boku nikoho, s kým bojovat — zatím.';
                         }
+                        if (typeof MercenaryBattle === 'undefined') return en ? 'Your mercenary is not at hand.' : 'Žoldnéř není po ruce.';
+                        MercenaryBattle.open((outcome) => {
+                            let msg;
+                            if (outcome.result === 'victory') {
+                                msg = en ? 'Your mercenary leads the charge — the company scatters.' : 'Tvůj žoldnéř vede útok — rota se rozprchne.';
+                            } else if (outcome.result === 'escape') {
+                                msg = en ? 'You and your mercenary slip away into the dark.' : 'Ty a tvůj žoldnéř zmizíte ve tmě.';
+                            } else {
+                                const loss = Math.floor((GameState.inventory['common_codex'] || 0) * 0.15);
+                                if (loss > 0) Game.addItem('common_codex', -loss);
+                                const currentGrose = typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0;
+                                const grLoss = Math.min(30, currentGrose);
+                                if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                                    CellariumSystem.addGrose(-grLoss, { title: en ? 'Lost the fight' : 'Prohraný boj', source: 'Porta' });
+                                }
+                                msg = en ? `The fight turns against you — ${loss} codices and ${grLoss} groše gone.` : `Boj se obrátí proti vám — ztraceno ${loss} kodexů a ${grLoss} grošů.`;
+                            }
+                            EventsSystem._addKronika(msg);
+                            if (typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
+                                NotificationSystem.modal({
+                                    title: t('events.ui.result'), text: msg,
+                                    choices: [{ label: t('events.ui.close'), type: 'primary', effect: () => { if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll(); } }]
+                                });
+                            }
+                        });
+                        return '';
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Play for it (dice)' : 'Hrát o štěstí (kostky)',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'Higher stakes than the road bandits.' : 'Vyšší sázky než u obyčejných lapků.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
                         if (typeof RiskStack === 'undefined') return en ? 'The dice are not at hand.' : 'Kostky nejsou po ruce.';
                         RiskStack.open({}, (outcome) => {
                             let msg;
@@ -1436,6 +1445,35 @@ const EventsSystem = {
                             }
                         });
                         return '';
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Attempt to flee' : 'Pokus o útěk',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'A tougher company — harder to outrun.' : 'Tvrdší rota — hůř se jí utíká.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(12);
+                        if (Math.random() < 0.5) {
+                            return en ? 'You outrun them — nothing lost but breath.' : 'Utečeš jim — nic neztraceno, jen dech.';
+                        }
+                        const loss = Math.floor((GameState.inventory['common_codex'] || 0) * 0.22);
+                        if (loss > 0) Game.addItem('common_codex', -loss);
+                        const currentGrose = typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0;
+                        const grLoss = Math.min(20, currentGrose);
+                        if (typeof CellariumSystem !== 'undefined' && CellariumSystem.addGrose) {
+                            CellariumSystem.addGrose(-grLoss, { title: en ? 'Caught fleeing' : 'Chycen na útěku', source: 'Porta' });
+                        }
+                        return en ? `Caught mid-flight — ${loss} codices and ${grLoss} groše gone, and they are angrier for the chase.` : `Chyceni na útěku — ztraceno ${loss} kodexů a ${grLoss} grošů, a honička je jen rozzuřila.`;
+                    }
+                },
+                {
+                    label: () => (GameState.settings && GameState.settings.language === 'en') ? 'Surrender the goods' : 'Vzdát se',
+                    desc: () => (GameState.settings && GameState.settings.language === 'en') ? 'No risk — a known, fixed loss.' : 'Žádné riziko — jistá, pevná ztráta.',
+                    action: () => {
+                        const en = GameState.settings && GameState.settings.language === 'en';
+                        const loss = Math.floor((GameState.inventory['common_codex'] || 0) * 0.12);
+                        if (loss > 0) Game.addItem('common_codex', -loss);
+                        return en ? `You hand over ${loss} codices without a struggle.` : `Beze slova jim odevzdáš ${loss} kodexů.`;
                     }
                 }
             ]
