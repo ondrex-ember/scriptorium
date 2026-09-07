@@ -2148,6 +2148,7 @@ const CellariumSystem = {
   },
 
   _kovarnaFurnaceSvg: function (active) {
+    const p = 'kovarna-furnace';
     const glow = active ? `
       <ellipse cx="70" cy="88" rx="22" ry="10" fill="#ff8c3a" opacity="0.55">
         <animate attributeName="opacity" values="0.4;0.75;0.4" dur="1.6s" repeatCount="indefinite"/>
@@ -2155,11 +2156,16 @@ const CellariumSystem = {
       <ellipse cx="70" cy="86" rx="12" ry="6" fill="#ffd27a" opacity="0.7">
         <animate attributeName="opacity" values="0.5;0.9;0.5" dur="1.1s" repeatCount="indefinite"/>
       </ellipse>` : '';
+    // Sdílený plamen z Coquiny (ohniste tier0) — mirror, ne duplikace.
+    const flameDefs = (typeof CoquinaVisuals !== 'undefined') ? CoquinaVisuals._flameDefs(p) : '';
+    const flame = (typeof CoquinaVisuals !== 'undefined') ? CoquinaVisuals._flameGroup(70, 104, 0.3, active, p) : '';
     return `<svg viewBox="0 0 140 130" width="100%" height="120" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;">
+      <defs>${flameDefs}</defs>
       <ellipse cx="70" cy="122" rx="55" ry="6" fill="rgba(8,6,3,0.4)"/>
       <rect x="20" y="30" width="100" height="80" rx="4" fill="#4a4038" stroke="#0a0806" stroke-width="1.5"/>
       <path d="M 45 110 L 45 70 Q 45 55 70 55 Q 95 55 95 70 L 95 110 Z" fill="#161310"/>
       ${glow}
+      ${flame}
       <rect x="55" y="95" width="30" height="8" rx="2" fill="#2e2822" stroke="#0a0806" stroke-width="1"/>
       <rect x="50" y="103" width="40" height="6" rx="1" fill="#1a1712"/>
     </svg>`;
@@ -2327,42 +2333,73 @@ const CellariumSystem = {
     return h;
   },
 
+  // Jeden řádek receptu (sdíleno Výrobou i Opravami) — mirror původní
+  // _renderKovarnaCraftList tělo, vyjmuto beze změny logiky can/reqStr.
+  _renderKovarnaRecipeRow: function (r, lang) {
+    const prod = ItemsDB[r.output];
+    if (!prod) return '';
+    let can = true;
+    let reqStr = '';
+    Object.entries(r.req || {}).forEach(([id, amt]) => {
+      const has = GameState.inventory[id] || 0;
+      const missing = (amt > 0 && has < amt) || (amt === 0 && !has);
+      if (missing) can = false;
+      const iN = (typeof iName === 'function') ? iName(id) : id;
+      reqStr += `<span style="${missing ? 'color:#b05a3c;' : ''}">${iN}${amt > 0 ? ' ' + has + '/' + amt : ''}</span> `;
+    });
+    if (r.toolReq) {
+      const hasTool = r.toolReq.some(tr => (GameState.inventory[tr.item] || 0) > 0 || (GameState.inventory['worn_' + tr.item] || 0) > 0);
+      if (!hasTool) can = false;
+      const toolNames = r.toolReq.map(tr => (typeof iName === 'function') ? iName(tr.item) : tr.item).join('/');
+      reqStr += `<span style="${hasTool ? '' : 'color:#b05a3c;'}">+ 🔧 ${toolNames}</span>`;
+    }
+    if (prod.maxStack && !r.id.startsWith('repair_')) {
+      const have = GameState.inventory[r.output] || 0;
+      const worn = GameState.inventory['worn_' + r.output] || 0;
+      if (have + worn >= prod.maxStack) can = false;
+    }
+    const label = r.id.startsWith('repair_') ? (lang === 'en' ? 'Repair' : 'Opravit') : (lang === 'en' ? 'Forge' : 'Kovat');
+    return `<div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:6px;">
+      <div style="font-size:1.3rem;">${prod.icon}</div>
+      <div style="flex:1; font-size:0.8rem;"><strong>${lang === 'en' ? (prod.name_en || prod.name) : prod.name}</strong><div style="font-size:0.68rem; opacity:0.75;">${reqStr}</div></div>
+      <button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${label}</button>
+    </div>`;
+  },
+
+  // Výroba — kategorizováno Zbraně → Nástroje → Materiály (podle ItemsDB
+  // .type, ne pevný seznam — nové zbraně v budoucnu zapadnou samy).
   _renderKovarnaCraftList: function (lang) {
     if (typeof RecipesDB === 'undefined') return '';
-    const recipes = RecipesDB.filter(r => r.cat === 'iron' && (!r.locked || (GameState.unlockedRecipes && GameState.unlockedRecipes.includes(r.id))));
+    const recipes = RecipesDB.filter(r => r.cat === 'iron' && !r.id.startsWith('repair_')
+      && (!r.locked || (GameState.unlockedRecipes && GameState.unlockedRecipes.includes(r.id))));
     if (!recipes.length) return '';
+    const groups = [
+      { key: 'weapon', label: lang === 'en' ? '⚔️ Weapons' : '⚔️ Zbraně' },
+      { key: 'tool',   label: lang === 'en' ? '🔨 Tools' : '🔨 Nástroje' },
+      { key: 'mat',    label: lang === 'en' ? '📦 Materials' : '📦 Materiály' },
+    ];
     let h = `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85; margin:10px 0 8px;">⚒️ ${lang === 'en' ? 'Smithing' : 'Kovářství'}</div>`;
-    h += `<div style="display:grid; grid-template-columns:1fr; gap:6px;">`;
-    recipes.forEach(r => {
-      const prod = ItemsDB[r.output];
-      if (!prod) return;
-      let can = true;
-      let reqStr = '';
-      Object.entries(r.req || {}).forEach(([id, amt]) => {
-        const has = GameState.inventory[id] || 0;
-        const missing = (amt > 0 && has < amt) || (amt === 0 && !has);
-        if (missing) can = false;
-        const iN = (typeof iName === 'function') ? iName(id) : id;
-        reqStr += `<span style="${missing ? 'color:#b05a3c;' : ''}">${iN}${amt > 0 ? ' ' + has + '/' + amt : ''}</span> `;
-      });
-      if (r.toolReq) {
-        const hasTool = r.toolReq.some(tr => (GameState.inventory[tr.item] || 0) > 0 || (GameState.inventory['worn_' + tr.item] || 0) > 0);
-        if (!hasTool) can = false;
-        const toolNames = r.toolReq.map(tr => (typeof iName === 'function') ? iName(tr.item) : tr.item).join('/');
-        reqStr += `<span style="${hasTool ? '' : 'color:#b05a3c;'}">+ 🔧 ${toolNames}</span>`;
-      }
-      if (prod.maxStack && !r.id.startsWith('repair_')) {
-        const have = GameState.inventory[r.output] || 0;
-        const worn = GameState.inventory['worn_' + r.output] || 0;
-        if (have + worn >= prod.maxStack) can = false;
-      }
-      const label = r.id.startsWith('repair_') ? (lang === 'en' ? 'Repair' : 'Opravit') : (lang === 'en' ? 'Forge' : 'Kovat');
-      h += `<div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:rgba(0,0,0,0.03); border-radius:6px;">
-        <div style="font-size:1.3rem;">${prod.icon}</div>
-        <div style="flex:1; font-size:0.8rem;"><strong>${lang === 'en' ? (prod.name_en || prod.name) : prod.name}</strong><div style="font-size:0.68rem; opacity:0.75;">${reqStr}</div></div>
-        <button class="craft-btn" onclick="Game.craft('${r.id}')" ${can ? '' : 'disabled'}>${label}</button>
-      </div>`;
+    groups.forEach(g => {
+      const inGroup = recipes.filter(r => ((ItemsDB[r.output] || {}).type || 'mat') === g.key);
+      if (!inGroup.length) return;
+      h += `<div style="font-size:0.68rem; opacity:0.6; margin:8px 0 4px;">${g.label}</div>`;
+      h += `<div style="display:grid; grid-template-columns:1fr; gap:6px;">`;
+      inGroup.forEach(r => { h += this._renderKovarnaRecipeRow(r, lang); });
+      h += `</div>`;
     });
+    return h;
+  },
+
+  // Opravy — samostatný sloupec, beze změny (opravy zatím nepotřebují
+  // kategorizaci, jsou to všechno nástroje).
+  _renderKovarnaRepairList: function (lang) {
+    if (typeof RecipesDB === 'undefined') return '';
+    const recipes = RecipesDB.filter(r => r.cat === 'iron' && r.id.startsWith('repair_')
+      && (!r.locked || (GameState.unlockedRecipes && GameState.unlockedRecipes.includes(r.id))));
+    if (!recipes.length) return '';
+    let h = `<div style="font-size:0.72rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); opacity:0.85; margin:10px 0 8px;">🔧 ${lang === 'en' ? 'Repairs' : 'Opravy'}</div>`;
+    h += `<div style="display:grid; grid-template-columns:1fr; gap:6px;">`;
+    recipes.forEach(r => { h += this._renderKovarnaRecipeRow(r, lang); });
     h += `</div>`;
     return h;
   },
@@ -2430,7 +2467,15 @@ const CellariumSystem = {
 
     h += this._renderKovarnaTierPanel(tier, lang);
     h += this._renderKovarnaGuildReminder(lang);
-    h += this._renderKovarnaCraftList(lang);
+
+    const craftCol = this._renderKovarnaCraftList(lang);
+    const repairCol = this._renderKovarnaRepairList(lang);
+    if (craftCol || repairCol) {
+      h += `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; align-items:start;">
+        <div>${craftCol}</div>
+        <div>${repairCol}</div>
+      </div>`;
+    }
 
     return h;
   },

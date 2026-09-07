@@ -970,7 +970,7 @@ const RecipesDB = [
   {
     id: "dagger", output: "dagger", qty: 1,
     req: { iron_ingot: 1, wild_leather: 1, rope: 1 },
-    cat: "craft", locked: true, maxStack: 1,
+    cat: "iron", locked: true, maxStack: 1,
     desc: "Prostá čepel na opasku. Víc na obranu než na válku, ale lepší než holá pěst.",
     desc_en: "A plain blade at the belt. More for defence than war, but better than a bare fist."
   },
