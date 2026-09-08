@@ -18,10 +18,6 @@ const DecaySystem = {
         milk:         { rate: 0.30 },
         goat_milk:    { rate: 0.30 },
         cream:        { rate: 0.30 },
-        // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — mirror milk (rychle
-        // kazitelná tekutina), potřeba pro Cestu B k tech_fermentum níž.
-        wort:         { rate: 0.30 },
-        mustum:       { rate: 0.30 },
         meat:         { rate: 0.20, flies: true },
         // udirna-mrd (7.8.2026): beef/mutton tu dřív chyběly úplně —
         // syrové hovězí/skopové dnes vůbec nehnilo (bug). pork nový.
@@ -86,6 +82,7 @@ const DecaySystem = {
         // fresh_dairy (0.25)
         tvaroh: { rate: 0.25 },
         wort: { rate: 0.25 },
+        mustum: { rate: 0.25 },
         mustum_klevner: { rate: 0.25 },
         mustum_frankovka: { rate: 0.25 },
         mustum_tramin: { rate: 0.25 },
@@ -386,7 +383,6 @@ const DecaySystem = {
         beer: { rate: 0.01 },
         cervisia_nigra: { rate: 0.01 },
         prima_cervisia: { rate: 0.01 },
-        mustum: { rate: 0.01 },
         vinum: { rate: 0.01 },
         vinum_baci: { rate: 0.01 },
         vinum_obscurum: { rate: 0.01 },
