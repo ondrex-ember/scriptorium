@@ -385,6 +385,19 @@ const InventoryManager = {
                 for (let _li = 0; _li < craftQty; _li++) LimeSystem.registerInstance(_limeBase);
             }
         }
+        // Sladovna — registrace per-instance zrání pro nově založené sladování
+        // (sladovna-mrd.md v0.2, 7.9.2026). Jediný recept, žádný baseType navíc.
+        if (typeof MaltSystem !== 'undefined' && r.id === 'malt_barley') {
+            for (let _si = 0; _si < craftQty; _si++) MaltSystem.registerInstance();
+        }
+        // Cervisiaria — registrace per-instance zrání pro nově navařené pivo
+        // (pivovar-velkovyroba-mrd.md v0.7, 7.9.2026).
+        if (typeof CervisiariaSystem !== 'undefined') {
+            const _beerBase = { brew_prima_cervisia: 'prima_cervisia', brew_cervisia_nigra: 'cervisia_nigra' }[r.id];
+            if (_beerBase) {
+                for (let _bi = 0; _bi < craftQty; _bi++) CervisiariaSystem.registerInstance(_beerBase);
+            }
+        }
         // Analytics – zaznamenej craft
         const craftedItem = ItemsDB[r.output];
         if (craftedItem) Analytics.itemCrafted(r.output, craftedItem.name, craftedItem.type);
@@ -450,6 +463,15 @@ const InventoryManager = {
                 UI.notify(lang === 'en' ? '📖 You must first read the required book.' : '📖 Nejprve musíš přečíst potřebný spis.', true);
                 return;
             }
+        }
+
+        // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — tech_braxatio_nigra
+        // gated i praxí, ne jen groši. Počítadlo vede CervisiariaSystem
+        // (velké várky, ne Athanor kusy — jiný účel než tech_fermentum Cesta C).
+        if (id === 'tech_braxatio_nigra' && (GameState.cervisiariaBrewCount || 0) < 5) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            UI.notify(lang === 'en' ? '🍺 The Abbot wants to see the craft mastered first — brew Prima Cervisia at least 5 times.' : '🍺 Opat chce nejdřív vidět zvládnuté řemeslo — uvař aspoň 5× Prima Cervisia.', true);
+            return;
         }
 
         // Save hint tracking (research = important action)
@@ -970,6 +992,8 @@ const InventoryManager = {
         // Karta v CellariumSystem.js (Vinohrad build-array), req_tech: hasTonn,
         // req_build: true (nezávislá na Foudres, stavitelná hned po techu).
         if (!GameState.storage.bedna_dilna) GameState.storage.bedna_dilna = { built: false };
+        // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — Pivovar
+        if (!GameState.storage.pivovar) GameState.storage.pivovar = { built: false };
         if (!GameState.storage.old_cellars) GameState.storage.old_cellars = { built: false };
         if (!GameState.storage.domus_conversorum_i) GameState.storage.domus_conversorum_i = { built: false };
         if (!GameState.storage.domus_conversorum_ii) GameState.storage.domus_conversorum_ii = { built: false };
@@ -1105,6 +1129,10 @@ const InventoryManager = {
             // vyroba-stavby-mrd (6.9.2026) — Bednářská dílna, musí sedět s
             // cost objektem v CellariumSystem.js (Vinohrad build-array).
             bedna_dilna: { plank: 12, iron_ingot: 4, rope: 5, wild_leather: 2 },
+            // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — Pivovar, nad
+            // Fornax Ferraria tier (dražší než ostatní dílny, Bouvard).
+            // bronz místo dalšího uhlí — var. kotel, tematická vazba.
+            pivovar: { rock: 45, cut_stone: 20, clay: 25, plank: 35, hrebiky: 15, bronz: 3 },
         };
         // Volitelný groše náklad navíc k materiálu — dnes jen Domus Conversorum I/II.
         // Cokoliv chybí v costsGrose má groseNeeded=0, tedy nulový dopad na stávající budovy.

@@ -2108,7 +2108,12 @@ He who does not tend the life of the vine does not deserve the wine.`
             category: 'coquina',
             unlockDay: 44,
             unlockResearch: 45,
-            unlocksTech: ['tech_ars_coquinaria'],
+            // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — Cesta A ke kvasu.
+            // Reálná dobová kuchařka (Kochbuch/Büchlein tý doby běžně psaly
+            // i o kynutí) — chleba a pivo sdílely kvas od starověku (Plinius).
+            // Žádná nová fiktivní kniha, jen rozšíření o to, co reálně
+            // kuchařky tý doby obsahovaly.
+            unlocksTech: ['tech_ars_coquinaria', 'tech_fermentum'],
             icon: '🦞',
             author: 'Martino de Rossi',
             author_en: 'Martino de Rossi',

@@ -18,6 +18,10 @@ const DecaySystem = {
         milk:         { rate: 0.30 },
         goat_milk:    { rate: 0.30 },
         cream:        { rate: 0.30 },
+        // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — mirror milk (rychle
+        // kazitelná tekutina), potřeba pro Cestu B k tech_fermentum níž.
+        wort:         { rate: 0.30 },
+        mustum:       { rate: 0.30 },
         meat:         { rate: 0.20, flies: true },
         // udirna-mrd (7.8.2026): beef/mutton tu dřív chyběly úplně —
         // syrové hovězí/skopové dnes vůbec nehnilo (bug). pork nový.
@@ -813,6 +817,33 @@ const DecaySystem = {
             if (!alreadyFolio && !alreadyHeld && Math.random() < 0.06) {
                 if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('belzebub_spis', 1);
                 if (typeof Game !== 'undefined' && Game.showBelzebubSpisModal) setTimeout(function () { Game.showBelzebubSpisModal(); }, 300);
+            }
+        }
+
+        // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — Cesta B ke kvasu:
+        // mladina nebo mošt nechaná zkazit se místo ztráty někdy vyklube
+        // v náhodný objev (divoké kvasinky ve dřevě sudu). Mirror Belzebub
+        // vzoru, ale vázáno KONKRÉTNĚ na wort/mustum ztrátu, ne na jakýkoliv
+        // úbytek (losses.length > 0 samotný by byl moc široký).
+        if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fermentum'))) {
+            const fermentLoss = losses.find(l => l.id === 'wort' || l.id === 'mustum');
+            if (fermentLoss && Math.random() < 0.06) {
+                GameState.researchedTechs.push('tech_fermentum');
+                if (typeof Game !== 'undefined' && Game.addItem) Game.addItem('kvasnice', 1);
+                if (typeof Game !== 'undefined' && Game.syncTechUnlocks) Game.syncTechUnlocks();
+                if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                    NotificationSystem.panel('🫧 ' + (lang === 'en'
+                        ? 'Left too long, it foamed on its own — the monastery has stumbled onto yeast.'
+                        : 'Nechané moc dlouho, samo to zpěnilo — klášter narazil na kvasnice.'), 'system');
+                }
+                if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+                    Game.addKronikaEntry('important',
+                        '🫧 Náhodou poznáno: Fermentum — Kvas',
+                        '🫧 Discovered by chance: Fermentum — Leaven',
+                        '🫧 Casu cognitum: Fermentum'
+                    );
+                }
             }
         }
 

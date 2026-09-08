@@ -73,6 +73,8 @@ const JS_MAIN = [
     'src/systems/DecaySystem.js',
     'src/systems/CheeseSystem.js',
     'src/systems/LimeSystem.js',
+    'src/systems/MaltSystem.js',   // sladovna-mrd.md v0.2 (7.9.2026) — barley→malt, mirror LimeSystem
+    'src/systems/CervisiariaSystem.js', // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — slad→pivo, mirror CheeseSystem
     'src/systems/MillSystem.js',           // Vodní mlýn — provoz (mlynar-vlastni-mlyn-mrd.md §4.7)
     'src/systems/DryingSystem.js',
     'src/systems/CoquinaVisuals.js', // coquina-visuals-mrd (9.8.2026), SVG ilustrace stanic, mirror Athanor techniky

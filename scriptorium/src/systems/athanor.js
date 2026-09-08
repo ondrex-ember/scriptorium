@@ -1963,6 +1963,18 @@ const AthanorDB = {
       lore: 'Mladina vyluhovaná s chmelem. Benediktini ji vařili pro poutníky i pro sebe.',
       lore_en: 'Wort steeped with hops. The Benedictines brewed it for pilgrims and for themselves.'
     },
+    // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — lepší verze VEDLE
+    // původní, ne místo ní (§1.2, korekce vlastního návrhu — Athanor
+    // recept nebyl a není "blbě", zůstává funkční jak je). unlock gate
+    // = existující mechanismus (combo.unlock), žádnej novej kód potřeba.
+    'hops+kvasnice+wort:maceratio': {
+      result: { id: 'prima_cervisia_lepsi', qty: 3 },
+      unlock: 'tech_fermentum',
+      name: 'Prima Cervisia (s kvasnicemi)', name_en: 'Prima Cervisia (with yeast)', name_lat: 'Cervisia Prima Fermentata', icon: '🍺',
+      effect: { type: 'vigor_restore', value: 20, label: 'Prima Cervisia (s kvasnicemi): Vigor +20 / 35 min' },
+      lore: 'Mladina zakvašená pravými kvasnicemi, ne jen chmelem. Řemeslo, ne zkratka.',
+      lore_en: 'Wort fermented with true yeast, not hops alone. A craft, not a shortcut.'
+    },
     'honey+wort:maceratio': {
       result: { id: 'wine', qty: 1 },
       name: 'Hydromel', name_en: 'Hydromel', name_lat: 'Hydromel Monasticum', icon: '🍯',
@@ -2443,6 +2455,30 @@ const AthanorSystem = {
       // Přidej výsledek (kritický = +1 bonus)
       const qty = combo.result.qty + (isCritical ? 1 : 0);
       Game.addItem(combo.result.id, qty);
+
+      // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — Cesta C ke kvasu:
+      // praxe. Počítadlo VÝSLOVNĚ oddělené od CervisiariaSystem
+      // (Athanor kusy, ne velký várky — jiný účel, viz MRD §1.1 varování).
+      if (combo.result.id === 'prima_cervisia') {
+        GameState.athanorBeerCraftCount = (GameState.athanorBeerCraftCount || 0) + 1;
+        if (GameState.athanorBeerCraftCount >= 5
+          && !(GameState.researchedTechs && GameState.researchedTechs.includes('tech_fermentum'))) {
+          GameState.researchedTechs.push('tech_fermentum');
+          if (typeof Game !== 'undefined' && Game.syncTechUnlocks) Game.syncTechUnlocks();
+          if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+            NotificationSystem.panel('🍺 ' + (lang === 'en'
+              ? "Brewed enough times to see the pattern in the wort — the monastery has grasped yeast."
+              : 'Navařeno dost na to, aby si všiml vzorce v mladině — klášter pochopil kvasnice.'), 'system');
+          }
+          if (typeof Game !== 'undefined' && Game.addKronikaEntry) {
+            Game.addKronikaEntry('important',
+              '🍺 Praxí poznáno: Fermentum — Kvas',
+              '🍺 Learned through practice: Fermentum — Leaven',
+              '🍺 Usu cognitum: Fermentum'
+            );
+          }
+        }
+      }
 
       // Aplikuj efekt
       if (combo.effect) {

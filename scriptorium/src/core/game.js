@@ -391,6 +391,9 @@ const Game = {
         // kovarna-dilna-mrd.md v0.5 (30.8.2026) — Kovárna, druhá dílna
         if (!GameState.abbotPetition.kovarna) GameState.abbotPetition.kovarna = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.abbotPetition.land_u_hradby) GameState.abbotPetition.land_u_hradby = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — Prazdroj
+        if (!GameState.abbotPetition.land_prazdroj) GameState.abbotPetition.land_prazdroj = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        if (!GameState.abbotPetition.pivovar) GameState.abbotPetition.pivovar = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.ubytovnaPetition) GameState.ubytovnaPetition = {};
         // Vyhodnotit čekající žádosti po načtení
         Game.checkAbbotPetitions();
@@ -891,6 +894,8 @@ const Game = {
                     if (typeof CheeseSystem !== 'undefined' && CheeseSystem.dailyTick) CheeseSystem.dailyTick();
                     // Calcaria — denní zrání vápna (self-guarded 24h, gate tech_calcaria)
                     if (typeof LimeSystem !== 'undefined' && LimeSystem.dailyTick) LimeSystem.dailyTick();
+                    if (typeof MaltSystem !== 'undefined' && MaltSystem.dailyTick) MaltSystem.dailyTick();
+                    if (typeof CervisiariaSystem !== 'undefined' && CervisiariaSystem.dailyTick) CervisiariaSystem.dailyTick();
                     // Susarna — denní sušení konopí (self-guarded 24h, gate tech_susarna)
                     if (typeof DryingSystem !== 'undefined' && DryingSystem.dailyTick) DryingSystem.dailyTick();
                     // Vaření/Udírna — self-guarded 5 min (kratší časy, hodiny ne dny), gate tech_udirna

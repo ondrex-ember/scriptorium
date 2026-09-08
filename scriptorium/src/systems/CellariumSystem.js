@@ -2540,6 +2540,37 @@ const CellariumSystem = {
     return h;
   },
 
+  // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — Pivovar tab, mirror
+  // renderBednaDilnaTab přesně (sub-tab Main, ne vlastní top-level tab —
+  // korekce oproti dřívějšímu plánu, ověřeno proti Mlýn/Furnus/Kovárna
+  // živýmu vzoru). Sladovna a var (slad→pivo) navazují jako budoucí
+  // krok — tady jen samotná budova a placeholder, dokud nejsou hotové.
+  renderPivovarTab: function () {
+    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    let h = `<div style="background:rgba(0,0,0,0.05); padding:14px; border-radius:10px; border-left:3px solid var(--accent-gold); margin-bottom:12px;">
+      <h4 style="margin:0 0 8px 0; color:var(--ink-primary);">🍺 ${lang === 'en' ? 'Pivovar — the Brewery' : 'Pivovar'}</h4>
+      <div style="font-size:0.82rem; opacity:0.75; font-style:italic;">
+        ${lang === 'en'
+        ? 'A copper kettle over its own hearth — beer brewed not by the cupful, but by the barrel.'
+        : 'Měděný kotel nad vlastní pecí — pivo se tu nevaří na doušky, ale na sudy.'}
+      </div>
+    </div>`;
+
+    if (!(GameState.storage && GameState.storage.pivovar && GameState.storage.pivovar.built)) {
+      h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'Pivovar not yet built.' : 'Pivovar ještě není postaven.'}</div>`;
+      return h;
+    }
+
+    h += MaltSystem.render();
+    h += CervisiariaSystem.render();
+    if (typeof MaltSystem === 'undefined' || !MaltSystem.isActive()) {
+      h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'The kettle stands ready — malting knowledge (Regalia → Maltatio) is still to come.' : 'Kotel stojí připravený — sladovnické řemeslo (Regálie → Sladovnictví) teprve přijde.'}</div>`;
+    } else if (typeof CervisiariaSystem === 'undefined' || !(CervisiariaSystem.isActive('prima_cervisia') || CervisiariaSystem.isActive('cervisia_nigra'))) {
+      h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'Malt is ready — but no one here yet knows the craft of yeast (Fermentum), nor how to brew at scale (Braxatio).' : 'Slad je hotový — ale nikdo zatím nezná řemeslo kvasu (Kvas), ani jak vařit ve velkém (Vaření ve velkém).'}</div>`;
+    }
+    return h;
+  },
+
   renderPozemkyPanel: function () {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
     if (typeof LandParcelsDB === 'undefined') {
@@ -3288,6 +3319,23 @@ const CellariumSystem = {
           ? 'Requires: own the Wall-side Yard parcel (Cellarium — Land) + Abbot approval (petition)'
           : 'Nutné: vlastnit parcelu Dvůr u hradební zdi (Cellarium — Pozemky) + souhlas opata (žádost)',
         petition_type: 'kovarna',
+      },
+      {
+        // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — mirror furnus/
+        // kovarna přesně. req_build kombinuje opatovu petici o Pivovar
+        // SAMOTNÝ A vlastnictví parcely Prazdroj — obojí musí platit.
+        id: 'pivovar', icon: '🍺',
+        name: 'Pivovar', name_en: 'Pivovar (Brewery)',
+        desc: 'Várečná pec s měděným kotlem. Vaření piva ve velkém, na prodej. Vyžaduje souhlas opata a vlastní pozemek (Prazdroj).',
+        desc_en: 'A brewing hearth with a copper kettle. Brewing beer at scale, for sale. Requires Abbot consent and its own parcel (the Wellspring).',
+        cost: { rock: 45, cut_stone: 20, clay: 25, plank: 35, hrebiky: 15, bronz: 3 },
+        req_tech: (GameState.researchedTechs && GameState.researchedTechs.includes('tech_regalia')),
+        req_build: (GameState.abbotPetition && GameState.abbotPetition.pivovar && GameState.abbotPetition.pivovar.status === 'approved')
+          && (GameState.landParcels && GameState.landParcels['prazdroj'] && GameState.landParcels['prazdroj'].status === 'owned'),
+        req_label: lang === 'en'
+          ? 'Requires: own the Wellspring parcel (Cellarium — Land) + Abbot approval (petition)'
+          : 'Nutné: vlastnit parcelu Prazdroj (Cellarium — Pozemky) + souhlas opata (žádost)',
+        petition_type: 'pivovar',
       },
       {
         id: 'sulci', icon: '🪠',

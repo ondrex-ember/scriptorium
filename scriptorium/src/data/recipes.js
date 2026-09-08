@@ -975,6 +975,40 @@ const RecipesDB = [
     desc_en: "A plain blade at the belt. More for defence than war, but better than a bare fist."
   },
 
+  // sladovna-mrd.md v0.2 (7.9.2026) — barley→slad, mirror LimeSystem
+  // (jednostupňová verze — craft založí instanci, MaltSystem.dailyTick
+  // ji po MATURE_DAYS převede fresh→hotovo). cat "craft", ne "iron" —
+  // nejde o kovářský výrobek.
+  {
+    id: "malt_barley", output: "malt_fresh", qty: 3,
+    req: { barley: 4, water: 2 },
+    cat: "craft", locked: true,
+    desc: "Ječmen namočený ve vodě, pak rozprostřený na hvozdu ke klíčení.",
+    desc_en: "Barley steeped in water, then spread on the kiln floor to sprout."
+  },
+
+  // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — velkovýroba piva, mirror
+  // CheeseSystem craft-then-age vzor (CervisiariaSystem.js). qty:6 —
+  // výrazně nad Athanor verzí (qty:2), tohle je ten "na prodej" rozdíl.
+  // barrel_tool:0 = musí vlastnit sud, nekonzumuje se (mirror cooked_meat
+  // konvence). byproduct kvasnice — sebraný kvas jde do další várky.
+  {
+    id: "brew_prima_cervisia", output: "prima_cervisia_fresh", qty: 6,
+    req: { malt: 4, hops: 2, water: 6, kvasnice: 1, barrel_tool: 0 },
+    cat: "craft", locked: true,
+    byproduct: { id: "kvasnice", qty: 1 },
+    desc: "Slad rozvařený s chmelem, zkvašený v sudu.",
+    desc_en: "Malt boiled with hops, fermented in a barrel."
+  },
+  {
+    id: "brew_cervisia_nigra", output: "cervisia_nigra_fresh", qty: 6,
+    req: { malt: 8, hops: 3, water: 6, kvasnice: 1, barrel_tool: 0 },
+    cat: "craft", locked: true,
+    byproduct: { id: "kvasnice", qty: 1 },
+    desc: "Dvojnásobná dávka sladu, delší var. Tekutý chléb pro dobu půstu.",
+    desc_en: "Double the malt, a longer boil. Liquid bread for the fasting season."
+  },
+
   // ── VÁPENICE — pálení a hašení vápna (budova sama je v buildStorage()) ──
   {
     id: "burn_lime", output: "vapno_paleny_fresh", qty: 1, req: { vapenec: 4, log: 3 }, cat: "craft", locked: true,

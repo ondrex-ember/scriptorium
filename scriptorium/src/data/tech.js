@@ -349,6 +349,51 @@ const TechTree = [
     unlocks: ["dagger"], requires: ["tech_inventarium"]
   },
 
+  // pivovar-varecne-pravo-mrd.md / sladovna-mrd.md v0.2 (7.9.2026) —
+  // barley→slad mezistupeň, první krok velkovýroby piva (Pivovar tab).
+  {
+    id: "tech_maltatio", name: "Maltatio — Sladovnictví", name_en: "Maltatio — Malting",
+    cost: 20,
+    desc: "Ječmen namočený, naklíčený a usušený na hvozdu — bez sladu se dá vařit jen v malém, alchymisticky. Odemkne: Sladování (v Pivovaru).",
+    desc_en: "Barley steeped, sprouted and dried on the kiln floor — without malt, brewing stays a small, alchemical shortcut. Unlocks: Malting (in the Pivovar).",
+    unlocks: ["malt_barley"], requires: ["tech_regalia"]
+  },
+
+  // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — kvasnice/kvas, tři
+  // nezávislé cesty k odemčení (race, viz §1.1): kniha (data/library.js
+  // libro_de_arte_coquinaria), náhoda (DecaySystem hook na wort/mustum),
+  // praxe (5× uvařená Athanor prima_cervisia, systems/athanor.js). Tenhle
+  // záznam v TechTree existuje i pro normální placenou cestu (4. možnost,
+  // nikdo neztrácí, kdyby chtěl prostě zaplatit) — requires tech_regalia,
+  // stejně jako ostatní tři cesty.
+  {
+    id: "tech_fermentum", name: "Fermentum — Kvas", name_en: "Fermentum — Leaven",
+    cost: 15,
+    desc: "Pěna z kvasícího díla, co se předává várka od várky — nikdo neví proč funguje, jen že funguje. Odemkne: kvasnice, lepší pivo v Athoru, cestu k opravdové velkovýrobě.",
+    desc_en: "The foam from a working brew, passed on batch to batch — no one knows why it works, only that it does. Unlocks: yeast, better ale in the Athanor, the path to true brewing at scale.",
+    unlocks: [], requires: ["tech_regalia"]
+  },
+
+  // slad + kvas dohromady → velkovýroba (Pivovar). requires OBOJE, mirror
+  // MRD §3 tech řetěz.
+  {
+    id: "tech_braxatio", name: "Braxatio — Vaření ve velkém", name_en: "Braxatio — Brewing at Scale",
+    cost: 25,
+    desc: "Slad, chmel, voda a kvas, ve velkém sudu, ne v alchymistické baňce. Odemkne: Var (v Pivovaru).",
+    desc_en: "Malt, hops, water and yeast, in a great vat, not an alchemist's flask. Unlocks: Brewing (in the Pivovar).",
+    unlocks: ["brew_prima_cervisia"], requires: ["tech_maltatio", "tech_fermentum"]
+  },
+
+  // Dvojité pivo — praxí gated (viz InventoryManager.researchTech, mirror
+  // knižní gate výš), navíc k normální tech_braxatio prerekvizitě.
+  {
+    id: "tech_braxatio_nigra", name: "Braxatio Nigra — Dvojité pivo", name_en: "Braxatio Nigra — Double Beer",
+    cost: 15,
+    desc: "Dvojnásobná dávka sladu, delší var, delší zrání. Tekutý chléb pro dobu půstu — ale sládek se k němu musí propracovat vařením, ne jen zaplatit. Vyžaduje aspoň 5 uvařených Prima Cervisia.",
+    desc_en: "A double measure of malt, a longer boil, a longer aging. Liquid bread for the fasting season — but a brewer must earn it by brewing, not merely pay for it. Requires at least 5 brewed Prima Cervisia.",
+    unlocks: ["brew_cervisia_nigra"], requires: ["tech_braxatio"]
+  },
+
   // ── COQUINA TIER 1 — Dymná jizba, pasivní uzení (Ruralia Commoda) ───────
   // coquina-tier1-mrd (7.8.2026): brzy dostupný, existující Ohniště, žádná
   // nová stavba. Ne plná imunita rozkladu — jen prodloužená (smoked_meat_home).

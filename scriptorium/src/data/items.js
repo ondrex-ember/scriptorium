@@ -803,7 +803,22 @@ const ItemsDB = {
     "hops": { name: "Chmel", name_en: "Hops", icon: "🌿", type: "mat", desc: "Aromatická rostlina. Dodává pivu hořkost a vůni.", desc_en: "Aromatic plant. Gives beer bitterness and aroma." },
     "seeds_hops": { name: "Semínka chmele", name_en: "Hop Seeds", icon: "🌾", type: "mat", desc: "Chmel lze pěstovat v zahradě. Vzácné semínko.", desc_en: "Hops can be grown in the garden. Rare seeds.", seasonCat: "semena_letni_podzim" },
     "wort": { name: "Mladina", name_en: "Wort", icon: "🫗", type: "mat", desc: "Fermentovaná obilná mladina. Základ každého piva.", desc_en: "Fermented grain wort. The base of every beer." },
+    // sladovna-mrd.md v0.2 (7.9.2026) — mezistupeň barley→malt, mirror LimeSystem.
+    "malt_fresh": { name: "Sladující ječmen", name_en: "Malting Barley", icon: "🌱", type: "mat", desc: "Namočený a naklíčený ječmen, rozprostřený na hvozdu k sušení. Ještě není hotový.", desc_en: "Steeped and sprouted barley, spread on the kiln floor to dry. Not yet done." },
+    "malt": { name: "Slad", name_en: "Malt", icon: "🌾", type: "mat", desc: "Usušený naklíčený ječmen. Základ každého piva — bez sladu není várky.", desc_en: "Dried, sprouted barley. The basis of every beer — no malt, no brewing." },
     "prima_cervisia": { name: "Prima Cervisia", name_en: "Prima Cervisia", icon: "🍺", type: "food", hunger: 6, desc: "Klášterní pivo světlé. Sytí a posiluje komunitu.", desc_en: "Light monastery ale. Nourishes and strengthens the community." },
+    // pivovar-velkovyroba-mrd.md v0.7 (7.9.2026) — kvasnice, obecná Athanor
+    // ingredience i Pivovar surovina, viz §1.3.
+    "kvasnice": { name: "Kvasnice", name_en: "Yeast", icon: "🫧", type: "mat", desc: "Pěna sebraná z kvasícího díla. Nejkřehčí surovina pivovarnictví — udrží se jen z várky do várky.", desc_en: "Foam skimmed from a fermenting brew. The most fragile ingredient in brewing — kept alive only from batch to batch." },
+    // Mezistupně velkovýroby (Pivovar) — mirror CheeseSystem fresh/mature/
+    // aged, ale finální fáze mapuje na existující bare item (prima_cervisia/
+    // cervisia_nigra), ne na _mature příponu — sedí s GuildsDB.affectedGoods.
+    "prima_cervisia_fresh": { name: "Kvasící pivo (světlé)", name_en: "Fermenting Ale (light)", icon: "🫗", type: "mat", desc: "Slad a chmel ve varu, čerstvě zakvašené. Ještě nehotové.", desc_en: "Malt and hops on the boil, freshly fermented. Not yet ready." },
+    "cervisia_nigra_fresh": { name: "Kvasící pivo (tmavé)", name_en: "Fermenting Ale (dark)", icon: "🫗", type: "mat", desc: "Dvojnásobná dávka sladu ve varu. Čeká na dlouhé kvašení.", desc_en: "A double measure of malt on the boil. Awaiting a long fermentation." },
+    "cervisia_nigra_mature": { name: "Zrající pivo (tmavé)", name_en: "Maturing Ale (dark)", icon: "🛢️", type: "mat", desc: "Zkvašené, ale ještě ne vyzrálé — leží v sudu a čeká.", desc_en: "Fermented, but not yet aged — lying in the barrel, waiting." },
+    // prima_cervisia_lepsi — Athanor bonus recept po vyzkoumání tech_fermentum
+    // (kvasnice navíc, lepší výstup), §1.2/1.3 stejné MRD.
+    "prima_cervisia_lepsi": { name: "Prima Cervisia (s kvasnicemi)", name_en: "Prima Cervisia (with yeast)", icon: "🍺", type: "food", hunger: 6, desc: "Mladina zakvašená pravými kvasnicemi, ne jen chmelem. Řemeslo, ne alchymistická zkratka.", desc_en: "Wort fermented with true yeast, not hops alone. A craft, not an alchemical shortcut.", },
     "cervisia_nigra": { name: "Cervisia Nigra", name_en: "Cervisia Nigra", icon: "🍺", type: "food", hunger: 8, desc: "Klášterní pivo tmavé. Vzácnější, chutnější.", desc_en: "Dark monastery ale. Rarer and more flavourful." },
 
     // ═══════════════════════════════════════════════════════════════════════════
