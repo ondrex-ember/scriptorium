@@ -205,6 +205,30 @@ const GuildsDB = {
             },
         ],
     },
+    // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — Pivovarnický cech,
+    // mirror kozeluzsky přesně. Desc-flavor navázán na historickej nález
+    // (Unger): kláštery vařily pivo dřív, než vznikly městský pivovary —
+    // Cibichův strach je historicky podloženej, ne z fleku.
+    pivovarsky: {
+        id: 'pivovarsky',
+        name: 'Pivovarnický cech',
+        name_en: "The Brewers' Guild",
+        masterName: 'Viktor Cibich',
+        masterIcon: '🍺',
+        desc: 'Zavalitý sládek s vousy od pěny, hlasitý a přímý. Nejvíc ze všech cechmistrů se bojí, že klášterní pivo vypije jeho zákazníky — dobře ví, že mniši vařili pivo dřív, než městské pivovary vůbec vznikly.',
+        desc_en: "A stout brewmaster with a foam-flecked beard, loud and blunt. More than any other guildmaster, he fears the monastery's ale will steal his customers — he knows well that monks were brewing beer before the town breweries ever existed.",
+        matters: [
+            {
+                key: 'pivovarsky:pivo',
+                label: 'Povolení k jednání o prodeji piva',
+                label_en: 'Permission to negotiate beer sales',
+                privilegeType: 'A',
+                privilegeLabel: 'Právo prodeje piva na Trhu bez fušerství (průběžný poplatek 10%)',
+                privilegeLabel_en: 'Right to sell beer at Market without botching (10% ongoing fee)',
+                affectedGoods: ['prima_cervisia', 'cervisia_nigra'],
+            },
+        ],
+    },
 };
 
 // Najde { guild, matter } podle ID položky — jedna položka spadá vždy

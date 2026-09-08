@@ -2655,7 +2655,12 @@ const CellariumSystem = {
         ((GameState.inventory && GameState.inventory['flour'] || 0) >= 10),
       reznicky: (GameState.inventory && ((GameState.inventory['meat'] || 0) + (GameState.inventory['cured_meat'] || 0)) >= 10),
       zlatnicky: (GameState.inventory && ((GameState.inventory['zlaty_prut'] || 0) >= 1 || (GameState.inventory['aurum_musicum'] || 0) >= 1)),
-      kozeluzsky: (GameState.researchedTechs && (GameState.researchedTechs.includes('tech_ligatura') || GameState.researchedTechs.includes('tech_compactura')))
+      kozeluzsky: (GameState.researchedTechs && (GameState.researchedTechs.includes('tech_ligatura') || GameState.researchedTechs.includes('tech_compactura'))),
+      // pivovar-varecne-pravo-mrd.md v0.3 §2.1 (7.9.2026) — mirror reznicky
+      // přesně: aktivace podle objemu, ne podle jednorázový akce. Hráč, co
+      // si v Athanoru uvařil pár piv pro radost, cech ještě nezajímá; až
+      // se z toho stane objem (velkovýroba), cechmistr si všimne.
+      pivovarsky: (GameState.inventory && ((GameState.inventory['prima_cervisia'] || 0) + (GameState.inventory['cervisia_nigra'] || 0)) >= 10),
     };
 
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
