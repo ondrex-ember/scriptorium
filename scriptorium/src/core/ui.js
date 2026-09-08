@@ -283,6 +283,7 @@ const UI = {
         { elId: 'home-furnus-content', fn: () => { const el = document.getElementById('home-furnus-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderFurnusTab(); } },
         { elId: 'home-kovarna-content', fn: () => { const el = document.getElementById('home-kovarna-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderKovarnaTab(); } },
         { elId: 'home-bedna_dilna-content', fn: () => { const el = document.getElementById('home-bedna_dilna-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderBednaDilnaTab(); } },
+        { elId: 'home-pivovar-content', fn: () => { const el = document.getElementById('home-pivovar-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderPivovarTab(); } },
         // Zahrada (screen 'garden') — zahony pokrývá renderGarden() přímo
         { elId: 'garden-tab-dvur', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard(); } },
         { elId: 'garden-tab-sad', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderOrchard(); } },
@@ -343,6 +344,11 @@ const UI = {
         // Bednářská dílna — gate na built, mirror Kovárna přesně. vyroba-stavby-mrd, 6.9.2026.
         const _bednaBtn = document.getElementById('home-sub-bedna_dilna');
         if (_bednaBtn) _bednaBtn.style.display = (GameState.storage && GameState.storage.bedna_dilna && GameState.storage.bedna_dilna.built) ? '' : 'none';
+
+        // Pivovar — gate na built, mirror Bednářská dílna přesně.
+        // pivovar-varecne-pravo-mrd.md v0.3, 7.9.2026.
+        const _pivovarBtn = document.getElementById('home-sub-pivovar');
+        if (_pivovarBtn) _pivovarBtn.style.display = (GameState.storage && GameState.storage.pivovar && GameState.storage.pivovar.built) ? '' : 'none';
 
         this.renderResourceTracker();
 
@@ -2649,6 +2655,7 @@ const UI = {
         const furnus = document.getElementById('home-furnus-content');
         const kovarna = document.getElementById('home-kovarna-content');
         const bednaDilna = document.getElementById('home-bedna_dilna-content');
+        const pivovar = document.getElementById('home-pivovar-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
@@ -2658,6 +2665,7 @@ const UI = {
         if (furnus) furnus.style.display = tab === 'furnus' ? 'block' : 'none';
         if (kovarna) kovarna.style.display = tab === 'kovarna' ? 'block' : 'none';
         if (bednaDilna) bednaDilna.style.display = tab === 'bedna_dilna' ? 'block' : 'none';
+        if (pivovar) pivovar.style.display = tab === 'pivovar' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }

@@ -73,4 +73,16 @@ const LandParcelsDB = {
         desc: 'Dvorek při hradební zdi, kousek od pekařského dvora — kouř a rány kladiva sem nedolehnou k opisovačům, a dvě dílny blízko sebe šetří cestu s materiálem.',
         desc_en: "A yard by the outer wall, close to the bakers' yard — smoke and hammer-blows stay far from the copyists, and two workshops side by side save a trip with materials.",
     },
+    // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — Prazdroj, mirror
+    // dvur_pekarsky/u_hradby přesně (vlastní abbotPetition.land_prazdroj,
+    // dražší než ostatní — várečné právo si žádá vlastní pramen).
+    prazdroj: {
+        name: 'Prazdroj', name_en: 'The Wellspring',
+        tags: ['voda'],
+        slotsCapacity: 1,
+        price: 350,
+        phase: 4,
+        desc: 'Chladný pramen vyvěrající z úpatí kopce, dost silný, aby unesl várku — jenže dosud patří sousednímu dvoru. Se správnou listinou by tekl pro klášter.',
+        desc_en: "A cold spring rising at the foot of the hill, strong enough to fill a mash tun — but it still belongs to the neighbouring farmstead. With the right deed, it could run for the monastery.",
+    },
 };

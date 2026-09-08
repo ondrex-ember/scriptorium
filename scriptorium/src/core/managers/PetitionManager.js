@@ -148,6 +148,32 @@ const PetitionManager = {
             }
         }
 
+        // Validace podmínek — pro Prazdroj (parcela), pivovar-varecne-
+        // pravo-mrd.md v0.3 (7.9.2026), mirror land_dvur_pekarsky/land_u_hradby.
+        if (type === 'land_prazdroj') {
+            if (!(GameState.flags && GameState.flags.pozemky_active)) {
+                UI.notify(t('abbotPetition.land_prazdroj.denied_regalia'), true); return;
+            }
+        }
+
+        // Validace podmínek — pro Pivovar (budova), pivovar-varecne-pravo-
+        // mrd.md v0.3 (7.9.2026), mirror kovarna přesně (tech + parcela +
+        // groše + distinktivní materiál — bronz místo kovadliny).
+        if (type === 'pivovar') {
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_regalia'))) {
+                UI.notify(t('abbotPetition.pivovar.denied_tech'), true); return;
+            }
+            if (!(GameState.landParcels && GameState.landParcels['prazdroj'] && GameState.landParcels['prazdroj'].status === 'owned')) {
+                UI.notify(t('abbotPetition.pivovar.denied_parcel'), true); return;
+            }
+            if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 90) {
+                UI.notify(t('abbotPetition.pivovar.denied_groats'), true); return;
+            }
+            if ((GameState.inventory['bronz'] || 0) < 3) {
+                UI.notify(t('abbotPetition.pivovar.denied_bronz'), true); return;
+            }
+        }
+
         // Validace podmínek — pro Columbarium (Porta)
         if (type === 'columbarium') {
             if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_porta'))) {
@@ -213,7 +239,7 @@ const PetitionManager = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'kovarna', 'land_u_hradby', 'columbarium', 'domus_ii', 'domus_iii', 'probost', 'mercenaries'].forEach(type => {
+        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'kovarna', 'land_u_hradby', 'land_prazdroj', 'pivovar', 'columbarium', 'domus_ii', 'domus_iii', 'probost', 'mercenaries'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -263,6 +289,17 @@ const PetitionManager = {
 
             if (type === 'land_u_hradby') {
                 if (!(GameState.flags && GameState.flags.pozemky_active)) deniedKey = 'denied_regalia';
+            }
+
+            if (type === 'land_prazdroj') {
+                if (!(GameState.flags && GameState.flags.pozemky_active)) deniedKey = 'denied_regalia';
+            }
+
+            if (type === 'pivovar') {
+                if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_regalia'))) deniedKey = 'denied_tech';
+                else if (!(GameState.landParcels && GameState.landParcels['prazdroj'] && GameState.landParcels['prazdroj'].status === 'owned')) deniedKey = 'denied_parcel';
+                else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 90) deniedKey = 'denied_groats';
+                else if ((GameState.inventory['bronz'] || 0) < 3) deniedKey = 'denied_bronz';
             }
 
             if (type === 'columbarium') {

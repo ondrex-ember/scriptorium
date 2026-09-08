@@ -2360,6 +2360,23 @@ const STRINGS_cs = {
             locked_hint: 'Oprava a kování podkov ve velkém vyžaduje souhlas opata ke stavbě kovárny.',
             build_cost: 'Stavba: 25 kamene, 15 fošen, 10 uhlí, 1 kovadlina, 8 hřebíků.',
         },
+        // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — mirror kovarna přesně.
+        pivovar: {
+            title: 'Žádost o stavbu pivovaru',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil stavbu Pivovaru. Dílna může být postavena.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud nezná Regálie. Prostuduj: Regálie.',
+            denied_parcel: '❌ Opat zamítl: Nejprve musí být získán Prazdroj (Cellarium — Pozemky).',
+            denied_groats: '❌ Opat zamítl: Klášter nemá dostatek prostředků (90 grošů).',
+            denied_bronz: '❌ Opat zamítl: Bez bronzu nelze var. kotel odlít.',
+            kronika_submit: 'Odeslána žádost opatovi o stavbu pivovaru. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil stavbu Pivovaru. Var ve velkém může začít.',
+            kronika_denied: 'Opat zamítl žádost o Pivovar. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
+            locked_hint: 'Var ve velkém, na prodej, vyžaduje souhlas opata ke stavbě pivovaru.',
+            build_cost: 'Stavba: 45 kamene, 20 tesaného kamene, 25 jílu, 35 fošen, 15 hřebíků, 3 bronz.',
+        },
         // vyroba-stavby-mrd navazuje (6.9.2026) — žoldnéřská ochrana, mirror
         // kovarna přesně, jen bez parcel/tech gate (jen prostředky).
         mercenaries: {
@@ -2385,6 +2402,20 @@ const STRINGS_cs = {
             kronika_denied: 'Opat zamítl žádost o dvůr u hradební zdi. Důvod: {reason}',
             inspect_hint: 'Opat přislíbil poslat úředníka na místo, než parcelu zapíše do desek.',
             locked_hint: 'Klášter už praská ve švech — nová dílna potřebuje vlastní pozemek, a k tomu nejdřív opatovo slovo.',
+        },
+        // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — Prazdroj, mirror
+        // land_u_hradby přesně, jen vlastní flavor (várečné právo, ne dílna).
+        land_prazdroj: {
+            title: 'Žádost o pozemek u Prazdroje',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil jednání o pozemku u Prazdroje. Parcelu jde koupit v Cellariu — Pozemky.',
+            denied_regalia: '❌ Opat zamítl: Nejprve musíš prostudovat Regálie a otevřít jednání se Zemským pánem.',
+            kronika_submit: 'Odeslána žádost opatovi o pozemek u Prazdroje. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil jednání o pozemku u Prazdroje.',
+            kronika_denied: 'Opat zamítl žádost o Prazdroj. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil poslat úředníka na místo, než parcelu zapíše do desek.',
+            locked_hint: 'Var ve velkém potřebuje vlastní pramen — a k tomu nejdřív opatovo slovo.',
         },
         columbarium: {
             title: 'Žádost o holubí hejno',

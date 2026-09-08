@@ -3333,6 +3333,23 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
             locked_hint: 'Repairing and forging horseshoes at scale requires the Abbot\'s consent to build a smithy.',
             build_cost: 'Build cost: 25 rock, 15 planks, 10 charcoal, 1 anvil, 8 nails.',
         },
+        // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — mirror kovarna exactly.
+        pivovar: {
+            title: 'Request to Build a Brewery',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot has approved the Pivovar. The workshop may be built.',
+            denied_tech: '❌ Abbot denied: The monastery has not yet studied the Regalia. Research: Regalia.',
+            denied_parcel: '❌ Abbot denied: The Wellspring must be acquired first (Cellarium — Land).',
+            denied_groats: '❌ Abbot denied: The monastery lacks sufficient funds (90 groats).',
+            denied_bronz: '❌ Abbot denied: The brewing kettle cannot be cast without bronze.',
+            kronika_submit: 'Petition submitted to the Abbot for the Pivovar (brewery). Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot approved the Pivovar. Brewing at scale may begin.',
+            kronika_denied: 'The Abbot denied the petition for the Pivovar. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised an inspection visit once the brewery is complete.',
+            locked_hint: 'Brewing at scale, for sale, requires the Abbot\'s consent to build a brewery.',
+            build_cost: 'Build cost: 45 rock, 20 cut stone, 25 clay, 35 planks, 15 nails, 3 bronze.',
+        },
         mercenaries: {
             title: 'Request for Mercenary Protection',
             submit_btn: 'Submit petition to the Abbot',
@@ -3356,6 +3373,20 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
             kronika_denied: 'The Abbot denied the petition for the Wall-side Yard. Reason: {reason}',
             inspect_hint: 'The Abbot has promised to send an officer to survey the site before it is entered in the register.',
             locked_hint: 'The monastery is already bursting at the seams — a new workshop needs its own land, and the Abbot\'s word first.',
+        },
+        // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — Prazdroj, mirror
+        // land_u_hradby exactly, own flavor (brewing rights, not a workshop).
+        land_prazdroj: {
+            title: 'Request for the Land at Prazdroj',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot approved dealings over the land at Prazdroj. The parcel may be bought in Cellarium — Land.',
+            denied_regalia: '❌ Abbot denied: You must first study the Regalia and open dealings with the Lord of the Manor.',
+            kronika_submit: 'Petition submitted to the Abbot for the land at Prazdroj. Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot approved dealings over the land at Prazdroj.',
+            kronika_denied: 'The Abbot denied the petition for Prazdroj. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised to send an officer to survey the site before it is entered in the register.',
+            locked_hint: 'Brewing at scale needs a spring of its own — and the Abbot\'s word first.',
         },
         columbarium: {
             title: 'Request for a Flock of Pigeons',
