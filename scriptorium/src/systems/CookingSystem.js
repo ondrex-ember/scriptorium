@@ -339,26 +339,38 @@ const CookingSystem = {
         // vařit" modal (myslel si, že hráč kouká na Vaření, i když ne) — recept
         // se spustil správně, jen to nebylo vidět. offsetParent===null pokrývá
         // i skrytí přes rodiče.
-        const _cookEl = document.getElementById('home-cooking-content');
-        const _cookingTabVisible = !!(_cookEl && _cookEl.offsetParent !== null);
+        // pekarna-fix (7.9.2026) — spočítáno předem, potřeba na obě větve níž
+        // (immediate refresh i modal).
+        const _isFurnusRecipe = (this._stationKey(def, typeKey) === 'furnus');
+        const _liveEl = document.getElementById(_isFurnusRecipe ? 'home-furnus-content' : 'home-cooking-content');
+        const _cookingTabVisible = !!(_liveEl && _liveEl.offsetParent !== null);
         if (_cookingTabVisible) {
-            _cookEl.innerHTML = this.render();
+            _liveEl.innerHTML = _isFurnusRecipe
+                ? ((typeof CellariumSystem !== 'undefined' && CellariumSystem.renderFurnusTab) ? CellariumSystem.renderFurnusTab() : _liveEl.innerHTML)
+                : this.render();
         }
         const effH = this._effectiveDuration(def, _chefMult);
         // udirna-mrd: elegantní modal — "začalo se vařit", odkaz do Vaření tabu.
         // vareni-refresh-fix (9.8.2026): jen když Vaření není zrovna vidět (klik
         // z Výroby, přesměrovaný přes Game.craft()) — na Vaření tabu je zbytečný,
         // hráč vidí rozjetý proces v progress baru rovnou (_cookEl refresh výše).
+        // pekarna-fix (7.9.2026) — pekařský recepty (stationKey 'furnus') se
+        // ve Vaření vůbec nezobrazujou (viz _stationKey), takže je modal
+        // nesmí posílat tam — musí je poslat do Pekárna tabu.
         if (!_cookingTabVisible && typeof NotificationSystem !== 'undefined' && NotificationSystem.modal) {
             NotificationSystem.modal({
-                icon: '🍲',
-                title: lang === 'en' ? 'Cooking has begun' : 'Začalo se vařit',
+                icon: _isFurnusRecipe ? '🍞' : '🍲',
+                title: lang === 'en' ? 'Cooking has begun' : (_isFurnusRecipe ? 'Začalo se péct' : 'Začalo se vařit'),
                 text: lang === 'en'
-                    ? `Ready in ${this._formatDuration(effH, 'en')}. Track progress in the Cooking tab.`
-                    : `Hotovo za ${this._formatDuration(effH, 'cs')}. Sleduj postup v tabu Vaření.`,
+                    ? `Ready in ${this._formatDuration(effH, 'en')}. Track progress in the ${_isFurnusRecipe ? 'Furnus' : 'Cooking'} tab.`
+                    : `Hotovo za ${this._formatDuration(effH, 'cs')}. Sleduj postup v tabu ${_isFurnusRecipe ? 'Pekárna' : 'Vaření'}.`,
                 choices: [
-                    { label: lang === 'en' ? 'Go to Cooking' : 'Do Vaření', type: 'primary',
-                      effect: function() { if (typeof UI !== 'undefined' && UI.switchScreen) UI.switchScreen('home', document.getElementById('nav-home')); if (typeof UI !== 'undefined' && UI.switchHomeSubTab) UI.switchHomeSubTab('cooking', document.getElementById('home-sub-cooking')); } },
+                    { label: lang === 'en' ? (_isFurnusRecipe ? 'Go to Bakery' : 'Go to Cooking') : (_isFurnusRecipe ? 'Do Pekárny' : 'Do Vaření'), type: 'primary',
+                      effect: function() {
+                          if (typeof UI === 'undefined') return;
+                          if (UI.switchScreen) UI.switchScreen('home', document.getElementById('nav-home'));
+                          if (UI.switchHomeSubTab) UI.switchHomeSubTab(_isFurnusRecipe ? 'furnus' : 'cooking', document.getElementById(_isFurnusRecipe ? 'home-sub-furnus' : 'home-sub-cooking'));
+                      } },
                     { label: lang === 'en' ? 'Continue' : 'Pokračovat', type: 'default', effect: function() {} },
                 ],
             });
@@ -531,6 +543,40 @@ const CookingSystem = {
     // ── Vaření tab — grid stanic (Ohniště/Černá kuchyně/Udírna/Panská
     // kuchyně/Sýrárna), každá s vlastním "Probíhá" + seznamem receptů.
     // Mirror Athanor panel jazyka (coquina-station CSS třída v shell.html).
+    // vyroba-stavby-mrd / pekarna-fix (7.9.2026) — povýšeno z lokální closure
+    // uvnitř render() na pořádnou metodu, aby ji šlo volat i odjinud (Furnus
+    // tab v CellariumSystem.js, kterej má vlastní stationKey 'furnus' a
+    // dřív žádnej "co se peče" panel neměl — dokončuje nedodělanou půlku
+    // refaktoru z _stationKey() komentáře).
+    buildInProgressHtml: function (stationKey, lang) {
+        lang = lang || (GameState.settings && GameState.settings.language) || 'cs';
+        const isCs = lang !== 'en';
+        const list = this._ensureState();
+        const items = list.filter(inst => {
+            const def = this.COOK_TYPES[inst.type];
+            return def && this._stationKey(def, inst.type) === stationKey;
+        });
+        if (items.length === 0) return { count: 0, html: '', items: [] };
+        let h = '';
+        items.forEach(inst => {
+            const def = this.COOK_TYPES[inst.type];
+            const totalMs = this._effectiveDuration(def, inst.brotherMult || 1.0) * this.HOUR_MS;
+            const elapsed = Date.now() - inst.startedAt;
+            const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
+            const remainH = Math.max(0, (totalMs - elapsed) / this.HOUR_MS);
+            const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
+            const remainStr = isCs ? `zbývá ${this._formatDuration(remainH, 'cs')}` : `${this._formatDuration(remainH, 'en')} left`;
+            h += `<div class="coquina-brewing" style="display:flex; align-items:center; gap:7px; background:rgba(0,0,0,0.18); padding:5px 8px; border-radius:6px; margin-bottom:4px; font-size:0.72rem;">
+                    <span style="font-weight:bold; white-space:nowrap;">${outName}</span>
+                    <div style="flex:1; background:rgba(0,0,0,0.25); border-radius:3px; height:5px; overflow:hidden;">
+                      <div style="width:${pct}%; background:var(--accent-gold); height:5px; border-radius:3px; transition:width 0.3s;"></div>
+                    </div>
+                    <span style="opacity:0.6; white-space:nowrap;">${remainStr}</span>
+                  </div>`;
+        });
+        return { count: items.length, html: h, items: items };
+    },
+
     render: function() {
         if (!this.isActive()) {
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
@@ -541,31 +587,7 @@ const CookingSystem = {
         const list = this._ensureState();
         if (!GameState.ui) GameState.ui = {};
 
-        const buildInProgressHtml = (stationKey) => {
-            const items = list.filter(inst => {
-                const def = this.COOK_TYPES[inst.type];
-                return def && this._stationKey(def, inst.type) === stationKey;
-            });
-            if (items.length === 0) return { count: 0, html: '' };
-            let h = '';
-            items.forEach(inst => {
-                const def = this.COOK_TYPES[inst.type];
-                const totalMs = this._effectiveDuration(def, inst.brotherMult || 1.0) * this.HOUR_MS;
-                const elapsed = Date.now() - inst.startedAt;
-                const pct = Math.min(100, Math.round(elapsed / totalMs * 100));
-                const remainH = Math.max(0, (totalMs - elapsed) / this.HOUR_MS);
-                const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
-                const remainStr = isCs ? `zbývá ${this._formatDuration(remainH, 'cs')}` : `${this._formatDuration(remainH, 'en')} left`;
-                h += `<div class="coquina-brewing" style="display:flex; align-items:center; gap:7px; background:rgba(0,0,0,0.18); padding:5px 8px; border-radius:6px; margin-bottom:4px; font-size:0.72rem;">
-                        <span style="font-weight:bold; white-space:nowrap;">${outName}</span>
-                        <div style="flex:1; background:rgba(0,0,0,0.25); border-radius:3px; height:5px; overflow:hidden;">
-                          <div style="width:${pct}%; background:var(--accent-gold); height:5px; border-radius:3px; transition:width 0.3s;"></div>
-                        </div>
-                        <span style="opacity:0.6; white-space:nowrap;">${remainStr}</span>
-                      </div>`;
-            });
-            return { count: items.length, html: h, items: items };
-        };
+        const buildInProgressHtml = (stationKey) => this.buildInProgressHtml(stationKey, lang);
 
         const buildRecipeCard = (key, def) => {
             const outName = (typeof iName === 'function') ? iName(def.output) : def.output;
