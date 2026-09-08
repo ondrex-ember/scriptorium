@@ -2024,6 +2024,21 @@ const CellariumSystem = {
       </div>
     </div>`;
 
+    // pekarna-fix (7.9.2026) — "co se právě peče", dřív chybělo úplně
+    // (viz CookingSystem._stationKey komentář: "žije jen v Pekárna tabu",
+    // ale ten tab to nikdy nezobrazoval). Mirror Vaření panelu přesně.
+    if (typeof CookingSystem !== 'undefined' && CookingSystem.buildInProgressHtml) {
+      const inProgress = CookingSystem.buildInProgressHtml('furnus', lang);
+      if (inProgress.count > 0) {
+        if (!GameState.ui) GameState.ui = {};
+        const progOpen = GameState.ui.furnusProgressOpen !== undefined ? GameState.ui.furnusProgressOpen : (inProgress.count <= 3);
+        h += `<details ${progOpen ? 'open' : ''} ontoggle="GameState.ui.furnusProgressOpen = this.open; Game.save();" style="margin-bottom:12px;">
+          <summary style="cursor:pointer; font-size:0.82rem; font-weight:bold; opacity:0.85; user-select:none; margin-bottom:4px; color:var(--ink-primary);">🔥 ${lang === 'en' ? 'Baking' : 'Peče se'} (${inProgress.count})</summary>
+          ${inProgress.html}
+        </details>`;
+      }
+    }
+
     // §8 — trvalá, viditelná připomínka cechovního rizika
     const guildId = 'pekarsky';
     const g = (typeof GuildsDB !== 'undefined') ? GuildsDB[guildId] : null;
