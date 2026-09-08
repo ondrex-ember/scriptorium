@@ -826,6 +826,12 @@ const Game = {
                     if (_cookEl && _cookEl.offsetParent !== null && typeof CookingSystem !== 'undefined' && CookingSystem.render) {
                         _cookEl.innerHTML = CookingSystem.render();
                     }
+                    // pekarna-fix (7.9.2026) — Pekárna má vlastní "co se peče"
+                    // panel (od teď), potřebuje stejnou obnovu jako Vaření.
+                    const _furnusEl = document.getElementById('home-furnus-content');
+                    if (_furnusEl && _furnusEl.offsetParent !== null && typeof CellariumSystem !== 'undefined' && CellariumSystem.renderFurnusTab) {
+                        _furnusEl.innerHTML = CellariumSystem.renderFurnusTab();
+                    }
                 }
 
                 // v7.5: Check canonical hours
