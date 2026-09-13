@@ -302,7 +302,7 @@ const NotificationSystem = {
         calendar_imbolc:     ()   => `CalendarSystem.reopenImbolc()`,
         calendar_lughnasadh: ()   => `CalendarSystem.reopenLughnasadh()`,
         calendar_samhain:    ()   => `CalendarSystem.reopenSamhain()`,
-        fireout:             ()   => `UI.switchScreen('home')`,
+        fireout:             ()   => `UI.switchScreen('home');UI.switchHomeTab('main')`,
     },
 
     _renderPendingItem: function(entry) {
