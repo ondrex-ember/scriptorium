@@ -37,7 +37,7 @@ const MercenaryBattle = {
         speh:  { name: 'Špeh',  name_en: 'The Shadow', role: 'stín mezi stromy', role_en: 'shadow among trees', icon: '🥷', hp: 44, atk: 11 },
     },
     ITEM_DEFS: {
-        lektvar: { name: 'Lektvar mízy', name_en: 'Sap Potion', icon: '🧪' },
+        lektvar: { name: 'Tonikum síly', name_en: 'Stamina Tonic', icon: '⚡' },
         ostri:   { name: 'Ostří z poutnické dílny', name_en: "Pilgrim's Edge", icon: '🗡️' },
         dym:     { name: 'Dýmová šiška', name_en: 'Smoke Pellet', icon: '💨' },
     },
@@ -75,7 +75,13 @@ const MercenaryBattle = {
         const keys = Math.random() < 0.5 ? ['kapo', 'mazak'] : ['kapo', 'mazak', 'speh'];
         this._enemies = keys.map((k, i) => ({ ...this.ENEMY_TYPES[k], id: i, type: k, max: this.ENEMY_TYPES[k].hp, hp: this.ENEMY_TYPES[k].hp }));
         this._round = 1; this._target = 0; this._logs = []; this._busy = false; this._loot = null; this._resultKind = null;
-        this._items = { lektvar: 2, ostri: 1, dym: 1 };
+        // svitidla-mrd navazuje (13.9.2026) — lektvar teď čte reálný
+        // vybavený item (GameState.equipment.consumable), ne natvrdo 2.
+        // ostri/dym zůstávají beze změny (žádný reálný item pro ně dnes
+        // neexistuje — vymyslet je samostatné rozhodnutí).
+        const cons = (typeof GameState !== 'undefined' && GameState.equipment && GameState.equipment.consumable) ? GameState.equipment.consumable : null;
+        const lektvarQty = (cons && cons.id === 'stamina_tonic') ? (cons.qty || 0) : 0;
+        this._items = { lektvar: lektvarQty, ostri: 1, dym: 1 };
         this._screen = 'prep';
         this._mount();
     },
@@ -320,7 +326,7 @@ const MercenaryBattle = {
             const alive = this._party.filter(p => p.hp > 0);
             const tgt = alive.reduce((a, b) => (a.max - a.hp) >= (b.max - b.hp) ? a : b);
             tgt.hp = Math.min(tgt.max, tgt.hp + 30);
-            this._log('heal', '✚', lang === 'en' ? 'The sap potion restores 30 HP.' : 'Lektvar mízy obnovil 30 HP.');
+            this._log('heal', '✚', lang === 'en' ? 'The stamina tonic restores 30 HP.' : 'Tonikum síly obnovilo 30 HP.');
         } else if (id === 'ostri') {
             this._party.forEach(p => { if (p.hp > 0) p.buff += 10; });
             this._log('special', '✦', lang === 'en' ? "The edge is set: next attack +10." : 'Ostří je připravené: další útok +10.');
@@ -412,6 +418,15 @@ const MercenaryBattle = {
     },
 
     _result: function (kind) {
+        // svitidla-mrd navazuje (13.9.2026) — nespotřebovaný tonikum síly
+        // se vrátí zpět do inventáře, slot Družiny se vyprázdní (mirror
+        // unequipWeapon) — na příští hlídku se musí vybavit znovu.
+        const cons = (typeof GameState !== 'undefined' && GameState.equipment) ? GameState.equipment.consumable : null;
+        if (cons && cons.id === 'stamina_tonic') {
+            const leftover = this._items.lektvar || 0;
+            if (leftover > 0 && typeof Game !== 'undefined' && Game.addItem) Game.addItem('stamina_tonic', leftover);
+            GameState.equipment.consumable = null;
+        }
         this._screen = 'result';
         this._resultKind = kind;
         this.render();

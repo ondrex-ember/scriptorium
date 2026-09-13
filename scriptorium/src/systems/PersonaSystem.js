@@ -1097,6 +1097,7 @@ const PersonaSystem = {
     _ensureEquipment: function() {
         if (!GameState.equipment) GameState.equipment = { weapon: null };
         if (GameState.equipment.weapon === undefined) GameState.equipment.weapon = null;
+        if (GameState.equipment.consumable === undefined) GameState.equipment.consumable = null;
     },
 
     // vyroba-stavby-mrd navazuje (6.9.2026) — equip základ. Equip odebere
@@ -1127,11 +1128,43 @@ const PersonaSystem = {
         this.render();
     },
 
+    // svitidla-mrd navazuje (13.9.2026) — první reálný consumable slot,
+    // mirror equipWeapon/unequipWeapon vzoru. Bere až 2× stamina_tonic
+    // z inventáře (MercenaryBattle dřív mělo natvrdo lektvar:2 — stejná
+    // výchozí kapacita, teď z reálných zásob). Nespotřebovaný zbytek se
+    // vrací po boji (viz MercenaryBattle._result).
+    CONSUMABLE_BATTLE_CAP: 2,
+    equipConsumable: function() {
+        this._ensureEquipment();
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        if (GameState.equipment.consumable) return;
+        const have = (GameState.inventory && GameState.inventory['stamina_tonic']) || 0;
+        if (have <= 0) {
+            UI.notify(lang === 'en' ? 'No Stamina Tonic in your inventory.' : 'V inventáři nemáš žádné Tonikum síly.', true);
+            return;
+        }
+        const qty = Math.min(have, this.CONSUMABLE_BATTLE_CAP);
+        InventoryManager.removeItem('stamina_tonic', qty);
+        GameState.equipment.consumable = { id: 'stamina_tonic', qty: qty };
+        Game.save();
+        this.render();
+    },
+
+    unequipConsumable: function() {
+        if (!GameState.equipment || !GameState.equipment.consumable) return;
+        const c = GameState.equipment.consumable;
+        Game.addItem(c.id, c.qty);
+        GameState.equipment.consumable = null;
+        Game.save();
+        this.render();
+    },
+
     _renderDruzina: function(lang) {
         this._ensureEquipment();
         const p = GameState.persona || {};
         const eq = GameState.equipment;
         const eqWeaponItem = eq.weapon && typeof ItemsDB !== 'undefined' ? ItemsDB[eq.weapon] : null;
+        const eqConsItem = eq.consumable && typeof ItemsDB !== 'undefined' ? ItemsDB[eq.consumable.id] : null;
         const merc = GameState.mercenary || null;
 
         const slot = (icon, label, item, emptyLabel) => `
@@ -1156,6 +1189,11 @@ const PersonaSystem = {
                     <span style="font-size:1.4rem; opacity:${eqWeaponItem ? 1 : 0.35};">${eqWeaponItem ? eqWeaponItem.icon : '⚔️'}</span>
                     <span style="font-size:0.65rem; text-align:center; opacity:0.6; margin-top:2px;">${eqWeaponItem ? (lang==='en'?eqWeaponItem.name_en:eqWeaponItem.name) : (lang==='en'?'Empty':'Prázdný')}</span>
                     ${eqWeaponItem ? `<span style="font-size:0.6rem; color:#5a9a5a; margin-top:1px;">+${eqWeaponItem.atk_bonus} ⚔️</span>` : ''}
+                </div>
+                <div onclick="PersonaSystem.${eq.consumable ? 'unequipConsumable' : 'equipConsumable'}()" title="${eq.consumable ? (lang==='en'?'Click to unequip':'Klikni pro sundání') : (lang==='en'?'Click to bring a Stamina Tonic to battle':'Klikni pro vybavení Tonikem síly do boje')}" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; min-width:70px; padding:8px; border:2px ${eq.consumable ? 'solid rgba(197,160,89,0.6)' : 'dashed rgba(197,160,89,0.35)'}; border-radius:8px; background:rgba(0,0,0,0.03);">
+                    <span style="font-size:1.4rem; opacity:${eqConsItem ? 1 : 0.35};">${eqConsItem ? eqConsItem.icon : '⚡'}</span>
+                    <span style="font-size:0.65rem; text-align:center; opacity:0.6; margin-top:2px;">${eqConsItem ? (lang==='en'?eqConsItem.name_en:eqConsItem.name) : (lang==='en'?'Empty':'Prázdný')}</span>
+                    ${eq.consumable ? `<span style="font-size:0.6rem; color:#5a9a5a; margin-top:1px;">×${eq.consumable.qty}</span>` : ''}
                 </div>
             </div>
             <div style="font-size:0.68rem; opacity:0.5; margin-top:8px; font-style:italic;">${lang==='en'?'More weapon types (axe, sword, bow) are future development.':'Další druhy zbraní (sekera, meč, luk) jsou budoucí rozvoj.'}</div>
