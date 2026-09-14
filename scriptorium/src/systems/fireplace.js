@@ -393,7 +393,35 @@ const FireplaceSystem = {
         env += `</div>`;
         h += env;
 
+        // ── Zvěsti u ohně (foculus-gossip-mrd, 14.9.2026) — čistě ambientní,
+        // žádné číslo, žádná mechanika: náhodná zpráva z Chroniconu (kraj),
+        // jako by ji někdo zaslechl a přinesl ke krbu. Jen když je oheň
+        // zapálený a jen občas, ať to nepřekrývá zbytek panelu. ──
+        const gossip = FireplaceSystem._gossipLine();
+        if (gossip) {
+            h += `<div style="${card}font-style:italic;opacity:0.8;font-size:0.85rem;">
+                <span style="opacity:0.6;">🔥 ${lang === 'en' ? '...rumours drift among us tonight:' : '...dnes večer mezi námi poletují zvěsti:'}</span>
+                <div style="margin-top:4px;">${gossip}</div>
+            </div>`;
+        }
+
         return h;
+    },
+
+    // Vytáhne náhodný záznam z posledních zpráv Chroniconu (kraj) a vrátí
+    // ho jako ambientní řádek — bez čísel, bez odkazu na tension/eventy,
+    // čistě flavor. Vrací null, když není co (žádný snapshot, prázdná
+    // kronika, oheň nehoří, nebo prostě padla kostka proti).
+    _gossipLine: function() {
+        if (!GameState.fire || GameState.fire.fuelMs <= 0) return null;
+        if (Math.random() > 0.35) return null; // jen občas, ne při každém otevření
+        const snap = (typeof ChroniconSystem !== 'undefined') ? ChroniconSystem._snap : null;
+        const chronicle = snap && Array.isArray(snap.chronicle) ? snap.chronicle : null;
+        if (!chronicle || !chronicle.length) return null;
+        const recent = chronicle.slice(-20);
+        const entry = recent[Math.floor(Math.random() * recent.length)];
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        return (lang === 'en' ? (entry.text_en || entry.text) : (entry.text_cs || entry.text)) || null;
     },
 
     // ── Čajový rituál: stavový automat idle → brewing(43s) → ready → idle ──
