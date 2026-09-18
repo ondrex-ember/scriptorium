@@ -2226,7 +2226,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         giacomoSubtitle: 'Venetian merchant · trader from afar',
         giacomoGreeting: '"Salve, fratello! I have brought goods from distant lands — from Venice, from the Levant, from places where the sun burns differently. See what I have for thee..."',
         giacomoBtnClose: 'Close the gate',
-        giacomoBtnVisit: 'Visit at the Market',
+        giacomoBtnVisit: 'Visit Giacomo',
         heinrichTitle: 'Heinrich Traxdorf from Nuremberg',
         heinrichSubtitle: 'Organ builder · weekly visit',
         heinrichGreeting: '"My organs resound in churches from Prague to Basel! I cast the pipes from Nuremberg tin — the finest in all the Empire. Dost thou require a set of pipes?"',

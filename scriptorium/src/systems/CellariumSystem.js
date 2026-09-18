@@ -1115,6 +1115,14 @@ const CellariumSystem = {
     let existing = document.getElementById('giacomo-modal');
     if (existing) existing.remove();
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    // giacomo-modal-routing-fix (18.9.2026): pod tier 3 žije stánek na Trhu
+    // (renderGiacomoMarketStall), od tier 3 se stánek na Trhu nevykresluje a
+    // Giacomo má plnohodnotný vstup jen v Clientela — tlačítko musí cílit
+    // podle rankTier, jinak skončí hráč nad tier 3 na zavřeném/prázdném Trhu.
+    const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
+    const visitAction = rankTier >= 3
+      ? "if (!GameState.ui) GameState.ui = {}; GameState.ui.clientelaContact = 'giacomo'; SaeculumSystem.switchEntity('clientela');"
+      : "SaeculumSystem.switchEntity('market');";
     const modal = document.createElement('div');
     modal.id = 'giacomo-modal';
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
@@ -1140,7 +1148,7 @@ const CellariumSystem = {
                   class="craft-btn" style="flex:1;">
             ${t('cellarium.giacomoBtnClose')}
           </button>
-          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('saeculum', document.getElementById('home-tab-saeculum')); SaeculumSystem.switchEntity('market');"
+          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('saeculum', document.getElementById('home-tab-saeculum')); ${visitAction}"
                   class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
             ${t('cellarium.giacomoBtnVisit')}
           </button>
