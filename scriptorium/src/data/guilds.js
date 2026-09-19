@@ -87,13 +87,15 @@ const GuildsDB = {
                 privilegeType: 'A',
                 privilegeLabel: 'Právo prodeje kol a vozů na Trhu bez fušerství (průběžný poplatek 10%)',
                 privilegeLabel_en: 'Right to sell wheels and carts at Market without botching (10% ongoing fee)',
-                // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026): Kolárna
-                // existuje, ale mirror MillManager 1:1 — postup tierů je
-                // stavební akce v Cellariu (KolarnaManager.upgradeVozovyParkTier),
-                // ne craft recept, a nevytváří sellable inventory item
-                // (přesně jako Mlýn nemá vlastní "mill" item). Prázdné
-                // zůstává správně — nic k regulaci na Trhu.
-                affectedGoods: [],
+                // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026): tiery
+                // Vozového parku samy (Dvoukolá kára → Kupecký vůz) jsou
+                // stavební akce (KolarnaManager.upgradeVozovyParkTier),
+                // ne craft recept, a nevytvářejí sellable inventory item —
+                // mirror Mlýna, žádná regulace pro ně.
+                // kocarnictvi-mrd (19.9.2026): Kočárnictví (Tier 3+) ale
+                // *je* craft recept a *je* sellable ("carriage") — poprvé
+                // má tenhle cech skutečně co regulovat.
+                affectedGoods: ['carriage'],
             },
         ],
     },

@@ -1138,3 +1138,11 @@ Object.assign(ItemsDB, {
         desc: "Potřísněný list nalezený mezi zkaženými zásobami. Někdo si zapsal, co znamená, když zanedbání přivolá roj.", desc_en: "A stained page found among the spoiled stores. Someone once wrote down what it means when neglect draws a swarm."
     },
 });
+// ── KOČÁRNICTVÍ — kola, nápravy, rám, čalounění, hotový kočár (kocarnictvi-mrd, 19.9.2026) ──
+Object.assign(ItemsDB, {
+    "carriage_wheel": { name: "Kočárové kolo", name_en: "Carriage Wheel", icon: "🛞", type: "mat", desc: "Ráfek, loukotě, železná obruč — jemnější práce než u obyčejného vozu.", desc_en: "Rim, spokes, iron tire — finer work than a common cart's." },
+    "carriage_axle": { name: "Kočárová náprava", name_en: "Carriage Axle", icon: "⛓️", type: "mat", desc: "Silná a přesně vyvážená náprava, aby kočár nehoupal.", desc_en: "A strong, precisely balanced axle, so the carriage does not sway." },
+    "carriage_frame": { name: "Kočárový rám", name_en: "Carriage Frame", icon: "🏗️", type: "mat", desc: "Kostra korby a podvozku v jednom kuse.", desc_en: "The frame of body and undercarriage in one piece." },
+    "carriage_upholstery": { name: "Kočárové čalounění", name_en: "Carriage Upholstery", icon: "🛋️", type: "mat", desc: "Kůže a soukno na sedadla i stěny korby.", desc_en: "Leather and wool cloth for the seats and coach walls." },
+    "carriage": { name: "Kočár", name_en: "Carriage", icon: "🛺", type: "mat", desc: "Hotový kočár — pro opatovu reprezentaci, nebo na prodej vrchnosti. Vrchol klášterní kolárny.", desc_en: "A finished carriage — for the abbot's own representation, or for sale to nobility. The pinnacle of the monastery's wheelwright craft." },
+});

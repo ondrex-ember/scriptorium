@@ -809,7 +809,8 @@ const SaeculumSystem = {
         const gate = Game.conversiTaskGate(taskId);
         const taken = Game.conversiTaskCount(taskId, k.id);
         const isCur = k.task === taskId;
-        const full = !isCur && taken >= Game.CONVERSI_TASK_SLOTS;
+        const taskSlots = Game.conversiTaskSlots(taskId);
+        const full = !isCur && taken >= taskSlots;
         const label = ({
           dvur: lang === 'en' ? 'Farmyard' : 'Dvůr', zahony: lang === 'en' ? 'Garden' : 'Záhony', sad: lang === 'en' ? 'Orchard' : 'Sad', apiarium: lang === 'en' ? 'Apiary' : 'Apiarium', piscina: lang === 'en' ? 'Fishpond' : 'Piscina', pole: lang === 'en' ? 'Field' : 'Pole', vinohrad: lang === 'en' ? 'Vineyard' : 'Vinohrad', scavenge: 'Scavenge', doly: lang === 'en' ? 'Mine' : 'Doly', kostel: lang === 'en' ? 'Church' : 'Kostel', hrbitov: lang === 'en' ? 'Cemetery' : 'Hřbitov',
           servitor: lang === 'en' ? 'Servitor' : 'Ošetřovatel', coquus: lang === 'en' ? 'Coquus' : 'Kuchař', hortulanus: lang === 'en' ? 'Hortulanus' : 'Bylinář', balneator: lang === 'en' ? 'Balneator' : 'Topič',
@@ -826,7 +827,7 @@ const SaeculumSystem = {
         } else if (full) {
           hint = lang === 'en' ? 'slots full' : 'plno';
         } else {
-          hint = taken + '/' + Game.CONVERSI_TASK_SLOTS;
+          hint = taken + '/' + taskSlots;
         }
         const bg = isCur ? '#8a3324' : (gate.locked || full) ? 'rgba(0,0,0,0.04)' : 'rgba(197,160,89,0.15)';
         const fg = isCur ? '#fcf5e5' : 'inherit';

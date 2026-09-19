@@ -47,6 +47,16 @@ const WORKSHOPS_REGISTRY = [
         desc_en: 'Barrels and crates under one roof — wood, hoops, pitch. The base for wine export.',
         isUnlocked: () => !!(GameState.storage && GameState.storage.bedna_dilna && GameState.storage.bedna_dilna.built),
     },
+    {
+        // kocarnictvi-mrd (19.9.2026) — isUnlocked mirror MillSystem.isBuilt():
+        // Tier 0 (Základy) dokončen, ne jen tech prostudovaná (Pracovna TAB
+        // samotný má vlastní, dřívější gate — viz renderAll() níž).
+        id: 'kolarna', subtab: 'kolarna', icon: '🛞',
+        name: 'Kolárna', name_en: "Wheelwright's Workshop",
+        desc: 'Kolo, náprava, korba — a časem i kočár. Vozy pro klášter, kočár pro opata a vrchnost.',
+        desc_en: 'Wheel, axle, bed — and in time, a carriage. Wagons for the monastery, a carriage for the abbot and nobility.',
+        isUnlocked: () => (typeof KolarnaManager !== 'undefined' && KolarnaManager.isBuilt()),
+    },
 ];
 
 const UI = {
@@ -284,6 +294,7 @@ const UI = {
         { elId: 'home-kovarna-content', fn: () => { const el = document.getElementById('home-kovarna-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderKovarnaTab(); } },
         { elId: 'home-bedna_dilna-content', fn: () => { const el = document.getElementById('home-bedna_dilna-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderBednaDilnaTab(); } },
         { elId: 'home-pivovar-content', fn: () => { const el = document.getElementById('home-pivovar-content'); if (el && typeof CellariumSystem !== 'undefined') el.innerHTML = CellariumSystem.renderPivovarTab(); } },
+        { elId: 'home-kolarna-content', fn: () => { const el = document.getElementById('home-kolarna-content'); if (el && typeof KolarnaManager !== 'undefined') el.innerHTML = KolarnaManager.render(); } },
         // Zahrada (screen 'garden') — zahony pokrývá renderGarden() přímo
         { elId: 'garden-tab-dvur', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderFarmyard(); } },
         { elId: 'garden-tab-sad', fn: () => { if (typeof GardenSystem !== 'undefined') GardenSystem.renderOrchard(); } },
@@ -349,6 +360,14 @@ const UI = {
         // pivovar-varecne-pravo-mrd.md v0.3, 7.9.2026.
         const _pivovarBtn = document.getElementById('home-sub-pivovar');
         if (_pivovarBtn) _pivovarBtn.style.display = (GameState.storage && GameState.storage.pivovar && GameState.storage.pivovar.built) ? '' : 'none';
+
+        // Kolárna — gate na tech_kolarstvi (NE na built/tier), na rozdíl od
+        // ostatních dílen výš. kocarnictvi-mrd (19.9.2026), "B - do PRACOVNY":
+        // celý tier-build panel (dřív v Cellariu) žije teď tady, včetně
+        // stavby samotného Tier 0 — tab proto musí být vidět už od tech,
+        // jinak by hráč neměl kudy Tier 0 vůbec postavit.
+        const _kolarnaBtn = document.getElementById('home-sub-kolarna');
+        if (_kolarnaBtn) _kolarnaBtn.style.display = (GameState.researchedTechs && GameState.researchedTechs.includes('tech_kolarstvi')) ? '' : 'none';
 
         this.renderResourceTracker();
 
@@ -2656,6 +2675,7 @@ const UI = {
         const kovarna = document.getElementById('home-kovarna-content');
         const bednaDilna = document.getElementById('home-bedna_dilna-content');
         const pivovar = document.getElementById('home-pivovar-content');
+        const kolarna = document.getElementById('home-kolarna-content');
         if (scav) scav.style.display = tab === 'scavenge' ? 'block' : 'none';
         if (mine) mine.style.display = tab === 'mine' ? 'block' : 'none';
         if (cooking) cooking.style.display = tab === 'cooking' ? 'block' : 'none';
@@ -2666,6 +2686,7 @@ const UI = {
         if (kovarna) kovarna.style.display = tab === 'kovarna' ? 'block' : 'none';
         if (bednaDilna) bednaDilna.style.display = tab === 'bedna_dilna' ? 'block' : 'none';
         if (pivovar) pivovar.style.display = tab === 'pivovar' ? 'block' : 'none';
+        if (kolarna) kolarna.style.display = tab === 'kolarna' ? 'block' : 'none';
         document.querySelectorAll('#home-main-content .filter-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         if (tab === 'mine') { this.renderMineYieldInfo(); this.renderFodinaPetitionPanel(); this.renderMineActions(); }
@@ -2698,6 +2719,10 @@ const UI = {
         // Bednářská dílna — vyroba-stavby-mrd, 6.9.2026, mirror kovarna dispatch.
         if (tab === 'bedna_dilna' && bednaDilna && typeof CellariumSystem !== 'undefined') {
             bednaDilna.innerHTML = CellariumSystem.renderBednaDilnaTab();
+        }
+        // Kolárna — kocarnictvi-mrd, 19.9.2026, mirror kovarna dispatch.
+        if (tab === 'kolarna' && kolarna && typeof KolarnaManager !== 'undefined') {
+            kolarna.innerHTML = KolarnaManager.render();
         }
     },
 

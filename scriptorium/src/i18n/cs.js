@@ -1425,6 +1425,8 @@ const STRINGS_cs = {
         giacomoGreeting: '„Salve, fratello! Přivezl jsem zboží z daleka — z Benátek, z Levanty, z míst, kde slunce spaluje jinak než zde. Podívej, co mám pro tebe..."',
         giacomoBtnClose: 'Zavřít bránu',
         giacomoBtnVisit: 'Navštívit na Trhu',
+        giacomoBtnVisitClientela: 'Navštívit v Clientele',
+        giacomoMarketHint: 'Teď ho tu nezastihneš — trh je zavřený nebo je jeho loď na moři. Jakmile dosáhneš hodnosti antiquarius, najdeš ho kdykoliv v Clientele.',
         heinrichTitle: 'Heinrich Traxdorf z Norimberka',
         heinrichSubtitle: 'Varhanář · týdenní návštěva',
         heinrichGreeting: '"Mé varhany zní v kostelích od Prahy po Basilej! Píšťaly liji z cínu norimberkého — nejlepšího v celém císařství. Nepotřebuješ varhany, bratře?"',

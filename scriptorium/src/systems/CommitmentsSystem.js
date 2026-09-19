@@ -414,6 +414,23 @@ const CommitmentsSystem = {
                 reputationKey: 'slechta', reputationAmt: 2,
                 abbotFavorDelta: -3,
             },
+            {
+                // kocarnictvi-mrd (19.9.2026) — první vrchnost zakázka
+                // vyžadující "carriage" (Kočárnictví, Kolárna Tier 3+).
+                // Odměna v řádu ceny na Trhu (BASE_PRICES.carriage, 900g),
+                // ale s vyšší reputací — mirror ostatních vrchnost položek,
+                // jen dražší vstup.
+                key: 'kocar_pro_vrchnost',
+                icon: '🛞',
+                senderName_cs: 'Cizí vrchnost', senderName_en: 'A Foreign Lord',
+                title_cs: 'Kočár pro panské sídlo',
+                title_en: 'A Carriage for the Manor',
+                text_cs: 'Šlechtic si přeje reprezentativní kočár, hodný jeho jména — klášterní kolárna má pověst nejlepší v kraji.',
+                text_en: "A nobleman wants a carriage befitting his name — the monastery's wheelwright workshop is known as the finest in the region.",
+                requiredItems: [{ id: 'carriage', qty: 1 }],
+                rewardGrose: 900,
+                reputationKey: 'slechta', reputationAmt: 10,
+            },
         ],
     },
 

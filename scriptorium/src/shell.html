@@ -4184,6 +4184,11 @@
                         <button id="home-sub-pivovar" class="filter-btn" onclick="UI.switchHomeSubTab('pivovar', this)"
                             style="display:none;">🍺
                             Pivovar</button>
+                        <!-- Kolárna — gate na tech_kolarstvi (ui.js renderAll), NE na built/tier,
+                             protože tady se teď staví i samotný Tier 0. kocarnictvi-mrd, 19.9.2026. -->
+                        <button id="home-sub-kolarna" class="filter-btn" onclick="UI.switchHomeSubTab('kolarna', this)"
+                            style="display:none;">🛞
+                            Kolárna</button>
                     </div>
 
                     <!-- SCAVENGE content -->
@@ -4222,6 +4227,7 @@
                     <div id="home-kovarna-content" style="display:none;"></div>
                     <div id="home-bedna_dilna-content" style="display:none;"></div>
                     <div id="home-pivovar-content" style="display:none;"></div>
+                    <div id="home-kolarna-content" style="display:none;"></div>
 
                 </div><!-- end home-main-content -->
 

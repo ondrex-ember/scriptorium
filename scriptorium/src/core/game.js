@@ -1242,6 +1242,7 @@ const Game = {
     checkKolarHireComplete: function () { return KolarnaManager.checkKolarHireComplete(); },
     VOZOVY_PARK_TIERS: KolarnaManager.VOZOVY_PARK_TIERS,
     KOLAR_COST: KolarnaManager.KOLAR_COST,
+    giftCarriageToAbbot: function () { return KolarnaManager.giftCarriageToAbbot(); },
     MILLWRIGHT_COST: MillManager.MILLWRIGHT_COST,
 
 
@@ -1301,6 +1302,7 @@ const Game = {
     hireBrother: function () { return ConversiManager.hireBrother(); },
     conversiTaskGate: function (taskId) { return ConversiManager.conversiTaskGate(taskId); },
     conversiTaskCount: function (taskId, excludeId) { return ConversiManager.conversiTaskCount(taskId, excludeId); },
+    conversiTaskSlots: function (taskId) { return ConversiManager.conversiTaskSlots(taskId); },
     assignConversiTask: function (konvrsId, taskId) { return ConversiManager.assignConversiTask(konvrsId, taskId); },
     checkConversiReturns: function () { return ConversiManager.checkConversiReturns(); },
     checkConversiTaskRisk: function () { return ConversiManager.checkConversiTaskRisk(); },

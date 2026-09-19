@@ -561,6 +561,21 @@ const TechTree = [
   },
 
   {
+    // kocarnictvi-mrd (19.9.2026) — Kočárnictví, druhý tier Kolárny/Vozového
+    // parku. requires jen tech_kolarstvi — dokončený Vozový park na stupni 3
+    // (Kupecký vůz) je DALŠÍ, runtime gate (Game.craft, InventoryManager.js,
+    // cat:"kolarna"), ne tech-požadavek; hráč tech prostuduje dřív, recepty
+    // ale zůstanou nedostupné, dokud tier 3 nestojí. Žádný nový specialista —
+    // Kolář na tomhle stupni dílnu vede sám (Bouvard, 19.9.2026).
+    id: "tech_kocarnictvi", name: "Kočárnictví", name_en: "Coach-Building",
+    cost: 55,
+    desc: "Vozy vozí náklad; kočár vozí jméno. Kolář, který dovede sestavit Kupecký vůz, umí i tohle — jen z dražšího dřeva, s pečlivější prací a bez spěchu. Vyžaduje dokončený Vozový park na stupni 3 (Kupecký vůz). Odemkne: stavbu kočáru v Kolárně — pro opata, nebo na prodej vrchnosti.",
+    desc_en: "Wagons carry cargo; a carriage carries a name. The wheelwright who can build the Merchant's Wagon can build this too — only from costlier wood, with more careful work, unhurried. Requires the wagon-tier workshop completed at Tier 3 (Merchant's Wagon). Unlocks: carriage-building in the Wheelwright's Workshop — for the abbot, or for sale to nobility.",
+    unlocks: ["carriage_wheel", "carriage_axle", "carriage_frame", "carriage_upholstery", "carriage"],
+    requires: ["tech_kolarstvi"]
+  },
+
+  {
     id: "tech_field_drainage", name: "Odvodňování polí", name_en: "Field Drainage",
     cost: 18,
     desc: "Zamokřená pole se nedají orat. Benediktini a cisterciáci odvodňovali bažiny a proměňovali je v úrodnou půdu — historicky jedna z největších krajinných proměn středověku.",

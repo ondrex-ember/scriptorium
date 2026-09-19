@@ -171,6 +171,19 @@ const InventoryManager = {
             _usedKovarnaFire = true;
         }
 
+        // Gate: Kočárnictví (kola/nápravy/rám/čalounění/kočár) — vyžaduje
+        // Vozový park Tier 3 (Kupecký vůz dokončen), ne jen prostudovanou
+        // tech_kocarnictvi. Kolář na tomhle stupni už dílnu vede sám, žádný
+        // nový specialista (kocarnictvi-mrd, 19.9.2026, "Kolář na vyšší úrovni").
+        if (r.cat === 'kolarna') {
+            const _kTier = (GameState.storage && GameState.storage.kolarna && typeof GameState.storage.kolarna.tier === 'number') ? GameState.storage.kolarna.tier : -1;
+            if (_kTier < 3) {
+                const _gl3 = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(_gl3 === 'en' ? "❌ Requires the Wheelwright's Workshop at Tier 3 (Merchant's Wagon)." : '❌ Vyžaduje Kolárnu na stupni 3 (Kupecký vůz).', true);
+                return;
+            }
+        }
+
         // Gate: hostia (instant craft, ne CookingSystem) — jakmile Furnus
         // stojí, potřebuje taky hořící pec. Mirror Kovárna vzoru, jen bez
         // charcoal-only prémiový výjimky. pekarna-audit v2 (30.8.2026).

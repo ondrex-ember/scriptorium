@@ -1018,6 +1018,36 @@ const RecipesDB = [
     id: "slake_lime", output: "vapno_hasene_fresh", qty: 2, req: { vapno_paleny_mature: 1, water: 2 }, cat: "craft", locked: true,
     desc: "Pálené vápno uhašené vodou. Prudká reakce — teď musí uležet.", desc_en: "Quicklime slaked with water. A violent reaction — now it must rest."
   },
+
+  // ── KOČÁRNICTVÍ — Kolárna, Vozový park Tier 3+ (kocarnictvi-mrd, 19.9.2026).
+  // 5-stupňový sestavovací řetězec, mirror fitted_codex vzoru (dílčí itemy
+  // krmí finální recept). cat:"kolarna" gate (Game.craft, InventoryManager.js)
+  // vyžaduje GameState.storage.kolarna.tier >= 3 — Kolář na vyšší úrovni už
+  // dílnu vede sám, žádný nový specialista (Bouvard, 19.9.2026). Záměrně
+  // drahé — near-endgame položka, jak na unlock (tech_kocarnictvi, 55), tak na craft.
+  {
+    id: "carriage_wheel", output: "carriage_wheel", qty: 1, req: { oak_log_seasoned: 4, iron_ingot: 2, rope: 1 }, cat: "kolarna", locked: true,
+    desc: "Ráfek, loukotě, železná obruč. Čtyři musí sednout přesně na nápravu.", desc_en: "Rim, spokes, iron tire. Four of these must seat exactly on the axles."
+  },
+  {
+    id: "carriage_axle", output: "carriage_axle", qty: 1, req: { oak_log_seasoned: 3, iron_ingot: 4 }, cat: "kolarna", locked: true,
+    desc: "Silnější a přesněji vyvážená než u obyčejného vozu — kočár nesmí házet.", desc_en: "Heavier and more precisely balanced than a common cart's — a carriage must not lurch."
+  },
+  {
+    id: "carriage_frame", output: "carriage_frame", qty: 1, req: { oak_log_seasoned: 12, iron_ingot: 8, plank: 20 }, cat: "kolarna", locked: true,
+    desc: "Kostra korby a podvozku v jednom kuse práce — základ, na který teprve přijde vše ostatní.", desc_en: "The frame of body and undercarriage as one piece of work — the base everything else waits on."
+  },
+  {
+    id: "carriage_upholstery", output: "carriage_upholstery", qty: 1, req: { leather: 8, wool_cloth: 6 }, cat: "kolarna", locked: true,
+    desc: "Čalounění sedadel a stěn korby — pohodlí hodné toho, kdo uvnitř pojede.", desc_en: "Upholstery for seats and the coach walls — comfort fit for whoever rides inside."
+  },
+  {
+    id: "carriage", output: "carriage", qty: 1,
+    req: { carriage_wheel: 4, carriage_axle: 2, carriage_frame: 1, carriage_upholstery: 1, linseed_oil: 15 },
+    cat: "kolarna", locked: true,
+    desc: "Kolo k nápravě, náprava k rámu, čalounění dovnitř, a nakonec lněný olej na dřevo — dokud se korba nezaleskne. Kočár je hotov.",
+    desc_en: "Wheel to axle, axle to frame, upholstery within, and finally linseed oil worked into the wood until the body gleams. The carriage is complete."
+  },
 ];
 // ── KADIDLO (Thuribulum) ─────────────────────────────────────────────────
 RecipesDB.push(

@@ -344,6 +344,28 @@ const ConversiManager = {
     },
     CONVERSI_TASK_SLOTS: 2,
 
+    // konvrsi-pole-kapacita-mrd.md v0.2 (19.9.2026) — per-task override slot
+    // capu. Pole roste s rozšířením polí (Polnosti II/III), zbytek úkolů
+    // beze změny na základní CONVERSI_TASK_SLOTS. Mirror beat "rozšíření
+    // polí → potřebuješ víc rukou" — stejný jako u samotného rozšíření.
+    CONVERSI_TASK_SLOTS_OVERRIDE: {
+        pole: function () {
+            const t = GameState.researchedTechs || [];
+            if (t.includes('tech_polnosti_iii')) return 4;
+            if (t.includes('tech_polnosti_ii')) return 3;
+            return 2;
+        },
+    },
+
+    conversiTaskSlots: function (taskId) {
+        const override = this.CONVERSI_TASK_SLOTS_OVERRIDE[taskId];
+        return override ? override() : this.CONVERSI_TASK_SLOTS;
+    },
+
+    // konvrsi-pole-kapacita-mrd.md v0.2 (19.9.2026) §3 — kolik políček (voda
+    // NEBO sklizeň) zvládne 1 aktivní konvrš přiřazený na Pole za den.
+    FIELD_WORKER_CAPACITY: 5,
+
     // Vrací {locked, reasonKey} — reasonKey pro i18n hint na dlaždici
     conversiTaskGate: function (taskId) {
         if (taskId === 'doly') {
@@ -400,7 +422,7 @@ const ConversiManager = {
         if (gate.locked) {
             UI.notify(lang === 'en' ? 'This task is not open yet.' : 'Tento úkol ještě není otevřený.', true); return;
         }
-        if (this.conversiTaskCount(taskId, k.id) >= this.CONVERSI_TASK_SLOTS) {
+        if (this.conversiTaskCount(taskId, k.id) >= this.conversiTaskSlots(taskId)) {
             UI.notify(lang === 'en' ? 'No free slot for this task.' : 'Žádný volný slot na tento úkol.', true); return;
         }
 
@@ -1894,47 +1916,70 @@ const ConversiManager = {
             }
         }
 
-        // ── Pole (L1): přiřazený konvrš zalévá rostoucí pole a sklízí dozrálá,
-        //    self-guarded 24h. Volá přímo GardenSystem.waterField/harvestField —
-        //    výpočet výnosu (počasí, kvalita zrna, sláma) je tam příliš složitý
-        //    na bezpečné duplikování zvlášť. Přiřazený bratr (specializace
-        //    "Rolník") dělá totéž sám i bez konvrše; s konvršem násobí výnos —
-        //    bonus se dopočítává porovnáním stavu inventáře před/po sklizni. ──
-        const plowman = GameState.conversi
+        // ── Pole (L1, konvrsi-pole-kapacita-mrd.md v0.2, 19.9.2026): kapacitní
+        //    fronta místo "jeden vítěz obslouží vše" — KAŽDÝ přiřazený,
+        //    způsobilý konvrš dnes obslouží až FIELD_WORKER_CAPACITY políček
+        //    (zalití NEBO sklizeň), fronta 0→17 v pevném pořadí, po vyčerpání
+        //    kapacity jednoho nastupuje další (řazeno dle únavy). Volá přímo
+        //    GardenSystem.waterField/harvestField — výpočet výnosu (počasí,
+        //    kvalita zrna, sláma) je tam příliš složitý na bezpečné
+        //    duplikování zvlášť.
+        //    Bratr (přiřazená specializace "Pole") už NEPRACUJE sám — mniši
+        //    na pole nechodili, jen dohlíží (Bouvard, 19.9.2026). Bez
+        //    aspoň jednoho způsobilého konvrše se tik vůbec nespustí, i s
+        //    přiřazeným bratrem. S konvršem násobí výnos celého tiku —
+        //    bonus se dopočítává porovnáním stavu inventáře před/po sklizni,
+        //    per pole podle toho, KTERÝ konkrétní konvrš ho obsloužil. ──
+        const plowmen = GameState.conversi
             .filter(k => k.task === 'pole'
                 && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
                 && (typeof k.mood !== 'number' || k.mood >= 30)
                 && !(k.penanceUntil && k.penanceUntil > Date.now())
                 && !(k.injuredUntil && k.injuredUntil > Date.now())
                 && !(k.awayUntil && k.awayUntil > Date.now()))
-            .sort((a, b) => a.fatigue - b.fatigue)[0];
+            .sort((a, b) => a.fatigue - b.fatigue);
         const fieldBrother = (GameState.dormitorium && GameState.dormitorium.brothers || [])
             .find(b => b.assignedTab === 'pole');
-        if ((!onlyTab || onlyTab === 'pole') && (plowman || fieldBrother) && GameState.fields && typeof GardenSystem !== 'undefined') {
+        if ((!onlyTab || onlyTab === 'pole') && plowmen.length && GameState.fields && typeof GardenSystem !== 'undefined') {
             if (!GameState.conversiFieldLastTick) GameState.conversiFieldLastTick = 0;
             if (Date.now() - GameState.conversiFieldLastTick >= DAY) {
                 GameState.conversiFieldLastTick = Date.now();
-                let didWork = false;
                 const techs = GameState.researchedTechs || [];
                 const waterCost = techs.includes('tech_field_irrigation') ? 1 : 2;
                 const brotherMult = fieldBrother ? this.dormitoriumBrotherMult(fieldBrother, 'pole') : 1.0;
-                const kEff = this.conversiEfficiency(plowman); // TECH DEBT #24 — Oblát rampa
                 const harvested = {};
+                const servicedCount = {}; // konvrš.id -> kolik polí dnes obsloužil
 
-                GameState.fields.forEach((field, idx) => {
-                    if (field.locked || field.state !== 'growing') return;
+                let workerIdx = 0;
+                let capacityLeft = this.FIELD_WORKER_CAPACITY;
+                let anyWork = false;
 
-                    if (!field.watered) {
-                        if ((GameState.inventory['water'] || 0) >= waterCost) {
-                            GardenSystem.waterField(idx);
-                            didWork = true;
-                        }
-                        return;
+                for (let idx = 0; idx < GameState.fields.length; idx++) {
+                    const field = GameState.fields[idx];
+                    if (field.locked || field.state !== 'growing') continue;
+                    const needsWater = !field.watered;
+                    const needsHarvest = field.watered && field.phase >= 3;
+                    if (!needsWater && !needsHarvest) continue;
+                    if (needsWater && (GameState.inventory['water'] || 0) < waterCost) continue;
+
+                    // Posuň se na dalšího pracovníka, jakmile tomu současnému
+                    // dojde denní kapacita. Když dojdou i pracovníci, zbylá
+                    // pole čekají na příští tik (beze změny stavu, §3.5).
+                    while (capacityLeft <= 0) {
+                        workerIdx++;
+                        if (workerIdx >= plowmen.length) break;
+                        capacityLeft = this.FIELD_WORKER_CAPACITY;
                     }
-                    if (field.phase >= 3) {
+                    if (workerIdx >= plowmen.length) break;
+
+                    const worker = plowmen[workerIdx];
+                    const kEff = this.conversiEfficiency(worker); // TECH DEBT #24 — Oblát rampa
+
+                    if (needsWater) {
+                        GardenSystem.waterField(idx);
+                    } else {
                         const before = Object.assign({}, GameState.inventory);
                         GardenSystem.harvestField(idx);
-                        didWork = true;
                         Object.keys(GameState.inventory).forEach(itemId => {
                             let gained = (GameState.inventory[itemId] || 0) - (before[itemId] || 0);
                             if (gained <= 0) return;
@@ -1946,24 +1991,49 @@ const ConversiManager = {
                             harvested[itemId] = (harvested[itemId] || 0) + gained;
                         });
                     }
-                });
+                    anyWork = true;
+                    capacityLeft--;
+                    servicedCount[worker.id] = (servicedCount[worker.id] || 0) + 1;
+                }
 
-                if (didWork) {
-                    if (plowman) {
-                        const workGain = this._konvrsTraits(plowman).includes('silak') ? 10 : 15;
-                        plowman.fatigue = Math.min(100, plowman.fatigue + workGain);
-                    }
+                // konvrsi-pole-kapacita-mrd.md v0.2 §6 — snapshot pro infobar
+                // v Pole tabu (GardenSystem.renderFieldTab): kolik políček se
+                // dnes reálně obsloužilo vs. celková denní kapacita fronty.
+                // Zapsáno vždy (i při anyWork=false), ať infobar ukáže 0/N.
+                const totalServiced = Object.keys(servicedCount).reduce((sum, id) => sum + servicedCount[id], 0);
+                GameState.fieldWorkToday = {
+                    tickedAt: Date.now(),
+                    serviced: totalServiced,
+                    capacity: plowmen.length * this.FIELD_WORKER_CAPACITY,
+                };
+
+                if (anyWork) {
+                    // §5.3 — fatigue škáluje podle skutečně odvedené práce
+                    // (kolik polí ten konkrétní konvrš obsloužil), ne fixně.
+                    // Strop stejný jako dřív (15/20 pro siláka).
+                    const workerNames = [];
+                    plowmen.forEach(k => {
+                        const n = servicedCount[k.id] || 0;
+                        if (n <= 0) return;
+                        workerNames.push(k.name);
+                        const cap = this._konvrsTraits(k).includes('silak') ? 20 : 15;
+                        const workGain = Math.min(cap, 2 + n * 2.5);
+                        k.fatigue = Math.min(100, k.fatigue + workGain);
+                    });
                     if (fieldBrother) {
                         this.dormitoriumAddXp(fieldBrother, 'pole');
                         fieldBrother.fatigue = Math.min(100, (fieldBrother.fatigue || 0) + 10);
                     }
-                    const who = this._workCredit(fieldBrother, plowman);
+                    // §5.4 — jedna souhrnná zpráva za den, bez rozlišení kdo co udělal.
+                    const who = fieldBrother
+                        ? (workerNames.length ? `${workerNames.join(', ')} + ${fieldBrother.name}` : fieldBrother.name)
+                        : workerNames.join(', ');
                     const harvestKeys = Object.keys(harvested);
                     if (harvestKeys.length) {
                         const listStr = harvestKeys.map(id => `${harvested[id]}× ${(typeof iName === 'function') ? iName(id) : id}`).join(', ');
-                        this._reportWork(`🌾 ${who} (Pole) sklidil: ${listStr}.`, `🌾 ${who} (Field) harvested: ${listStr}.`);
+                        this._reportWork(`🌾 ${who} (Pole) sklidili: ${listStr}.`, `🌾 ${who} (Field) harvested: ${listStr}.`);
                     } else {
-                        this._reportWork(`🌾 ${who} (Pole) zaléval.`, `🌾 ${who} (Field) watered.`);
+                        this._reportWork(`🌾 ${who} (Pole) zalévali.`, `🌾 ${who} (Field) watered.`);
                     }
                     Game.save();
                 }

@@ -1961,7 +1961,7 @@ const GardenSystem = {
         const trojpolniMsg = hasRotation
             ? (lang==='en' ? '✅ Three-field system: +25% yield' : '✅ Trojpolní systém: +25% výnos')
             : null;
-        html += this._zahradaStatsBar(lang, [trojpolniMsg, this._brotherBadge('pole', lang)], droughtMsg);
+        html += this._zahradaStatsBar(lang, [trojpolniMsg, this._poleWorkersBadge(lang), this._brotherBadge('pole', lang), this._poleBrotherMultBadge(lang), this._poleCapacityBadge(lang)], droughtMsg);
 
         // Sloty
         html += '<div class="garden-grid" style="margin-bottom:16px;">';
@@ -2507,6 +2507,40 @@ const GardenSystem = {
         const icon = (rec && rec.icon) ? rec.icon : '📿';
         const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(b, tabId) : 1;
         return `<span title="${lang==='en'?'Overseen by':'Řídí'}: ${b.name}" style="cursor:default;">${icon} ${b.name} · Lv${level}</span>`;
+    },
+
+    // konvrsi-pole-kapacita-mrd.md v0.2 (19.9.2026) §6 — infobar rozšíření
+    // jen pro Pole: kolik konvršů je přiřazeno / kolik slotů je dostupných
+    // (roste s Polnosti II/III, viz ConversiManager.conversiTaskSlots), a
+    // jmenovitě kdo. Mirror _brotherBadge stylem (title tooltip, žádný fetch).
+    _poleWorkersBadge: function(lang) {
+        const assigned = (GameState.conversi || []).filter(k => k.task === 'pole');
+        if (!assigned.length) return null;
+        const slots = (typeof Game !== 'undefined' && Game.conversiTaskSlots) ? Game.conversiTaskSlots('pole') : 2;
+        const names = assigned.map(k => k.name).join(', ');
+        return `<span title="${names}">👷 ${lang==='en'?'Assigned':'Přiřazeno'}: ${assigned.length}/${slots} (${names})</span>`;
+    },
+
+    // §6 — bratrův násobič výnosu jako %, mirror dormitoriumBrotherMult.
+    // Samostatné od generického _brotherBadge (ten je sdílený napříč 6 taby
+    // a ukazuje jen jméno/level, ne konkrétní herní dopad).
+    _poleBrotherMultBadge: function(lang) {
+        const b = (GameState.dormitorium && GameState.dormitorium.brothers || [])
+            .find(x => x.assignedTab === 'pole');
+        if (!b || typeof ConversiManager === 'undefined') return null;
+        const mult = ConversiManager.dormitoriumBrotherMult(b, 'pole');
+        const pct = Math.round((mult - 1) * 100);
+        if (pct <= 0) return null;
+        return `<span>+${pct}% ${lang==='en'?'yield (brother)':'výnos (bratr)'}</span>`;
+    },
+
+    // §6 — denní snapshot kapacitní fronty (ConversiManager.checkConversiChores
+    // zapisuje GameState.fieldWorkToday při každém pole ticku). Kolik políček
+    // se dnes reálně obsloužilo vs. celková denní kapacita přiřazených konvršů.
+    _poleCapacityBadge: function(lang) {
+        const fw = GameState.fieldWorkToday;
+        if (!fw || !fw.capacity) return null;
+        return `<span>🧺 ${lang==='en'?'Today':'Dnes'}: ${fw.serviced}/${fw.capacity} ${lang==='en'?'plots':'políček'}</span>`;
     },
 
     _zahradaStatsBar: function(lang, extras, weatherOverride) {

@@ -1115,6 +1115,14 @@ const CellariumSystem = {
     let existing = document.getElementById('giacomo-modal');
     if (existing) existing.remove();
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
+    // giacomo-market-hours-coupling (19.9.2026): nad tier 3 nemá stánek na
+    // Trhu žádný obsah (viz renderEntityPanel) — tlačítko proto vede rovnou
+    // do Clientely, kde je Giacomo dostupný bez ohledu na hodiny Trhu.
+    const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
+    const visitTarget = rankTier >= 3
+      ? "SaeculumSystem.switchEntity('clientela')"
+      : "SaeculumSystem.switchEntity('market')";
+    const visitLabel = rankTier >= 3 ? t('cellarium.giacomoBtnVisitClientela') : t('cellarium.giacomoBtnVisit');
     const modal = document.createElement('div');
     modal.id = 'giacomo-modal';
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
@@ -1140,9 +1148,9 @@ const CellariumSystem = {
                   class="craft-btn" style="flex:1;">
             ${t('cellarium.giacomoBtnClose')}
           </button>
-          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('saeculum', document.getElementById('home-tab-saeculum')); SaeculumSystem.switchEntity('market');"
+          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('saeculum', document.getElementById('home-tab-saeculum')); ${visitTarget};"
                   class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
-            ${t('cellarium.giacomoBtnVisit')}
+            ${visitLabel}
           </button>
         </div>
       </div>
@@ -1188,6 +1196,24 @@ const CellariumSystem = {
       ${(present && open && typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderContactPanel('giacomo') : ''}
     </div>`;
     return h;
+  },
+
+  // giacomo-market-hours-coupling (19.9.2026): fallback zobrazený na Trhu
+  // místo stánku, když je Trh zavřený nebo Giacomo není v přístavu — jen
+  // pro hráče pod tier 3, kteří ho už jednou potkali (jinak by to byl
+  // spoiler NPC, o kterém ještě neví).
+  renderGiacomoMarketHint: function (lang) {
+    if (typeof ContactsDB === 'undefined' || !ContactsDB.giacomo) return '';
+    const c = ContactsDB.giacomo;
+    return `<div style="margin-bottom:16px;padding:12px 14px;background:rgba(197,160,89,0.07);border:1px solid rgba(197,160,89,0.3);border-radius:6px;opacity:0.75;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:1.6rem;">${c.icon}</div>
+        <div style="flex:1;">
+          <strong>${lang === 'en' ? c.name_en : c.name}</strong>
+          <div class="text-sm" style="opacity:0.75;">${t('cellarium.giacomoMarketHint')}</div>
+        </div>
+      </div>
+    </div>`;
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1528,11 +1554,20 @@ const CellariumSystem = {
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
     let h = '';
-    // Giacomo stánek — nezávislý na otevírací době Trhu (So-Ne) a na
-    // Clientela (rankTier>=3). Vlastní real-time okno, viz isGiacomoPresent.
+    // giacomo-market-hours-coupling (19.9.2026): stánek se ukáže, jen když je
+    // Giacomo v přístavu A ZÁROVEŇ je Trh otevřený (So-Ne 08-16) — dřív byl
+    // nezávislý na hodinách Trhu, takže vypadal na zavřeném Trhu. Nad tier 3
+    // (Clientela) se sem vůbec nechodí, tam je Giacomo dostupný pořád.
     if (entity === 'market') {
       const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
-      if (rankTier < 3) h += this.renderGiacomoMarketStall(lang);
+      if (rankTier < 3) {
+        const everMet = GameState.economy && GameState.economy.lastGiacomoVisit;
+        if (this.isGiacomoPresent() && this.isEntityOpen('market')) {
+          h += this.renderGiacomoMarketStall(lang);
+        } else if (everMet) {
+          h += this.renderGiacomoMarketHint(lang);
+        }
+      }
     }
 
     h += `<div style="padding:15px; background:rgba(0,0,0,0.03);
