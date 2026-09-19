@@ -125,6 +125,7 @@ const JS_MAIN = [
     'src/core/managers/PiscinaManager.js', // D5: Piscina (19.8.2026)
     'src/core/managers/ChronicleManager.js', // D9: Kronika (19.8.2026)
     'src/core/managers/MillManager.js', // D12: Mlýn (19.8.2026)
+    'src/core/managers/KolarnaManager.js', // Kolárna/Vozový park (polnosti-iii-vozovy-park-mrd.md, 18.9.2026)
     'src/core/managers/PetitionManager.js', // D10: Petice/Ubytovna/Cechy/Pozemky (19.8.2026)
     'src/core/managers/SaveManager.js', // D1: Save/Settings (19.8.2026)
     'src/core/managers/HealthcareManager.js', // D13: Zdraví/Infirmarium (19.8.2026) — POZOR: soubor na disku má malé "c" (case-sensitive Linux CI fix, 20.8.2026)

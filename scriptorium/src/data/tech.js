@@ -545,6 +545,22 @@ const TechTree = [
   },
 
   {
+    id: "tech_polnosti_iii", name: "Polnosti III — Velké rozšíření", name_en: "Fields III — Great Expansion",
+    cost: 40,
+    desc: "Další klučení a rozorání pastvin za humny. Čtyři nová pole se sejí volným množstvím osiva, ne pevnou dávkou — méně plýtvání, víc kontroly nad tím, co si klášter může dovolit zasadit. Odemkne: 4 nové pružné polní sloty (5–20 semen).",
+    desc_en: "Further clearing and ploughing of the pastures beyond the walls. Four new fields are sown with a free amount of seed, not a fixed measure — less waste, more control over what the monastery can afford to plant. Unlocks: 4 new flexible field slots (5–20 seeds).",
+    unlocks: [], requires: ["tech_polnosti_ii"]
+  },
+
+  {
+    id: "tech_kolarstvi", name: "Kolářství", name_en: "Wheelwrighting",
+    cost: 18,
+    desc: "Kolo, náprava, korba — řemeslo, které teprve dá polím smysl vozit úrodu dál než na dvůr. Vyžaduje tesařskou zručnost i vlastní, rozšířená pole — bez přebytku není co vozit. Odemkne: Kolárnu a Vozový park (Cellarium → Budovy).",
+    desc_en: "Wheel, axle, bed — the craft that finally gives fields a reason to carry the harvest further than the yard. Requires both carpentry skill and expanded fields of one's own — without surplus, there is nothing to haul. Unlocks: the Wheelwright's Workshop and its wagon tiers (Cellarium → Buildings).",
+    unlocks: ["kolarna"], requires: ["tech_carpentaria", "tech_polnosti_iii"]
+  },
+
+  {
     id: "tech_field_drainage", name: "Odvodňování polí", name_en: "Field Drainage",
     cost: 18,
     desc: "Zamokřená pole se nedají orat. Benediktini a cisterciáci odvodňovali bažiny a proměňovali je v úrodnou půdu — historicky jedna z největších krajinných proměn středověku.",

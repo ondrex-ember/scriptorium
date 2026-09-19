@@ -1115,14 +1115,6 @@ const CellariumSystem = {
     let existing = document.getElementById('giacomo-modal');
     if (existing) existing.remove();
     const lang = (GameState.settings && GameState.settings.language) || 'cs';
-    // giacomo-modal-routing-fix (18.9.2026): pod tier 3 žije stánek na Trhu
-    // (renderGiacomoMarketStall), od tier 3 se stánek na Trhu nevykresluje a
-    // Giacomo má plnohodnotný vstup jen v Clientela — tlačítko musí cílit
-    // podle rankTier, jinak skončí hráč nad tier 3 na zavřeném/prázdném Trhu.
-    const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
-    const visitAction = rankTier >= 3
-      ? "if (!GameState.ui) GameState.ui = {}; GameState.ui.clientelaContact = 'giacomo'; SaeculumSystem.switchEntity('clientela');"
-      : "SaeculumSystem.switchEntity('market');";
     const modal = document.createElement('div');
     modal.id = 'giacomo-modal';
     modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
@@ -1148,7 +1140,7 @@ const CellariumSystem = {
                   class="craft-btn" style="flex:1;">
             ${t('cellarium.giacomoBtnClose')}
           </button>
-          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('saeculum', document.getElementById('home-tab-saeculum')); ${visitAction}"
+          <button onclick="document.getElementById('giacomo-modal').remove(); UI.switchScreen('home', document.getElementById('nav-home')); UI.switchHomeTab('saeculum', document.getElementById('home-tab-saeculum')); SaeculumSystem.switchEntity('market');"
                   class="craft-btn" style="flex:1;background:var(--accent-gold);color:var(--bg-parchment);">
             ${t('cellarium.giacomoBtnVisit')}
           </button>
@@ -3617,6 +3609,60 @@ const CellariumSystem = {
           }
         } else {
           h += `<button onclick="Game.upgradeMillTier()" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang === 'en' ? 'Build' : 'Postavit'}</button>`;
+        }
+      }
+      h += `</div>`;
+    }
+
+    // Kolárna / Vozový park — polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026).
+    // Mirror Vodního mlýna blok výš 1:1 — vlastní parcela (kolarensky_dvur),
+    // vlastní tier systém (KolarnaManager.VOZOVY_PARK_TIERS), vlastní najatý
+    // specialista (Kolář, mirror sekerník). Gate techem tech_kolarstvi
+    // (requires tech_carpentaria + tech_polnosti_iii), ne pozemky_active —
+    // dokud tech není prostudovaný, blok se vůbec nezobrazí (mirror ostatních
+    // pozdějších dílen, které mají vlastní tech gate navíc k pozemky_active).
+    const _kolarTechs = GameState.researchedTechs || [];
+    const _kolarenskyDvurOwned = GameState.landParcels && GameState.landParcels.kolarensky_dvur && GameState.landParcels.kolarensky_dvur.status === 'owned';
+    if (GameState.flags && GameState.flags.pozemky_active && _kolarTechs.includes('tech_kolarstvi')) {
+      const _k = (GameState.storage && GameState.storage.kolarna) || { tier: -1 };
+      const _kTier = (typeof _k.tier === 'number') ? _k.tier : -1;
+      h += `<div style="padding:12px 14px; margin-bottom:14px; background:rgba(197,160,89,0.06); border-radius:8px; border-left:3px solid var(--accent-gold);">`;
+      h += `<div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">🛞 ${lang === 'en' ? "Wheelwright's Workshop" : 'Kolárna'}</div>`;
+      if (!_kolarenskyDvurOwned) {
+        h += `<div style="font-size:0.78rem; opacity:0.6; font-style:italic;">${lang === 'en' ? "Requires the Wheelwright's Yard parcel (Cellarium → Land)." : 'Vyžaduje vlastněnou parcelu Kolárenský dvůr (Cellarium → Pozemky).'}</div>`;
+      } else if (_k.buildUntil) {
+        const hoursLeftK = Math.max(0, Math.ceil((_k.buildUntil - Date.now()) / 3600000));
+        const buildingNameK = lang === 'en' ? Game.VOZOVY_PARK_TIERS[_k.buildTargetTier].name_en : Game.VOZOVY_PARK_TIERS[_k.buildTargetTier].name;
+        h += `<div style="font-size:0.78rem; opacity:0.7;">⏳ ${lang === 'en' ? `Building ${buildingNameK}, ~${hoursLeftK}h` : `Staví se ${buildingNameK}, ~${hoursLeftK}h`}</div>`;
+      } else if (_kTier >= Game.VOZOVY_PARK_TIERS.length - 1) {
+        h += `<div style="font-size:0.78rem;">✅ ${lang === 'en' ? "Complete: Merchant's Wagon" : 'Dokončeno: Kupecký vůz'}</div>`;
+      } else {
+        const nextK = Game.VOZOVY_PARK_TIERS[_kTier + 1];
+        const nextNameK = lang === 'en' ? nextK.name_en : nextK.name;
+        const curLabelK = _kTier === -1 ? (lang === 'en' ? 'not started' : 'nezahájeno') : (lang === 'en' ? Game.VOZOVY_PARK_TIERS[_kTier].name_en : Game.VOZOVY_PARK_TIERS[_kTier].name);
+        const matsStrK = Object.entries(nextK.materials).map(([id, qty]) => `${qty}× ${(typeof iName === 'function') ? iName(id) : id}`).join(', ');
+        h += `<div style="font-size:0.78rem; opacity:0.7; margin-bottom:6px;">${lang === 'en' ? 'Current' : 'Aktuálně'}: ${curLabelK} → ${nextNameK} (${nextK.cost}g, ${matsStrK})</div>`;
+        // requiresOxen/requiresHorses — živý počet přímo z chlévů, hint pro
+        // hráče PŘED kliknutím na Postavit (samotná kontrola je v manageru).
+        if (nextK.requiresOxen) {
+          const haveOxen = (typeof KolarnaManager !== 'undefined') ? KolarnaManager._liveOxenCount() : 0;
+          const oxenOk = haveOxen >= nextK.requiresOxen;
+          h += `<div style="font-size:0.72rem; opacity:0.7; margin-bottom:4px;">🐂 ${lang === 'en' ? 'Live oxen' : 'Živí voli'}: <strong style="color:${oxenOk ? '#5a9a5a' : '#c0392b'};">${haveOxen}/${nextK.requiresOxen}</strong></div>`;
+        }
+        if (nextK.requiresHorses) {
+          const haveHorses = (typeof KolarnaManager !== 'undefined') ? KolarnaManager._liveHorseCount() : 0;
+          const horsesOk = haveHorses >= nextK.requiresHorses;
+          h += `<div style="font-size:0.72rem; opacity:0.7; margin-bottom:4px;">🐴 ${lang === 'en' ? 'Live horses' : 'Živí koně'}: <strong style="color:${horsesOk ? '#5a9a5a' : '#c0392b'};">${haveHorses}/${nextK.requiresHorses}</strong></div>`;
+        }
+        if (nextK.needsKolar && _k.kolarReadyForTier !== (_kTier + 1)) {
+          if (_k.kolarHireUntil) {
+            const kHoursLeft = Math.max(0, Math.ceil((_k.kolarHireUntil - Date.now()) / 3600000));
+            h += `<div style="font-size:0.72rem; opacity:0.6; font-style:italic;">🛞 ${lang === 'en' ? `Wheelwright on his way, ~${kHoursLeft}h` : `Kolář na cestě, ~${kHoursLeft}h`}</div>`;
+          } else {
+            h += `<button onclick="Game.hireKolar()" class="craft-btn" style="font-size:0.78rem;">🛞 ${lang === 'en' ? `Hire the wheelwright (${Game.KOLAR_COST}g)` : `Najmout koláře (${Game.KOLAR_COST}g)`}</button>`;
+          }
+        } else {
+          h += `<button onclick="Game.upgradeVozovyParkTier()" class="craft-btn" style="font-size:0.78rem;">🏗️ ${lang === 'en' ? 'Build' : 'Postavit'}</button>`;
         }
       }
       h += `</div>`;

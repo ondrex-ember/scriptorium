@@ -1217,8 +1217,16 @@ const GardenSystem = {
         if (techs.includes('tech_de_re_rustica'))  unlocked = Math.max(unlocked, 4);
         if (techs.includes('tech_crop_rotation'))  unlocked = Math.max(unlocked, 6);
         if (techs.includes('tech_polnosti_ii'))    unlocked = Math.max(unlocked, 14);
+        if (techs.includes('tech_polnosti_iii'))   unlocked = Math.max(unlocked, 18);
         GameState.fields.forEach((f, i) => { f.locked = i >= unlocked; });
     },
+
+    // Polnosti III (polnosti-iii-vozovy-park-mrd.md §2, 18.9.2026): pružné
+    // osivo se řídí typem slotu (field.type === 'flexible'), ne napevno
+    // zadrátovaným indexem — sloty 0–1 zůstávají 'normal' se svým vlastním
+    // idx<2 rozsahem (2–10, beze změny, viz renderFieldTab/sowField), nové
+    // sloty 14–17 dostávají vlastní tier s rozsahem 5–20.
+    FIELD_FLEXIBLE_SEED_RANGE: { min: 5, max: 20 },
 
     _makeFieldSlot: function(i) {
         return {
@@ -1230,22 +1238,24 @@ const GardenSystem = {
             watered: false,
             wateredPhases: 0,  // kolik fází bylo zalitých v aktuálním cyklu (0-3, sucho-kompenzace)
             strawBonus: false, // má Humno?
-            type: i < 11 ? 'normal' : 'fallow', // Polnosti II: 11 normálních + 3 úhorné (jen fallow plodiny)
+            // Polnosti II: 11 normálních + 3 úhorné; Polnosti III (18.9.2026):
+            // dalších 4 sloty (14–17) jako druhý, dražší pružný tier — 'flexible'.
+            type: i < 11 ? 'normal' : (i < 14 ? 'fallow' : 'flexible'),
         };
     },
 
     _initFields: function() {
         if (!GameState.fields) {
-            GameState.fields = Array.from({length: 14}, (_, i) => this._makeFieldSlot(i));
+            GameState.fields = Array.from({length: 18}, (_, i) => this._makeFieldSlot(i));
         }
-        // Migrace — existující save měl jen 6 slotů, doplnit na 14 + type pole
-        while (GameState.fields.length < 14) {
+        // Migrace — existující save měl jen 6/14 slotů, doplnit na 18 + type pole
+        while (GameState.fields.length < 18) {
             GameState.fields.push(this._makeFieldSlot(GameState.fields.length));
         }
         GameState.fields.forEach((f, i) => {
             if (f.strawBonus === undefined) f.strawBonus = false;
             if (f.wateredPhases === undefined) f.wateredPhases = 0;
-            if (f.type === undefined) f.type = i < 11 ? 'normal' : 'fallow';
+            if (f.type === undefined) f.type = i < 11 ? 'normal' : (i < 14 ? 'fallow' : 'flexible');
             // fields-winter-mrd (29.8.2026): staré savy bez per-plodina timing/frost stavu
             if (f.phaseMs === undefined) f.phaseMs = null;
             if (f.lastFrostCheckDate === undefined) f.lastFrostCheckDate = null;
@@ -1985,10 +1995,14 @@ const GardenSystem = {
                     }).join('');
                 // pole-mala-policka-mrd (7.8.2026): sloty 0-1 mají navíc
                 // volbu množství semen (2-10), zbytek Pole seje pevně 30 (beze změny).
-                const amtSelector = idx < 2
-                    ? `<input type="number" id="field-seed-amt-${idx}" min="2" max="10" value="2" style="font-size:0.72rem;padding:2px;width:100%;margin-bottom:4px;" title="${lang==='en'?'Seeds to sow (2-10)':'Kolik semen zasít (2-10)'}"/>`
+                // polnosti-iii-vozovy-park-mrd (18.9.2026): zobecněno na
+                // field.type==='flexible' pro druhý, dražší pružný tier (5-20).
+                const isFlexible = idx < 2 || field.type === 'flexible';
+                const flexRange = field.type === 'flexible' ? this.FIELD_FLEXIBLE_SEED_RANGE : { min: 2, max: 10 };
+                const amtSelector = isFlexible
+                    ? `<input type="number" id="field-seed-amt-${idx}" min="${flexRange.min}" max="${flexRange.max}" value="${flexRange.min}" style="font-size:0.72rem;padding:2px;width:100%;margin-bottom:4px;" title="${lang==='en'?`Seeds to sow (${flexRange.min}-${flexRange.max})`:`Kolik semen zasít (${flexRange.min}-${flexRange.max})`}"/>`
                     : '';
-                const sowCall = idx < 2
+                const sowCall = isFlexible
                     ? `GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value, parseInt(document.getElementById('field-seed-amt-${idx}').value))`
                     : `GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value)`;
                 btn = `<select id="field-crop-sel-${idx}" style="font-size:0.75rem;padding:2px;width:100%;margin-bottom:4px;">${cropOpts}</select>
@@ -2070,9 +2084,14 @@ const GardenSystem = {
         }
         // pole-mala-policka-mrd (7.8.2026): sloty 0-1 mají proměnlivou
         // spotřebu semen (2-10, víc semen = víc výnosu), odstraňuje 30ku
-        // jako bariéru ke vstupu. Zbytek Pole (2-13) beze změny.
+        // jako bariéru ke vstupu. Zbytek Pole beze změny na pevných 30.
+        // polnosti-iii-vozovy-park-mrd (18.9.2026): field.type==='flexible'
+        // (sloty 14-17) je druhý, dražší pružný tier s rozsahem 5-20.
         let seedCost = this.FIELD_SEED_COST;
-        if (idx < 2 && chosenAmt) {
+        if (field.type === 'flexible' && chosenAmt) {
+            const r = this.FIELD_FLEXIBLE_SEED_RANGE;
+            seedCost = Math.max(r.min, Math.min(r.max, Math.round(chosenAmt)));
+        } else if (idx < 2 && chosenAmt) {
             seedCost = Math.max(2, Math.min(10, Math.round(chosenAmt)));
         }
         // Kontrola semen

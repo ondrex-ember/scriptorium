@@ -85,4 +85,18 @@ const LandParcelsDB = {
         desc: 'Chladný pramen vyvěrající z úpatí kopce, dost silný, aby unesl várku — jenže dosud patří sousednímu dvoru. Se správnou listinou by tekl pro klášter.',
         desc_en: "A cold spring rising at the foot of the hill, strong enough to fill a mash tun — but it still belongs to the neighbouring farmstead. With the right deed, it could run for the monastery.",
     },
+    // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026) — Kolárna/Vozový
+    // park, mirror dvur_pekarsky/u_hradby přesně (vlastní abbotPetition.
+    // land_kolarensky_dvur, samostatná petice před koupí). Fáze 4 jako
+    // ostatní dílenské parcely — Kolárna je poslední, nejdražší z nich,
+    // gate je hlouběji ve stromu (tech_polnosti_iii, cost 40).
+    kolarensky_dvur: {
+        name: 'Kolárenský dvůr', name_en: "The Wheelwright's Yard",
+        tags: [],
+        slotsCapacity: 1,
+        price: 300,
+        phase: 4,
+        desc: 'Prostorný dvůr s náspem na sušení dřeva a místem pro kola opřená o zeď k vyschnutí — dost daleko od skriptoria, aby sem nedolehlo bušení palice, dost blízko cesty k bráně, aby hotový vůz nemusel táhnout přes půl kláštera.',
+        desc_en: "A spacious yard with a rack for seasoning timber and room for wheels leaning against the wall to dry — far enough from the scriptorium that the mallet's blows don't carry, close enough to the gate road that a finished wagon needn't be hauled across half the monastery.",
+    },
 };

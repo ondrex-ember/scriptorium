@@ -394,6 +394,8 @@ const Game = {
         // pivovar-varecne-pravo-mrd.md v0.3 (7.9.2026) — Prazdroj
         if (!GameState.abbotPetition.land_prazdroj) GameState.abbotPetition.land_prazdroj = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.abbotPetition.pivovar) GameState.abbotPetition.pivovar = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026) — Kolárenský dvůr
+        if (!GameState.abbotPetition.land_kolarensky_dvur) GameState.abbotPetition.land_kolarensky_dvur = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.ubytovnaPetition) GameState.ubytovnaPetition = {};
         // Vyhodnotit čekající žádosti po načtení
         Game.checkAbbotPetitions();
@@ -407,6 +409,8 @@ const Game = {
         Game.checkLandParcels();
         Game.checkMillBuildComplete();
         Game.checkMillwrightHireComplete();
+        Game.checkVozovyParkBuildComplete();
+        Game.checkKolarHireComplete();
         // Krok B — vážený denní report Clientela↔Chronicon vztahů (mirror registrum)
         if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._reportContactRelationIfNewDay) {
             ChroniconSystem._reportContactRelationIfNewDay();
@@ -914,6 +918,8 @@ const Game = {
                     if (typeof Game !== 'undefined' && Game.checkLandParcels) Game.checkLandParcels();
                     if (typeof Game !== 'undefined' && Game.checkMillBuildComplete) Game.checkMillBuildComplete();
                     if (typeof Game !== 'undefined' && Game.checkMillwrightHireComplete) Game.checkMillwrightHireComplete();
+                    if (typeof Game !== 'undefined' && Game.checkVozovyParkBuildComplete) Game.checkVozovyParkBuildComplete();
+                    if (typeof Game !== 'undefined' && Game.checkKolarHireComplete) Game.checkKolarHireComplete();
                     // Columbarium — denní riziko predátora (self-guarded 24h, jen level 1)
                     if (typeof FarmyardSystem !== 'undefined' && FarmyardSystem.columbariumPredatorTick) FarmyardSystem.columbariumPredatorTick();
                     // Kurník/Klec — denní riziko liška/kuna/lasička (eventy-audit-mrd §4.3 Fáze 2, mirror Columbarium)
@@ -1227,6 +1233,15 @@ const Game = {
     // pořadí zaručuje, že MillManager existuje dřív než se Game vyhodnotí).
     // Nalezeno a opraveno 19.8.2026 po crash reportu (Bouvard, Cellarium tab).
     MILL_TIERS: MillManager.MILL_TIERS,
+
+    // ═══ Kolárna/Vozový park — KolarnaManager.js ═══
+    // (polnosti-iii-vozovy-park-mrd.md, mirror MillManager delegace 1:1, 18.9.2026)
+    upgradeVozovyParkTier: function () { return KolarnaManager.upgradeVozovyParkTier(); },
+    checkVozovyParkBuildComplete: function () { return KolarnaManager.checkVozovyParkBuildComplete(); },
+    hireKolar: function () { return KolarnaManager.hireKolar(); },
+    checkKolarHireComplete: function () { return KolarnaManager.checkKolarHireComplete(); },
+    VOZOVY_PARK_TIERS: KolarnaManager.VOZOVY_PARK_TIERS,
+    KOLAR_COST: KolarnaManager.KOLAR_COST,
     MILLWRIGHT_COST: MillManager.MILLWRIGHT_COST,
 
 

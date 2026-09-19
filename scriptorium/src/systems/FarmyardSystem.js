@@ -1249,7 +1249,7 @@ const FarmyardSystem = {
         let milk = 0;
         st.animals.forEach(a => {
             this._ensureAnimalFields(a);
-            if (a.type === 'byk' || a.type === 'tele') return;  // býk/tele nedojí (krava-mrd)
+            if (a.type === 'byk' || a.type === 'tele' || a.type === 'vul') return;  // býk/tele/vůl nedojí (krava-mrd; vůl viz polnosti-iii-vozovy-park-mrd)
             if (now - (a.lastMilk || a.bornAt) >= cfg.milkMs) {
                 if (Math.random() < moodMult) { milk += 4 + Math.floor(Math.random() * 3); } // 4-6
                 a.lastMilk = now;
@@ -1375,6 +1375,25 @@ const FarmyardSystem = {
         if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
         if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.calfSlaughtered') || 'Tele poraženo. +2 Telecí, +1 Telecí kůže.'));
         if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐮 Tele poraženo — sváteční telecí na stůl.', '🐮 A calf was slaughtered — festive veal for the table.', '🐮 Vitulus mactatus est.');
+        if (typeof Game !== 'undefined') Game.save();
+        this.renderFarmyard();
+    },
+
+    // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026): porážka vola —
+    // mirror slaughterTele (bez modalu, na rozdíl od slaughterBull není
+    // co ztratit plemenně, vůl je kastrát). Dává víc masa/kůže než tele,
+    // míň než dospělý plemenný býk (nikdy nebyl vykrmovaný na maso).
+    slaughterOx: function () {
+        const st = GameState.cowbyre;
+        const idx = st.animals.findIndex(a => a.type === 'vul');
+        if (idx === -1) { if (typeof UI !== 'undefined') UI.notify(t('farmyard.noOxToSlaughter') || 'Žádný vůl k porážce.', true); return; }
+        st.animals.splice(idx, 1);
+        const inv = GameState.inventory;
+        inv['beef'] = (inv['beef'] || 0) + 4;
+        inv['raw_hide'] = (inv['raw_hide'] || 0) + 2;
+        if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(1.0);
+        if (typeof UI !== 'undefined') UI.notify('🔪 ' + (t('farmyard.oxSlaughtered') || 'Vůl poražen.'));
+        if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('important', '🐂 Vůl poražen.', '🐂 An ox was slaughtered.', '🐂 Bos mactatus est.');
         if (typeof Game !== 'undefined') Game.save();
         this.renderFarmyard();
     },
@@ -1546,7 +1565,7 @@ const FarmyardSystem = {
         if (pen === 'cowbyre' && st.animals.length) {
             var now3 = Date.now();
             var moodCAvg = this.getMood('cowbyre');
-            var readyC = st.animals.filter(function (a) { return a.mature !== false && a.type !== 'byk' && now3 - (a.lastMilk || a.bornAt) >= cfg.milkMs; }).length;
+            var readyC = st.animals.filter(function (a) { return a.mature !== false && a.type !== 'byk' && a.type !== 'vul' && now3 - (a.lastMilk || a.bornAt) >= cfg.milkMs; }).length;
             h += '<div style="font-size:0.8rem;margin-bottom:8px;opacity:0.75;font-style:italic;">🐄 ' + (lang === 'en' ? 'Byre average mood' : 'Průměrná nálada chlévu') + ': ' + this.MOOD_ICON(moodCAvg) + ' ' + moodCAvg + '/100</div>';
             var canCleanC = Date.now() - (st.lastCleanMs || 0) >= 86400000;
             var cleanQC = Math.max(1, Math.ceil(st.animals.length / 2));
@@ -1572,6 +1591,13 @@ const FarmyardSystem = {
             var teleAnimal = st.animals.find(function (a) { return a.type === 'tele'; });
             if (teleAnimal) {
                 h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterTele()" style="background:#8b4a3a;">🔪 ' + (lang === 'en' ? 'Slaughter calf' : 'Porazit tele') + '</button>';
+            }
+            // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026) — vůl: tažné
+            // zvíře pro Vozový park (KolarnaManager, requiresOxen), mirror
+            // slaughterBull tlačítka, bez plemenné komplikace (kastrát).
+            var oxCount = st.animals.filter(function (a) { return a.type === 'vul'; }).length;
+            if (oxCount > 0) {
+                h += '<button class="craft-btn" onclick="FarmyardSystem.slaughterOx()" style="background:#8b4a3a;">🔪 ' + (lang === 'en' ? `Slaughter ox (${oxCount})` : `Porazit vola (${oxCount})`) + '</button>';
             }
             h += '<button class="craft-btn" onclick="FarmyardSystem.cleanPen(\'cowbyre\')" style="background:rgba(90,154,90,0.85);">' + (canCleanC ? '🧹 ' + t('farmyard.clean') + ' (💩 +' + cleanQC + ')' : '🧹 ' + t('farmyard.cleanTomorrow')) + '</button>';
             h += '</div>';
@@ -2716,7 +2742,20 @@ const FarmyardSystem = {
             cowSt.animals.forEach(a => {
                 // krava-bug-fix (7.8.2026): dřív vždy 'cow' bez ohledu na
                 // pohlaví — samčí tele skončilo jako kráva, šance na býka byla 0%.
-                if (a.type === 'tele' && this._calfMature(a)) { a.type = (a.sex === 'm') ? 'byk' : 'cow'; a.mature = true; changed = true; }
+                // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026): samčí tele
+                // teď větví na býka NEBO vola — chlév už má-li plemenného býka
+                // (this.hasBullAvailable(), mirror startCowBreeding gate),
+                // druhý samec dorůstá jako vůl (kastrát, tažné zvíře pro
+                // Vozový park Tier 2), místo aby zbytečně zabíral slot jako
+                // druhý neplodný/nadbytečný býk.
+                if (a.type === 'tele' && this._calfMature(a)) {
+                    if (a.sex === 'm') {
+                        a.type = this.hasBullAvailable() ? 'vul' : 'byk';
+                    } else {
+                        a.type = 'cow';
+                    }
+                    a.mature = true; changed = true;
+                }
             });
         }
         // Koza — gestace → 1-2 kůzlata do inventáře (goat-mrd), mirror prasete.
