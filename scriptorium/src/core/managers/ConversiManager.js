@@ -2028,12 +2028,16 @@ const ConversiManager = {
                     const who = fieldBrother
                         ? (workerNames.length ? `${workerNames.join(', ')} + ${fieldBrother.name}` : fieldBrother.name)
                         : workerNames.join(', ');
+                    // Fronta teď umí 1-4 konvrše najednou (konvrsi-pole-kapacita-mrd.md
+                    // v0.2, 19.9.2026) — sloveso musí souhlasit s počtem, ne být natvrdo
+                    // v množném čísle jako dřív (kdy byl vždy jen 1 pracovník).
+                    const soloWorker = (workerNames.length + (fieldBrother ? 1 : 0)) === 1;
                     const harvestKeys = Object.keys(harvested);
                     if (harvestKeys.length) {
                         const listStr = harvestKeys.map(id => `${harvested[id]}× ${(typeof iName === 'function') ? iName(id) : id}`).join(', ');
-                        this._reportWork(`🌾 ${who} (Pole) sklidili: ${listStr}.`, `🌾 ${who} (Field) harvested: ${listStr}.`);
+                        this._reportWork(`🌾 ${who} (Pole) ${soloWorker ? 'sklidil' : 'sklidili'}: ${listStr}.`, `🌾 ${who} (Field) harvested: ${listStr}.`);
                     } else {
-                        this._reportWork(`🌾 ${who} (Pole) zalévali.`, `🌾 ${who} (Field) watered.`);
+                        this._reportWork(`🌾 ${who} (Pole) ${soloWorker ? 'zaléval' : 'zalévali'}.`, `🌾 ${who} (Field) watered.`);
                     }
                     Game.save();
                 }

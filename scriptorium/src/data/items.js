@@ -259,7 +259,7 @@ const ItemsDB = {
     "wild_leather": { name: "Hrubá useň", name_en: "Rough Rawhide", icon: "🦴", type: "mat", desc: "Sedřená a usušená divoká kůže, bez vydělávání. Hrubá, ale postačí na nástroje.", desc_en: "Scraped and dried wild hide, untanned. Rough, but good enough for tools." },
     "pumice": { name: "Pemza", name_en: "Pumice", icon: "🪨", type: "mat", desc: "Sopečný kámen na leštění.", desc_en: "Volcanic stone for smoothing." },
     "chalk": { name: "Křída", name_en: "Chalk", icon: "⚪", type: "mat", desc: "Bělení pergamenu.", desc_en: "For whitening vellum.", seasonCat: "nerosty" },
-    "ash_water": { name: "Louh", name_en: "Lye Water", icon: "💧", type: "mat", desc: "Voda s popelem - na namáčení kůže.", desc_en: "Ash water for soaking hide." },
+    "ash_water": { name: "Louh", name_en: "Lye Water", icon: "💧", type: "mat", desc: "Aqua Cinerum. Voda protažená dřevěným popelem — zásaditý louh na namáčení kůže, ale i základ mýdla a sklářské huti.", desc_en: "Aqua Cinerum. Water leached through wood ash — an alkaline lye for soaking hides, and also the base of soap and the glass furnace." },
     "soaked_hide": { name: "Namáčená kůže", name_en: "Soaked Hide", icon: "🦌", type: "mat", desc: "Kůže po 3denním loužení.", desc_en: "Hide after three days in lye." },
     "stretched_hide": { name: "Napnutá kůže", name_en: "Stretched Hide", icon: "🦌", type: "mat", desc: "V rámu, sušená.", desc_en: "Stretched on a frame to dry." },
     "vellum": { name: "Pergamen", name_en: "Vellum", icon: "📜", type: "lore", desc: "Vyšší kvalita než papír. Věčný.", desc_en: "Finer than paper. Eternal." },
@@ -562,7 +562,8 @@ const ItemsDB = {
     "belidlo_medi": { name: "Bělidlo mědi", name_en: "Copper Whitener", icon: "⚪", type: "alchemy_ing", desc: "Candificatio Cupri. Arsen s křídou. Albertus Magnus o arsenu psal jako o jedu i bělidlu mědi — nebezpečný, ale účinný postup.", desc_en: "Candificatio Cupri. Arsenic with chalk. Albertus Magnus wrote of arsenic as both poison and a whitener of copper — a dangerous but effective process." },
 
     // ── Vlna 2 — navazující Media Materia (žádná surovina nechybí)
-    "ash_water": { name: "Louh z popela", name_en: "Wood-Ash Lye", icon: "🫗", type: "alchemy_ing", desc: "Aqua Cinerum. Voda protažená dřevěným popelem. Zásaditý louh — základ mýdla i sklářské huti.", desc_en: "Aqua Cinerum. Water leached through wood ash. An alkaline lye — the base of soap and the glass furnace." },
+    // ash_water byl tady duplicitně (viz řádek ~262) — sloučeno do jedné
+    // definice tam, tenhle záznam smazán (audit 20.9.2026).
     "tartarus": { name: "Vinný kámen", name_en: "Tartar", icon: "🍇", type: "alchemy_ing", desc: "Tartarus. Krystalická usazenina seškrábaná ze stěn sudů se zralým vínem.", desc_en: "Tartarus. A crystalline crust scraped from the walls of barrels holding aged wine." },
     "sal_alkali": { name: "Louhová sůl", name_en: "Alkali Salt", icon: "⚪", type: "alchemy_ing", desc: "Sal Alkali. Odpařený a žíhaný popelový louh. Nezbytný pro tavení lesního skla ve sklářské huti.", desc_en: "Sal Alkali. Evaporated and calcined wood-ash lye. Essential for melting forest glass in the glassworks." },
     "oleum_tartari": { name: "Olej vinného kamene", name_en: "Oil of Tartar", icon: "🫗", type: "alchemy_ing", desc: "Oleum Tartari per Deliquium. Silná zásada z louhování vinného kamene. Neutralizuje kyseliny, základ klášterních mýdel.", desc_en: "Oleum Tartari per Deliquium. A strong alkali from leaching tartar. Neutralises acids, the base of monastic soaps." },

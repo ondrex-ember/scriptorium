@@ -168,18 +168,11 @@ const CellariumSystem = {
     preclik: 3,
     postni_chleb: 2,
     honey: 4,
-    // Caseus — sýry (3 typy × fáze + syrečky)
-    goat_cheese_fresh: 9,
-    goat_cheese_mature: 14,
-    goat_cheese_aged: 22,
-    sheep_cheese_fresh: 10,
-    sheep_cheese_mature: 16,
-    sheep_cheese_aged: 24,
-    cow_cheese_fresh: 8,
-    cow_cheese_mature: 13,
-    cow_cheese_aged: 20,
-    syrecky_fresh: 5,
-    syrecky_mature: 9,
+    // Sýry — viz plná definice s cenami níž ("Sýry (Lactaria/Caseus...)");
+    // tenhle blok byl duplicitní (omylem znovu vložený commitem "new items
+    // bakery", 31.8.2026, přepsaný o pár set řádků níž), smazáno (audit
+    // 20.9.2026) — žádná změna živé ekonomiky, ten druhý blok už dřív vždy
+    // vyhrával (pozdější deklarace v tomtéž objektu).
     // Suroviny
     fiber: 1,
     bark: 1,
@@ -214,6 +207,9 @@ const CellariumSystem = {
     book_binding: 25,
     // Varhany — Heinrich Traxdorf (fixed price, prodej jen přes NPC modal)
     organ: 600,
+    // kocarnictvi-mrd (19.9.2026) — Kolárna Tier 3+, cena mirror
+    // CommitmentsSystem.js zakázky 'kocar_pro_vrchnost' (900g).
+    carriage: 900,
     // Herní desky (jen nákup, ne prodej)
     senet_board: 6,
     backgammon_board: 10,
@@ -314,7 +310,7 @@ const CellariumSystem = {
     chalk: 'mat',
     metal: 'mat', glue: 'mat', tallow: 'mat', sealant: 'mat',
     stribrny_prut: 'mat', zlaty_prut: 'mat',
-    bellows: 'tool', book_binding: 'tool', organ: 'tool',
+    bellows: 'tool', book_binding: 'tool', organ: 'tool', carriage: 'tool',
     senet_board: 'tool', backgammon_board: 'tool', draughts_board: 'tool', hnefatafl_board: 'tool',
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',
     beer: 'food', wine: 'food',
