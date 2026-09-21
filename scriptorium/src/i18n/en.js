@@ -3392,6 +3392,38 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
             inspect_hint: 'The Abbot has promised to send an officer to survey the site before it is entered in the register.',
             locked_hint: 'Brewing at scale needs a spring of its own — and the Abbot\'s word first.',
         },
+        // bell-casting-mrd v0.1 (21.9.2026) — Bellfounders' Yard, mirror land_prazdroj exactly.
+        land_zvonarsky_dvur: {
+            title: "Request for the Bellfounders' Yard",
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: "✅ The Abbot approved dealings over the Bellfounders' Yard. The parcel may be bought in Cellarium — Land.",
+            denied_regalia: '❌ Abbot denied: You must first study the Regalia and open dealings with the Lord of the Manor.',
+            kronika_submit: "Petition submitted to the Abbot for the Bellfounders' Yard. Reply expected by {responseDate}.",
+            kronika_approved: "The Abbot approved dealings over the Bellfounders' Yard.",
+            kronika_denied: "The Abbot denied the petition for the Bellfounders' Yard. Reason: {reason}",
+            inspect_hint: 'The Abbot has promised to send an officer to survey the site before it is entered in the register.',
+            locked_hint: "Bell-casting needs an annex of its own to the Kovárna — and the Abbot's word first.",
+        },
+        // bell-casting-mrd v0.1 (21.9.2026) — Kovárna tier 2, mirror pivovar
+        // exactly, PLUS denied_kovarna (expanding an existing building, not a new one).
+        kovarna_ii: {
+            title: 'Request to Expand the Kovárna with a Bell-Casting Hearth',
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: '✅ The Abbot has approved the expansion of the Kovárna. The hearth may be built.',
+            denied_kovarna: '❌ Abbot denied: The Kovárna must stand first, before it can be expanded.',
+            denied_tech: '❌ Abbot denied: The monastery has not yet learned the art of bell-casting. Research: Ars Campanaria.',
+            denied_parcel: "❌ Abbot denied: The Bellfounders' Yard must be acquired first (Cellarium — Land).",
+            denied_groats: '❌ Abbot denied: The monastery lacks sufficient funds (85 groats).',
+            denied_bronz: '❌ Abbot denied: The bell-casting hearth cannot be equipped without bronze (5 bronze).',
+            kronika_submit: 'Petition submitted to the Abbot to expand the Kovárna with a bell-casting hearth. Reply expected by {responseDate}.',
+            kronika_approved: 'The Abbot approved the expansion of the Kovárna. Bell-casting may begin.',
+            kronika_denied: 'The Abbot denied the petition to expand the Kovárna. Reason: {reason}',
+            inspect_hint: 'The Abbot has promised an inspection visit once the hearth is complete.',
+            locked_hint: "Bell-casting requires the Abbot's consent to expand the Kovárna.",
+            build_cost: 'Build cost: 15 cut stone, 10 planks, 5 bronze, 5 nails.',
+        },
         columbarium: {
             title: 'Request for a Flock of Pigeons',
             submit_btn: 'Submit petition to the Abbot',

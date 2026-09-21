@@ -156,6 +156,36 @@ const PetitionManager = {
             }
         }
 
+        // Validace podmínek — pro Zvonařský dvůr (parcela), bell-casting-
+        // mrd.md v0.1 (21.9.2026), mirror land_u_hradby/land_prazdroj.
+        if (type === 'land_zvonarsky_dvur') {
+            if (!(GameState.flags && GameState.flags.pozemky_active)) {
+                UI.notify(t('abbotPetition.land_zvonarsky_dvur.denied_regalia'), true); return;
+            }
+        }
+
+        // Validace podmínek — pro Kovárnu tier 2 (zvonařská výhrň), bell-
+        // casting-mrd.md v0.1 (21.9.2026). Mirror kovarna/pivovar přesně,
+        // NAVÍC vyžaduje storage.kovarna.built — je to rozšíření existující
+        // Kovárny, ne nová budova od nuly.
+        if (type === 'kovarna_ii') {
+            if (!(GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.built)) {
+                UI.notify(t('abbotPetition.kovarna_ii.denied_kovarna'), true); return;
+            }
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_ars_campanaria'))) {
+                UI.notify(t('abbotPetition.kovarna_ii.denied_tech'), true); return;
+            }
+            if (!(GameState.landParcels && GameState.landParcels['zvonarsky_dvur'] && GameState.landParcels['zvonarsky_dvur'].status === 'owned')) {
+                UI.notify(t('abbotPetition.kovarna_ii.denied_parcel'), true); return;
+            }
+            if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 85) {
+                UI.notify(t('abbotPetition.kovarna_ii.denied_groats'), true); return;
+            }
+            if ((GameState.inventory['bronz'] || 0) < 5) {
+                UI.notify(t('abbotPetition.kovarna_ii.denied_bronz'), true); return;
+            }
+        }
+
         // Validace podmínek — pro Pivovar (budova), pivovar-varecne-pravo-
         // mrd.md v0.3 (7.9.2026), mirror kovarna přesně (tech + parcela +
         // groše + distinktivní materiál — bronz místo kovadliny).
@@ -239,7 +269,7 @@ const PetitionManager = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'kovarna', 'land_u_hradby', 'land_prazdroj', 'pivovar', 'columbarium', 'domus_ii', 'domus_iii', 'probost', 'mercenaries'].forEach(type => {
+        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'kovarna', 'land_u_hradby', 'land_prazdroj', 'pivovar', 'columbarium', 'domus_ii', 'domus_iii', 'probost', 'mercenaries', 'land_zvonarsky_dvur', 'kovarna_ii'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -293,6 +323,18 @@ const PetitionManager = {
 
             if (type === 'land_prazdroj') {
                 if (!(GameState.flags && GameState.flags.pozemky_active)) deniedKey = 'denied_regalia';
+            }
+
+            if (type === 'land_zvonarsky_dvur') {
+                if (!(GameState.flags && GameState.flags.pozemky_active)) deniedKey = 'denied_regalia';
+            }
+
+            if (type === 'kovarna_ii') {
+                if (!(GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.built)) deniedKey = 'denied_kovarna';
+                else if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_ars_campanaria'))) deniedKey = 'denied_tech';
+                else if (!(GameState.landParcels && GameState.landParcels['zvonarsky_dvur'] && GameState.landParcels['zvonarsky_dvur'].status === 'owned')) deniedKey = 'denied_parcel';
+                else if ((typeof CellariumSystem !== 'undefined' ? CellariumSystem.getGrose() : 0) < 85) deniedKey = 'denied_groats';
+                else if ((GameState.inventory['bronz'] || 0) < 5) deniedKey = 'denied_bronz';
             }
 
             if (type === 'pivovar') {

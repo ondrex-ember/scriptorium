@@ -99,4 +99,18 @@ const LandParcelsDB = {
         desc: 'Prostorný dvůr s náspem na sušení dřeva a místem pro kola opřená o zeď k vyschnutí — dost daleko od skriptoria, aby sem nedolehlo bušení palice, dost blízko cesty k bráně, aby hotový vůz nemusel táhnout přes půl kláštera.',
         desc_en: "A spacious yard with a rack for seasoning timber and room for wheels leaning against the wall to dry — far enough from the scriptorium that the mallet's blows don't carry, close enough to the gate road that a finished wagon needn't be hauled across half the monastery.",
     },
+    // bell-casting-mrd v0.1 (21.9.2026) — Zvonařský dvůr, mirror u_hradby/
+    // kolarensky_dvur přesně (vlastní abbotPetition.land_zvonarsky_dvur,
+    // samostatná petice před koupí). Fáze 4, cena mezi u_hradby (225) a
+    // prazdroj/kolarensky_dvur (300-350) — rozšíření existující Kovárny,
+    // ne úplně nová dílna od nuly.
+    zvonarsky_dvur: {
+        name: 'Zvonařský dvůr', name_en: "The Bellfounders' Yard",
+        tags: [],
+        slotsCapacity: 1,
+        price: 275,
+        phase: 4,
+        desc: 'Přístavek k Dvoru u hradební zdi, s jámou pro hliněné formy a místem, kam se zvon po odlití uloží chladnout — beze spěchu, týdny, ne dny.',
+        desc_en: "An annex to the Wall-side Yard, with a pit for clay moulds and a place to set the bell to cool after casting — unhurried, weeks rather than days.",
+    },
 };

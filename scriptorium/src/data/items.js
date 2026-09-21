@@ -1015,6 +1015,10 @@ const ItemsDB = {
     // slot) a MercenaryBattle (boj). Budoucí sekera/meč/luk stejný shape.
     "dagger": { maxStack: 1, name: "Dýka", name_en: "Dagger", icon: "🗡️", type: "weapon", atk_bonus: 5, desc: "Prostá čepel na opasku. Víc na obranu než na válku, ale lepší než holá pěst.", desc_en: "A plain blade at the belt. More for defence than war, but better than a bare fist." },
     "anvil": { maxStack: 1, name: "Kovadlina", name_en: "Anvil", icon: "⚒️", type: "mat", desc: "Těžká železná kovadlina. Nutná pro stavbu kovárny.", desc_en: "Heavy iron anvil. Required to build the smithy." },
+    // bell-casting-mrd v0.1 (21.9.2026) — odlitý ve zvonařské výhrni Kovárny
+    // (tier 2), z bronzu. Kostelní/katedrální zvony se lokálně neodlévají
+    // (Clientela — zatím neimplementováno), tohle je jen menší zvonek.
+    "small_bell": { name: "Zvonek", name_en: "Small Bell", icon: "🔔", type: "mat", desc: "Menší bronzový zvonek, odlitý v hliněné formě. Na rozdíl od velkého chrámového zvonu ho zvládne odlít i klášterní výhrň.", desc_en: "A small bronze bell, cast in a clay mould. Unlike a great church bell, this one a monastery's own hearth can cast." },
 
     // ── HUTNÍ STAVBY ─────────────────────────────────────────────────────────
     "fodina": { maxStack: 1, name: "Fodina (Důl)", name_en: "Fodina (Mine)", icon: "⛏️", type: "building", desc: "Klášterní důl na železnou rudu. Vyžaduje souhlas opata a horní privilegium.", desc_en: "Monastic iron ore mine. Requires the abbot's consent and mining rights." },

@@ -233,6 +233,29 @@ const GuildsDB = {
             },
         ],
     },
+    // bell-casting-mrd v0.1 (21.9.2026) — Zvonařský cech, mirror pivovarsky
+    // přesně. Nový cech (ne rozšíření Kovářského) — reguluje prodej zvonů,
+    // ne kovářské zboží; klášter zvony neodlévá ve velkém, jen po jednom.
+    zvonarsky: {
+        id: 'zvonarsky',
+        name: 'Zvonařský cech',
+        name_en: "The Bellfounders' Guild",
+        masterName: 'Ambrož Zvonař',
+        masterIcon: '🔔',
+        desc: 'Hubený, nedoslýchavý stařec s rukama plnýma jizev od horkého kovu. Poslouchá zvon při odlévání, ne oko — dobrej odliv prej slyší, špatnej taky. Žárlivě střeží formu slitiny a nerad vidí, že klášter odlévá zvony sám.',
+        desc_en: "A thin, hard-of-hearing old man with hands scarred from hot metal. He listens to a bell as it's cast, not watching it — he claims he can hear a good casting, and a bad one too. He jealously guards the alloy's formula and dislikes seeing the monastery cast bells of its own.",
+        matters: [
+            {
+                key: 'zvonarsky:zvon',
+                label: 'Povolení k jednání o prodeji zvonů',
+                label_en: 'Permission to negotiate bell sales',
+                privilegeType: 'A',
+                privilegeLabel: 'Právo prodeje zvonů na Trhu bez fušerství (průběžný poplatek 10%)',
+                privilegeLabel_en: 'Right to sell bells at Market without botching (10% ongoing fee)',
+                affectedGoods: ['small_bell'],
+            },
+        ],
+    },
 };
 
 // Najde { guild, matter } podle ID položky — jedna položka spadá vždy

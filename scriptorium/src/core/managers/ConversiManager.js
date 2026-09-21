@@ -334,6 +334,10 @@ const ConversiManager = {
         vinohrad: { icon: '🍇', away: false, dailyRiskPct: 6, injuryKind: 'physical' },
         scavenge: { icon: '🌾', away: true, durationMs: 8 * 60 * 60 * 1000, riskPct: 12 },
         doly: { icon: '⛏️', away: true, durationMs: 20 * 60 * 60 * 1000, riskPct: 20 },
+        // bell-casting-mrd v0.1 (21.9.2026) — odlévání zvonu ve výhrni
+        // Kovárny (tier 2). Vícedenní (forma + chladnutí), riskPct = popálení
+        // horkým bronzem/prasklá forma, ne loupež/důlní úraz jako u ostatních.
+        zvonarna: { icon: '🔔', away: true, durationMs: 3 * 24 * 60 * 60 * 1000, riskPct: 15 },
         kostel: { icon: '⛪', away: false, dailyRiskPct: 3, injuryKind: 'physical' },
         hrbitov: { icon: '⚰️', away: false, dailyRiskPct: 6, injuryKind: 'physical' },
         servitor: { icon: '🩺', away: false, dailyRiskPct: 6, injuryKind: 'illness' },
@@ -374,6 +378,18 @@ const ConversiManager = {
             }
             if (!(GameState.abbotPetition && GameState.abbotPetition.fodina && GameState.abbotPetition.fodina.status === 'approved')) {
                 return { locked: true, reasonKey: 'gate_fodina_approval' };
+            }
+            return { locked: false };
+        }
+        if (taskId === 'zvonarna') {
+            // bell-casting-mrd v0.1 (21.9.2026) — Kovárna tier 3 (KOVARNA_TIERS
+            // v CellariumSystem.js), ne samostatná budova. Tech-check redundantní
+            // s tier gate (tier 3 už tech vyžaduje), ale mirror doly (dvojí gate).
+            if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_ars_campanaria'))) {
+                return { locked: true, reasonKey: 'gate_ars_campanaria_tech' };
+            }
+            if (!(GameState.storage && GameState.storage.kovarna && (GameState.storage.kovarna.tier || 0) >= 4)) {
+                return { locked: true, reasonKey: 'gate_kovarna_tier3' };
             }
             return { locked: false };
         }
@@ -426,9 +442,18 @@ const ConversiManager = {
             UI.notify(lang === 'en' ? 'No free slot for this task.' : 'Žádný volný slot na tento úkol.', true); return;
         }
 
+        // bell-casting-mrd v0.1 (21.9.2026) — na rozdíl od scavenge/doly
+        // (čisté sběrné úkoly bez vstupu) zvonařna spotřebuje bronz HNED
+        // při přiřazení, ne až při návratu — forma se plní roztaveným
+        // kovem hned na začátku, ne po týdnech práce.
+        if (taskId === 'zvonarna' && (GameState.inventory['bronz'] || 0) < 5) {
+            UI.notify(lang === 'en' ? 'Not enough bronze: 5 needed.' : 'Nedostatek bronzu: potřeba 5.', true); return;
+        }
+
         k.task = taskId;
         const cfg = this.CONVERSI_TASKS[taskId];
         if (cfg && cfg.away) {
+            if (taskId === 'zvonarna') Game.removeItem('bronz', 5);
             k.awayTask = taskId;
             k.awayUntil = Date.now() + cfg.durationMs;
             UI.notifyPanel('🚶 ' + (lang === 'en' ? k.name + ' left for ' + taskId + '.' : k.name + ' odešel na úkol: ' + taskId + '.'), 'system');
@@ -501,6 +526,24 @@ const ConversiManager = {
                     yieldTxt = qty + '× ' + itemId;
                     UI.notifyPanel('🌾 ' + (lang === 'en' ? k.name + ' returned from scavenging with ' + yieldTxt + '.' : k.name + ' se vrátil ze scavenge s ' + yieldTxt + '.'), 'success');
                     Game.addKronikaEntry('minor', '🌾 ' + k.name + ' přinesl ze scavenge ' + yieldTxt + '.', '🌾 ' + k.name + ' brought ' + yieldTxt + ' from scavenging.', '🌾 ' + k.name + ' rediit.');
+                }
+            } else if (taskId === 'zvonarna') {
+                // bell-casting-mrd v0.1 (21.9.2026) — bronz (5) už spotřebován
+                // při přiřazení (assignConversiTask); risky = prasklá forma /
+                // popálení, ne loupež/důlní úraz. Deterministický výnos (3
+                // zvonky), ne náhodný loot pool jako u doly/scavenge.
+                if (risky) {
+                    k.injuredUntil = now + 24 * 60 * 60 * 1000;
+                    k.fatigue = Math.min(100, k.fatigue + 20);
+                    UI.notifyPanel('⚠️ ' + (lang === 'en' ? k.name + ' was burned casting the bell — the mould cracked. Resting 24h.' : k.name + ' se popálil při odlévání zvonu — forma praskla. Odpočívá 24h.'), 'warning');
+                    Game.addKronikaEntry('minor', '⚠️ ' + k.name + ' se popálil při odlévání zvonu — forma praskla.', '⚠️ ' + k.name + ' was burned casting the bell — the mould cracked.', '⚠️ ' + k.name + ' in fusione campanae vulneratus est.');
+                } else {
+                    const qty = 3;
+                    Game.addItem('small_bell', qty);
+                    k.fatigue = Math.min(100, k.fatigue + 20);
+                    yieldTxt = qty + '× small_bell';
+                    UI.notifyPanel('🔔 ' + (lang === 'en' ? k.name + ' returned from the bell-casting hearth with ' + yieldTxt + '.' : k.name + ' se vrátil ze zvonařské výhrně s ' + yieldTxt + '.'), 'success');
+                    Game.addKronikaEntry('minor', '🔔 ' + k.name + ' odlil ' + yieldTxt + '.', '🔔 ' + k.name + ' cast ' + yieldTxt + '.', '🔔 ' + k.name + ' campanas fudit.');
                 }
             }
         });

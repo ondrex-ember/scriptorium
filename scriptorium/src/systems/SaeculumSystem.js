@@ -814,7 +814,7 @@ const SaeculumSystem = {
         const label = ({
           dvur: lang === 'en' ? 'Farmyard' : 'Dvůr', zahony: lang === 'en' ? 'Garden' : 'Záhony', sad: lang === 'en' ? 'Orchard' : 'Sad', apiarium: lang === 'en' ? 'Apiary' : 'Apiarium', piscina: lang === 'en' ? 'Fishpond' : 'Piscina', pole: lang === 'en' ? 'Field' : 'Pole', vinohrad: lang === 'en' ? 'Vineyard' : 'Vinohrad', scavenge: 'Scavenge', doly: lang === 'en' ? 'Mine' : 'Doly', kostel: lang === 'en' ? 'Church' : 'Kostel', hrbitov: lang === 'en' ? 'Cemetery' : 'Hřbitov',
           servitor: lang === 'en' ? 'Servitor' : 'Ošetřovatel', coquus: lang === 'en' ? 'Coquus' : 'Kuchař', hortulanus: lang === 'en' ? 'Hortulanus' : 'Bylinář', balneator: lang === 'en' ? 'Balneator' : 'Topič',
-          focarius: 'Focarius'
+          focarius: 'Focarius', zvonarna: lang === 'en' ? 'Bell-Casting' : 'Zvonařna'
         })[taskId];
         let hint = '';
         if (gate.locked) {
@@ -823,7 +823,9 @@ const SaeculumSystem = {
               : gate.reasonKey === 'gate_frater' ? (lang === 'en' ? 'needs Frater+' : 'chybí Frater+')
                 : gate.reasonKey === 'gate_infirmarium_tech' ? (lang === 'en' ? 'needs tech: Infirmarium' : 'chybí tech: Infirmarium')
                   : gate.reasonKey === 'gate_focarius_tech' ? (lang === 'en' ? 'needs tech: Focarius' : 'chybí tech: Focarius')
-                    : '';
+                    : gate.reasonKey === 'gate_ars_campanaria_tech' ? (lang === 'en' ? 'needs tech: Ars Campanaria' : 'chybí tech: Ars Campanaria')
+                      : gate.reasonKey === 'gate_kovarna_tier3' ? (lang === 'en' ? 'needs: Kovárna — Bell-Casting Hearth built' : 'chybí: postavená zvonařská výhrň v Kovárně')
+                        : '';
         } else if (full) {
           hint = lang === 'en' ? 'slots full' : 'plno';
         } else {

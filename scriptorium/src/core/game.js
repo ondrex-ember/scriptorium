@@ -396,6 +396,10 @@ const Game = {
         if (!GameState.abbotPetition.pivovar) GameState.abbotPetition.pivovar = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026) — Kolárenský dvůr
         if (!GameState.abbotPetition.land_kolarensky_dvur) GameState.abbotPetition.land_kolarensky_dvur = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        // bell-casting-mrd v0.1 (21.9.2026) — Zvonařský dvůr (parcela) +
+        // Kovárna tier 2 (rozšíření existující budovy, ne nová dílna)
+        if (!GameState.abbotPetition.land_zvonarsky_dvur) GameState.abbotPetition.land_zvonarsky_dvur = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
+        if (!GameState.abbotPetition.kovarna_ii) GameState.abbotPetition.kovarna_ii = { status: 'none', submittedAt: null, deniedReason: null, inspectionPending: false };
         if (!GameState.ubytovnaPetition) GameState.ubytovnaPetition = {};
         // Vyhodnotit čekající žádosti po načtení
         Game.checkAbbotPetitions();

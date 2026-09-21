@@ -2421,6 +2421,38 @@ const STRINGS_cs = {
             inspect_hint: 'Opat přislíbil poslat úředníka na místo, než parcelu zapíše do desek.',
             locked_hint: 'Var ve velkém potřebuje vlastní pramen — a k tomu nejdřív opatovo slovo.',
         },
+        // bell-casting-mrd v0.1 (21.9.2026) — Zvonařský dvůr, mirror land_prazdroj přesně.
+        land_zvonarsky_dvur: {
+            title: 'Žádost o zvonařský dvůr',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil jednání o zvonařském dvoře. Parcelu jde koupit v Cellariu — Pozemky.',
+            denied_regalia: '❌ Opat zamítl: Nejprve musíš prostudovat Regálie a otevřít jednání se Zemským pánem.',
+            kronika_submit: 'Odeslána žádost opatovi o zvonařský dvůr. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil jednání o zvonařském dvoře.',
+            kronika_denied: 'Opat zamítl žádost o zvonařský dvůr. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil poslat úředníka na místo, než parcelu zapíše do desek.',
+            locked_hint: 'Odlévání zvonů potřebuje vlastní přístavek ke Kovárně — a k tomu nejdřív opatovo slovo.',
+        },
+        // bell-casting-mrd v0.1 (21.9.2026) — Kovárna tier 2, mirror pivovar
+        // přesně, NAVÍC denied_kovarna (rozšíření existující budovy, ne nová).
+        kovarna_ii: {
+            title: 'Žádost o rozšíření Kovárny o zvonařskou výhrň',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil rozšíření Kovárny. Výhrň může být postavena.',
+            denied_kovarna: '❌ Opat zamítl: Kovárna musí nejprve stát, než ji lze rozšířit.',
+            denied_tech: '❌ Opat zamítl: Klášter dosud nezná umění lití zvonů. Prostuduj: Ars Campanaria.',
+            denied_parcel: '❌ Opat zamítl: Nejprve musí být získán Zvonařský dvůr (Cellarium — Pozemky).',
+            denied_groats: '❌ Opat zamítl: Klášter nemá dostatek prostředků (85 grošů).',
+            denied_bronz: '❌ Opat zamítl: Bez bronzu nelze zvonařskou výhrň vybavit (5 bronz).',
+            kronika_submit: 'Odeslána žádost opatovi o rozšíření Kovárny o zvonařskou výhrň. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil rozšíření Kovárny. Odlévání zvonů může začít.',
+            kronika_denied: 'Opat zamítl žádost o rozšíření Kovárny. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil inspekční návštěvu po dokončení stavby.',
+            locked_hint: 'Odlévání zvonů vyžaduje souhlas opata k rozšíření Kovárny.',
+            build_cost: 'Stavba: 15 tesaného kamene, 10 fošen, 5 bronz, 5 hřebíků.',
+        },
         columbarium: {
             title: 'Žádost o holubí hejno',
             submit_btn: 'Zaslat žádost opatovi',

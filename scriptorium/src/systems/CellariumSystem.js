@@ -2156,6 +2156,11 @@ const CellariumSystem = {
     { name: 'Oprava podkov', name_en: 'Horseshoe Repair', cost: 0, req: null },
     { name: 'Kování nových podkov', name_en: 'Forging New Horseshoes', cost: 40, req: { materials: { iron_ingot: 4, plank: 5, hrebiky: 6 } } },
     { name: 'Prémiové podkovy', name_en: 'Premium Horseshoes', cost: 90, req: { materials: { iron_ingot: 8, plank: 8, hrebiky: 10, wild_leather: 3 } } },
+    // bell-casting-mrd v0.1 (21.9.2026) — první tier, co si žádá tech +
+    // vlastní pozemek + opatovu petici NAVÍC k materiálu/groším (dosavadní
+    // tiery jen peníze+materiál). Zvonařská výhrň — jiná specializace, ne
+    // pokračování v kvalitě podkov.
+    { name: 'Zvonařská výhrň', name_en: 'Bell-Casting Hearth', cost: 85, req: { materials: { cut_stone: 15, plank: 10, bronz: 5, hrebiky: 5 }, tech: 'tech_ars_campanaria', land: 'zvonarsky_dvur', petition: 'kovarna_ii' } },
   ],
 
   _kovarnaMeetsRequirements: function (req) {
@@ -2165,6 +2170,9 @@ const CellariumSystem = {
         if ((GameState.inventory[matId] || 0) < req.materials[matId]) return false;
       }
     }
+    if (req.tech && !(GameState.researchedTechs && GameState.researchedTechs.includes(req.tech))) return false;
+    if (req.land && !(GameState.landParcels && GameState.landParcels[req.land] && GameState.landParcels[req.land].status === 'owned')) return false;
+    if (req.petition && !(GameState.abbotPetition && GameState.abbotPetition[req.petition] && GameState.abbotPetition[req.petition].status === 'approved')) return false;
     return true;
   },
 
@@ -2235,8 +2243,34 @@ const CellariumSystem = {
           rows.push([have >= need, matName + ' ' + have + '/' + need]);
         });
       }
+      // bell-casting-mrd v0.1 (21.9.2026) — tech/land/petition rows, první
+      // tier co je potřebuje. Petition dostává vlastní "Zaslat žádost"
+      // tlačítko (mirror workshopBuildings petition_type vzor), land jen
+      // odkazuje na Cellarium — Pozemky (koupě žije tam, ne tady).
+      let petitionBtn = '';
+      if (req.tech) {
+        const has = GameState.researchedTechs && GameState.researchedTechs.includes(req.tech);
+        const techObj = (typeof TechTree !== 'undefined') ? TechTree.find(t => t.id === req.tech) : null;
+        const techName = techObj ? (lang === 'en' ? techObj.name_en : techObj.name) : req.tech;
+        rows.push([has, (lang === 'en' ? 'tech: ' : 'tech: ') + techName]);
+      }
+      if (req.land) {
+        const owned = GameState.landParcels && GameState.landParcels[req.land] && GameState.landParcels[req.land].status === 'owned';
+        const parcel = (typeof LandParcelsDB !== 'undefined') ? LandParcelsDB[req.land] : null;
+        const parcelName = parcel ? (lang === 'en' ? parcel.name_en : parcel.name) : req.land;
+        rows.push([owned, (lang === 'en' ? 'land: ' : 'pozemek: ') + parcelName + (owned ? '' : (lang === 'en' ? ' (Cellarium — Land)' : ' (Cellarium — Pozemky)'))]);
+      }
+      if (req.petition) {
+        const pet = GameState.abbotPetition && GameState.abbotPetition[req.petition];
+        const status = pet ? pet.status : 'none';
+        rows.push([status === 'approved', (lang === 'en' ? "Abbot's approval" : 'souhlas opata') + (status === 'approved' ? '' : ' (' + status + ')')]);
+        if (status === 'none' || status === 'denied') {
+          petitionBtn = `<button class="craft-btn" style="margin-top:6px; width:100%;" onclick="Game.submitAbbotPetition('${req.petition}'); const el=document.getElementById('home-kovarna-content'); if(el) el.innerHTML=CellariumSystem.renderKovarnaTab();">📜 ${t('abbotPetition.' + req.petition + '.submit_btn')}</button>`;
+        }
+      }
       const met = rows.every(r => r[0]);
       h += rows.map(r => `<div style="font-size:0.68rem; ${r[0] ? 'opacity:0.7;' : 'color:#c0392b;'}">${r[0] ? '✓' : '✗'} ${r[1]}</div>`).join('');
+      h += petitionBtn;
       h += `<button class="craft-btn" style="margin-top:8px; width:100%;" ${met && this.getGrose() >= next.cost ? '' : 'disabled'} onclick="CellariumSystem.upgradeKovarna()">⬆️ ${lang === 'en' ? 'Raise to' : 'Povýšit na'} ${nextName} (${next.cost}g)</button>`;
     } else {
       h += `<div style="font-size:0.75rem; opacity:0.6; font-style:italic;">${lang === 'en' ? 'Highest tier reached.' : 'Nejvyšší úroveň dosažena.'}</div>`;
@@ -2707,6 +2741,11 @@ const CellariumSystem = {
       // si v Athanoru uvařil pár piv pro radost, cech ještě nezajímá; až
       // se z toho stane objem (velkovýroba), cechmistr si všimne.
       pivovarsky: (GameState.inventory && ((GameState.inventory['prima_cervisia'] || 0) + (GameState.inventory['cervisia_nigra'] || 0)) >= 10),
+      // bell-casting-mrd v0.1 (21.9.2026) — mirror pekarsky přesně: aktivace
+      // buď dosažením Kovárny tier 3 (zvonařská výhrň, KOVARNA_TIERS), nebo
+      // objemem (kdyby zvonky přišly jinou cestou, cechmistr by si stejně všiml).
+      zvonarsky: ((GameState.storage && GameState.storage.kovarna && (GameState.storage.kovarna.tier || 0) >= 4)) ||
+        ((GameState.inventory && GameState.inventory['small_bell'] || 0) >= 5),
     };
 
     const lang = (GameState.settings && GameState.settings.language) || 'cs';

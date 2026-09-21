@@ -525,6 +525,18 @@ const TechTree = [
   },
 
   {
+    // bell-casting-mrd v0.1 (21.9.2026) — navazuje na Metallurgia Rara
+    // (bronz už teče). Odemyká jen ŽÁDOST o rozšíření Kovárny na tier 2
+    // (petition_type 'kovarna_ii'), ne samotnou stavbu — mirror tech_kovarna
+    // vzor přesně (unlocks nese petition-type string, ne recept).
+    id: "tech_ars_campanaria", name: "Ars Campanaria — Umění lití zvonů", name_en: "Ars Campanaria — The Art of Bell-Casting",
+    cost: 45,
+    desc: "Bronz už teče z Athanoru, ale odlít z něj zvon chce jiné umění než kovat podkovu — hliněnou formu, přesný poměr slitiny, trpělivost s chladnutím. S touto znalostí lze požádat opata o rozšíření Kovárny o zvonařskou výhrň.",
+    desc_en: "Bronze already flows from the Athanor, but casting a bell from it demands a different art than forging a horseshoe — a clay mould, a precise alloy, patience with the cooling. With this knowledge, the Abbot may be petitioned to expand the Kovárna with a bell-casting hearth.",
+    unlocks: ["kovarna_ii"], requires: ["tech_metallurgia_rara"]
+  },
+
+  {
     id: "tech_horticulture", name: "Horticultura — Zahradní umění", name_en: "Horticultura — Art of the Garden",
     cost: 10,
     desc: "Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Odemkne: kamenné nástroje (sekerka, rýč, kosa, srp, cep, lopata), vědro, konev, sud.",
