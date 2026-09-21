@@ -3569,6 +3569,13 @@
 </head>
 
 <body>
+    <!-- Google Tag Manager (noscript) — MUSÍ být první za <body>, jinak GSC
+         ověření metodou "Google Tag Manager" selže ("fragment na nesprávném
+         místě"). gsc-gtm-verifikace-fix, 21.9.2026. -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NZSGNPD8" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     <!-- data-save-safety-mrd (25.8.2026) — Loading gate proti ztrátě save
          souboru: hráč testoval v terénu se slabým signálem, IDB load
          neproběhl (async, race condition), klikl akci dřív, než se save
@@ -3585,11 +3592,6 @@
         <div id="save-loading-gate-text" style="color:var(--ink-primary,#2c241b); font-size:1rem; opacity:0.8;">Načítám
             uložený postup…</div>
     </div>
-
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NZSGNPD8" height="0" width="0"
-            style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
 
     <!-- Hidden container for NotebookSystem (used temporarily during render) -->
     <div id="notebook-content" style="display:none;"></div>
