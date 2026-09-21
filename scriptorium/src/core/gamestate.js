@@ -36,6 +36,27 @@ const ActionsDB = [
         icon: '⚪', desc: 'Vápenec — nejlepší výnos', desc_en: 'Limestone — best yield',
         yield: 1, req: [{ item: 'palice_kamenna', mult: 0.7 }, { item: 'palice_zelezna', mult: 1.2 }]
     },
+    // metallurgia-rara-mrd (21.9.2026) — tech_metallurgia_rara. requiresTech
+    // mirror vzoru buyOffer.minRelation/minReputation (SaeculumSystem.js),
+    // kontrolovaný v UI.renderMineActions a ScavengeManager.js.
+    {
+        id: 'mine_antimony_ore', cat: 'mine', collectMode: true, requiresTech: 'tech_metallurgia_rara',
+        name: 'Těžba antimonitu', name_en: 'Mine Antimony Ore',
+        icon: '⬛', desc: 'Antimon — vzácná ruda pro tiskařskou slitinu', desc_en: 'Antimony — rare ore for the type-metal alloy',
+        yield: 1, req: [{ item: 'stone_pickaxe', mult: 0.7 }, { item: 'iron_pickaxe', mult: 1.2 }]
+    },
+    {
+        id: 'mine_cinnabar', cat: 'mine', collectMode: true, requiresTech: 'tech_metallurgia_rara',
+        name: 'Těžba rumělky', name_en: 'Mine Cinnabar',
+        icon: '🔴', desc: 'Rumělka — pigment i zdroj rtuti', desc_en: 'Cinnabar — pigment and a source of mercury',
+        yield: 1, req: [{ item: 'stone_pickaxe', mult: 0.7 }, { item: 'iron_pickaxe', mult: 1.2 }]
+    },
+    {
+        id: 'mine_base_metal_ore', cat: 'mine', collectMode: true, requiresTech: 'tech_metallurgia_rara',
+        name: 'Těžba barevných kovů', name_en: 'Mine Base Metals',
+        icon: '🔶', desc: 'Měď, cín nebo olovo — bez spoléhání na náhodu', desc_en: 'Copper, tin, or lead — without relying on chance',
+        yield: 1, req: [{ item: 'stone_pickaxe', mult: 0.7 }, { item: 'iron_pickaxe', mult: 1.2 }]
+    },
 ];
 
 // FishDB — metadata druhů pro Piscinu (entitní model, viz GameState.piscina.fish[]).

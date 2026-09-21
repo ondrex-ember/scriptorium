@@ -2747,6 +2747,7 @@ const UI = {
 
         // Zjistit, jestli je vůbec co zobrazit (aspoň 1 akce s krumpáčem)
         const anyVisible = mineActions.some(act => {
+            if (act.requiresTech && !(GameState.researchedTechs && GameState.researchedTechs.includes(act.requiresTech))) return false;
             if (!act.req || !Array.isArray(act.req)) return true;
             return act.req.some(r => (GameState.inventory[r.item] > 0) || (GameState.inventory['worn_' + r.item] > 0));
         });
@@ -2777,6 +2778,8 @@ const UI = {
         }
 
         mineActions.forEach(act => {
+            // metallurgia-rara-mrd (21.9.2026) — tech gate, mirror req-checku níž.
+            if (act.requiresTech && !(GameState.researchedTechs && GameState.researchedTechs.includes(act.requiresTech))) return;
             // Req check — zobrazit jen pokud má pickaxe
             if (act.req && Array.isArray(act.req)) {
                 const hasAny = act.req.some(r => (GameState.inventory[r.item] > 0) ||

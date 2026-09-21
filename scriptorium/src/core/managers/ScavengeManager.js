@@ -516,6 +516,11 @@ const ScavengeManager = {
                 quarry_stone: { 2.5: [10, 12], 5: [20, 30], 10: [45, 55], 20: [130, 160], 30: [240, 300] },
                 mine_iron_ore: { 2.5: [1, 1], 5: [1, 3], 10: [3, 5], 20: [6, 10], 30: [10, 15] },
                 quarry_limestone: { 2.5: [8, 10], 5: [16, 24], 10: [36, 44], 20: [100, 130], 30: [190, 240] },
+                // metallurgia-rara-mrd (21.9.2026) — vzácnější než iron_ore (antimon/rumělka),
+                // barevné kovy o něco vydatnější (mirror Doly 40 % vs. 15 % relativní vzácnosti).
+                mine_antimony_ore: { 2.5: [1, 1], 5: [1, 1], 10: [1, 2], 20: [2, 4], 30: [4, 6] },
+                mine_cinnabar: { 2.5: [1, 1], 5: [1, 1], 10: [1, 2], 20: [2, 4], 30: [4, 6] },
+                mine_base_metal_ore: { 2.5: [1, 1], 5: [1, 2], 10: [2, 3], 20: [4, 6], 30: [6, 9] },
             };
             // COMPLETION: kliknutí na "Sbírat" po uplynutí timeru
             if (GameState.activeAction && GameState.activeAction.id === type) {
@@ -550,6 +555,20 @@ const ScavengeManager = {
                     const range = MINE_YIELD.quarry_limestone[_tier] || MINE_YIELD.quarry_limestone[5];
                     const qty = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
                     Game.addItem('vapenec', Math.max(1, Math.round(qty * _mMultC * _freshMult)));
+                } else if (type === 'mine_antimony_ore') {
+                    const range = MINE_YIELD.mine_antimony_ore[_tier] || MINE_YIELD.mine_antimony_ore[5];
+                    const qty = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+                    Game.addItem('antimony', Math.max(1, Math.round(qty * _mMultC * _freshMult)));
+                } else if (type === 'mine_cinnabar') {
+                    const range = MINE_YIELD.mine_cinnabar[_tier] || MINE_YIELD.mine_cinnabar[5];
+                    const qty = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+                    Game.addItem('cinnabar', Math.max(1, Math.round(qty * _mMultC * _freshMult)));
+                } else if (type === 'mine_base_metal_ore') {
+                    const range = MINE_YIELD.mine_base_metal_ore[_tier] || MINE_YIELD.mine_base_metal_ore[5];
+                    const qty = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+                    const _basePool = ['copper', 'tin', 'lead'];
+                    const _baseId = _basePool[Math.floor(Math.random() * _basePool.length)];
+                    Game.addItem(_baseId, Math.max(1, Math.round(qty * _mMultC * _freshMult)));
                 }
                 const _tgains = {};
                 for (const k of Object.keys(GameState.inventory)) {
@@ -567,6 +586,11 @@ const ScavengeManager = {
                 UI.notify(t('game.busy'), true); return;
             }
             // START: první kliknutí
+            // metallurgia-rara-mrd (21.9.2026) — defense-in-depth, mirror req-checku níž;
+            // UI.renderMineActions už tlačítko bez techu vůbec nezobrazí.
+            if (_mineAction.requiresTech && !(GameState.researchedTechs && GameState.researchedTechs.includes(_mineAction.requiresTech))) {
+                return;
+            }
             const _mFound = _mineAction.req ? _mineAction.req.find(r => (GameState.inventory[r.item] > 0) || (GameState.inventory['worn_' + r.item] > 0)) : null;
             if (_mineAction.req && !_mFound) {
                 const lang = (GameState.settings && GameState.settings.language) || 'cs';

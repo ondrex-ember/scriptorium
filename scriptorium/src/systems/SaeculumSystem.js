@@ -1396,6 +1396,8 @@ const SaeculumSystem = {
       UI.notify(lang === 'en' ? 'The Stationarius travels between book fairs — he is not in Olomouc now.' : 'Stationarius cestuje mezi veletrhy — teď není v Olomouci.', true);
       return;
     }
+    // metallurgia-rara-mrd (21.9.2026) — gate na TechTree, mirror minRelation/minReputation níž.
+    if (offer.requiresTech && !(GameState.researchedTechs && GameState.researchedTechs.includes(offer.requiresTech))) return;
     // Exkluzivní nabídka: gate na vztah (MRD bod 8)
     if (offer.minRelation && ((GameState.contactRelation || {})[contactId] || 0) < offer.minRelation) return;
     // giacomo-obchod-audit (7.8.2026): druhá, NEZÁVISLÁ vrstva gatingu —
@@ -1606,6 +1608,13 @@ const SaeculumSystem = {
         Object.keys(offerItems).forEach(itemId => {
           const o = offerItems[itemId];
           const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
+          // metallurgia-rara-mrd (21.9.2026) — tech zámek, mirror vztahového/reputačního níž.
+          if (o.requiresTech && !(GameState.researchedTechs && GameState.researchedTechs.includes(o.requiresTech))) {
+            h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px; opacity:0.5;">
+                  <span style="flex:1;">🔒 ${itemName} <span style="opacity:0.7; font-style:italic;">(${lang === 'en' ? 'requires knowledge' : 'vyžaduje poznání'})</span></span>
+                </div>`;
+            return;
+          }
           if (o.minRelation && r < o.minRelation) {
             h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px; opacity:0.5;">
                   <span style="flex:1;">🔒 ${itemName} <span style="opacity:0.7; font-style:italic;">(${lang === 'en' ? 'from relation' : 'od vztahu'} ${o.minRelation})</span></span>

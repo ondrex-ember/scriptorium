@@ -512,6 +512,19 @@ const TechTree = [
   },
 
   {
+    // metallurgia-rara-mrd (21.9.2026) — navazuje na Malleaturu, poslední
+    // krok hornického řetězu. Cíleně zavádí těžbu antimonitu, rumělky a
+    // barevných kovů (měď/cín/olovo) místo dosavadního spoléhání na náhodu
+    // (Doly u Konvršů). Bronz/Athanor combo (copper+tin:calcinatio) i
+    // dosavadní zdroje rtuti/rumělky (trade/scavenge) zůstávají beze změny.
+    id: "tech_metallurgia_rara", name: "Metallurgia Rara — Vzácné Rudy", name_en: "Metallurgia Rara — Rare Ores",
+    cost: 50,
+    desc: "Hamr zvládne železo, ale antimonit a rumělka leží v jiných žilách a chtějí jiné oko. S touto znalostí lze v dole cíleně těžit vzácné rudy — antimon, rumělku i barevné kovy — místo spoléhání na náhodný nález. Odemkne: těžbu antimonu, rumělky a barevných kovů (měď/cín/olovo), rozšířenou nabídku u Kováře.",
+    desc_en: "The hammer masters iron, but stibnite and cinnabar lie in different veins and want a different eye. With this knowledge the mine can be worked deliberately for rare ores — antimony, cinnabar and base metals — instead of relying on chance finds. Unlocks: mining of antimony, cinnabar and base metals (copper/tin/lead), an expanded offer from the Blacksmith.",
+    unlocks: ["mine_antimony_ore", "mine_cinnabar", "mine_base_metal_ore"], requires: ["tech_malleatura"]
+  },
+
+  {
     id: "tech_horticulture", name: "Horticultura — Zahradní umění", name_en: "Horticultura — Art of the Garden",
     cost: 10,
     desc: "Klášterní zahradník byl vzdělán v bylinářství, pěstování i závlaze. Odemkne: kamenné nástroje (sekerka, rýč, kosa, srp, cep, lopata), vědro, konev, sud.",

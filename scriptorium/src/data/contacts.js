@@ -136,6 +136,10 @@ const ContactsDB = {
                 // levnější kanál než Trh (mirror hrebiky/kovani vzoru).
                 podkovarske_kladivo: { price: 25, stock: 2 },
                 raspa_kopytni: { price: 15, stock: 1 },
+                // metallurgia-rara-mrd (21.9.2026) — drahá nákupní cesta vedle vlastní
+                // těžby (mine_antimony_ore/mine_cinnabar), gated stejným techem.
+                antimony: { price: 30, stock: 2, requiresTech: 'tech_metallurgia_rara' },
+                cinnabar: { price: 20, stock: 3, requiresTech: 'tech_metallurgia_rara' },
             }
         }, // plní starý slib "prodá nástroje" z popisku + kování na Velký úl (Apiarium MRD)
         // cluster-A-mrd (28.8.2026) — Libraria Secreta trezor. Jednorázová
