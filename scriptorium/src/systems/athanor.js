@@ -1934,6 +1934,18 @@ const AthanorDB = {
       lore: 'Měď tavená s cínem. Nejstarší slitina lidstva — zvony, nářadí, sochy.',
       lore_en: "Copper smelted with tin. Humanity's oldest alloy — bells, tools, statues."
     },
+    // metallurgia-rara-mrd (21.9.2026) — Knihtisk (endgame-branches-reference.md
+    // sekce 3 / Scénář 5 "Alchymie inkoustu a olova"): "Přidáním antimonu a cínu
+    // k olovu získá tiskařskou slitinu." 3 sloty jsou už základ (maxSlots()),
+    // žádný engine zásah netřeba. Bez vlastního combo.unlock — antimon sám
+    // je gated tech_metallurgia_rara, redundantní gate navíc (mirror bronz/pewter).
+    'antimony+lead+tin:calcinatio': {
+      result: { id: 'tiskarska_slitina', qty: 2 },
+      name: 'Tiskařská slitina', name_en: 'Type-Metal Alloy', name_lat: 'Typometallum', icon: '🔠',
+      effect: null, unlockFolio: 'folio_scr07',
+      lore: 'Olovo, cín a antimon dohromady. Slitina se při chladnutí nepatrně rozpíná — dokonale vyplní formu litery.',
+      lore_en: 'Lead, tin and antimony together. The alloy expands slightly on cooling — it fills the type mold perfectly.'
+    },
     'sandarak+spiritus_vini:coctio': {
       result: { id: 'lak_universalni', qty: 1 },
       name: 'Sandarakový lak', name_en: 'Sandarac Varnish', name_lat: 'Vernix Sandaraca', icon: '✨',
