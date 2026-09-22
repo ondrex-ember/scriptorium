@@ -153,6 +153,29 @@ const ContactsDB = {
         desc: 'Vesnický kovář. Vykoupí přebytečnou rudu, prodá nástroje.',
         desc_en: 'The village blacksmith. Buys surplus ore, sells tools.'
     },
+    // bell-casting-mrd Phase B (21.9.2026) — mirror kovar strukturou (Chronicon-
+    // propojený řemeslník). Profesní jméno mirror Kovář/Mlynář/Sklář — osobní
+    // jméno má jen cechmistr Ambrož Zvonař (data/guilds.js), tohle je jiná
+    // postava: potulný/venkovský mistr, který bere VELKÉ zakázky, ne trh.
+    zvonar: {
+        confession: "Přiznává, že do jednoho zvonu přilil stříbrnou lžíci navíc — pro zvuk, ne z lakoty, tvrdí.",
+        confession_en: "He confesses to melting an extra silver spoon into one bell — for the tone, not for greed, he swears.",
+        name: 'Zvonař', name_en: 'Bellfounder', icon: '🔔',
+        primaryAxis: 'village',
+        secondaryAxis: { axis: 'church', weight: 0.3 },   // zvony slouží především kostelu/katedrále
+        unlockTech: 'tech_ars_campanaria',
+        chroniconActorId: 'zvonar',
+        sellBonus: { items: { bronz: 8 } },   // vykoupí přebytečný bronz lépe než trh
+        // Jediná nabídka — vrcholová komise, ne denní pult. days: override
+        // GLASS_ORDER_MS (14 dní místo 48h, mirror odlévání+chladnutí velkého
+        // zvonu). chroniconGate: true — pozastaví se, pokud je Zvonař v
+        // regionu (živý Chronicon) v krizi/zaniku.
+        glassOrders: {
+            velky_zvon: { itemId: 'velky_zvon', price: 300, minRelation: 60, days: 14, chroniconGate: true }
+        },
+        desc: 'Potulný mistr zvonař. Menší zvon odlije klášter sám, na velký chrámový zvon je třeba jeho pece a zkušenosti.',
+        desc_en: 'A wandering master bellfounder. A small bell the monastery can cast itself — a great church bell needs his furnace and his years of practice.'
+    },
     tkadlec: {
         confession: "Do dobré příze přimíchává horší a mlčí o tom.",
         confession_en: "He blends poorer thread into the good yarn and keeps quiet about it.",

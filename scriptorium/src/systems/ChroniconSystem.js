@@ -394,6 +394,17 @@ const ChroniconSystem = {
         return (v === undefined) ? null : Math.floor(v);
     },
 
+    // bell-casting-mrd Phase B (21.9.2026) — mirror getActorItemStock, čte
+    // 'status' pole (stable/krize/zanikajici/mrtvy, viz Chronicon PROD_TABLE
+    // deps-blokace) ze snapshotu. Používá SaeculumSystem.orderFromContact
+    // jako volitelný gate (ord.chroniconGate) — skutečný, ne kosmetický
+    // inbound efekt regionální simulace na místní zakázky.
+    getActorStatus: function(actorId) {
+        const snap = ChroniconSystem._snap;
+        const a = snap && snap.actors && snap.actors.find(function (x) { return x.id === actorId; });
+        return a ? (a.status || 'stable') : null;
+    },
+
     // ─── Apply snapshot ─────────────────────────────────────────────────────
 
     _apply: function(snap) {

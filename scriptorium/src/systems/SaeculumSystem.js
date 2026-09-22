@@ -1448,13 +1448,27 @@ const SaeculumSystem = {
     if (GameState.craftOrders[contactId]) { UI.notify('⚠️ Zakázka už běží — jedna najednou.', true); return; }
     const rel = (GameState.contactRelation || {})[contactId] || 0;
     if (ord.minRelation && rel < ord.minRelation) return;
+    // bell-casting-mrd Phase B (21.9.2026) — volitelný gate na živý Chronicon
+    // aktér (chroniconGate: true na zakázce): pokud region hlásí aktéra v
+    // krizi/zániku, zakázka se pozastaví — skutečný inbound efekt, ne kosmetika.
+    if (ord.chroniconGate && c.chroniconActorId && typeof ChroniconSystem !== 'undefined') {
+      const status = ChroniconSystem.getActorStatus(c.chroniconActorId);
+      if (status === 'krize' || status === 'zanikajici' || status === 'mrtvy') {
+        UI.notify('⚠️ Zpráva z kraje: teď zakázku přijmout nemůže.', true);
+        return;
+      }
+    }
     const deposit = Math.ceil(ord.price / 2);
     if (CellariumSystem.getGrose() < deposit) { UI.notify('⚠️ Non habes sufficiens! Záloha ' + deposit + ' g.', true); return; }
     CellariumSystem.addGrose(-deposit, { title: 'Záloha na sklo', source: contactId, source_en: contactId });
-    GameState.craftOrders[contactId] = { itemId: ord.itemId, price: ord.price, deposit: deposit, readyAt: Date.now() + this.GLASS_ORDER_MS };
+    // ord.days: volitelný override výchozích 48h (mirror GLASS_ORDER_MS),
+    // pro řádově delší zakázky (velký zvon) beze změny chování stávajících.
+    const orderMs = ord.days ? ord.days * 24 * 60 * 60 * 1000 : this.GLASS_ORDER_MS;
+    GameState.craftOrders[contactId] = { itemId: ord.itemId, price: ord.price, deposit: deposit, readyAt: Date.now() + orderMs };
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(ord.itemId) : ord.itemId;
-    UI.notify('🔮 Zakázka přijata: ' + itemName + '. Hotovo za 48 h. Záloha ' + deposit + ' g.');
+    const durTxt = ord.days ? (ord.days + ' d') : '48 h';
+    UI.notify('🔮 Zakázka přijata: ' + itemName + '. Hotovo za ' + durTxt + '. Záloha ' + deposit + ' g.');
     this.switchEntity('clientela');
   },
 
@@ -1700,13 +1714,16 @@ const SaeculumSystem = {
 
     // 🔮 Zakázky (V4/S2) — jen kontakt s glassOrders
     if (c.glassOrders && Object.keys(c.glassOrders).length) {
-      h += `<div style="margin-top:14px;"><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">🔮 ${lang === 'en' ? 'COMMISSIONS' : 'ZAKÁZKY'} <span style="opacity:0.6; font-weight:normal; text-transform:none;">(48 h · ${lang === 'en' ? '50 % deposit' : '50 % záloha'})</span></div>`;
+      h += `<div style="margin-top:14px;"><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">🔮 ${lang === 'en' ? 'COMMISSIONS' : 'ZAKÁZKY'} <span style="opacity:0.6; font-weight:normal; text-transform:none;">(${lang === 'en' ? '50 % deposit' : '50 % záloha'})</span></div>`;
       const o = GameState.craftOrders && GameState.craftOrders[id];
       if (o) {
         const remH = Math.max(0, Math.ceil((o.readyAt - Date.now()) / 3600000));
+        // bell-casting-mrd Phase B (21.9.2026) — víc-denní zakázky (velký
+        // zvon, 14 d) čitelně ve dnech, ne "336 h". Krátké (48h) beze změny.
+        const remTxt = remH > 47 ? Math.ceil(remH / 24) + ' d' : remH + ' h';
         const oName = (typeof iName === 'function') ? iName(o.itemId) : o.itemId;
         if (remH > 0) {
-          h += `<div style="font-size:0.78rem;">⏳ ${lang === 'en' ? 'In work' : 'V práci'}: ${oName} — ${lang === 'en' ? 'ready in' : 'hotovo za'} <strong>${remH} h</strong></div>`;
+          h += `<div style="font-size:0.78rem;">⏳ ${lang === 'en' ? 'In work' : 'V práci'}: ${oName} — ${lang === 'en' ? 'ready in' : 'hotovo za'} <strong>${remTxt}</strong></div>`;
         } else {
           const rest = o.price - o.deposit;
           h += `<div style="font-size:0.78rem; margin-bottom:6px;">✅ ${oName} ${lang === 'en' ? 'is ready' : 'je hotov'} — ${lang === 'en' ? 'balance due' : 'doplatek'} ${rest} g</div>
@@ -1721,8 +1738,9 @@ const SaeculumSystem = {
             return;
           }
           const deposit = Math.ceil(ord.price / 2);
+          const durTxt = ord.days ? (ord.days + ' d') : '48 h';
           h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:5px;">
-                  <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${ord.price} g · ${lang === 'en' ? 'deposit' : 'záloha'} ${deposit} g)</span></span>
+                  <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${ord.price} g · ${lang === 'en' ? 'deposit' : 'záloha'} ${deposit} g · ${durTxt})</span></span>
                   <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${CellariumSystem.getGrose() >= deposit ? '' : 'disabled'} onclick="SaeculumSystem.orderFromContact('${id}','${key}')">${lang === 'en' ? 'Order' : 'Objednat'}</button>
                 </div>`;
         });

@@ -1019,6 +1019,11 @@ const ItemsDB = {
     // (tier 2), z bronzu. Kostelní/katedrální zvony se lokálně neodlévají
     // (Clientela — zatím neimplementováno), tohle je jen menší zvonek.
     "small_bell": { name: "Zvonek", name_en: "Small Bell", icon: "🔔", type: "mat", desc: "Menší bronzový zvonek, odlitý v hliněné formě. Na rozdíl od velkého chrámového zvonu ho zvládne odlít i klášterní výhrň.", desc_en: "A small bronze bell, cast in a clay mould. Unlike a great church bell, this one a monastery's own hearth can cast." },
+    // bell-casting-mrd Phase B (21.9.2026) — jednorázová zakázka u Zvonaře
+    // (Clientela, glassOrders vzor). Klášter sám velký zvon neodlije — jáma
+    // na formu, množství kovu a řízené chladnutí týdny přesahují možnosti
+    // klášterní výhrně. Zatím bez návaznosti na Kostel/Templum (odloženo).
+    "velky_zvon": { maxStack: 1, name: "Velký zvon", name_en: "Great Bell", icon: "🔔", type: "mat", desc: "Zvon o mnoho větší a těžší, než co unese klášterní výhrň — odlitý mistrem zvonařem daleko za zdmi, na objednávku. Hlas, co je slyšet přes celý kraj.", desc_en: "A bell far larger and heavier than the monastery's own hearth can manage — cast by a master bellfounder far beyond the walls, to order. A voice heard across the whole region." },
 
     // ── HUTNÍ STAVBY ─────────────────────────────────────────────────────────
     "fodina": { maxStack: 1, name: "Fodina (Důl)", name_en: "Fodina (Mine)", icon: "⛏️", type: "building", desc: "Klášterní důl na železnou rudu. Vyžaduje souhlas opata a horní privilegium.", desc_en: "Monastic iron ore mine. Requires the abbot's consent and mining rights." },
