@@ -3567,6 +3567,8 @@
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
     <!-- Iluminovaná: optional third Design skin; presentation only. -->
     <link rel="stylesheet" href="/styles/illuminated.css">
+	<link rel="stylesheet" href="/styles/illuminated-foundation.css">
+	<link rel="stylesheet" href="/styles/illuminated-room-hero.css">
 </head>
 
 <body>
@@ -4080,13 +4082,13 @@
         <div id="notification-area"></div>
 
         <main id="main-content">
-            <div id="screen-home" class="screen active">
-                <div class="screen-header-row">
+            <div id="screen-home" class="screen active illum-room" data-illum-room="home">
+                <div class="screen-header-row illum-room-header">
                     <h2 data-i18n="nav.home"></h2>
                     <div class="resource-tracker-bar"></div>
                 </div>
 
-                <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
+                <div class="filter-bar illum-room-tabs" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
                     <button id="home-tab-main" class="filter-btn active" onclick="UI.switchHomeTab('main', this)">🏰
                         <span data-i18n="screens.home"></span></button>
                     <button id="home-tab-cellarium" class="filter-btn" onclick="UI.switchHomeTab('cellarium', this)">🏛️
@@ -4305,12 +4307,12 @@
                 </div>
             </div>
 
-            <div id="screen-garden" class="screen" style="position:relative; max-width:100%; overflow-x:hidden;">
-                <div class="screen-header-row">
+            <div id="screen-garden" class="screen illum-room" data-illum-room="garden" style="position:relative; max-width:100%; overflow-x:hidden;">
+                <div class="screen-header-row illum-room-header">
                     <h2 data-i18n="garden.title">Zahrada</h2>
                     <div class="resource-tracker-bar"></div>
                 </div>
-                <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
+                <div class="filter-bar illum-room-tabs" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
                     <button id="garden-tab-btn-dvur" class="filter-btn active"
                         onclick="UI.switchGardenTab('dvur', this)" data-i18n="garden.tabDvur">🐄 Dvůr</button>
                     <button id="garden-tab-btn-zahony" class="filter-btn" onclick="UI.switchGardenTab('zahony', this)"
@@ -4436,15 +4438,15 @@
                 </div>
             </div>
 
-            <div id="screen-craft" class="screen">
-                <div class="screen-header-row">
+            <div id="screen-craft" class="screen illum-room" data-illum-room="craft">
+                <div class="screen-header-row illum-room-header">
                     <h2>Dílna</h2>
                     <div class="resource-tracker-bar"></div>
                 </div>
                 <!-- vyroba-stavby-mrd (5.9.2026) — Dílenský ponk, Krok 2. Prázdné dokud
                      GameState.inventory.craft_bench > 0, viz UI.renderCraftBenchHeader(). -->
                 <div id="craft-bench-header"></div>
-                <div class="filter-bar"
+                <div class="filter-bar illum-room-tabs"
                     style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                     <button id="craft-filter-all" class="filter-btn active" onclick="UI.filterCrafting('all', this)"
                         data-i18n="craftFilter.all">Vše</button>
@@ -4473,12 +4475,12 @@
                 <div id="crafting-list"></div>
             </div>
 
-            <div id="screen-inv" class="screen">
-                <div class="screen-header-row">
+            <div id="screen-inv" class="screen illum-room" data-illum-room="inv">
+                <div class="screen-header-row illum-room-header">
                     <h2>Zásoby</h2>
                     <div class="resource-tracker-bar"></div>
                 </div>
-                <div id="inv-filter-bar" class="filter-bar"
+                <div id="inv-filter-bar" class="filter-bar illum-room-tabs"
                     style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
                     <button id="inv-filter-all" class="filter-btn active" onclick="UI.filterInventory('all', this)"
                         data-i18n="invFilter.all">Vše</button>
@@ -4506,8 +4508,8 @@
                 <div id="inventory-grid" style="margin-top:15px;"></div>
             </div>
 
-            <div id="screen-lore" class="screen">
-                <div class="screen-header-row">
+            <div id="screen-lore" class="screen illum-room illum-room--hero-ready" data-illum-room="lore">
+                <div class="screen-header-row illum-room-header">
                     <h2>Scriptorium</h2>
                     <div class="resource-tracker-bar"></div>
                 </div>
@@ -4519,7 +4521,7 @@
                     </div>
                 </div>
                 <div id="lore-content-wrapper">
-                    <div class="filter-bar"
+                    <div class="filter-bar illum-room-tabs"
                         style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
                         <button id="lore-tab-research" class="filter-btn active"
                             onclick="UI.switchLoreTab('research', this)" data-i18n="lore.tabResearch">Research</button>
@@ -4561,13 +4563,13 @@
             </div>
 
 
-            <div id="screen-library" class="screen">
-                <div class="screen-header-row">
+            <div id="screen-library" class="screen illum-room" data-illum-room="library">
+                <div class="screen-header-row illum-room-header">
                     <h2>Knihovna</h2>
                     <div class="resource-tracker-bar"></div>
                 </div>
                 <div id="library-content-wrapper">
-                    <div class="filter-bar" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
+                    <div class="filter-bar illum-room-tabs" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
                         <button id="lib-tab-books" class="filter-btn active"
                             onclick="UI.switchLibraryTab('books', this)">📚 Knihy</button>
                         <button id="lib-tab-games" class="filter-btn" onclick="UI.switchLibraryTab('games', this)">🎲
@@ -4883,19 +4885,69 @@
 
         </main>
 
-        <nav>
-            <button id="nav-home" class="nav-btn active" onclick="UI.switchScreen('home', this)"><span>🏰</span><span
-                    data-i18n="nav.home"></span></button>
-            <button id="nav-garden" class="nav-btn"
-                onclick="UI.switchScreen('garden', this)"><span>🌱</span>Zahrada</button>
-            <button id="nav-craft" class="nav-btn"
-                onclick="UI.switchScreen('craft', this)"><span>⚒</span>Výroba</button>
-            <button id="nav-inv" class="nav-btn" onclick="UI.switchScreen('inv', this)"><span>🗄️</span>Zásoby</button>
-            <button id="nav-lore" class="nav-btn"
-                onclick="UI.switchScreen('lore', this)"><span>✒</span>Script<br>orium</button>
-            <button id="nav-library" class="nav-btn"
-                onclick="UI.switchScreen('library', this)"><span>📚</span>Knihovna</button>
-        </nav>
+        <nav class="main-nav" aria-label="Hlavní navigace">
+
+			<button
+				id="nav-home"
+				class="nav-btn active"
+				data-room="home"
+				onclick="UI.switchScreen('home', this)"
+			>
+				<span class="nav-art" aria-hidden="true">🏰</span>
+				<span class="nav-label" data-i18n="nav.home">Pracovna</span>
+			</button>
+
+			<button
+				id="nav-garden"
+				class="nav-btn"
+				data-room="garden"
+				onclick="UI.switchScreen('garden', this)"
+			>
+				<span class="nav-art" aria-hidden="true">🌱</span>
+				<span class="nav-label" data-i18n="nav.garden">Zahrada</span>
+			</button>
+
+			<button
+				id="nav-craft"
+				class="nav-btn"
+				data-room="craft"
+				onclick="UI.switchScreen('craft', this)"
+			>
+				<span class="nav-art" aria-hidden="true">⚒</span>
+				<span class="nav-label" data-i18n="nav.craft">Výroba</span>
+			</button>
+
+			<button
+				id="nav-inv"
+				class="nav-btn"
+				data-room="inv"
+				onclick="UI.switchScreen('inv', this)"
+			>
+				<span class="nav-art" aria-hidden="true">🗄️</span>
+				<span class="nav-label" data-i18n="nav.inv">Zásoby</span>
+			</button>
+
+			<button
+				id="nav-lore"
+				class="nav-btn"
+				data-room="lore"
+				onclick="UI.switchScreen('lore', this)"
+			>
+				<span class="nav-art" aria-hidden="true">✒</span>
+				<span class="nav-label" data-i18n="nav.lore">Scriptorium</span>
+			</button>
+
+			<button
+				id="nav-library"
+				class="nav-btn"
+				data-room="library"
+				onclick="UI.switchScreen('library', this)"
+			>
+				<span class="nav-art" aria-hidden="true">📚</span>
+				<span class="nav-label" data-i18n="nav.library">Knihovna</span>
+			</button>
+
+		</nav>
     </div>
 
     <!-- ABOUT MODAL -->

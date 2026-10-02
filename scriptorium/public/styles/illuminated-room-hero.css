@@ -1,0 +1,358 @@
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED ROOM HERO v1
+   Production component for root-screen hero/headline areas.
+
+   v1 deliberately activates a real room image only for Scriptorium,
+   because that artwork is already approved and exists in the repo.
+   The other five root screens receive stable semantic hooks only and
+   will get their own artwork in the next asset phase.
+
+   Presentation only:
+   - no screen IDs changed
+   - no onclick handlers changed
+   - no routing/state/save/gameplay changes
+   ===================================================================== */
+
+body.design-iluminovana {
+    --illum-room-paper: #f4ead1;
+    --illum-room-paper-light: #fbf6e8;
+    --illum-room-frame: #ab8243;
+    --illum-room-frame-soft: rgba(171, 130, 67, .42);
+    --illum-room-rubric: #842d1d;
+    --illum-room-gold: #c9a154;
+
+    --illum-room-hero-h-phone: 268px;
+    --illum-room-hero-h-tablet: 238px;
+    --illum-room-hero-h-desktop: 252px;
+    --illum-room-hero-h-wide: 270px;
+}
+
+/* ---------------------------------------------------------------------
+   Stable root-screen hooks.
+   These styles are intentionally quiet for screens whose artwork is not
+   ready yet. Adding a hero later will not require changing handlers/IDs.
+   --------------------------------------------------------------------- */
+body.design-iluminovana .illum-room {
+    position: relative;
+    isolation: isolate;
+}
+
+body.design-iluminovana .illum-room-header,
+body.design-iluminovana .illum-room-tabs {
+    position: relative;
+    z-index: 2;
+}
+
+/* Future asset mapping lives here. v1 activates Scriptorium only. */
+body.design-iluminovana .illum-room[data-illum-room="lore"] {
+    --illum-room-art: url("/rooms/scriptorium.webp");
+    --illum-room-art-position-desktop: center 46%;
+    --illum-room-art-position-mobile: 56% 43%;
+}
+
+/* ---------------------------------------------------------------------
+   HERO-READY ROOM
+   --------------------------------------------------------------------- */
+body.design-iluminovana .illum-room--hero-ready::before,
+body.design-iluminovana .illum-room--hero-ready::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    left: -12px;
+    right: -12px;
+    top: -12px;
+}
+
+body.design-iluminovana .illum-room--hero-ready::before {
+    z-index: 0;
+    height: var(--illum-room-hero-h-desktop);
+    background-image: var(--illum-room-art);
+    background-repeat: no-repeat;
+    background-position: var(--illum-room-art-position-desktop, center);
+    background-size: cover;
+    border-bottom: 1px solid var(--illum-room-frame-soft);
+}
+
+/* Two fades:
+   1) left shadow for the room title;
+   2) vertical parchment wash so content emerges from the illustration. */
+body.design-iluminovana .illum-room--hero-ready::after {
+    z-index: 1;
+    height: var(--illum-room-hero-h-desktop);
+    background:
+        linear-gradient(
+            90deg,
+            rgba(15, 9, 6, .66) 0%,
+            rgba(15, 9, 6, .42) 24%,
+            rgba(15, 9, 6, .08) 52%,
+            rgba(15, 9, 6, 0) 76%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(244, 234, 209, 0) 0%,
+            rgba(244, 234, 209, .03) 48%,
+            rgba(244, 234, 209, .48) 72%,
+            var(--bg-parchment) 100%
+        );
+}
+
+/* ---------------------------------------------------------------------
+   Title row
+   --------------------------------------------------------------------- */
+body.design-iluminovana .illum-room--hero-ready > .illum-room-header {
+    min-height: 120px;
+    margin: 0 !important;
+    padding: 16px 10px 12px !important;
+    box-sizing: border-box;
+    align-items: flex-end !important;
+}
+
+body.design-iluminovana .illum-room--hero-ready > .illum-room-header h2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #f4e1a8 !important;
+    font-family: "Cinzel Decorative", "Cinzel", Georgia, serif !important;
+    font-size: clamp(1.75rem, 3.1vw, 2.55rem) !important;
+    line-height: 1.03 !important;
+    letter-spacing: .035em !important;
+    text-shadow:
+        0 2px 2px rgba(0, 0, 0, .92),
+        0 0 15px rgba(0, 0, 0, .64),
+        0 0 5px rgba(197, 160, 89, .42) !important;
+}
+
+/* The old experimental Scriptorium CSS added a rectangular title backing.
+   The production hero does not need it. */
+body.design-iluminovana #screen-lore.illum-room--hero-ready
+    > .screen-header-row::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* Keep the approved illuminated first letter, but scale it consistently. */
+body.design-iluminovana .illum-room--hero-ready > .illum-room-header h2::first-letter {
+    color: #e5c46f;
+    background:
+        radial-gradient(circle at 30% 24%, rgba(53, 91, 133, .92), transparent 44%),
+        linear-gradient(135deg, #214a70 0%, #17344f 56%, #762f22 100%);
+    border: 1px solid #c5a059;
+    outline: 1px solid rgba(77, 39, 22, .76);
+    outline-offset: -4px;
+    padding: .02em .13em .035em;
+    margin-right: .08em;
+    text-shadow:
+        0 1px 0 #21140c,
+        0 0 4px rgba(231, 198, 112, .38);
+    box-shadow:
+        inset 0 0 0 2px rgba(224, 190, 105, .08),
+        0 2px 4px rgba(0, 0, 0, .24);
+}
+
+/* Hide historic decorative divider directly below H2. The hero fade is
+   the visual separator in this component. */
+body.design-iluminovana .illum-room--hero-ready > .illum-room-header h2::after {
+    display: none !important;
+}
+
+/* Resource tracker becomes the small parchment control in the hero. */
+body.design-iluminovana .illum-room--hero-ready > .illum-room-header
+    .resource-tracker-bar {
+    position: absolute !important;
+    top: 12px;
+    right: 10px;
+    width: auto !important;
+    max-width: min(48%, 420px) !important;
+    margin: 0 !important;
+    padding: 3px 9px !important;
+    border: 1px solid #b68d4a !important;
+    border-radius: 12px !important;
+    background:
+        linear-gradient(180deg,
+            rgba(255, 252, 240, .96),
+            rgba(229, 212, 174, .92)) !important;
+    color: #3c2a1c !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .50),
+        0 2px 5px rgba(23, 13, 7, .22) !important;
+    z-index: 4;
+}
+
+/* ---------------------------------------------------------------------
+   Primary room tabs
+   --------------------------------------------------------------------- */
+body.design-iluminovana .illum-room--hero-ready .illum-room-tabs {
+    margin: 0 !important;
+    padding: 7px 10px 15px !important;
+    gap: 6px !important;
+    border: 0 !important;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(244, 234, 209, .04),
+            rgba(244, 234, 209, .48) 58%,
+            rgba(244, 234, 209, .86) 100%
+        ) !important;
+}
+
+/* Disable prototype pseudo ornaments attached to the Scriptorium tab bar. */
+body.design-iluminovana .illum-room--hero-ready .illum-room-tabs::after {
+    content: none !important;
+    display: none !important;
+}
+
+body.design-iluminovana .illum-room--hero-ready .illum-room-tabs > .filter-btn {
+    min-height: 35px;
+    padding: 7px 12px !important;
+    border: 1px solid #ad8447 !important;
+    border-radius: 2px !important;
+    background:
+        linear-gradient(180deg,
+            rgba(255, 253, 246, .97),
+            rgba(232, 216, 179, .93)) !important;
+    color: #4b3221 !important;
+    font-family: "Cinzel", Georgia, serif !important;
+    font-size: .77rem !important;
+    letter-spacing: .018em;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .52),
+        0 2px 4px rgba(42, 24, 12, .13) !important;
+}
+
+body.design-iluminovana .illum-room--hero-ready .illum-room-tabs > .filter-btn:hover {
+    border-color: #c19a54 !important;
+    filter: brightness(1.025);
+}
+
+body.design-iluminovana .illum-room--hero-ready .illum-room-tabs > .filter-btn.active {
+    background:
+        linear-gradient(180deg,
+            #a13a26 0%,
+            #842c1d 56%,
+            #672016 100%) !important;
+    color: #fff1d4 !important;
+    border-color: #c9a154 !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 236, 183, .28),
+        inset 0 0 0 1px rgba(88, 24, 15, .28),
+        0 2px 5px rgba(40, 20, 10, .24),
+        0 0 5px rgba(201, 161, 84, .24) !important;
+}
+
+/* ---------------------------------------------------------------------
+   Scriptorium prototype neutralization.
+   This makes the new semantic hero the single owner of the upper image.
+   --------------------------------------------------------------------- */
+body.design-iluminovana #screen-lore.illum-room--hero-ready::before {
+    top: -12px !important;
+    left: -12px !important;
+    right: -12px !important;
+    height: var(--illum-room-hero-h-desktop) !important;
+    background-image: var(--illum-room-art) !important;
+    background-repeat: no-repeat !important;
+    background-position: var(--illum-room-art-position-desktop, center) !important;
+    background-size: cover !important;
+    border-bottom: 1px solid var(--illum-room-frame-soft) !important;
+    box-shadow: none !important;
+}
+
+/* Ensure the content wrapper is above the room-art layers. */
+body.design-iluminovana #screen-lore #lore-content-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+/* ---------------------------------------------------------------------
+   Tablet
+   --------------------------------------------------------------------- */
+@media (min-width: 601px) and (max-width: 1199px) {
+    body.design-iluminovana .illum-room--hero-ready::before,
+    body.design-iluminovana .illum-room--hero-ready::after,
+    body.design-iluminovana #screen-lore.illum-room--hero-ready::before {
+        height: var(--illum-room-hero-h-tablet) !important;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready > .illum-room-header {
+        min-height: 105px;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready > .illum-room-header h2 {
+        font-size: clamp(1.55rem, 4vw, 2.15rem) !important;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready .illum-room-tabs {
+        padding-bottom: 13px !important;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Phone portrait
+   --------------------------------------------------------------------- */
+@media (max-width: 600px) {
+    body.design-iluminovana .illum-room--hero-ready::before,
+    body.design-iluminovana .illum-room--hero-ready::after,
+    body.design-iluminovana #screen-lore.illum-room--hero-ready::before {
+        height: var(--illum-room-hero-h-phone) !important;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready::before,
+    body.design-iluminovana #screen-lore.illum-room--hero-ready::before {
+        background-position: var(--illum-room-art-position-mobile, center) !important;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready > .illum-room-header {
+        min-height: 92px;
+        padding: 14px 8px 9px !important;
+        align-items: flex-end !important;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready > .illum-room-header h2 {
+        max-width: calc(100% - 12px);
+        font-size: clamp(1.28rem, 7.1vw, 1.68rem) !important;
+        letter-spacing: .018em !important;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready > .illum-room-header h2::first-letter {
+        padding: .01em .09em .025em;
+        margin-right: .045em;
+        outline: none;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready > .illum-room-header
+        .resource-tracker-bar {
+        top: 8px;
+        right: 7px;
+        max-width: 54% !important;
+        padding: 2px 7px !important;
+        font-size: .7rem;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready .illum-room-tabs {
+        padding: 7px 7px 13px !important;
+        gap: 6px !important;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready .illum-room-tabs > .filter-btn {
+        min-height: 38px;
+        padding: 7px 10px !important;
+        font-size: .68rem !important;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Wide desktop
+   --------------------------------------------------------------------- */
+@media (min-width: 1600px) {
+    body.design-iluminovana .illum-room--hero-ready::before,
+    body.design-iluminovana .illum-room--hero-ready::after,
+    body.design-iluminovana #screen-lore.illum-room--hero-ready::before {
+        height: var(--illum-room-hero-h-wide) !important;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready > .illum-room-header {
+        min-height: 132px;
+    }
+
+    body.design-iluminovana .illum-room--hero-ready > .illum-room-header h2 {
+        font-size: 2.65rem !important;
+    }
+}

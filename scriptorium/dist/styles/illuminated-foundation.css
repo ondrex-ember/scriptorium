@@ -1,0 +1,411 @@
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED UI FOUNDATION v1
+   Production layer for the reusable illuminated design system.
+
+   Scope of v1:
+   - stable root-navigation markup hooks
+   - six real root screens only
+   - bespoke manuscript-navigation artwork
+   - responsive left rail on desktop/tablet/phone
+
+   IMPORTANT:
+   This file changes presentation only. Screen IDs, onclick handlers,
+   routing, state, saves and gameplay logic stay unchanged.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   Markup compatibility for every Design mode.
+   The base stylesheet historically styles every .nav-btn span as an icon;
+   nav-label is now explicit, so keep its original label size.
+   --------------------------------------------------------------------- */
+.main-nav .nav-btn .nav-label {
+    font-size: inherit;
+    line-height: 1.12;
+    margin: 0;
+}
+
+.main-nav .nav-btn .nav-art {
+    flex: 0 0 auto;
+}
+
+/* ---------------------------------------------------------------------
+   Illuminated tokens
+   --------------------------------------------------------------------- */
+body.design-iluminovana {
+    --illum-nav-leather: #21160f;
+    --illum-nav-leather-2: #342216;
+    --illum-nav-edge: #a77b39;
+    --illum-nav-gold: #d0aa58;
+    --illum-nav-gold-soft: rgba(208, 170, 88, .34);
+    --illum-nav-rubric: #7f2b1c;
+    --illum-nav-paper: #efe0bb;
+    --illum-nav-muted: #b8a98a;
+    --illum-nav-mobile-w: 62px;
+    --illum-nav-tablet-w: 74px;
+    --illum-nav-desktop-w: 96px;
+    --illum-nav-wide-w: 108px;
+}
+
+/* Each root button owns only its visual asset; screen routing is unchanged. */
+body.design-iluminovana #nav-home    { --illum-nav-art: url('/ui/illuminated/nav/home.webp'); }
+body.design-iluminovana #nav-garden  { --illum-nav-art: url('/ui/illuminated/nav/garden.webp'); }
+body.design-iluminovana #nav-craft   { --illum-nav-art: url('/ui/illuminated/nav/craft.webp'); }
+body.design-iluminovana #nav-inv     { --illum-nav-art: url('/ui/illuminated/nav/inv.webp'); }
+body.design-iluminovana #nav-lore    { --illum-nav-art: url('/ui/illuminated/nav/lore.webp'); }
+body.design-iluminovana #nav-library { --illum-nav-art: url('/ui/illuminated/nav/library.webp'); }
+
+/* ---------------------------------------------------------------------
+   Rail shell — Illuminated only.
+   Unlike Pokorná/Marnivá, portrait/mobile also uses the left manuscript
+   index, matching the approved visual target.
+   --------------------------------------------------------------------- */
+body.design-iluminovana .main-nav {
+    position: absolute !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: 0 !important;
+    top: 80px !important;
+    transform: none !important;
+    width: var(--illum-nav-mobile-w) !important;
+    max-width: none !important;
+    height: auto !important;
+    box-sizing: border-box;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+
+    padding: 16px 4px max(14px, env(safe-area-inset-bottom)) !important;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    border: 0 !important;
+    border-right: 1px solid var(--illum-nav-edge) !important;
+    background:
+        linear-gradient(90deg,
+            rgba(255,255,255,.025) 0%,
+            rgba(255,255,255,0) 18%,
+            rgba(0,0,0,0) 76%,
+            rgba(0,0,0,.30) 100%),
+        repeating-linear-gradient(0deg,
+            rgba(255,255,255,.012) 0 1px,
+            transparent 1px 7px),
+        linear-gradient(180deg, var(--illum-nav-leather-2), var(--illum-nav-leather)) !important;
+    box-shadow:
+        inset -1px 0 0 rgba(239,210,143,.07),
+        inset 0 0 26px rgba(0,0,0,.30),
+        5px 0 16px rgba(26,15,8,.12) !important;
+    z-index: 60 !important;
+}
+
+body.design-iluminovana .main-nav::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* small manuscript flourishes anchoring the rail */
+body.design-iluminovana .main-nav::before,
+body.design-iluminovana .main-nav::after {
+    content: '❦';
+    display: block;
+    flex: 0 0 auto;
+    text-align: center;
+    color: var(--illum-nav-gold);
+    font-family: Georgia, serif;
+    font-size: 1rem;
+    line-height: 1;
+    opacity: .72;
+    text-shadow: 0 0 5px rgba(208,170,88,.25);
+}
+
+body.design-iluminovana .main-nav::before { margin: 1px 0 3px; }
+body.design-iluminovana .main-nav::after  { margin: 4px 0 0; transform: rotate(180deg); }
+
+/* ---------------------------------------------------------------------
+   Root navigation item
+   --------------------------------------------------------------------- */
+body.design-iluminovana .main-nav .nav-btn {
+    position: relative;
+    isolation: isolate;
+    width: 100% !important;
+    min-width: 0;
+    min-height: 72px;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 6px 2px 5px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+
+    border: 1px solid transparent !important;
+    border-radius: 2px !important;
+    background: transparent !important;
+    color: var(--illum-nav-muted) !important;
+    box-shadow: none !important;
+    transform: none !important;
+
+    font-family: 'Cinzel Decorative', 'Cinzel', serif !important;
+    font-size: .54rem !important;
+    font-weight: 600;
+    letter-spacing: .01em;
+    line-height: 1.08;
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0,0,0,.84) !important;
+    cursor: pointer;
+    transition:
+        color 130ms ease,
+        border-color 130ms ease,
+        background 130ms ease,
+        box-shadow 130ms ease !important;
+}
+
+/* Disable the old neon indicator in this Design. */
+body.design-iluminovana .main-nav .nav-btn::after {
+    content: none !important;
+    display: none !important;
+}
+
+body.design-iluminovana .main-nav .nav-art {
+    width: 42px !important;
+    height: 42px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: hidden;
+
+    /* Hide fallback emoji without removing it from the DOM. */
+    font-size: 0 !important;
+    line-height: 0 !important;
+    color: transparent !important;
+
+    border: 1px solid #876330 !important;
+    outline: 1px solid rgba(216,180,99,.15);
+    outline-offset: -3px;
+    border-radius: 2px !important;
+    background-image: var(--illum-nav-art) !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: cover !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(54,32,17,.34),
+        inset 0 0 10px rgba(57,34,18,.14),
+        0 2px 4px rgba(0,0,0,.28) !important;
+    filter: sepia(.13) saturate(.88) brightness(.92);
+    transition:
+        filter 130ms ease,
+        border-color 130ms ease,
+        box-shadow 130ms ease !important;
+}
+
+body.design-iluminovana .main-nav .nav-label {
+    display: block;
+    width: 100%;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+}
+
+/* Keep the historic CS Script<br>orium translation as a single word here. */
+body.design-iluminovana .main-nav .nav-label br {
+    display: none;
+}
+
+body.design-iluminovana .main-nav .nav-btn:hover:not(:disabled),
+body.design-iluminovana .main-nav .nav-btn:focus-visible {
+    color: #ead8a5 !important;
+    border-color: rgba(167,123,57,.42) !important;
+    background: linear-gradient(90deg, rgba(167,123,57,.07), rgba(127,43,28,.08)) !important;
+    outline: none;
+}
+
+body.design-iluminovana .main-nav .nav-btn:hover:not(:disabled) .nav-art,
+body.design-iluminovana .main-nav .nav-btn:focus-visible .nav-art {
+    filter: sepia(.05) saturate(1.02) brightness(1.02);
+    border-color: #b58a46 !important;
+}
+
+/* Active root screen = small illuminated manuscript index card. */
+body.design-iluminovana .main-nav .nav-btn.active {
+    color: #f1d480 !important;
+    border-color: rgba(208,170,88,.58) !important;
+    background:
+        linear-gradient(90deg,
+            rgba(115,37,24,.56),
+            rgba(65,28,19,.30) 60%,
+            rgba(208,170,88,.055)) !important;
+    box-shadow:
+        inset 3px 0 0 #c79d4d,
+        inset 0 0 13px rgba(198,151,67,.08),
+        0 0 7px rgba(208,170,88,.13) !important;
+    text-shadow:
+        0 0 5px rgba(221,181,91,.38),
+        0 1px 2px #000 !important;
+}
+
+body.design-iluminovana .main-nav .nav-btn.active .nav-art {
+    border-color: #d3ac58 !important;
+    outline-color: rgba(239,205,120,.35);
+    filter: sepia(.02) saturate(1.08) brightness(1.06);
+    box-shadow:
+        inset 0 0 0 2px rgba(239,204,117,.12),
+        0 0 8px rgba(211,172,88,.38),
+        0 2px 5px rgba(0,0,0,.38) !important;
+}
+
+body.design-iluminovana .main-nav .nav-btn:disabled {
+    opacity: .34 !important;
+    filter: grayscale(.88) !important;
+    cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------------
+   Phone portrait — approved target keeps the manuscript rail on the left.
+   --------------------------------------------------------------------- */
+@media (max-width: 600px) {
+    body.design-iluminovana #game-container {
+        max-width: 500px;
+    }
+
+    body.design-iluminovana header {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    body.design-iluminovana main#main-content {
+        padding-left: calc(var(--illum-nav-mobile-w) + 10px) !important;
+        padding-right: 10px !important;
+        padding-bottom: max(18px, env(safe-area-inset-bottom)) !important;
+    }
+
+    body.design-iluminovana #notification-area {
+        left: var(--illum-nav-mobile-w) !important;
+        width: calc(100% - var(--illum-nav-mobile-w)) !important;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Tablet / portrait / narrow desktop
+   --------------------------------------------------------------------- */
+@media (min-width: 601px) and (max-width: 767px) {
+    body.design-iluminovana .main-nav {
+        width: var(--illum-nav-tablet-w) !important;
+        gap: 10px !important;
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn {
+        min-height: 80px;
+        font-size: .58rem !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-art {
+        width: 48px !important;
+        height: 48px !important;
+    }
+
+    body.design-iluminovana main#main-content {
+        padding-left: calc(var(--illum-nav-tablet-w) + 14px) !important;
+        padding-bottom: 20px !important;
+    }
+
+    body.design-iluminovana #notification-area {
+        left: var(--illum-nav-tablet-w) !important;
+        width: calc(100% - var(--illum-nav-tablet-w)) !important;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Desktop
+   --------------------------------------------------------------------- */
+@media (min-width: 768px) {
+    body.design-iluminovana header {
+        /* Header landscape remains full-width and independent of the rail. */
+        padding-left: 18px !important;
+    }
+
+    body.design-iluminovana .main-nav {
+        top: 128px !important;
+        width: var(--illum-nav-desktop-w) !important;
+        gap: clamp(10px, 1.65vh, 22px) !important;
+        justify-content: center !important;
+        padding: 20px 6px 18px !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn {
+        min-height: 88px;
+        padding: 7px 4px 6px !important;
+        font-size: .60rem !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-art {
+        width: 52px !important;
+        height: 52px !important;
+    }
+
+    body.design-iluminovana main#main-content {
+        padding-left: calc(var(--illum-nav-desktop-w) + 18px) !important;
+        padding-bottom: 20px !important;
+    }
+
+    body.design-iluminovana #notification-area {
+        left: var(--illum-nav-desktop-w) !important;
+        width: calc(100% - var(--illum-nav-desktop-w)) !important;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Wide desktop — more breathing room, same six real screens.
+   --------------------------------------------------------------------- */
+@media (min-width: 1200px) {
+    body.design-iluminovana #game-container {
+        max-width: 1320px;
+    }
+
+    body.design-iluminovana .main-nav {
+        width: var(--illum-nav-wide-w) !important;
+        padding-left: 7px !important;
+        padding-right: 7px !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn {
+        min-height: 96px;
+        font-size: .64rem !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-art {
+        width: 58px !important;
+        height: 58px !important;
+    }
+
+    body.design-iluminovana main#main-content {
+        padding-left: calc(var(--illum-nav-wide-w) + 20px) !important;
+    }
+
+    body.design-iluminovana #notification-area {
+        left: var(--illum-nav-wide-w) !important;
+        width: calc(100% - var(--illum-nav-wide-w)) !important;
+    }
+}
+
+/* PWA standalone previously reserves bottom space for the bottom nav.
+   Illuminated uses a side rail, so release that space. */
+@media (display-mode: standalone) {
+    body.design-iluminovana main#main-content {
+        padding-bottom: max(18px, env(safe-area-inset-bottom)) !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.design-iluminovana .main-nav .nav-btn,
+    body.design-iluminovana .main-nav .nav-art {
+        transition: none !important;
+    }
+}
