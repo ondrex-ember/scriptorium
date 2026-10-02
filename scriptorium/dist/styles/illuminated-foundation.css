@@ -409,3 +409,453 @@ body.design-iluminovana .main-nav .nav-btn:disabled {
         transition: none !important;
     }
 }
+
+
+/* =====================================================================
+   ILLUMINATED NAVIGATION — RESPONSIVE POLICY v1.1
+   ---------------------------------------------------------------------
+   PORTRAIT / narrow mobile:
+   - main navigation becomes a horizontal bottom dock
+   - horizontally scrollable when needed
+
+   LANDSCAPE / tablet / desktop:
+   - illuminated navigation stays as the vertical left rail
+
+   Presentation only — no IDs, onclick handlers or routing changed.
+   ===================================================================== */
+
+body.design-iluminovana {
+    --illum-bottom-nav-height: 82px;
+    --illum-bottom-nav-item-width: 76px;
+}
+
+
+/* =====================================================================
+   MOBILE / NARROW PORTRAIT
+   Bottom horizontal illuminated dock
+   ===================================================================== */
+
+@media (max-width: 900px) and (orientation: portrait) {
+
+    /* ---------------------------------------------------------------
+       MAIN NAV SHELL
+       --------------------------------------------------------------- */
+
+    body.design-iluminovana .main-nav {
+        position: fixed !important;
+
+        top: auto !important;
+        bottom: 0 !important;
+
+        left: 50% !important;
+        right: auto !important;
+
+        transform: translateX(-50%) !important;
+
+        width: 100vw !important;
+        max-width: 900px !important;
+
+        height: calc(
+            var(--illum-bottom-nav-height)
+            + env(safe-area-inset-bottom)
+        ) !important;
+
+        box-sizing: border-box !important;
+
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+
+        gap: 5px !important;
+
+        padding:
+            6px
+            7px
+            max(7px, env(safe-area-inset-bottom))
+            7px !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+
+        border: 0 !important;
+        border-right: 0 !important;
+        border-top: 1px solid var(--illum-nav-edge) !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255, 255, 255, .025) 0%,
+                rgba(0, 0, 0, .10) 20%,
+                rgba(0, 0, 0, .28) 100%
+            ),
+            repeating-linear-gradient(
+                90deg,
+                rgba(255, 255, 255, .012) 0 1px,
+                transparent 1px 8px
+            ),
+            linear-gradient(
+                180deg,
+                var(--illum-nav-leather-2),
+                var(--illum-nav-leather)
+            ) !important;
+
+        box-shadow:
+            inset 0 1px 0 rgba(239, 210, 143, .08),
+            inset 0 0 24px rgba(0, 0, 0, .32),
+            0 -5px 18px rgba(26, 15, 8, .24) !important;
+
+        z-index: 650 !important;
+    }
+
+
+    body.design-iluminovana .main-nav::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+
+
+    /* Decorative ❦ made sense on a vertical rail,
+       but would become fake navigation items horizontally. */
+
+    body.design-iluminovana .main-nav::before,
+    body.design-iluminovana .main-nav::after {
+        content: none !important;
+        display: none !important;
+    }
+
+
+    /* ---------------------------------------------------------------
+       SIX ROOT BUTTONS
+       --------------------------------------------------------------- */
+
+    body.design-iluminovana .main-nav .nav-btn {
+        flex:
+            0
+            0
+            var(--illum-bottom-nav-item-width) !important;
+
+        width: var(--illum-bottom-nav-item-width) !important;
+        min-width: var(--illum-bottom-nav-item-width) !important;
+
+        height: 66px !important;
+        min-height: 66px !important;
+
+        margin: 0 !important;
+
+        padding: 4px 3px 3px !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        align-items: center !important;
+        justify-content: center !important;
+
+        gap: 3px !important;
+
+        border:
+            1px solid
+            rgba(167, 123, 57, .20) !important;
+
+        border-radius: 3px !important;
+
+        scroll-snap-align: center;
+
+        font-size: .50rem !important;
+        line-height: 1.05 !important;
+
+        transform: none !important;
+    }
+
+
+    /* ---------------------------------------------------------------
+       ILLUSTRATED ICON
+       --------------------------------------------------------------- */
+
+    body.design-iluminovana .main-nav .nav-art {
+        width: 40px !important;
+        height: 40px !important;
+
+        flex: 0 0 40px !important;
+
+        margin: 0 !important;
+
+        border-radius: 2px !important;
+    }
+
+
+    /* ---------------------------------------------------------------
+       LABEL
+       --------------------------------------------------------------- */
+
+    body.design-iluminovana .main-nav .nav-label {
+        width: 100%;
+
+        margin: 0 !important;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        text-align: center;
+
+        line-height: 1.05 !important;
+    }
+
+
+    body.design-iluminovana .main-nav .nav-label br {
+        display: none !important;
+    }
+
+
+    /* ---------------------------------------------------------------
+       ACTIVE ROOT TAB
+       Gold top illumination instead of desktop left stripe.
+       --------------------------------------------------------------- */
+
+    body.design-iluminovana .main-nav .nav-btn.active {
+        color: #f1d480 !important;
+
+        border-color:
+            rgba(208, 170, 88, .62) !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(127, 43, 28, .58),
+                rgba(70, 30, 19, .36)
+            ) !important;
+
+        box-shadow:
+            inset 0 3px 0 #d0aa58,
+            inset 0 0 12px rgba(198, 151, 67, .10),
+            0 0 7px rgba(208, 170, 88, .15) !important;
+    }
+
+
+    body.design-iluminovana
+    .main-nav
+    .nav-btn.active
+    .nav-art {
+
+        border-color: #d3ac58 !important;
+
+        box-shadow:
+            inset 0 0 0 2px rgba(239, 204, 117, .11),
+            0 0 7px rgba(211, 172, 88, .34),
+            0 2px 4px rgba(0, 0, 0, .35) !important;
+    }
+
+
+    /* ---------------------------------------------------------------
+       CONTENT
+       No left rail on portrait mobile anymore.
+       Reserve space below for the fixed dock.
+       --------------------------------------------------------------- */
+
+    body.design-iluminovana main#main-content {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+
+        padding-bottom:
+            calc(
+                var(--illum-bottom-nav-height)
+                + 18px
+                + env(safe-area-inset-bottom)
+            ) !important;
+    }
+
+
+    /* Header again uses the whole width. */
+
+    body.design-iluminovana header {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+
+    /* Toast area no longer needs to avoid a left sidebar. */
+
+    body.design-iluminovana #notification-area {
+        left: 0 !important;
+        width: 100% !important;
+    }
+
+
+    /* ---------------------------------------------------------------
+       FLOATING UI
+       Keep it above the bottom dock.
+       --------------------------------------------------------------- */
+
+    body.design-iluminovana #canonical-badge {
+        bottom:
+            calc(
+                var(--illum-bottom-nav-height)
+                + 10px
+                + env(safe-area-inset-bottom)
+            ) !important;
+    }
+
+
+    body.design-iluminovana .ns-panel-tab {
+        bottom:
+            calc(
+                var(--illum-bottom-nav-height)
+                + 10px
+                + env(safe-area-inset-bottom)
+            ) !important;
+    }
+
+
+    body.design-iluminovana .tutorial-guide-bar {
+        bottom:
+            calc(
+                var(--illum-bottom-nav-height)
+                + 12px
+                + env(safe-area-inset-bottom)
+            ) !important;
+    }
+}
+
+
+/* =====================================================================
+   VERY NARROW PHONES
+   Slightly smaller items; still scrollable.
+   ===================================================================== */
+
+@media (max-width: 380px) and (orientation: portrait) {
+
+    body.design-iluminovana {
+        --illum-bottom-nav-item-width: 70px;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn {
+        font-size: .46rem !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-art {
+        width: 37px !important;
+        height: 37px !important;
+        flex-basis: 37px !important;
+    }
+}
+
+
+/* =====================================================================
+   SHORT MOBILE LANDSCAPE
+   Keep the left rail, but make it compact and vertically scrollable.
+   ===================================================================== */
+
+@media (max-width: 767px) and (orientation: landscape) {
+
+    body.design-iluminovana .main-nav {
+        position: absolute !important;
+
+        top: 80px !important;
+        bottom: 0 !important;
+
+        left: 0 !important;
+        right: auto !important;
+
+        transform: none !important;
+
+        width: 68px !important;
+        height: auto !important;
+
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+
+        gap: 6px !important;
+
+        padding:
+            8px
+            4px
+            max(8px, env(safe-area-inset-bottom)) !important;
+
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+
+        border-top: 0 !important;
+        border-right:
+            1px solid var(--illum-nav-edge) !important;
+    }
+
+
+    body.design-iluminovana .main-nav::before,
+    body.design-iluminovana .main-nav::after {
+        display: block !important;
+    }
+
+
+    body.design-iluminovana .main-nav .nav-btn {
+        flex: 0 0 auto !important;
+
+        width: 100% !important;
+        min-width: 0 !important;
+
+        min-height: 66px !important;
+
+        padding: 4px 2px !important;
+
+        font-size: .48rem !important;
+
+        scroll-snap-align: none;
+    }
+
+
+    body.design-iluminovana .main-nav .nav-art {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+
+    body.design-iluminovana main#main-content {
+        padding-left: 80px !important;
+        padding-right: 10px !important;
+
+        padding-bottom:
+            max(
+                14px,
+                env(safe-area-inset-bottom)
+            ) !important;
+    }
+
+
+    body.design-iluminovana #notification-area {
+        left: 68px !important;
+        width: calc(100% - 68px) !important;
+    }
+}
+
+
+/* =====================================================================
+   PWA STANDALONE — PORTRAIT
+   Old base CSS reserves extra bottom space for the historical nav.
+   Use our illuminated dock dimensions instead.
+   ===================================================================== */
+
+@media (display-mode: standalone)
+       and (max-width: 900px)
+       and (orientation: portrait) {
+
+    body.design-iluminovana main#main-content {
+        padding-bottom:
+            calc(
+                var(--illum-bottom-nav-height)
+                + 20px
+                + env(safe-area-inset-bottom)
+            ) !important;
+    }
+}
