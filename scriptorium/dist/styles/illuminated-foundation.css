@@ -1252,7 +1252,6 @@ body.design-iluminovana {
         left: 68px !important;
         width: calc(100% - 68px) !important;
     }
-<<<<<<< HEAD
 }
 
 /* =====================================================================
@@ -1431,6 +1430,4 @@ body.design-iluminovana #settings-btn {
     body.design-iluminovana main#main-content {
         padding-top: 8px !important;
     }
-=======
->>>>>>> 44f0845376a6a03de3e046a51d70943705b2d8ff
 }
