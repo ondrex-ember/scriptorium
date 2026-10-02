@@ -3567,9 +3567,10 @@
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
     <!-- Iluminovaná: optional third Design skin; presentation only. -->
     <link rel="stylesheet" href="/styles/illuminated.css">
-	<link rel="stylesheet" href="/styles/illuminated-foundation.css">
-	<link rel="stylesheet" href="/styles/illuminated-room-hero.css">
+    <link rel="stylesheet" href="/styles/illuminated-foundation.css">
+    <link rel="stylesheet" href="/styles/illuminated-room-hero.css">
     <link rel="stylesheet" href="/styles/illuminated-responsive-polish.css">
+    <link rel="stylesheet" href="/styles/illuminated-vignettes.css">
 </head>
 
 <body>
@@ -4237,11 +4238,17 @@
 
                 </div><!-- end home-main-content -->
 
-                <div id="home-cellarium-content" style="display:none;"></div>
+                <div id="home-cellarium-content"
+                    class="illum-major-vignette"
+                    data-illum-vignette="cellarium"
+                    style="display:none;"></div>
                 <div id="home-saeculum-content" style="display:none;"></div>
                 <div id="home-templum-content" style="display:none;"></div>
                 <div id="home-infirmarium-content" style="display:none;"></div>
-                <div id="home-athanor-content" style="display:none;"></div>
+                <div id="home-athanor-content"
+                    class="illum-major-vignette"
+                    data-illum-vignette="athanor"
+                    style="display:none;"></div>
                 <div id="home-foculus-content" style="display:none;">
                     <div id="foculus-locked"
                         style="text-align:center; padding:30px; opacity:0.6; border:1px dashed rgba(197,160,89,0.3); border-radius:8px;">
@@ -4346,7 +4353,9 @@
                     <div id="apiary-container"></div>
                 </div>
 
-                <div id="garden-tab-dvur">
+                <div id="garden-tab-dvur"
+                    class="illum-major-vignette"
+                    data-illum-vignette="dvur">
                     <p class="text-sm" style="margin-bottom:15px;" data-i18n="garden.dvorDesc">Hospodářský dvůr
                         kláštera. Brzy zde bude možné chovat zvířata.</p>
                     <div id="farmyard-container"></div>
@@ -4551,7 +4560,10 @@
                     </div>
                     <div id="lore-research-content" style="margin-top:20px;"></div>
                     <div id="lore-tasks-content" style="margin-top:20px; display:none;"></div>
-                    <div id="lore-manuscripts-content" style="margin-top:20px; display:none;"></div>
+                    <div id="lore-manuscripts-content"
+                        class="illum-major-vignette"
+                        data-illum-vignette="opisovani"
+                        style="margin-top:20px; display:none;"></div>
                     <div id="lore-codex-content" style="margin-top:20px; display:none;"></div>
                     <div id="lore-notebooks-content" style="margin-top:20px; display:none;"></div>
                     <div id="lore-achievements-content" style="margin-top:20px; display:none;"></div>
@@ -4595,7 +4607,10 @@
                         <button id="lib-tab-opat" class="filter-btn" onclick="UI.switchLibraryTab('opat', this)">👤
                             Opat</button>
                     </div>
-                    <div id="library-books-content" style="margin-top:20px;"></div>
+                    <div id="library-books-content"
+                        class="illum-major-vignette"
+                        data-illum-vignette="knihy"
+                        style="margin-top:20px;"></div>
                     <div id="library-games-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-news-content" style="margin-top:20px; display:none;"></div>
                     <div id="library-scrinium-content" style="margin-top:20px; display:none;"></div>
