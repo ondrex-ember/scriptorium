@@ -859,3 +859,575 @@ body.design-iluminovana {
             ) !important;
     }
 }
+
+/* =====================================================================
+   ILLUMINATED MAIN RAIL — MOBILE FIT-ALL REFINEMENT v1.2
+   ---------------------------------------------------------------------
+   Goal:
+   - on common portrait phones (375–430 px wide), show all 6 main tabs
+     immediately without initial horizontal scrolling
+   - keep icons readable
+   - if viewport becomes smaller, allow horizontal scroll as fallback
+   ===================================================================== */
+
+
+/* Shared tokens for illuminated mobile dock */
+body.design-iluminovana {
+    --illum-bottom-nav-height: 74px;
+    --illum-bottom-nav-gap: 2px;
+    --illum-bottom-nav-sidepad: 4px;
+}
+
+
+/* =====================================================================
+   COMMON MOBILE BOTTOM DOCK
+   ===================================================================== */
+@media (max-width: 900px) and (orientation: portrait) {
+
+    body.design-iluminovana .main-nav {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        top: auto !important;
+        transform: none !important;
+
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+
+        height: calc(var(--illum-bottom-nav-height) + env(safe-area-inset-bottom)) !important;
+        box-sizing: border-box !important;
+
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+
+        gap: var(--illum-bottom-nav-gap) !important;
+
+        padding:
+            4px
+            var(--illum-bottom-nav-sidepad)
+            calc(4px + env(safe-area-inset-bottom))
+            var(--illum-bottom-nav-sidepad) !important;
+
+        border: 0 !important;
+        border-top: 1px solid var(--illum-nav-edge) !important;
+        border-right: 0 !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255,255,255,.025) 0%,
+                rgba(0,0,0,.10) 18%,
+                rgba(0,0,0,.30) 100%
+            ),
+            linear-gradient(
+                180deg,
+                var(--illum-nav-leather-2),
+                var(--illum-nav-leather)
+            ) !important;
+
+        box-shadow:
+            inset 0 1px 0 rgba(239,210,143,.07),
+            inset 0 0 24px rgba(0,0,0,.30),
+            0 -5px 14px rgba(18,10,6,.26) !important;
+
+        overflow-y: hidden !important;
+        z-index: 650 !important;
+    }
+
+    body.design-iluminovana .main-nav::before,
+    body.design-iluminovana .main-nav::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    body.design-iluminovana main#main-content {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        padding-bottom: calc(var(--illum-bottom-nav-height) + 16px + env(safe-area-inset-bottom)) !important;
+    }
+
+    body.design-iluminovana header {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    body.design-iluminovana #notification-area {
+        left: 0 !important;
+        width: 100% !important;
+    }
+
+    body.design-iluminovana #canonical-badge,
+    body.design-iluminovana .ns-panel-tab,
+    body.design-iluminovana .tutorial-guide-bar {
+        bottom: calc(var(--illum-bottom-nav-height) + 10px + env(safe-area-inset-bottom)) !important;
+    }
+}
+
+
+/* =====================================================================
+   PRIMARY TARGET:
+   360–430 px portrait phones
+   Show ALL 6 items immediately, no initial scroll
+   ===================================================================== */
+@media (min-width: 360px) and (max-width: 430px) and (orientation: portrait) {
+
+    body.design-iluminovana .main-nav {
+        justify-content: space-between !important;
+        overflow-x: hidden !important;
+        scrollbar-width: none !important;
+    }
+
+    body.design-iluminovana .main-nav::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+
+        height: 64px !important;
+        min-height: 64px !important;
+
+        margin: 0 !important;
+        padding: 3px 2px 2px !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 1px !important;
+
+        border: 1px solid rgba(167,123,57,.20) !important;
+        border-radius: 2px !important;
+
+        transform: none !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Mobile-first icon treatment:
+       keep the illuminated art, but make it more readable by giving it
+       slightly better contrast and a clean fixed box. */
+    body.design-iluminovana .main-nav .nav-art {
+        width: 31px !important;
+        height: 31px !important;
+        min-width: 31px !important;
+        min-height: 31px !important;
+        flex: 0 0 31px !important;
+
+        margin: 0 0 1px 0 !important;
+
+        border-radius: 2px !important;
+        object-fit: cover !important;
+
+        box-shadow:
+            inset 0 0 0 1px rgba(255,255,255,.05),
+            0 1px 3px rgba(0,0,0,.25) !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-label {
+        width: 100% !important;
+        margin: 0 !important;
+
+        font-size: 0.48rem !important;
+        line-height: 0.95 !important;
+        letter-spacing: 0.01em !important;
+
+        text-align: center !important;
+
+        white-space: normal !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical !important;
+        -webkit-line-clamp: 2 !important;
+        line-clamp: 2 !important;
+
+        max-height: 1.95em !important;
+    }
+
+    /* Allow intentional label line breaks if they exist */
+    body.design-iluminovana .main-nav .nav-label br {
+        display: block !important;
+    }
+
+    /* active state remains obvious even in compact mode */
+    body.design-iluminovana .main-nav .nav-btn.active {
+        color: #f1d480 !important;
+        border-color: rgba(208,170,88,.65) !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(127,43,28,.56),
+                rgba(70,30,19,.34)
+            ) !important;
+
+        box-shadow:
+            inset 0 2px 0 #d0aa58,
+            inset 0 0 10px rgba(198,151,67,.10),
+            0 0 6px rgba(208,170,88,.12) !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn.active .nav-art {
+        border-color: #d3ac58 !important;
+        box-shadow:
+            inset 0 0 0 1px rgba(239,204,117,.10),
+            0 0 6px rgba(211,172,88,.30),
+            0 1px 3px rgba(0,0,0,.35) !important;
+    }
+}
+
+
+/* =====================================================================
+   SMALLER THAN 360 px
+   Fall back to horizontal scroll
+   ===================================================================== */
+@media (max-width: 359px) and (orientation: portrait) {
+
+    body.design-iluminovana .main-nav {
+        justify-content: flex-start !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior-x: contain !important;
+        scroll-snap-type: x proximity !important;
+        scrollbar-width: none !important;
+    }
+
+    body.design-iluminovana .main-nav::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn {
+        flex: 0 0 58px !important;
+        width: 58px !important;
+        min-width: 58px !important;
+        max-width: 58px !important;
+
+        height: 64px !important;
+        min-height: 64px !important;
+
+        padding: 3px 2px 2px !important;
+        gap: 1px !important;
+
+        scroll-snap-align: center !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-art {
+        width: 31px !important;
+        height: 31px !important;
+        min-width: 31px !important;
+        min-height: 31px !important;
+        flex-basis: 31px !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-label {
+        font-size: 0.47rem !important;
+        line-height: 0.94 !important;
+        -webkit-line-clamp: 2 !important;
+        max-height: 1.9em !important;
+    }
+}
+
+
+/* =====================================================================
+   431–900 px portrait
+   Can afford slightly roomier items.
+   Keep scroll available for future expansion.
+   ===================================================================== */
+@media (min-width: 431px) and (max-width: 900px) and (orientation: portrait) {
+
+    body.design-iluminovana .main-nav {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior-x: contain !important;
+        scroll-snap-type: x proximity !important;
+        scrollbar-width: none !important;
+    }
+
+    body.design-iluminovana .main-nav::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn {
+        flex: 0 0 66px !important;
+        width: 66px !important;
+        min-width: 66px !important;
+        max-width: 66px !important;
+
+        height: 66px !important;
+        min-height: 66px !important;
+
+        padding: 4px 3px 3px !important;
+        gap: 2px !important;
+
+        scroll-snap-align: center !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-art {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        flex-basis: 34px !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-label {
+        font-size: 0.50rem !important;
+        line-height: 0.98 !important;
+        white-space: normal !important;
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical !important;
+        -webkit-line-clamp: 2 !important;
+        max-height: 2em !important;
+    }
+}
+
+
+/* =====================================================================
+   SHORT MOBILE LANDSCAPE
+   Keep left vertical rail, compact
+   ===================================================================== */
+@media (max-width: 767px) and (orientation: landscape) {
+
+    body.design-iluminovana .main-nav {
+        position: absolute !important;
+        top: 80px !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+        transform: none !important;
+
+        width: 68px !important;
+        height: auto !important;
+
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+
+        gap: 6px !important;
+        padding: 8px 4px max(8px, env(safe-area-inset-bottom)) !important;
+
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+
+        border-top: 0 !important;
+        border-right: 1px solid var(--illum-nav-edge) !important;
+    }
+
+    body.design-iluminovana .main-nav::before,
+    body.design-iluminovana .main-nav::after {
+        display: block !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 66px !important;
+        padding: 4px 2px !important;
+        font-size: 0.48rem !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-art {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    body.design-iluminovana main#main-content {
+        padding-left: 80px !important;
+        padding-right: 10px !important;
+        padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    }
+
+    body.design-iluminovana #notification-area {
+        left: 68px !important;
+        width: calc(100% - 68px) !important;
+    }
+}
+
+/* =====================================================================
+   ILLUMINATED MOBILE HEADER — CONTINUITY FIX v1.3
+   ---------------------------------------------------------------------
+   1. Protect header utility icons against flex deformation.
+   2. Extend the landscape header behind both mobile pill rows.
+   3. Remove the artificial empty band before main content.
+   4. Fade the landscape naturally into the active Theme background.
+
+   Presentation only.
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   HEADER ICON GEOMETRY
+   The question mark must always remain a true circle.
+   --------------------------------------------------------------------- */
+
+body.design-iluminovana #tutorial-help-btn.help-question-btn {
+    width: 30px !important;
+    height: 30px !important;
+
+    min-width: 30px !important;
+    max-width: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+
+    flex: 0 0 30px !important;
+    flex-shrink: 0 !important;
+
+    aspect-ratio: 1 / 1 !important;
+
+    padding: 0 !important;
+    margin-right: 8px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    box-sizing: border-box !important;
+
+    border-radius: 50% !important;
+
+    line-height: 1 !important;
+}
+
+
+/* Protect the other fixed-size header controls as well. */
+
+body.design-iluminovana .logo-container > svg {
+    flex: 0 0 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+}
+
+body.design-iluminovana #sound-toggle-btn,
+body.design-iluminovana #settings-btn {
+    flex-shrink: 0 !important;
+}
+
+
+/* =====================================================================
+   PORTRAIT MOBILE HEADER
+   ===================================================================== */
+
+@media (max-width: 900px) and (orientation: portrait) {
+
+    /*
+       Pills are fixed at ~55px from the top and may wrap to two rows.
+       Keep the actual landscape image behind the whole area instead of
+       letting it end after the logo row.
+    */
+
+    body.design-iluminovana header {
+        position: sticky !important;
+
+        height: 120px !important;
+        min-height: 120px !important;
+
+        padding-top: 6px !important;
+        padding-bottom: 0 !important;
+
+        overflow: visible !important;
+    }
+
+
+    /*
+       Natural transition:
+       landscape → current parchment/theme background.
+
+       Because --bg-parchment changes with Theme, this works for
+       light, dark, night, seasonal themes etc.
+    */
+
+    body.design-iluminovana header::after {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        height: 30px;
+
+        pointer-events: none;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(0, 0, 0, 0) 0%,
+                color-mix(
+                    in srgb,
+                    var(--bg-parchment) 38%,
+                    transparent
+                ) 55%,
+                var(--bg-parchment) 100%
+            );
+
+        z-index: 2;
+    }
+
+
+    /*
+       header-content is already z-index 3,
+       so logo/buttons remain above the fade.
+    */
+
+    body.design-iluminovana .header-content {
+        position: relative !important;
+        z-index: 3 !important;
+    }
+
+
+    /*
+       IMPORTANT:
+       Old mobile layout reserves 70px padding above the page because
+       pills used to sit outside the visual header.
+
+       They now live visually over the extended landscape,
+       therefore this large spacer is no longer needed.
+    */
+
+    body.design-iluminovana main#main-content {
+        padding-top: 10px !important;
+
+        background-color:
+            var(--bg-parchment) !important;
+    }
+
+
+    /*
+       Keep the pill layer above the landscape and above the fade.
+    */
+
+    body.design-iluminovana #pills-bar {
+        z-index: 9999 !important;
+    }
+}
+
+
+/* =====================================================================
+   SHORTER PHONES
+   iPhone SE class displays need a couple more pixels because the status
+   bar tends to wrap more readily.
+   ===================================================================== */
+
+@media (max-width: 380px) and (orientation: portrait) {
+
+    body.design-iluminovana header {
+        height: 124px !important;
+        min-height: 124px !important;
+    }
+
+    body.design-iluminovana main#main-content {
+        padding-top: 8px !important;
+    }
+}
