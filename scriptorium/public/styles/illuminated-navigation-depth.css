@@ -1,0 +1,393 @@
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED NAVIGATION DEPTH v1
+   ---------------------------------------------------------------------
+   Establishes a visual grammar for navigation hierarchy:
+
+   MAJOR TABS
+     Real rooms / systems / meaningful sections.
+     Examples: Cellarium, Dvůr, Opisování rukopisů, Knihy.
+
+   FILTER CHIPS
+     Content filters only. They never swap the room hero/vignette.
+     Examples: Výroba categories, Zásoby categories.
+
+   This layer uses stable semantic hooks instead of nth-child selectors.
+   Presentation only. No JS or gameplay mechanics.
+   ===================================================================== */
+
+body.design-iluminovana {
+    --illum-major-tab-gap: 7px;
+    --illum-filter-gap: 6px;
+    --illum-rubric: #8c3025;
+    --illum-rubric-deep: #652019;
+    --illum-index-gold: #b98737;
+    --illum-index-ink: #3e2d20;
+}
+
+
+/* =====================================================================
+   1. MAJOR TABS — meaningful places / systems
+   ===================================================================== */
+
+body.design-iluminovana .illum-major-tabs {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+
+    gap: var(--illum-major-tab-gap) !important;
+
+    padding: 0 !important;
+    margin-top: 9px !important;
+    margin-bottom: 13px !important;
+
+    background: transparent !important;
+    background-image: none !important;
+
+    border: 0 !important;
+    box-shadow: none !important;
+
+    overflow: visible !important;
+}
+
+body.design-iluminovana .illum-major-tabs > .filter-btn {
+    position: relative !important;
+
+    min-height: 38px !important;
+
+    padding:
+        8px
+        13px
+        7px !important;
+
+    border:
+        1px
+        solid
+        rgba(157, 116, 50, .62) !important;
+
+    border-radius: 2px !important;
+
+    color: var(--illum-index-ink) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.34) 0%,
+            rgba(255,255,255,.04) 42%,
+            rgba(129,87,35,.06) 100%
+        ),
+        var(--bg-parchment) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.18),
+        0 2px 4px rgba(40,22,11,.10) !important;
+
+    font-family:
+        "Cinzel",
+        Georgia,
+        serif !important;
+
+    font-size: .82rem !important;
+    line-height: 1.05 !important;
+
+    letter-spacing: .01em !important;
+
+    transform: none !important;
+}
+
+body.design-iluminovana .illum-major-tabs > .filter-btn::after {
+    content: "";
+    position: absolute;
+
+    left: 8px;
+    right: 8px;
+    bottom: 3px;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(171,127,53,.45) 20%,
+            rgba(171,127,53,.45) 80%,
+            transparent
+        );
+
+    opacity: .70;
+
+    pointer-events: none;
+}
+
+body.design-iluminovana .illum-major-tabs > .filter-btn:hover {
+    border-color: rgba(176,132,57,.90) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.46),
+            rgba(175,132,57,.08)
+        ),
+        var(--bg-parchment) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.25),
+        0 3px 7px rgba(40,22,11,.13) !important;
+}
+
+body.design-iluminovana .illum-major-tabs > .filter-btn.active {
+    color: #fff2d7 !important;
+
+    border-color: rgba(201,157,71,.88) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #a94936 0%,
+            var(--illum-rubric) 50%,
+            var(--illum-rubric-deep) 100%
+        ) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,236,196,.20),
+        inset 0 0 0 1px rgba(91,38,26,.28),
+        0 3px 7px rgba(57,25,17,.19) !important;
+
+    text-shadow:
+        0 1px 1px rgba(41,15,11,.40) !important;
+}
+
+body.design-iluminovana .illum-major-tabs > .filter-btn.active::after {
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(240,199,107,.75) 20%,
+            rgba(240,199,107,.75) 80%,
+            transparent
+        );
+}
+
+
+/* =====================================================================
+   2. FILTER CHIPS — compact content filters, not places
+   ===================================================================== */
+
+body.design-iluminovana .illum-filter-chips {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+
+    gap: var(--illum-filter-gap) !important;
+
+    padding: 0 !important;
+    margin-top: 8px !important;
+    margin-bottom: 12px !important;
+
+    background: transparent !important;
+    background-image: none !important;
+
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+body.design-iluminovana .illum-filter-chips > .filter-btn {
+    min-height: 29px !important;
+
+    padding:
+        5px
+        10px
+        4px !important;
+
+    border:
+        1px
+        solid
+        rgba(154,113,49,.48) !important;
+
+    border-radius: 2px !important;
+
+    color: #594330 !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.30),
+            rgba(165,122,54,.04)
+        ),
+        color-mix(
+            in srgb,
+            var(--bg-parchment) 91%,
+            #d2b777 9%
+        ) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.18),
+        0 1px 2px rgba(42,24,13,.07) !important;
+
+    font-family:
+        "Crimson Text",
+        Georgia,
+        serif !important;
+
+    font-size: .78rem !important;
+    line-height: 1 !important;
+
+    white-space: nowrap !important;
+
+    transform: none !important;
+}
+
+body.design-iluminovana .illum-filter-chips > .filter-btn:hover {
+    color: #3f2c1f !important;
+
+    border-color: rgba(170,126,53,.72) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.42),
+            rgba(172,127,51,.08)
+        ),
+        var(--bg-parchment) !important;
+}
+
+body.design-iluminovana .illum-filter-chips > .filter-btn.active {
+    color: #5b211a !important;
+
+    border-color: rgba(151,75,51,.72) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(171,75,55,.13),
+            rgba(171,75,55,.04)
+        ),
+        var(--bg-parchment) !important;
+
+    box-shadow:
+        inset 3px 0 0 var(--illum-rubric),
+        inset 0 1px 0 rgba(255,255,255,.18),
+        0 1px 3px rgba(42,24,13,.09) !important;
+
+    font-weight: 700 !important;
+}
+
+
+/* =====================================================================
+   3. PHONE — keep major tabs readable; filters become a swipeable index
+   ===================================================================== */
+
+@media (max-width: 600px) {
+
+    body.design-iluminovana .illum-major-tabs {
+        gap: 6px !important;
+        margin-top: 7px !important;
+        margin-bottom: 11px !important;
+    }
+
+    body.design-iluminovana .illum-major-tabs > .filter-btn {
+        min-height: 36px !important;
+
+        padding:
+            7px
+            10px
+            6px !important;
+
+        font-size: clamp(.69rem, 3vw, .78rem) !important;
+
+        flex:
+            0
+            1
+            auto !important;
+    }
+
+    /*
+       Filters should not consume half a phone screen.
+       They become one horizontal manuscript index strip.
+    */
+    body.design-iluminovana .illum-filter-chips {
+        flex-wrap: nowrap !important;
+
+        width: 100% !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        touch-action: pan-x;
+
+        scrollbar-width: thin;
+        scrollbar-color:
+            rgba(173,129,54,.75)
+            rgba(77,53,27,.08);
+
+        padding-bottom: 4px !important;
+
+        scroll-snap-type: x proximity;
+        scroll-padding-inline: 4px;
+    }
+
+    body.design-iluminovana .illum-filter-chips > .filter-btn {
+        flex: 0 0 auto !important;
+
+        min-height: 29px !important;
+
+        scroll-snap-align: start;
+    }
+
+    body.design-iluminovana .illum-filter-chips::-webkit-scrollbar {
+        display: block !important;
+        height: 3px !important;
+    }
+
+    body.design-iluminovana .illum-filter-chips::-webkit-scrollbar-track {
+        background: rgba(77,53,27,.07) !important;
+        border-radius: 999px !important;
+    }
+
+    body.design-iluminovana .illum-filter-chips::-webkit-scrollbar-thumb {
+        background: rgba(173,129,54,.72) !important;
+        border-radius: 999px !important;
+    }
+}
+
+
+/* =====================================================================
+   4. VERY SMALL PHONE
+   ===================================================================== */
+
+@media (max-width: 360px) {
+
+    body.design-iluminovana .illum-major-tabs > .filter-btn {
+        padding:
+            7px
+            8px
+            6px !important;
+
+        font-size: .68rem !important;
+    }
+
+    body.design-iluminovana .illum-filter-chips > .filter-btn {
+        padding:
+            5px
+            8px
+            4px !important;
+    }
+}
+
+
+/* =====================================================================
+   5. ACCESSIBILITY
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    body.design-iluminovana .illum-major-tabs > .filter-btn,
+    body.design-iluminovana .illum-filter-chips,
+    body.design-iluminovana .illum-filter-chips > .filter-btn {
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}

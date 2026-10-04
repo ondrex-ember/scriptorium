@@ -3571,6 +3571,7 @@
     <link rel="stylesheet" href="/styles/illuminated-room-hero.css">
     <link rel="stylesheet" href="/styles/illuminated-responsive-polish.css">
     <link rel="stylesheet" href="/styles/illuminated-vignettes.css">
+    <link rel="stylesheet" href="/styles/illuminated-navigation-depth.css">
 </head>
 
 <body>
@@ -4090,21 +4091,23 @@
                     <div class="resource-tracker-bar"></div>
                 </div>
 
-                <div class="filter-bar illum-room-tabs" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
-                    <button id="home-tab-main" class="filter-btn active" onclick="UI.switchHomeTab('main', this)">🏰
+                <div class="filter-bar illum-room-tabs illum-major-tabs"
+                    data-illum-role="major-tabs"
+                    style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
+                    <button id="home-tab-main" class="filter-btn active" data-illum-tab="home-main" onclick="UI.switchHomeTab('main', this)">🏰
                         <span data-i18n="screens.home"></span></button>
-                    <button id="home-tab-cellarium" class="filter-btn" onclick="UI.switchHomeTab('cellarium', this)">🏛️
+                    <button id="home-tab-cellarium" class="filter-btn" data-illum-tab="cellarium" onclick="UI.switchHomeTab('cellarium', this)">🏛️
                         Cellarium</button>
-                    <button id="home-tab-saeculum" class="filter-btn" onclick="UI.switchHomeTab('saeculum', this)">🏘️
+                    <button id="home-tab-saeculum" class="filter-btn" data-illum-tab="saeculum" onclick="UI.switchHomeTab('saeculum', this)">🏘️
                         Saeculum</button>
-                    <button id="home-tab-athanor" class="filter-btn" onclick="UI.switchHomeTab('athanor', this)">🔬
+                    <button id="home-tab-athanor" class="filter-btn" data-illum-tab="athanor" onclick="UI.switchHomeTab('athanor', this)">🔬
                         Athanor</button>
-                    <button id="home-tab-foculus" class="filter-btn" onclick="UI.switchHomeTab('foculus', this)">🔥
+                    <button id="home-tab-foculus" class="filter-btn" data-illum-tab="foculus" onclick="UI.switchHomeTab('foculus', this)">🔥
                         <span data-i18n="fireplace.foculusTab"></span></button>
-                    <button id="home-tab-templum" class="filter-btn" style="display:none;"
+                    <button id="home-tab-templum" class="filter-btn" data-illum-tab="templum" style="display:none;"
                         onclick="UI.switchHomeTab('templum', this)">⛪
                         Templum</button>
-                    <button id="home-tab-infirmarium" class="filter-btn" style="display:none;"
+                    <button id="home-tab-infirmarium" class="filter-btn" data-illum-tab="infirmarium" style="display:none;"
                         onclick="UI.switchHomeTab('infirmarium', this)">🩺
                         Infirmarium</button>
                 </div>
@@ -4320,21 +4323,23 @@
                     <h2 data-i18n="garden.title">Zahrada</h2>
                     <div class="resource-tracker-bar"></div>
                 </div>
-                <div class="filter-bar illum-room-tabs" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
-                    <button id="garden-tab-btn-dvur" class="filter-btn active"
+                <div class="filter-bar illum-room-tabs illum-major-tabs"
+                    data-illum-role="major-tabs"
+                    style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
+                    <button id="garden-tab-btn-dvur" class="filter-btn active" data-illum-tab="dvur"
                         onclick="UI.switchGardenTab('dvur', this)" data-i18n="garden.tabDvur">🐄 Dvůr</button>
-                    <button id="garden-tab-btn-zahony" class="filter-btn" onclick="UI.switchGardenTab('zahony', this)"
+                    <button id="garden-tab-btn-zahony" class="filter-btn" data-illum-tab="zahony" onclick="UI.switchGardenTab('zahony', this)"
                         data-i18n="garden.tabZahony">🌱 Záhony</button>
-                    <button id="garden-tab-btn-sad" class="filter-btn" onclick="UI.switchGardenTab('sad', this)"
+                    <button id="garden-tab-btn-sad" class="filter-btn" data-illum-tab="sad" onclick="UI.switchGardenTab('sad', this)"
                         data-i18n="garden.tabSad">🌳 Sad</button>
-                    <button id="garden-tab-btn-apiarium" class="filter-btn"
+                    <button id="garden-tab-btn-apiarium" class="filter-btn" data-illum-tab="apiarium"
                         onclick="UI.switchGardenTab('apiarium', this)" data-i18n="garden.tabApiarium">🐝
                         Apiarium</button>
-                    <button id="garden-tab-btn-piscina" class="filter-btn" onclick="UI.switchGardenTab('piscina', this)"
+                    <button id="garden-tab-btn-piscina" class="filter-btn" data-illum-tab="piscina" onclick="UI.switchGardenTab('piscina', this)"
                         data-i18n="garden.tabPiscina">🐟 Piscina</button>
-                    <button id="garden-tab-btn-pole" class="filter-btn" onclick="UI.switchGardenTab('pole', this)"
+                    <button id="garden-tab-btn-pole" class="filter-btn" data-illum-tab="pole" onclick="UI.switchGardenTab('pole', this)"
                         data-i18n="garden.tabPole">🌾 Pole</button>
-                    <button id="garden-tab-btn-vinohrad" class="filter-btn"
+                    <button id="garden-tab-btn-vinohrad" class="filter-btn" data-illum-tab="vinohrad"
                         onclick="UI.switchGardenTab('vinohrad', this)" data-i18n="garden.tabVinohrad">🍇
                         Vinohrad</button>
                 </div>
@@ -4456,30 +4461,31 @@
                 <!-- vyroba-stavby-mrd (5.9.2026) — Dílenský ponk, Krok 2. Prázdné dokud
                      GameState.inventory.craft_bench > 0, viz UI.renderCraftBenchHeader(). -->
                 <div id="craft-bench-header"></div>
-                <div class="filter-bar illum-room-tabs"
+                <div class="filter-bar illum-room-tabs illum-filter-chips"
+                    data-illum-role="filters"
                     style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
-                    <button id="craft-filter-all" class="filter-btn active" onclick="UI.filterCrafting('all', this)"
+                    <button id="craft-filter-all" class="filter-btn active" data-illum-filter="all" onclick="UI.filterCrafting('all', this)"
                         data-i18n="craftFilter.all">Vše</button>
-                    <button id="craft-filter-stone" class="filter-btn" onclick="UI.filterCrafting('stone', this)"
+                    <button id="craft-filter-stone" class="filter-btn" data-illum-filter="stone" onclick="UI.filterCrafting('stone', this)"
                         data-i18n="craftFilter.stone">🪨 Kamenné</button>
-                    <button id="craft-filter-iron" class="filter-btn" onclick="UI.filterCrafting('iron', this)"
+                    <button id="craft-filter-iron" class="filter-btn" data-illum-filter="iron" onclick="UI.filterCrafting('iron', this)"
                         data-i18n="craftFilter.iron">⚒️ Železné</button>
-                    <button id="craft-filter-craft" class="filter-btn" onclick="UI.filterCrafting('craft', this)"
+                    <button id="craft-filter-craft" class="filter-btn" data-illum-filter="craft" onclick="UI.filterCrafting('craft', this)"
                         data-i18n="craftFilter.craft">🪵 Řemeslo</button>
-                    <button id="craft-filter-building" class="filter-btn" onclick="UI.filterCrafting('building', this)"
+                    <button id="craft-filter-building" class="filter-btn" data-illum-filter="building" onclick="UI.filterCrafting('building', this)"
                         data-i18n="craftFilter.building">🏗️ Stavby</button>
-                    <button id="craft-filter-fire" class="filter-btn" onclick="UI.filterCrafting('fire', this)"
+                    <button id="craft-filter-fire" class="filter-btn" data-illum-filter="fire" onclick="UI.filterCrafting('fire', this)"
                         data-i18n="craftFilter.fire">🕯️ Oheň</button>
-                    <button id="craft-filter-parchment" class="filter-btn"
+                    <button id="craft-filter-parchment" class="filter-btn" data-illum-filter="parchment"
                         onclick="UI.filterCrafting('parchment', this)" data-i18n="craftFilter.parchment">📜
                         Pergamen</button>
-                    <button id="craft-filter-codex" class="filter-btn" onclick="UI.filterCrafting('codex', this)"
+                    <button id="craft-filter-codex" class="filter-btn" data-illum-filter="codex" onclick="UI.filterCrafting('codex', this)"
                         data-i18n="craftFilter.codex">📖 Kodex</button>
-                    <button id="craft-filter-food" class="filter-btn" onclick="UI.filterCrafting('food', this)"
+                    <button id="craft-filter-food" class="filter-btn" data-illum-filter="food" onclick="UI.filterCrafting('food', this)"
                         data-i18n="craftFilter.food">🍖 Jídlo</button>
-                    <button id="craft-filter-alchemy" class="filter-btn" onclick="UI.filterCrafting('alchemy', this)"
+                    <button id="craft-filter-alchemy" class="filter-btn" data-illum-filter="alchemy" onclick="UI.filterCrafting('alchemy', this)"
                         data-i18n="craftFilter.alchemy">⚗️ Alchymie</button>
-                    <button id="craft-filter-lore" class="filter-btn" onclick="UI.filterCrafting('lore', this)"
+                    <button id="craft-filter-lore" class="filter-btn" data-illum-filter="lore" onclick="UI.filterCrafting('lore', this)"
                         data-i18n="craftFilter.lore">🎲 Vědění</button>
                 </div>
                 <div id="crafting-list"></div>
@@ -4490,17 +4496,18 @@
                     <h2>Zásoby</h2>
                     <div class="resource-tracker-bar"></div>
                 </div>
-                <div id="inv-filter-bar" class="filter-bar illum-room-tabs"
+                <div id="inv-filter-bar" class="filter-bar illum-room-tabs illum-filter-chips"
+                    data-illum-role="filters"
                     style="margin-top:10px; margin-bottom:15px; display:none; flex-wrap: wrap; gap: 5px;">
                     <button id="inv-filter-all" class="filter-btn active" onclick="UI.filterInventory('all', this)"
                         data-i18n="invFilter.all">Vše</button>
-                    <button id="inv-filter-mat" class="filter-btn" onclick="UI.filterInventory('mat', this)"
+                    <button id="inv-filter-mat" class="filter-btn" data-illum-filter="mat" onclick="UI.filterInventory('mat', this)"
                         data-i18n="invFilter.mat">🌾 Suroviny</button>
-                    <button id="inv-filter-tool" class="filter-btn" onclick="UI.filterInventory('tool', this)"
+                    <button id="inv-filter-tool" class="filter-btn" data-illum-filter="tool" onclick="UI.filterInventory('tool', this)"
                         data-i18n="invFilter.tool">🔨 Nástroje</button>
                     <button id="inv-filter-lore" class="filter-btn" onclick="UI.filterInventory('lore', this)"
                         data-i18n="invFilter.lore">📜 Písemnosti</button>
-                    <button id="inv-filter-animal" class="filter-btn" onclick="UI.filterInventory('animal', this)"
+                    <button id="inv-filter-animal" class="filter-btn" data-illum-filter="animal" onclick="UI.filterInventory('animal', this)"
                         data-i18n="invFilter.animal">🐄 Zvířata</button>
                     <button id="inv-filter-food" class="filter-btn" style="display:none;"
                         onclick="UI.filterInventory('food', this)" data-i18n="invFilter.food">🍖 Jídlo</button>
@@ -4512,7 +4519,7 @@
                         onclick="UI.filterInventory('iron', this)" data-i18n="invFilter.iron">⚒️ Železné</button>
                     <button id="inv-filter-fire" class="filter-btn" style="display:none;"
                         onclick="UI.filterInventory('fire', this)" data-i18n="invFilter.fire">🔥 Oheň</button>
-                    <button id="inv-filter-other" class="filter-btn" style="display:none;"
+                    <button id="inv-filter-other" class="filter-btn" data-illum-filter="other" style="display:none;"
                         onclick="UI.filterInventory('other', this)" data-i18n="invFilter.other">🗝️ Ostatní</button>
                 </div>
                 <div id="inventory-grid" style="margin-top:15px;"></div>
@@ -4531,31 +4538,32 @@
                     </div>
                 </div>
                 <div id="lore-content-wrapper">
-                    <div class="filter-bar illum-room-tabs"
+                    <div class="filter-bar illum-room-tabs illum-major-tabs"
+                        data-illum-role="major-tabs"
                         style="margin-top:10px; margin-bottom:15px; display: flex; flex-wrap: wrap; gap: 5px;">
-                        <button id="lore-tab-research" class="filter-btn active"
+                        <button id="lore-tab-research" class="filter-btn active" data-illum-tab="research"
                             onclick="UI.switchLoreTab('research', this)" data-i18n="lore.tabResearch">Research</button>
-                        <button id="lore-tab-tasks" class="filter-btn" onclick="UI.switchLoreTab('tasks', this)"
+                        <button id="lore-tab-tasks" class="filter-btn" data-illum-tab="tasks" onclick="UI.switchLoreTab('tasks', this)"
                             data-i18n="lore.tabTasks">📜 Denní řád</button>
-                        <button id="lore-tab-manuscripts" class="filter-btn" style="display:none;"
+                        <button id="lore-tab-manuscripts" class="filter-btn" data-illum-tab="manuscripts" style="display:none;"
                             onclick="UI.switchLoreTab('manuscripts', this)" data-i18n="lore.tabManuscripts">✒️ Opisování
                             rukopisů</button>
-                        <button id="lore-tab-codex" class="filter-btn" onclick="UI.switchLoreTab('codex', this)"
+                        <button id="lore-tab-codex" class="filter-btn" data-illum-tab="codex" onclick="UI.switchLoreTab('codex', this)"
                             data-i18n="lore.tabCodex">Codex</button>
-                        <button id="lore-tab-notebooks" class="filter-btn" onclick="UI.switchLoreTab('notebooks', this)"
+                        <button id="lore-tab-notebooks" class="filter-btn" data-illum-tab="notebooks" onclick="UI.switchLoreTab('notebooks', this)"
                             data-i18n="lore.tabNotebooks">📓 Zápisníky</button>
-                        <button id="lore-tab-achievements" class="filter-btn"
+                        <button id="lore-tab-achievements" class="filter-btn" data-illum-tab="achievements"
                             onclick="UI.switchLoreTab('achievements', this)"
                             data-i18n="lore.tabAchievements">Achievementy</button>
-                        <button id="lore-tab-iching" class="filter-btn" onclick="UI.switchLoreTab('iching', this)"
+                        <button id="lore-tab-iching" class="filter-btn" data-illum-tab="iching" onclick="UI.switchLoreTab('iching', this)"
                             data-i18n="library.tabIching">☯️ Věštění</button>
-                        <button id="lore-tab-calendarium" class="filter-btn"
+                        <button id="lore-tab-calendarium" class="filter-btn" data-illum-tab="calendarium"
                             onclick="UI.switchLoreTab('calendarium', this)">📅 Calendarium</button>
-                        <button id="lore-tab-persona" class="filter-btn" onclick="UI.switchLoreTab('persona', this)">🧑
+                        <button id="lore-tab-persona" class="filter-btn" data-illum-tab="persona" onclick="UI.switchLoreTab('persona', this)">🧑
                             Persona</button>
-                        <button id="lore-tab-porta" class="filter-btn" onclick="UI.switchLoreTab('porta', this)"
+                        <button id="lore-tab-porta" class="filter-btn" data-illum-tab="porta" onclick="UI.switchLoreTab('porta', this)"
                             style="display:none;">🕊️ Porta</button>
-                        <button id="lore-tab-commitments" class="filter-btn"
+                        <button id="lore-tab-commitments" class="filter-btn" data-illum-tab="commitments"
                             onclick="UI.switchLoreTab('commitments', this)" style="display:none;">📋 Zakázky</button>
                     </div>
                     <div id="lore-research-content" style="margin-top:20px;"></div>
@@ -4582,29 +4590,31 @@
                     <div class="resource-tracker-bar"></div>
                 </div>
                 <div id="library-content-wrapper">
-                    <div class="filter-bar illum-room-tabs" style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
-                        <button id="lib-tab-books" class="filter-btn active"
+                    <div class="filter-bar illum-room-tabs illum-major-tabs"
+                        data-illum-role="major-tabs"
+                        style="margin-top:10px; margin-bottom:15px; flex-wrap: wrap; gap: 5px;">
+                        <button id="lib-tab-books" class="filter-btn active" data-illum-tab="books"
                             onclick="UI.switchLibraryTab('books', this)">📚 Knihy</button>
-                        <button id="lib-tab-games" class="filter-btn" onclick="UI.switchLibraryTab('games', this)">🎲
+                        <button id="lib-tab-games" class="filter-btn" data-illum-tab="games" onclick="UI.switchLibraryTab('games', this)">🎲
                             Aula Ludi</button>
-                        <button id="lib-tab-news" class="filter-btn" onclick="UI.switchLibraryTab('news', this)">📜
+                        <button id="lib-tab-news" class="filter-btn" data-illum-tab="news" onclick="UI.switchLibraryTab('news', this)">📜
                             Zprávy</button>
-                        <button id="lib-tab-scrinium" class="filter-btn"
+                        <button id="lib-tab-scrinium" class="filter-btn" data-illum-tab="scrinium"
                             onclick="UI.switchLibraryTab('scrinium', this)">📕 Scrinium</button>
-                        <button id="lib-tab-kronika" class="filter-btn" onclick="UI.switchLibraryTab('kronika', this)"
+                        <button id="lib-tab-kronika" class="filter-btn" data-illum-tab="kronika" onclick="UI.switchLibraryTab('kronika', this)"
                             data-i18n="library.tabKronika">📖 Kronika</button>
-                        <button id="lib-tab-kraj" class="filter-btn" onclick="UI.switchLibraryTab('kraj', this)">🌍
+                        <button id="lib-tab-kraj" class="filter-btn" data-illum-tab="kraj" onclick="UI.switchLibraryTab('kraj', this)">🌍
                             Kraj</button>
-                        <button id="lib-tab-studovna" class="filter-btn"
+                        <button id="lib-tab-studovna" class="filter-btn" data-illum-tab="studovna"
                             onclick="UI.switchLibraryTab('studovna', this)">📖
                             Studovna</button>
-                        <button id="lib-tab-vypujcky" class="filter-btn"
+                        <button id="lib-tab-vypujcky" class="filter-btn" data-illum-tab="vypujcky"
                             onclick="UI.switchLibraryTab('vypujcky', this)">📤
                             Výpůjčky</button>
-                        <button id="lib-tab-katalog" class="filter-btn"
+                        <button id="lib-tab-katalog" class="filter-btn" data-illum-tab="katalog"
                             onclick="UI.switchLibraryTab('katalog', this)">📇
                             Katalogizace</button>
-                        <button id="lib-tab-opat" class="filter-btn" onclick="UI.switchLibraryTab('opat', this)">👤
+                        <button id="lib-tab-opat" class="filter-btn" data-illum-tab="opat" onclick="UI.switchLibraryTab('opat', this)">👤
                             Opat</button>
                     </div>
                     <div id="library-books-content"
