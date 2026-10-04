@@ -160,6 +160,8 @@ const STRINGS_cs = {
         lastSaveLabel: 'Poslední uložení:',
         about: 'O hře',
         aboutDesc: 'Verze, changelog a credits',
+        privacy: 'Soukromí a cookies',
+        privacyDesc: 'Souhlas s měřením návštěvnosti (Google Analytics, Clarity)',
         showBtn: 'Zobrazit',
         footerMadeIn: 'Vyvíjeno s ❤️ v Novém Boru by Ondrex',
         hourChime: {
@@ -376,14 +378,6 @@ const STRINGS_cs = {
         btnCs: '🇨🇿 Česky',
         btnEn: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 English'
     },
-    consent: {
-        text: '📜 <strong>Scriptorium používá Google Analytics</strong> pro měření herního postupu (které technologie se odemykají, jak dlouho se hraje apod.). Žádné osobní údaje nejsou sdíleny.',
-        moreInfo: 'Více info',
-        grant: 'Souhlasím',
-        deny: 'Odmítám',
-        policyTitle: 'Scriptorium Analytics – co měříme:',
-        policyBody: '• Herní postup (odemčené technologie, achievementy)\n• Délka session a opakované návštěvy\n• Které části hry se nejvíce používají\n\nCo NEMĚŘÍME:\n• Žádné osobní údaje\n• IP adresy jsou anonymizovány\n• Data nejdou třetím stranám kromě Google Analytics\n\nSouhlas lze kdykoliv odvolat smazáním localStorage klíče "scriptorium_consent".'
-    },
     welcome: {
         text: 'Nalezl jsi opuštěnou pracovnu.<br><br>Na stole leží vyhaslý troud, kousek křemene a pár listů pergamenu pokrytých prachem. Za oknem je slyšet rytmické klepání – někdo v sousední ulici provozuje nový stroj. Říkají mu <em>tiskařský lis</em>.<br><br>Ale to je venku. Tady uvnitř je tma a zima.<br><br><strong style="font-size:1.1em;">❄️ Mrznou ti prsty na rukou a máš se pustit do práce.<br>Bude třeba zatopit v krbu.</strong><br><br><span style="font-size:0.9em; opacity:0.8;">👉 Klikni na <strong>Rozežehnout</strong> v pracovně a začni.</span>',
         btn: 'Vstoupit →',
@@ -392,6 +386,9 @@ const STRINGS_cs = {
     about: {
         version: 'Verze:', date: 'Datum:', dateVal: '3. září 2026', author: 'Autor:', tester: 'Tester:',
         aboutTitle: 'O hře',
+        privacyTitle: '🍪 Soukromí a cookies',
+        privacyText: 'Hra měří návštěvnost přes Google Analytics a Microsoft Clarity, jen pokud s tím souhlasíte. Volbu můžete kdykoli změnit.',
+        privacyBtn: '🍪 Nastavení cookies',
         devNote: 'Vězte, bratřie, že Scriptorium jest dílem živým a rukama našima neustále hněteným. Svět klášterní den ode dne o nové zvyklosti, statky a bratrská spojení s říší CHRONICON utěšeně vzrůstá. Při kvapu takovém občasně se blud nějaký zjeví, anebo dílo, jež k popisu svému ještě zcela nepřiléhá. Za svatou trpělivost vaši a za každou milostivou zvěst o nápravu díky vám vzdáváme. Neboť příbytek náš kámen po kameni se buduje, přesně tak, jak svatá skriptoria kdysi rostla svazek po svazku.',
         aboutText: 'Středověká idle hra o kopírování rukopisů, výrobě papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem, zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v Olomouci.',
         r791: 'Nástroje — kamenné a železné s opotřebením, degradací a opravou',

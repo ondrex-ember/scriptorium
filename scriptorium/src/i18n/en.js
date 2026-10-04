@@ -145,6 +145,8 @@ const STRINGS_en = {
         lastSaveLabel: 'Last saved:',
         about: 'About',
         aboutDesc: 'Version, changelog and credits',
+        privacy: 'Privacy & cookies',
+        privacyDesc: 'Consent to analytics (Google Analytics, Clarity)',
         showBtn: 'View',
         footerMadeIn: 'Forged with ❤️ in Nový Bor by Ondrex',
         hourChime: {
@@ -348,14 +350,6 @@ const STRINGS_en = {
         btnCs: '🇨🇿 Česky',
         btnEn: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 English'
     },
-    consent: {
-        text: '📜 <strong>Scriptorium doth employ Google Analytics</strong> to measure thy progress through the craft — which arts thou dost master, how long thou remainest at the desk. No personal tidings are shared.',
-        moreInfo: 'Learn more',
-        grant: 'I consent',
-        deny: 'I refuse',
-        policyTitle: 'Scriptorium Analytics — what we observe:',
-        policyBody: '• Thy progress (unlocked arts, achievements)\n• Session length and return visits\n• Which parts of the scriptorium thou dost frequent\n\nWhat we do NOT observe:\n• No personal data\n• IP addresses are anonymised\n• Naught is shared beyond Google Analytics\n\nConsent may be revoked by removing the localStorage key "scriptorium_consent".'
-    },
     welcome: {
         text: 'Thou hast found an abandoned workshop.<br><br>Upon the desk: a cold tinderbox, a shard of flint, a few sheets of parchment thick with dust. Through the shutter comes a steady knocking — someone in the next street works a new machine. They call it a <em>printing press</em>.<br><br>That is outside. In here there is only dark and cold.<br><br><strong style="font-size:1.1em;">❄️ Thy fingers grow stiff with cold and yet work awaits.<br>The hearth must be kindled.</strong><br><br><span style="font-size:0.9em; opacity:0.8;">👉 Click <strong>Kindle</strong> in the Workshop to begin.</span>',
         btn: 'Enter →',
@@ -364,6 +358,9 @@ const STRINGS_en = {
     about: {
         version: 'Version:', date: 'Date:', dateVal: 'September 3, 2026', author: 'Author:', tester: 'Tester:',
         aboutTitle: 'About the Game',
+        privacyTitle: '🍪 Privacy & cookies',
+        privacyText: 'The game measures traffic with Google Analytics and Microsoft Clarity only if you consent. You can change your choice at any time.',
+        privacyBtn: '🍪 Cookie settings',
         devNote: 'Know ye, brethren, that Scriptorium is a work yet living, evermore wrought by our own hands. Day by day the monastery\'s world doth grow — new customs, new holdings, new bonds with the realm of CHRONICON. In such haste a blunder may now and again show itself, or some labour not yet true to its own telling. For your holy patience, and for every gracious tiding of correction, we render thee thanks. For our dwelling is built stone upon stone, even as the holy scriptoria of old grew, volume upon volume.',
         aboutText: 'A medieval idle game about copying manuscripts, crafting paper, and studying in a monastery scriptorium. Blends survival mechanics (fire, light, hunger) with crafting, gardening, and gradual technology unlocks. Historically grounded, set in the year 1465 in Olomouc.',
         r791: 'Tools — stone and iron with wear, degradation and repair',

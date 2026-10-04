@@ -3,6 +3,15 @@
 
 <head>
     <meta name="seznam-wmt" content="j9zZE5yYDnfQfIsCvU42VGZyVu3nE8lR" />
+    <!-- Consent Mode v2 (advanced): default state, must load before GTM -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', functionality_storage: 'denied', wait_for_update: 500 });
+        gtag('set', 'ads_data_redaction', true);
+        // Vracející se hráč se souhlasem: update ještě před načtením GTM
+        try { if (localStorage.getItem('scriptorium_consent') === 'granted') { gtag('consent', 'update', { analytics_storage: 'granted', functionality_storage: 'granted' }); } } catch (e) { }
+    </script>
     <!-- Google Tag Manager -->
     <script>(function (w, d, s, l, i) {
             w[l] = w[l] || []; w[l].push({
@@ -67,33 +76,9 @@
 	}
 	</script>
 
-    <script>
-        window.GA_ID = 'G-25YYWRNX2H';
-
-        // GA načteme až po souhlasu – nikdy dříve
-        function loadGA() {
-            if (window._gaLoaded) return;
-            window._gaLoaded = true;
-            const s = document.createElement('script');
-            s.src = 'https://www.googletagmanager.com/gtag/js?id=' + window.GA_ID;
-            s.async = true;
-            document.head.appendChild(s);
-            window.dataLayer = window.dataLayer || [];
-            window.gtag = function () { dataLayer.push(arguments); };
-            gtag('js', new Date());
-            gtag('config', window.GA_ID, {
-                // Anonymizace IP – dobré i pro consent
-                anonymize_ip: true,
-                // Bez cookies dokud uživatel nesouhlasí
-                cookie_flags: 'SameSite=None;Secure'
-            });
-        }
-
-        // Pokud uživatel již souhlas udělil dříve, načteme GA hned
-        if (localStorage.getItem('scriptorium_consent') === 'granted') {
-            loadGA();
-        }
-    </script>
+    <!-- Souhlas (UI + uložení + Consent Mode update): /consent.js. Lištu zobrazuje hra sama po výběru jazyka. -->
+    <script>window.SCR_CONSENT_MANUAL = true;</script>
+    <script src="/consent.js"></script>
 
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23fcf5e5%22 rx=%2220%22/><path d=%22M10 85 Q 45 100 90 70%22 stroke=%22%232c241b%22 stroke-width=%226%22 fill=%22none%22 stroke-linecap=%22round%22/><g transform=%22rotate(45 50 50)%22><path d=%22M35 -20 L 65 -20 L 65 30 Q 65 65 50 100 Q 35 65 35 30 Z%22 fill=%22%232c241b%22/><circle cx=%2250%22 cy=%2245%22 r=%225%22 fill=%22%23fcf5e5%22/><line x1=%2250%22 y1=%2250%22 x2=%2250%22 y2=%2290%22 stroke=%22%23fcf5e5%22 stroke-width=%222%22/></g></svg>">
@@ -3572,7 +3557,6 @@
     <link rel="stylesheet" href="/styles/illuminated-responsive-polish.css">
     <link rel="stylesheet" href="/styles/illuminated-vignettes.css">
     <link rel="stylesheet" href="/styles/illuminated-navigation-depth.css">
-    <link rel="stylesheet" href="/styles/illuminated-minor-miniatures.css">
 </head>
 
 <body>
@@ -3799,6 +3783,12 @@
                 papíru a studiu v klášterním skriptoriu. Kombinuje survival mechaniky (oheň, světlo, hlad) s craftingem,
                 zahradničením a postupným odemykáním technologií. Historicky podložená hra zasazená do roku 1465 v
                 Olomouci.</p>
+
+            <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';"
+                data-i18n="about.privacyTitle">🍪 Soukromí a cookies</h3>
+            <p style="line-height: 1.6;" data-i18n="about.privacyText">Hra měří návštěvnost přes Google Analytics a Microsoft Clarity. Souhlas můžete kdykoli změnit.</p>
+            <button class="craft-btn" onclick="ScrConsent.openModal()" style="margin-bottom: 10px;"
+                data-i18n="about.privacyBtn">🍪 Nastavení cookies</button>
 
             <h3 style="margin: 20px 0 10px; color: var(--accent-gold); font-family: 'Cinzel Decorative';">📓 Release
                 Notes</h3>
@@ -4878,6 +4868,16 @@
                 </div>
 
                 <div class="card" style="margin-top: 20px;">
+                    <div class="item-icon">🍪</div>
+                    <div style="flex: 1;">
+                        <strong data-i18n="settingsUI.privacy">Soukromí a cookies</strong>
+                        <div class="text-sm" data-i18n="settingsUI.privacyDesc">Souhlas s měřením návštěvnosti (Google Analytics, Clarity)</div>
+                    </div>
+                    <button class="craft-btn" onclick="ScrConsent.openModal()"
+                        data-i18n="settingsUI.showBtn">Zobrazit</button>
+                </div>
+
+                <div class="card" style="margin-top: 12px;">
                     <div class="item-icon">ℹ️</div>
                     <div style="flex: 1;">
                         <strong data-i18n="settingsUI.about">O hře</strong>
@@ -4984,32 +4984,6 @@
     <script>
         /* BUILD:JS_MAIN */
     </script>
-
-    <!-- ═══════════════════════════════════════════════
-     CONSENT BANNER – stylově odpovídá hře
-     Zobrazí se pouze pokud souhlas nebyl ještě udělen.
-     ═══════════════════════════════════════════════ -->
-    <div id="consent-banner"
-        style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:2000; padding:14px 20px; background:var(--ink-primary); color:var(--bg-parchment); border-top:2px solid var(--accent-gold); font-family:'Crimson Text', serif; font-size:0.88rem; line-height:1.6;">
-        <div style="max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:10px;">
-            <div>
-                <span id="consent-text" data-i18n="consent.text">📜 <strong>Scriptorium používá Google
-                        Analytics</strong> pro měření herního postupu (které technologie se odemykají, jak dlouho se
-                    hraje apod.). Žádné osobní údaje nejsou sdíleny.</span>
-                <a href="#" id="consent-more" onclick="ConsentManager.showPolicy(); return false;"
-                    style="color:var(--accent-gold); margin-left:6px;" data-i18n="consent.moreInfo">Více info</a>
-            </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button id="consent-btn-grant" onclick="ConsentManager.grant()"
-                    style="padding:7px 18px; background:var(--accent-gold); color:var(--ink-primary); border:none; font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px;"
-                    data-i18n="consent.grant">Souhlasím</button>
-                <button id="consent-btn-deny" onclick="ConsentManager.deny()"
-                    style="padding:7px 18px; background:transparent; color:var(--bg-parchment); border:1px solid var(--bg-parchment); font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; border-radius:2px; letter-spacing:1px; opacity:0.7;"
-                    data-i18n="consent.deny">Odmítám</button>
-            </div>
-        </div>
-    </div>
-
 
     <!-- PWA Install Banner -->
     <div id="pwa-install-banner"

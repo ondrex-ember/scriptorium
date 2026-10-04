@@ -2,38 +2,23 @@
 // CONSENT MANAGER – správa souhlasu s analytics
 // ═══════════════════════════════════════════════════════════════
 const ConsentManager = {
+    // UI, uložení a Consent Mode update řeší /consent.js (window.ScrConsent).
+    // Klíč localStorage: scriptorium_consent ("granted" | "denied").
     STORAGE_KEY: 'scriptorium_consent',
 
     init: function() {
-        const consent = localStorage.getItem(this.STORAGE_KEY);
-        const banner = document.getElementById('consent-banner');
-        // Nezobrazovat banner pokud ještě nebyl zvolen jazyk — afterLangPicked() to udělá
+        // Nezobrazovat lištu pokud ještě nebyl zvolen jazyk - afterLangPicked() to udělá
         if (!GameState.settings.langChosen) return;
-        if (consent === null) {
-            if (banner) banner.style.display = 'block';
-        } else {
-            if (consent === 'granted') loadGA();
-        }
+        this.showBarIfNeeded();
     },
 
-    grant: function() {
-        localStorage.setItem(this.STORAGE_KEY, 'granted');
-        document.getElementById('consent-banner').style.display = 'none';
-        loadGA();
-        Analytics.event('consent', { action: 'granted' });
-        // Po souhlasu spustit intro modal pokud je firstVisit
-        this._afterDecision();
+    showBarIfNeeded: function() {
+        if (typeof ScrConsent === 'undefined') return;
+        if (!ScrConsent.decided()) ScrConsent.openBar();
     },
 
-    deny: function() {
-        localStorage.setItem(this.STORAGE_KEY, 'denied');
-        document.getElementById('consent-banner').style.display = 'none';
-        // Po odmítnutí stejně spustit intro modal
-        this._afterDecision();
-    },
-
+    // Po rozhodnutí (lišta i modal) - intro modal jen pro nového hráče
     _afterDecision: function() {
-        // Intro modal se zobrazí jen pro nového hráče
         if (GameState.flags && GameState.flags.firstVisit) {
             setTimeout(() => {
                 UI.showWelcomeModal();
@@ -41,13 +26,13 @@ const ConsentManager = {
                 Game.save();
             }, 400);
         }
-    },
-
-    showPolicy: function() {
-        const L = STRINGS[GameState.settings.language || 'cs'] || STRINGS.cs;
-        alert(L.consent.policyTitle + '\n\n' + L.consent.policyBody);
     }
 };
+if (typeof ScrConsent !== 'undefined') {
+    ScrConsent.onDecision(function(granted) {
+        ConsentManager._afterDecision();
+    });
+}
 
 // ═══════════════════════════════════════════════════════════════
 // ANALYTICS – centrální objekt pro všechny události

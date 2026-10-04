@@ -3611,9 +3611,8 @@ const UI = {
             return;
         }
 
-        // Render selector buttons — illuminated MINOR MINIATURE navigation.
-        // Presentation-only hooks: no notebook/gameplay state is changed here.
-        let h = '<div class="illum-minor-tabs" data-illum-role="minor-tabs" data-illum-group="notebooks">';
+        // Render selector buttons
+        let h = '<div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">';
         const types = [
             { id: 'tabula', icon: '📋', name: 'Tabula' },
             { id: 'adversaria', icon: '📔', name: 'Adversaria' },
@@ -3623,9 +3622,7 @@ const UI = {
         ];
         types.forEach(t => {
             if ((GameState.unlockedRecipes || []).includes(t.id)) {
-                h += `<button onclick="UI.renderNotebookInline('${t.id}')" class="craft-btn illum-minor-tab" data-illum-subtab="${t.id}">` +
-                    `<span class="illum-miniature-mark" aria-hidden="true">${t.icon}</span>` +
-                    `<span class="illum-minor-label">${t.name}</span></button>`;
+                h += `<button onclick="UI.renderNotebookInline('${t.id}')" class="craft-btn">${t.icon} ${t.name}</button>`;
             }
         });
         h += '</div>';
@@ -3645,15 +3642,7 @@ const UI = {
 
     },
     renderNotebookInline: function (type) {
-        // Visual-only active marker for the MINOR MINIATURE selector.
-        const nav = document.querySelector('#lore-notebooks-content .illum-minor-tabs[data-illum-group="notebooks"]');
-        if (nav) {
-            nav.querySelectorAll('[data-illum-subtab]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.illumSubtab === type);
-            });
-        }
-
-        // Existing notebook render path — gameplay/data behavior unchanged.
+        // Simply call NotebookSystem.render with inline container
         NotebookSystem.render(type, 'notebook-content-inline');
     },
 
@@ -4577,17 +4566,6 @@ const UI = {
         this._hashActions = null; // invalidate scavenge cache — force re-render in new lang
         if (document.getElementById('workspace-actions')) this.renderAll();
 
-        // 4. Aktualizovat consent banner text na správný jazyk
-        const L = STRINGS[lang] || STRINGS.cs;
-        const ctEl = document.getElementById('consent-text');
-        const cmEl = document.getElementById('consent-more');
-        const cgEl = document.getElementById('consent-btn-grant');
-        const cdEl = document.getElementById('consent-btn-deny');
-        if (ctEl) ctEl.innerHTML = L.consent.text;
-        if (cmEl) cmEl.textContent = L.consent.moreInfo;
-        if (cgEl) cgEl.textContent = L.consent.grant;
-        if (cdEl) cdEl.textContent = L.consent.deny;
-
         // 5. Uložit + pokračovat v chain
         Game.save();
         this.afterLangPicked();
@@ -4595,15 +4573,11 @@ const UI = {
 
     afterLangPicked: function () {
         // Pokračuje chain: consent (pokud třeba) → welcome modal
-        const consent = localStorage.getItem('scriptorium_consent');
-        if (consent === null) {
-            // Zobraz consent banner
-            const banner = document.getElementById('consent-banner');
-            if (banner) banner.style.display = 'block';
-            // _afterDecision() zobrazí welcome modal po rozhodnutí
+        if (typeof ScrConsent !== 'undefined' && !ScrConsent.decided()) {
+            // Zobraz lištu souhlasu; _afterDecision() zobrazí welcome modal po rozhodnutí
+            ScrConsent.openBar();
         } else {
-            // Consent byl rozhodnut dříve — jdi rovnou na welcome
-            if (consent === 'granted') loadGA();
+            // Souhlas byl rozhodnut dříve - jdi rovnou na welcome
             setTimeout(() => {
                 this.showWelcomeModal();
                 GameState.flags.firstVisit = false;
