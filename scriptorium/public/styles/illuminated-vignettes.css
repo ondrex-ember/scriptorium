@@ -139,6 +139,13 @@ body.design-iluminovana [data-illum-vignette="foculus"] {
     --illum-vignette-position: center center;
 }
 
+
+body.design-iluminovana [data-illum-vignette="templum"] {
+    --illum-vignette-image:
+        url("/ui/illuminated/vignettes/templum.webp");
+    --illum-vignette-position: center center;
+}
+
 body.design-iluminovana [data-illum-vignette="dvur"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/dvur.webp");
@@ -247,6 +254,13 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
     body.design-iluminovana [data-illum-vignette="foculus"] {
         --illum-vignette-image:
             url("/ui/illuminated/vignettes/foculus-mobile.webp");
+        --illum-vignette-position: center center;
+    }
+
+
+    body.design-iluminovana [data-illum-vignette="templum"] {
+        --illum-vignette-image:
+            url("/ui/illuminated/vignettes/templum-mobile.webp");
         --illum-vignette-position: center center;
     }
 
