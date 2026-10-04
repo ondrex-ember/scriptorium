@@ -139,7 +139,6 @@ body.design-iluminovana [data-illum-vignette="foculus"] {
     --illum-vignette-position: center center;
 }
 
-<<<<<<< HEAD
 
 body.design-iluminovana [data-illum-vignette="templum"] {
     --illum-vignette-image:
@@ -147,8 +146,6 @@ body.design-iluminovana [data-illum-vignette="templum"] {
     --illum-vignette-position: center center;
 }
 
-=======
->>>>>>> b612be767659f6a2dc49d3dcfa1577756a2a3da4
 body.design-iluminovana [data-illum-vignette="dvur"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/dvur.webp");
@@ -260,7 +257,6 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
         --illum-vignette-position: center center;
     }
 
-<<<<<<< HEAD
 
     body.design-iluminovana [data-illum-vignette="templum"] {
         --illum-vignette-image:
@@ -268,8 +264,6 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
         --illum-vignette-position: center center;
     }
 
-=======
->>>>>>> b612be767659f6a2dc49d3dcfa1577756a2a3da4
     body.design-iluminovana [data-illum-vignette="dvur"] {
         --illum-vignette-position: center 56%;
     }
