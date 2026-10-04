@@ -3611,8 +3611,9 @@ const UI = {
             return;
         }
 
-        // Render selector buttons
-        let h = '<div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">';
+        // Render selector buttons — illuminated MINOR MINIATURE navigation.
+        // Presentation-only hooks: no notebook/gameplay state is changed here.
+        let h = '<div class="illum-minor-tabs" data-illum-role="minor-tabs" data-illum-group="notebooks">';
         const types = [
             { id: 'tabula', icon: '📋', name: 'Tabula' },
             { id: 'adversaria', icon: '📔', name: 'Adversaria' },
@@ -3622,7 +3623,9 @@ const UI = {
         ];
         types.forEach(t => {
             if ((GameState.unlockedRecipes || []).includes(t.id)) {
-                h += `<button onclick="UI.renderNotebookInline('${t.id}')" class="craft-btn">${t.icon} ${t.name}</button>`;
+                h += `<button onclick="UI.renderNotebookInline('${t.id}')" class="craft-btn illum-minor-tab" data-illum-subtab="${t.id}">` +
+                    `<span class="illum-miniature-mark" aria-hidden="true">${t.icon}</span>` +
+                    `<span class="illum-minor-label">${t.name}</span></button>`;
             }
         });
         h += '</div>';
@@ -3642,7 +3645,15 @@ const UI = {
 
     },
     renderNotebookInline: function (type) {
-        // Simply call NotebookSystem.render with inline container
+        // Visual-only active marker for the MINOR MINIATURE selector.
+        const nav = document.querySelector('#lore-notebooks-content .illum-minor-tabs[data-illum-group="notebooks"]');
+        if (nav) {
+            nav.querySelectorAll('[data-illum-subtab]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.illumSubtab === type);
+            });
+        }
+
+        // Existing notebook render path — gameplay/data behavior unchanged.
         NotebookSystem.render(type, 'notebook-content-inline');
     },
 

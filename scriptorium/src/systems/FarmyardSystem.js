@@ -1912,15 +1912,19 @@ const FarmyardSystem = {
     },
 
     _renderDvurTabs: function (active) {
-        let h = `<div style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px;">`;
+        let h = `<div class="illum-minor-tabs" data-illum-role="minor-tabs" data-illum-group="dvur">`;
         this.DVUR_TABS.forEach(tb => {
             // Flag-gated taby (např. Columbarium) — NEVIDITELNÉ dokud flag chybí, ne jen zamčené
             if (tb.flag && !(GameState.flags && GameState.flags[tb.flag])) return;
             const isActive = tb.id === active;
             const researched = !tb.tech || (GameState.researchedTechs && GameState.researchedTechs.includes(tb.tech));
             const lock = researched ? '' : ' 🔒';
-            h += `<button class="filter-btn ${isActive ? 'active' : ''}" style="font-size:0.78rem; padding:5px 9px; ${researched ? '' : 'opacity:0.55;'}"
-                onclick="FarmyardSystem.switchDvurTab('${tb.id}')">${tb.icon} ${t('dvur.tab_' + tb.id)}${lock}</button>`;
+            h += `<button class="filter-btn illum-minor-tab ${isActive ? 'active' : ''}"
+                data-illum-subtab="${tb.id}" ${researched ? '' : 'data-illum-locked="true"'}
+                onclick="FarmyardSystem.switchDvurTab('${tb.id}')">
+                <span class="illum-miniature-mark" aria-hidden="true">${tb.icon}</span>
+                <span class="illum-minor-label">${t('dvur.tab_' + tb.id)}${lock}</span>
+            </button>`;
         });
         h += `</div>`;
         return h;

@@ -240,16 +240,13 @@ const SecretsSystem = {
     const activeSubtab = GameState.scrinium.activeSubtab || 'tajne_spisy';
 
     // ── Subtab navigace ───────────────────────────────────────────────────
-    let subtabNav = '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px;">';
+    let subtabNav = '<div class="illum-minor-tabs" data-illum-role="minor-tabs" data-illum-group="scrinium">';
     Object.values(ScriniumDB.subtabs).forEach(function(st) {
       const isActive = st.id === activeSubtab;
-      const bg = isActive
-        ? 'background:var(--accent-warm,#8a3324); color:#fff;'
-        : 'background:rgba(0,0,0,0.05); color:var(--ink-primary);';
       subtabNav += `<button onclick="SecretsSystem.switchSubtab('${st.id}')"
-        style="${bg} border:none; border-radius:4px; padding:6px 14px; cursor:pointer;
-               font-family:'Crimson Text'; font-size:0.95rem;">
-        ${t(st.labelKey)}
+        class="illum-minor-tab ${isActive ? 'active' : ''}" data-illum-subtab="${st.id}">
+        <span class="illum-miniature-mark" aria-hidden="true">${st.icon}</span>
+        <span class="illum-minor-label">${t(st.labelKey)}</span>
       </button>`;
     });
     subtabNav += '</div>';
@@ -279,9 +276,7 @@ const SecretsSystem = {
     if (tab) {
       tab.querySelectorAll('button[onclick^="SecretsSystem.switchSubtab"]').forEach(function(btn) {
         const id = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
-        const isActive = id === subtabId;
-        btn.style.background = isActive ? 'var(--accent-warm,#8a3324)' : 'rgba(0,0,0,0.05)';
-        btn.style.color = isActive ? '#fff' : 'var(--ink-primary)';
+        btn.classList.toggle('active', id === subtabId);
       });
     }
   },
