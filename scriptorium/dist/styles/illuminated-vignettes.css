@@ -146,6 +146,13 @@ body.design-iluminovana [data-illum-vignette="templum"] {
     --illum-vignette-position: center center;
 }
 
+
+body.design-iluminovana [data-illum-vignette="infirmarium"] {
+    --illum-vignette-image:
+        url("/ui/illuminated/vignettes/infirmarium.webp");
+    --illum-vignette-position: center center;
+}
+
 body.design-iluminovana [data-illum-vignette="dvur"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/dvur.webp");
@@ -261,6 +268,13 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
     body.design-iluminovana [data-illum-vignette="templum"] {
         --illum-vignette-image:
             url("/ui/illuminated/vignettes/templum-mobile.webp");
+        --illum-vignette-position: center center;
+    }
+
+
+    body.design-iluminovana [data-illum-vignette="infirmarium"] {
+        --illum-vignette-image:
+            url("/ui/illuminated/vignettes/infirmarium-mobile.webp");
         --illum-vignette-position: center center;
     }
 
