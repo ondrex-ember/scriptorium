@@ -1191,7 +1191,7 @@ const SaeculumSystem = {
     let active = GameState.ui.saeculumEntity || 'tavern';
     if (!entities.some(e => e.id === active)) active = 'tavern';
 
-    let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
+    let h = `<div class="illum-minor-tabs" data-illum-role="minor-tabs" data-illum-group="saeculum">`;
     entities.forEach(e => {
       const isTrade = trade.includes(e.id);
       const isCur = e.id === active;
@@ -1199,17 +1199,18 @@ const SaeculumSystem = {
       let sub = '', dot = '';
       if (isTrade) {
         const open = CellariumSystem.isEntityOpen(e.id);
-        dot = ` <span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">●</span>`;
+        dot = ` <span class="illum-minor-status-dot" style="color:${open ? '#5a9' : '#c55'};">●</span>`;
         sub = lang === 'en' ? CellariumSystem.entityHoursLabel_en(e.id) : CellariumSystem.entityHoursLabel(e.id);
       }
       h += `
         <button onclick="SaeculumSystem.switchEntity('${e.id}')"
-                class="filter-btn entity-tab-btn${isCur ? ' active' : ''}"
-                style="flex: 1 1 calc(25% - 6px); min-width:110px; position:relative; padding-bottom:6px;">
-          <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
-            ${e.icon} ${name}${dot}
-          </div>
-          ${sub ? `<div style="font-size:0.6rem; opacity:0.6; margin-top:2px;">${sub}</div>` : ''}
+                class="filter-btn entity-tab-btn illum-minor-tab${isCur ? ' active' : ''}"
+                data-illum-subtab="${e.id}">
+          <span class="illum-miniature-mark" aria-hidden="true">${e.icon}</span>
+          <span class="illum-minor-copy">
+            <span class="illum-minor-label">${name}${dot}</span>
+            ${sub ? `<span class="illum-minor-meta">${sub}</span>` : ''}
+          </span>
         </button>
       `;
     });

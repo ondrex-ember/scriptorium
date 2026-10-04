@@ -1500,23 +1500,23 @@ const CellariumSystem = {
     const active = GameState.ui.cellariumEntity || 'buildings';
     const safeActive = entities.some(e => e.id === active) ? active : 'buildings';
 
-    // Tab buttons
-    let h = `<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">`;
+    // Entity navigation — illuminated MINOR MINIATURE layer (presentation only).
+    let h = `<div class="illum-minor-tabs" data-illum-role="minor-tabs" data-illum-group="cellarium">`;
     entities.forEach(e => {
       const open = this.isEntityOpen(e.id);
       const isCur = e.id === safeActive;
       const name = lang === 'en' ? e.label_en : e.label;
       const hours = lang === 'en' ? this.entityHoursLabel_en(e.id) : this.entityHoursLabel(e.id);
-      const openDot = `<span style="color:${open ? '#5a9' : '#c55'}; font-size:0.55rem;">
-        ${open ? '●' : '●'}</span>`;
+      const openDot = `<span class="illum-minor-status-dot" style="color:${open ? '#5a9' : '#c55'};">●</span>`;
       h += `
         <button onclick="CellariumSystem.switchEntity('${e.id}')"
-                class="filter-btn entity-tab-btn${isCur ? ' active' : ''}"
-                style="flex: 1 1 calc(33% - 6px); min-width:0; position:relative; padding-bottom:6px;">
-          <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
-            ${e.icon} ${name} ${openDot}
-          </div>
-          <div style="font-size:0.6rem; opacity:0.6; margin-top:2px;">${hours}</div>
+                class="filter-btn entity-tab-btn illum-minor-tab${isCur ? ' active' : ''}"
+                data-illum-subtab="${e.id}">
+          <span class="illum-miniature-mark" aria-hidden="true">${e.icon}</span>
+          <span class="illum-minor-copy">
+            <span class="illum-minor-label">${name} ${openDot}</span>
+            <span class="illum-minor-meta">${hours}</span>
+          </span>
         </button>
       `;
     });
@@ -1589,18 +1589,26 @@ const CellariumSystem = {
     if (entity === 'tavern') {
       const sub = GameState.ui.tavernSubtab || 'shop';
       h += `
-      <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-        <button class="filter-btn${sub === 'shop' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='shop'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold;">
-          🍺 ${lang === 'en' ? 'Tavern Store' : 'Šenk & Obchod'}
+      <div class="illum-minor-tabs" data-illum-role="minor-tabs" data-illum-group="tavern">
+        <button class="filter-btn illum-minor-tab${sub === 'shop' ? ' active' : ''}" data-illum-subtab="shop"
+                onclick="GameState.ui.tavernSubtab='shop'; SaeculumSystem.switchEntity('tavern');">
+          <span class="illum-miniature-mark" aria-hidden="true">🍺</span>
+          <span class="illum-minor-label">${lang === 'en' ? 'Tavern Store' : 'Šenk & Obchod'}</span>
         </button>
-        <button class="filter-btn${sub === 'dice' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='dice'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub === 'dice' ? 'var(--accent-gold)' : 'rgba(197,160,89,0.1)'}; color:${sub === 'dice' ? '#000' : 'var(--ink-primary)'};">
-          🎲 ${lang === 'en' ? 'Hazard' : 'Hazard'}
+        <button class="filter-btn illum-minor-tab${sub === 'dice' ? ' active' : ''}" data-illum-subtab="dice"
+                onclick="GameState.ui.tavernSubtab='dice'; SaeculumSystem.switchEntity('tavern');">
+          <span class="illum-miniature-mark" aria-hidden="true">🎲</span>
+          <span class="illum-minor-label">${lang === 'en' ? 'Hazard' : 'Hazard'}</span>
         </button>
-        <button class="filter-btn${sub === 'lapkove' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='lapkove'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub === 'lapkove' ? 'var(--accent-gold)' : 'rgba(197,160,89,0.1)'}; color:${sub === 'lapkove' ? '#000' : 'var(--ink-primary)'};">
-          🗡️ ${lang === 'en' ? 'The Lapkové Watch' : 'Lapková patrola'}
+        <button class="filter-btn illum-minor-tab${sub === 'lapkove' ? ' active' : ''}" data-illum-subtab="lapkove"
+                onclick="GameState.ui.tavernSubtab='lapkove'; SaeculumSystem.switchEntity('tavern');">
+          <span class="illum-miniature-mark" aria-hidden="true">🗡️</span>
+          <span class="illum-minor-label">${lang === 'en' ? 'The Lapkové Watch' : 'Lapková patrola'}</span>
         </button>
-        <button class="filter-btn${sub === 'mercenaries' ? ' active' : ''}" onclick="GameState.ui.tavernSubtab='mercenaries'; SaeculumSystem.switchEntity('tavern');" style="padding:6px 14px; font-weight:bold; background:${sub === 'mercenaries' ? 'var(--accent-gold)' : 'rgba(197,160,89,0.1)'}; color:${sub === 'mercenaries' ? '#000' : 'var(--ink-primary)'};">
-          🛡️ ${lang === 'en' ? 'Mercenaries' : 'Žoldnéři'}
+        <button class="filter-btn illum-minor-tab${sub === 'mercenaries' ? ' active' : ''}" data-illum-subtab="mercenaries"
+                onclick="GameState.ui.tavernSubtab='mercenaries'; SaeculumSystem.switchEntity('tavern');">
+          <span class="illum-miniature-mark" aria-hidden="true">🛡️</span>
+          <span class="illum-minor-label">${lang === 'en' ? 'Mercenaries' : 'Žoldnéři'}</span>
         </button>
       </div>
       `;

@@ -1,0 +1,481 @@
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED MINOR MINIATURES v1
+   ---------------------------------------------------------------------
+   L2/L3 navigation for real subordinate places/collections.
+
+   Pilot groups:
+   - Zahrada -> Dvůr -> Kurník / Košár / Kotce / Chlévy / Maštal /
+     Studna / Columbarium / Myši
+   - Scriptorium -> Zápisníky -> Tabula / Adversaria / Vademecum /
+     Florilegium / Enchiridion
+   - Knihovna -> Scrinium -> Bestiář / Herbář / Kroniky / Tajné spisy /
+     Mapy
+
+   Visual hierarchy:
+   ROOT HERO > MAJOR VIGNETTE > MINOR MINIATURE > FILTER CHIP
+
+   Presentation only. No gameplay mechanics or save data are changed.
+   ===================================================================== */
+
+body.design-iluminovana {
+    --illum-miniature-size: 34px;
+    --illum-minor-gap: 7px;
+    --illum-minor-border: rgba(143, 101, 43, .54);
+    --illum-minor-gold: #b98531;
+    --illum-minor-rubric: #8b3328;
+    --illum-minor-rubric-deep: #64251f;
+    --illum-minor-ink: #443226;
+}
+
+/* =====================================================================
+   1. MINOR TAB STRIP
+   ===================================================================== */
+
+body.design-iluminovana .illum-minor-tabs {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+
+    gap: var(--illum-minor-gap) !important;
+
+    width: 100% !important;
+    box-sizing: border-box !important;
+
+    margin: 0 0 15px !important;
+    padding: 5px 0 7px !important;
+
+    background: transparent !important;
+    background-image: none !important;
+
+    border: 0 !important;
+    border-bottom: 1px solid rgba(167, 124, 52, .24) !important;
+
+    box-shadow: none !important;
+}
+
+/* =====================================================================
+   2. MINOR TAB BUTTON
+   ---------------------------------------------------------------------
+   Less dominant than a MAJOR TAB, richer than a filter chip.
+   ===================================================================== */
+
+body.design-iluminovana .illum-minor-tab {
+    position: relative !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+
+    gap: 8px !important;
+
+    min-height: 43px !important;
+    min-width: 0 !important;
+
+    box-sizing: border-box !important;
+
+    margin: 0 !important;
+    padding: 4px 11px 4px 5px !important;
+
+    border: 1px solid var(--illum-minor-border) !important;
+    border-radius: 2px !important;
+
+    color: var(--illum-minor-ink) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.34) 0%,
+            rgba(255,255,255,.05) 48%,
+            rgba(122,83,33,.07) 100%
+        ),
+        color-mix(in srgb, var(--bg-parchment) 95%, #c7a25a 5%) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.16),
+        0 1px 3px rgba(44,25,13,.09) !important;
+
+    font-family: "Crimson Text", Georgia, serif !important;
+    font-size: .84rem !important;
+    line-height: 1 !important;
+
+    cursor: pointer !important;
+    transform: none !important;
+}
+
+body.design-iluminovana .illum-minor-tab:hover {
+    border-color: rgba(171, 126, 50, .78) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.48),
+            rgba(182,137,61,.08)
+        ),
+        var(--bg-parchment) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.20),
+        0 2px 5px rgba(44,25,13,.12) !important;
+}
+
+body.design-iluminovana .illum-minor-label {
+    display: block !important;
+    min-width: 0 !important;
+
+    white-space: nowrap !important;
+
+    font-family: "Cinzel", Georgia, serif !important;
+    font-size: .73rem !important;
+    line-height: 1.05 !important;
+    letter-spacing: .01em !important;
+
+    text-align: left !important;
+}
+
+/* =====================================================================
+   3. THE MINIATURE MARK
+   ---------------------------------------------------------------------
+   Existing semantic icons are retained, but presented like a tiny painted
+   manuscript miniature instead of a floating emoji.
+   ===================================================================== */
+
+body.design-iluminovana .illum-miniature-mark {
+    position: relative !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 0 0 var(--illum-miniature-size) !important;
+
+    width: var(--illum-miniature-size) !important;
+    height: var(--illum-miniature-size) !important;
+
+    box-sizing: border-box !important;
+
+    border: 1px solid rgba(156, 112, 43, .72) !important;
+    border-radius: 2px !important;
+
+    background:
+        radial-gradient(
+            circle at 42% 35%,
+            rgba(255,244,207,.94) 0%,
+            rgba(231,207,151,.80) 44%,
+            rgba(176,132,59,.30) 100%
+        ) !important;
+
+    box-shadow:
+        inset 0 0 0 2px rgba(255,248,220,.24),
+        inset 0 0 8px rgba(89,50,17,.12),
+        0 1px 2px rgba(38,20,10,.13) !important;
+
+    font-size: 1.04rem !important;
+    line-height: 1 !important;
+
+    filter: saturate(.82) sepia(.10) !important;
+
+    overflow: hidden !important;
+}
+
+/* Tiny gold-leaf corner. */
+body.design-iluminovana .illum-miniature-mark::after {
+    content: "";
+    position: absolute;
+
+    top: 2px;
+    left: 2px;
+
+    width: 5px;
+    height: 5px;
+
+    border-top: 1px solid rgba(139,94,25,.70);
+    border-left: 1px solid rgba(139,94,25,.70);
+
+    pointer-events: none;
+}
+
+/* =====================================================================
+   4. ACTIVE / LOCKED STATES
+   ===================================================================== */
+
+body.design-iluminovana .illum-minor-tab.active {
+    color: #fff0d2 !important;
+
+    border-color: rgba(195, 151, 68, .86) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #a54838 0%,
+            var(--illum-minor-rubric) 48%,
+            var(--illum-minor-rubric-deep) 100%
+        ) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,236,194,.20),
+        inset 0 0 0 1px rgba(83,28,22,.22),
+        0 2px 5px rgba(57,24,16,.17) !important;
+}
+
+body.design-iluminovana .illum-minor-tab.active .illum-miniature-mark {
+    border-color: rgba(225, 190, 103, .90) !important;
+
+    background:
+        radial-gradient(
+            circle at 40% 34%,
+            #fff0bf 0%,
+            #d8b15d 53%,
+            #8e5f22 100%
+        ) !important;
+
+    box-shadow:
+        inset 0 0 0 2px rgba(255,245,210,.20),
+        0 0 6px rgba(214,174,77,.25) !important;
+
+    filter: saturate(.95) sepia(.05) !important;
+}
+
+body.design-iluminovana .illum-minor-tab[data-illum-locked="true"] {
+    opacity: .56 !important;
+    filter: grayscale(.20) !important;
+}
+
+body.design-iluminovana .illum-minor-tab[data-illum-locked="true"]:hover {
+    opacity: .68 !important;
+}
+
+/* =====================================================================
+   5. GROUP-SPECIFIC RESTRAINT
+   ---------------------------------------------------------------------
+   Scrinium and notebooks are collections, not physical rooms. Keep their
+   miniature cards a little more book-like and compact.
+   ===================================================================== */
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="notebooks"] .illum-miniature-mark,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="scrinium"] .illum-miniature-mark {
+    --illum-miniature-size: 31px;
+}
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="notebooks"] .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="scrinium"] .illum-minor-tab {
+    min-height: 40px !important;
+}
+
+/* =====================================================================
+   6. PHONE / PORTRAIT
+   ---------------------------------------------------------------------
+   L2/L3 navigation becomes one swipeable manuscript strip. It does not
+   consume multiple rows above the content.
+   ===================================================================== */
+
+@media (max-width: 600px) {
+
+    body.design-iluminovana {
+        --illum-miniature-size: 31px;
+        --illum-minor-gap: 5px;
+    }
+
+    body.design-iluminovana .illum-minor-tabs {
+        flex-wrap: nowrap !important;
+        align-items: stretch !important;
+
+        width: 100% !important;
+
+        margin-bottom: 11px !important;
+        padding:
+            4px
+            1px
+            5px !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        touch-action: pan-x;
+
+        scrollbar-width: thin;
+        scrollbar-color:
+            rgba(174,129,53,.72)
+            rgba(75,51,25,.07);
+
+        scroll-snap-type: x proximity;
+        scroll-padding-inline: 3px;
+    }
+
+    body.design-iluminovana .illum-minor-tab {
+        flex: 0 0 auto !important;
+
+        min-height: 39px !important;
+
+        padding:
+            3px
+            9px
+            3px
+            4px !important;
+
+        gap: 6px !important;
+
+        scroll-snap-align: start;
+    }
+
+    body.design-iluminovana .illum-minor-label {
+        font-size: .68rem !important;
+    }
+
+    body.design-iluminovana .illum-minor-tabs::-webkit-scrollbar {
+        display: block !important;
+        height: 3px !important;
+    }
+
+    body.design-iluminovana .illum-minor-tabs::-webkit-scrollbar-track {
+        background: rgba(75,51,25,.07) !important;
+        border-radius: 999px !important;
+    }
+
+    body.design-iluminovana .illum-minor-tabs::-webkit-scrollbar-thumb {
+        background: rgba(174,129,53,.70) !important;
+        border-radius: 999px !important;
+    }
+}
+
+/* =====================================================================
+   7. VERY SMALL PHONE
+   ===================================================================== */
+
+@media (max-width: 360px) {
+
+    body.design-iluminovana {
+        --illum-miniature-size: 29px;
+    }
+
+    body.design-iluminovana .illum-minor-tab {
+        min-height: 37px !important;
+        padding-right: 8px !important;
+    }
+
+    body.design-iluminovana .illum-minor-label {
+        font-size: .65rem !important;
+    }
+}
+
+/* =====================================================================
+   8. ACCESSIBILITY
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    body.design-iluminovana .illum-minor-tabs,
+    body.design-iluminovana .illum-minor-tab,
+    body.design-iluminovana .illum-miniature-mark {
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED MINOR MINIATURES v1.1 ROLLOUT
+   ---------------------------------------------------------------------
+   Extends the approved L2/L3 visual grammar to:
+   - Pracovna -> work areas
+   - Cellarium -> entities
+   - Saeculum -> entities
+   - Saeculum/Hospoda -> subordinate activities
+   - Scriptorium/Persona -> persona sections
+   - Templum -> Hřbitov / Hlavní
+   ===================================================================== */
+
+body.design-iluminovana .illum-minor-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+}
+
+body.design-iluminovana .illum-minor-meta {
+    display: block !important;
+    max-width: 100% !important;
+    font-family: "Crimson Text", Georgia, serif !important;
+    font-size: .62rem !important;
+    line-height: 1 !important;
+    color: currentColor !important;
+    opacity: .60 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+body.design-iluminovana .illum-minor-status-dot {
+    display: inline-block !important;
+    margin-left: 2px !important;
+    font-size: .52rem !important;
+    line-height: 1 !important;
+    vertical-align: .08em !important;
+}
+
+/* Dense system indexes: distribute evenly without becoming MAJOR tabs. */
+body.design-iluminovana .illum-minor-tabs[data-illum-group="home-workshops"] > .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="cellarium"] > .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="saeculum"] > .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="persona"] > .illum-minor-tab {
+    flex: 1 1 145px !important;
+}
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="cellarium"] .illum-miniature-mark,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="saeculum"] .illum-miniature-mark,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="persona"] .illum-miniature-mark,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="home-workshops"] .illum-miniature-mark {
+    --illum-miniature-size: 31px;
+}
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="cellarium"] .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="saeculum"] .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="persona"] .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="home-workshops"] .illum-minor-tab {
+    min-height: 41px !important;
+}
+
+/* Tavern is L3: a touch smaller than the surrounding Saeculum index. */
+body.design-iluminovana .illum-minor-tabs[data-illum-group="tavern"] {
+    margin-top: 1px !important;
+    margin-bottom: 12px !important;
+}
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="tavern"] > .illum-minor-tab {
+    flex: 1 1 155px !important;
+    min-height: 39px !important;
+}
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="tavern"] .illum-miniature-mark {
+    --illum-miniature-size: 29px;
+}
+
+/* Two Templum choices should read as a balanced subordinate pair. */
+body.design-iluminovana .illum-minor-tabs[data-illum-group="templum"] > .illum-minor-tab {
+    flex: 1 1 180px !important;
+    justify-content: center !important;
+}
+
+/* On touch screens every dense group returns to a single swipeable strip. */
+@media (max-width: 600px) {
+    body.design-iluminovana .illum-minor-tabs[data-illum-group="home-workshops"] > .illum-minor-tab,
+    body.design-iluminovana .illum-minor-tabs[data-illum-group="cellarium"] > .illum-minor-tab,
+    body.design-iluminovana .illum-minor-tabs[data-illum-group="saeculum"] > .illum-minor-tab,
+    body.design-iluminovana .illum-minor-tabs[data-illum-group="persona"] > .illum-minor-tab,
+    body.design-iluminovana .illum-minor-tabs[data-illum-group="tavern"] > .illum-minor-tab,
+    body.design-iluminovana .illum-minor-tabs[data-illum-group="templum"] > .illum-minor-tab {
+        flex: 0 0 auto !important;
+    }
+
+    body.design-iluminovana .illum-minor-copy {
+        max-width: 128px !important;
+    }
+
+    body.design-iluminovana .illum-minor-meta {
+        max-width: 128px !important;
+    }
+}
+

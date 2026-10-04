@@ -355,11 +355,19 @@ const TemplumSystem = {
                   </div>`;
         }
 
-        // Subtab přepínač: Hřbitov / Hlavní (mirror Cellarium/Manufaktura vzoru)
+        // Subtab přepínač: Hřbitov / Hlavní — illuminated MINOR MINIATURE navigation.
         const entity = (GameState.ui && GameState.ui.templumEntity) || (this.isUnlocked() ? 'main' : 'hrbitov');
-        h += `<div style="display:flex; gap:8px; margin-bottom:16px;">
-                <button class="craft-btn" style="flex:1; ${entity==='hrbitov' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('hrbitov')">⚰️ ${lang==='en'?'Cemetery':'Hřbitov'}</button>
-                <button class="craft-btn" style="flex:1; ${entity==='main' ? 'background:#2c1810;' : ''}" onclick="TemplumSystem.switchEntity('main')">⛪ ${lang==='en'?'Main':'Hlavní'}</button>
+        h += `<div class="illum-minor-tabs" data-illum-role="minor-tabs" data-illum-group="templum">
+                <button class="craft-btn illum-minor-tab${entity==='hrbitov' ? ' active' : ''}" data-illum-subtab="hrbitov"
+                        onclick="TemplumSystem.switchEntity('hrbitov')">
+                  <span class="illum-miniature-mark" aria-hidden="true">⚰️</span>
+                  <span class="illum-minor-label">${lang==='en'?'Cemetery':'Hřbitov'}</span>
+                </button>
+                <button class="craft-btn illum-minor-tab${entity==='main' ? ' active' : ''}" data-illum-subtab="main"
+                        onclick="TemplumSystem.switchEntity('main')">
+                  <span class="illum-miniature-mark" aria-hidden="true">⛪</span>
+                  <span class="illum-minor-label">${lang==='en'?'Main':'Hlavní'}</span>
+                </button>
               </div>`;
 
         if (entity === 'hrbitov') {

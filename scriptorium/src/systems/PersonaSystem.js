@@ -209,27 +209,36 @@ const PersonaSystem = {
 
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-        // Filter bar
-        let h = `<div class="filter-bar" style="margin-bottom:16px;display:flex;gap:6px;flex-wrap:wrap;">
-            <button id="persona-tab-persona" class="filter-btn ${this._activeTab==='persona'?'active':''}"
-                onclick="PersonaSystem.switchTab('persona',this)">🧑 ${lang==='en'?'Persona':'Persona'}</button>
-            <button id="persona-tab-vigor" class="filter-btn ${this._activeTab==='vigor'?'active':''}"
-                onclick="PersonaSystem.switchTab('vigor',this)">⚡ Vigor</button>
-            <button id="persona-tab-valetudo" class="filter-btn ${this._activeTab==='valetudo'?'active':''}"
-                onclick="PersonaSystem.switchTab('valetudo',this)">🩺 Valetudo</button>
-            <button id="persona-tab-stats" class="filter-btn ${this._activeTab==='stats'?'active':''}"
-                onclick="PersonaSystem.switchTab('stats',this)">📊 ${lang==='en'?'Statistics':'Statistiky'}</button>
-            <button id="persona-tab-influentia" class="filter-btn ${this._activeTab==='influentia'?'active':''}"
-                onclick="PersonaSystem.switchTab('influentia',this)">🤝 ${lang==='en'?'Influentia':'Influentia'}</button>
-            <button id="persona-tab-professio" class="filter-btn ${this._activeTab==='professio'?'active':''}"
-                onclick="PersonaSystem.switchTab('professio',this)">⚒️ ${lang==='en'?'Professio':'Professio'}</button>
-            <button id="persona-tab-felis" class="filter-btn ${this._activeTab==='felis'?'active':''}"
-                onclick="PersonaSystem.switchTab('felis',this)">🐈‍⬛ Felis</button>
-            <button id="persona-tab-druzina" class="filter-btn ${this._activeTab==='druzina'?'active':''}"
-                onclick="PersonaSystem.switchTab('druzina',this)">🛡️ ${lang==='en'?'Retinue':'Družina'}</button>
+        // L2 Persona navigation — illuminated MINOR MINIATURE layer.
+        let h = `<div class="illum-minor-tabs" data-illum-role="minor-tabs" data-illum-group="persona">
+            <button id="persona-tab-persona" class="filter-btn illum-minor-tab ${this._activeTab==='persona'?'active':''}"
+                data-illum-subtab="persona" onclick="PersonaSystem.switchTab('persona',this)">
+                <span class="illum-miniature-mark" aria-hidden="true">🧑</span><span class="illum-minor-label">Persona</span></button>
+            <button id="persona-tab-vigor" class="filter-btn illum-minor-tab ${this._activeTab==='vigor'?'active':''}"
+                data-illum-subtab="vigor" onclick="PersonaSystem.switchTab('vigor',this)">
+                <span class="illum-miniature-mark" aria-hidden="true">⚡</span><span class="illum-minor-label">Vigor</span></button>
+            <button id="persona-tab-valetudo" class="filter-btn illum-minor-tab ${this._activeTab==='valetudo'?'active':''}"
+                data-illum-subtab="valetudo" onclick="PersonaSystem.switchTab('valetudo',this)">
+                <span class="illum-miniature-mark" aria-hidden="true">🩺</span><span class="illum-minor-label">Valetudo</span></button>
+            <button id="persona-tab-stats" class="filter-btn illum-minor-tab ${this._activeTab==='stats'?'active':''}"
+                data-illum-subtab="stats" onclick="PersonaSystem.switchTab('stats',this)">
+                <span class="illum-miniature-mark" aria-hidden="true">📊</span><span class="illum-minor-label">${lang==='en'?'Statistics':'Statistiky'}</span></button>
+            <button id="persona-tab-influentia" class="filter-btn illum-minor-tab ${this._activeTab==='influentia'?'active':''}"
+                data-illum-subtab="influentia" onclick="PersonaSystem.switchTab('influentia',this)">
+                <span class="illum-miniature-mark" aria-hidden="true">🤝</span><span class="illum-minor-label">Influentia</span></button>
+            <button id="persona-tab-professio" class="filter-btn illum-minor-tab ${this._activeTab==='professio'?'active':''}"
+                data-illum-subtab="professio" onclick="PersonaSystem.switchTab('professio',this)">
+                <span class="illum-miniature-mark" aria-hidden="true">⚒️</span><span class="illum-minor-label">Professio</span></button>
+            <button id="persona-tab-felis" class="filter-btn illum-minor-tab ${this._activeTab==='felis'?'active':''}"
+                data-illum-subtab="felis" onclick="PersonaSystem.switchTab('felis',this)">
+                <span class="illum-miniature-mark" aria-hidden="true">🐈‍⬛</span><span class="illum-minor-label">Felis</span></button>
+            <button id="persona-tab-druzina" class="filter-btn illum-minor-tab ${this._activeTab==='druzina'?'active':''}"
+                data-illum-subtab="druzina" onclick="PersonaSystem.switchTab('druzina',this)">
+                <span class="illum-miniature-mark" aria-hidden="true">🛡️</span><span class="illum-minor-label">${lang==='en'?'Retinue':'Družina'}</span></button>
             ${((GameState.inventory && (GameState.inventory['truhla_i'] > 0 || GameState.inventory['truhla_ii'] > 0))) ? `
-            <button id="persona-tab-truhla" class="filter-btn ${this._activeTab==='truhla'?'active':''}"
-                onclick="PersonaSystem.switchTab('truhla',this)">🗝️ ${lang==='en'?'Curio Chest':'Truhla'}</button>` : ''}
+            <button id="persona-tab-truhla" class="filter-btn illum-minor-tab ${this._activeTab==='truhla'?'active':''}"
+                data-illum-subtab="truhla" onclick="PersonaSystem.switchTab('truhla',this)">
+                <span class="illum-miniature-mark" aria-hidden="true">🗝️</span><span class="illum-minor-label">${lang==='en'?'Curio Chest':'Truhla'}</span></button>` : ''}
         </div>`;
 
         h += `<div id="persona-subtab-persona"  style="${this._activeTab==='persona'?'':'display:none'}">` + this._renderPersona(lang) + `</div>`;
