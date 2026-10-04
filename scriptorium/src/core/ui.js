@@ -4573,9 +4573,9 @@ const UI = {
 
     afterLangPicked: function () {
         // Pokračuje chain: consent (pokud třeba) → welcome modal
-        if (typeof ScrConsent !== 'undefined' && !ScrConsent.decided()) {
+        if (window.ScrConsent && !window.ScrConsent.decided()) {
             // Zobraz lištu souhlasu; _afterDecision() zobrazí welcome modal po rozhodnutí
-            ScrConsent.openBar();
+            window.ScrConsent.openBar();
         } else {
             // Souhlas byl rozhodnut dříve - jdi rovnou na welcome
             setTimeout(() => {

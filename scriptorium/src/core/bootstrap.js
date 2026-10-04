@@ -13,8 +13,8 @@ const ConsentManager = {
     },
 
     showBarIfNeeded: function() {
-        if (typeof ScrConsent === 'undefined') return;
-        if (!ScrConsent.decided()) ScrConsent.openBar();
+        if (!window.ScrConsent) return;
+        if (!window.ScrConsent.decided()) window.ScrConsent.openBar();
     },
 
     // Po rozhodnutí (lišta i modal) - intro modal jen pro nového hráče
@@ -28,8 +28,8 @@ const ConsentManager = {
         }
     }
 };
-if (typeof ScrConsent !== 'undefined') {
-    ScrConsent.onDecision(function(granted) {
+if (window.ScrConsent) {
+    window.ScrConsent.onDecision(function(granted) {
         ConsentManager._afterDecision();
     });
 }
