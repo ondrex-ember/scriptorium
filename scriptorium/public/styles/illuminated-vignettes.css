@@ -125,6 +125,13 @@ body.design-iluminovana [data-illum-vignette="athanor"] {
     --illum-vignette-position: center 58%;
 }
 
+
+body.design-iluminovana [data-illum-vignette="saeculum"] {
+    --illum-vignette-image:
+        url("/ui/illuminated/vignettes/saeculum.webp");
+    --illum-vignette-position: center center;
+}
+
 body.design-iluminovana [data-illum-vignette="dvur"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/dvur.webp");
@@ -220,6 +227,13 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
 
     body.design-iluminovana [data-illum-vignette="athanor"] {
         --illum-vignette-position: center 60%;
+    }
+
+
+    body.design-iluminovana [data-illum-vignette="saeculum"] {
+        --illum-vignette-image:
+            url("/ui/illuminated/vignettes/saeculum-mobile.webp");
+        --illum-vignette-position: center center;
     }
 
     body.design-iluminovana [data-illum-vignette="dvur"] {
