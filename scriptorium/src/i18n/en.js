@@ -3402,6 +3402,19 @@ Alloys of metal, varnishes for wood and vellum, a poison that whiteneth copper i
             inspect_hint: 'The Abbot has promised to send an officer to survey the site before it is entered in the register.',
             locked_hint: "Bell-casting needs an annex of its own to the Kovárna — and the Abbot's word first.",
         },
+        // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026) — Wheelwright's Yard, mirror land_zvonarsky_dvur exactly.
+        land_kolarensky_dvur: {
+            title: "Request for the Wheelwright's Yard",
+            submit_btn: 'Submit petition to the Abbot',
+            pending: '⏳ Petition submitted {date}. The Abbot will reply by {responseDate}.',
+            approved: "✅ The Abbot approved dealings over the Wheelwright's Yard. The parcel may be bought in Cellarium — Land.",
+            denied_regalia: '❌ Abbot denied: You must first study the Regalia and open dealings with the Lord of the Manor.',
+            kronika_submit: "Petition submitted to the Abbot for the Wheelwright's Yard. Reply expected by {responseDate}.",
+            kronika_approved: "The Abbot approved dealings over the Wheelwright's Yard.",
+            kronika_denied: "The Abbot denied the petition for the Wheelwright's Yard. Reason: {reason}",
+            inspect_hint: 'The Abbot has promised to send an officer to survey the site before it is entered in the register.',
+            locked_hint: "The Wheelwright's Yard needs a yard of its own for seasoning timber — and the Abbot's word first.",
+        },
         // bell-casting-mrd v0.1 (21.9.2026) — Kovárna tier 2, mirror pivovar
         // exactly, PLUS denied_kovarna (expanding an existing building, not a new one).
         kovarna_ii: {

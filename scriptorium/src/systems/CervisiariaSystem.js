@@ -54,6 +54,25 @@ const CervisiariaSystem = {
     },
 
     dailyTick: function () {
+        // One-time starter yeast. brew_* recipes need 1 kvasnice and return it as a
+        // byproduct, but nothing granted the first one when tech_fermentum came via
+        // Athanor practice / book / paid research. Runs before the isActive guard so
+        // it also reaches saves that already have tech_fermentum.
+        if (!GameState.flags) GameState.flags = {};
+        if (!GameState.flags.fermentumStarterGiven
+            && GameState.researchedTechs && GameState.researchedTechs.includes('tech_fermentum')) {
+            GameState.flags.fermentumStarterGiven = true;
+            if ((GameState.inventory.kvasnice || 0) < 1 && typeof Game !== 'undefined' && Game.addItem) {
+                Game.addItem('kvasnice', 1);
+                if (typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                    const lang = (GameState.settings && GameState.settings.language) || 'cs';
+                    NotificationSystem.panel('🫧 ' + (lang === 'en'
+                        ? 'You set aside a little yeast foam from the fermenting wort — enough to start the first brew.'
+                        : 'Odložil jsi trochu kvasnic z kvasící mladiny — stačí na první várku.'), 'info');
+                }
+                if (typeof Game !== 'undefined' && Game.save) Game.save();
+            }
+        }
         if (!(this.isActive('prima_cervisia') || this.isActive('cervisia_nigra'))) return;
         if (!GameState.cervisiaTick) GameState.cervisiaTick = { lastTick: 0 };
         const now = Date.now();

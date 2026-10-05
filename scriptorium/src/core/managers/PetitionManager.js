@@ -164,6 +164,14 @@ const PetitionManager = {
             }
         }
 
+        // Validace podmínek — pro Kolárenský dvůr (parcela), polnosti-iii-
+        // vozovy-park-mrd.md v0.1 (18.9.2026), mirror land_zvonarsky_dvur.
+        if (type === 'land_kolarensky_dvur') {
+            if (!(GameState.flags && GameState.flags.pozemky_active)) {
+                UI.notify(t('abbotPetition.land_kolarensky_dvur.denied_regalia'), true); return;
+            }
+        }
+
         // Validace podmínek — pro Kovárnu tier 2 (zvonařská výhrň), bell-
         // casting-mrd.md v0.1 (21.9.2026). Mirror kovarna/pivovar přesně,
         // NAVÍC vyžaduje storage.kovarna.built — je to rozšíření existující
@@ -269,7 +277,7 @@ const PetitionManager = {
         const now = Date.now();
         const DAY_MS = 86400000;
 
-        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'kovarna', 'land_u_hradby', 'land_prazdroj', 'pivovar', 'columbarium', 'domus_ii', 'domus_iii', 'probost', 'mercenaries', 'land_zvonarsky_dvur', 'kovarna_ii'].forEach(type => {
+        ['fodina', 'fornax', 'furnus', 'land_dvur_pekarsky', 'kovarna', 'land_u_hradby', 'land_prazdroj', 'pivovar', 'columbarium', 'domus_ii', 'domus_iii', 'probost', 'mercenaries', 'land_zvonarsky_dvur', 'kovarna_ii', 'land_kolarensky_dvur'].forEach(type => {
             const pet = GameState.abbotPetition[type];
             if (!pet || pet.status !== 'pending') return;
             if (now - pet.submittedAt < DAY_MS) return;
@@ -326,6 +334,10 @@ const PetitionManager = {
             }
 
             if (type === 'land_zvonarsky_dvur') {
+                if (!(GameState.flags && GameState.flags.pozemky_active)) deniedKey = 'denied_regalia';
+            }
+
+            if (type === 'land_kolarensky_dvur') {
                 if (!(GameState.flags && GameState.flags.pozemky_active)) deniedKey = 'denied_regalia';
             }
 

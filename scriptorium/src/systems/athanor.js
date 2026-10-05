@@ -353,6 +353,14 @@ const AthanorDB = {
       lore: 'Zlatavá tekutina z povařeného obilí. Základ každého piva. Vzniká jen v Athanoru.',
       lore_en: 'The golden liquid from boiled grain. The base of every beer. Arises only in the Athanor.'
     },
+    // Neutral profile (0/0): hops+wort:maceratio sits at t-1 m6, any moisture >= 1
+    // would tip it into DILUTIO (m>=7) and make hops+kvasnice+wort unbrewable.
+    {
+      id: 'kvasnice', name: 'Kvasnice', name_en: 'Yeast', name_lat: 'Faex Cerevisiae', rarity: 'uncommon', source: 'crafted',
+      color: '#e6d9a8', icon: '🫧', thermal: 0, moisture: 0,
+      lore: 'Pěna sebraná z kvasícího díla. Udrží se jen z várky do várky.',
+      lore_en: 'Foam skimmed from a fermenting brew. Kept alive only from batch to batch.'
+    },
 
     // ── Doplnění (athanor-integrity-audit.md) — 31 ingrediencí použitých
     // v combos, ale dosud nezaregistrovaných zde. Bez tohoto záznamu je
@@ -1786,14 +1794,14 @@ const AthanorDB = {
       lore: 'Konopí uvařené s voskem. Hildegarda je znala jako "teplé" (Physica, kap. 11).',
       lore_en: 'Hemp boiled with wax. Hildegard knew it as "warm" (Physica, ch. 11).'
     },
-    'lard+cannabis:coctio': {
+    'cannabis+lard:coctio': {
       result: { id: 'konopna_mast', qty: 1 },
       name: 'Konopná mast', name_en: 'Cannabis Salve', name_lat: 'Unguentum Cannabis', icon: '🫙',
       effect: null, unlockFolio: 'folio_scr03',
       lore: 'Chudší cesta — konopí uvařené se sádlem místo vosku. Stejná mast, prostší kuchyně.',
       lore_en: 'The humbler path — hemp boiled with lard instead of wax. The same salve, a plainer kitchen.'
     },
-    'vinegar+cannabis:maceratio': {
+    'cannabis+vinegar:maceratio': {
       result: { id: 'konopna_tinktura', qty: 1 },
       name: 'Konopná tinktura', name_en: 'Cannabis Tincture', name_lat: 'Tinctura Cannabis', icon: '🍶',
       effect: null, unlockFolio: 'folio_scr03',
@@ -1940,10 +1948,12 @@ const AthanorDB = {
       lore: 'Cín tavený s olovem. Cíncovina — pravá středověká pájka.',
       lore_en: 'Tin smelted with lead. Pewter — a true medieval solder.'
     },
+    // Gate = tech_metallurgia_rara (the tech that yields copper/tin), not a
+    // random-discovery Scrinium folio — bronz gates Pivovar and Kovarna II.
     'copper+tin:calcinatio': {
       result: { id: 'bronz', qty: 2 },
       name: 'Bronz', name_en: 'Bronze', name_lat: 'Aes', icon: '🟠',
-      effect: null, unlockFolio: 'folio_scr07',
+      effect: null, unlock: 'tech_metallurgia_rara',
       lore: 'Měď tavená s cínem. Nejstarší slitina lidstva — zvony, nářadí, sochy.',
       lore_en: "Copper smelted with tin. Humanity's oldest alloy — bells, tools, statues."
     },
@@ -3018,7 +3028,7 @@ const AthanorSystem = {
       'acetum_destillatum', 'aqua_ardens', 'aqua_fortis', 'spiritus_vini'],
     minerals: ['chalk', 'gum_arabic', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol', 'lead', 'copper', 'tin', 'sal_petrae', 'arsenicum',
       'sal_alkali', 'sal_ammoniac', 'sandarak', 'tartarus', 'mercury', 'spodium', 'iron_ore', 'vapenec'],
-    brewing: ['grain', 'hops', 'wort', 'honey', 'thyme'],
+    brewing: ['grain', 'hops', 'wort', 'kvasnice', 'honey', 'thyme'],
     materials: ['bone', 'cornu_cervi', 'egg', 'wood', 'stick', 'ash', 'charcoal', 'beeswax', 'propolis', 'bee_bread', 'resin_pine', 'lard',
       'resin_spruce', 'resin_styrax', 'resin_olibanum', 'worms', 'acorn', 'wool', 'milk'],
     spices: ['pepr_cerny', 'zazvor', 'hrebicek', 'safran', 'skorice', 'muskat', 'salt'],

@@ -2431,6 +2431,19 @@ const STRINGS_cs = {
             inspect_hint: 'Opat přislíbil poslat úředníka na místo, než parcelu zapíše do desek.',
             locked_hint: 'Odlévání zvonů potřebuje vlastní přístavek ke Kovárně — a k tomu nejdřív opatovo slovo.',
         },
+        // polnosti-iii-vozovy-park-mrd.md v0.1 (18.9.2026) — Kolárenský dvůr, mirror land_zvonarsky_dvur přesně.
+        land_kolarensky_dvur: {
+            title: 'Žádost o kolárenský dvůr',
+            submit_btn: 'Zaslat žádost opatovi',
+            pending: '⏳ Žádost odeslána {date}. Opat odpoví {responseDate}.',
+            approved: '✅ Opat schválil jednání o kolárenském dvoře. Parcelu jde koupit v Cellariu — Pozemky.',
+            denied_regalia: '❌ Opat zamítl: Nejprve musíš prostudovat Regálie a otevřít jednání se Zemským pánem.',
+            kronika_submit: 'Odeslána žádost opatovi o kolárenský dvůr. Odpověď očekávána {responseDate}.',
+            kronika_approved: 'Opat schválil jednání o kolárenském dvoře.',
+            kronika_denied: 'Opat zamítl žádost o kolárenský dvůr. Důvod: {reason}',
+            inspect_hint: 'Opat přislíbil poslat úředníka na místo, než parcelu zapíše do desek.',
+            locked_hint: 'Kolárna potřebuje vlastní dvůr se sušením dřeva — a k tomu nejdřív opatovo slovo.',
+        },
         // bell-casting-mrd v0.1 (21.9.2026) — Kovárna tier 2, mirror pivovar
         // přesně, NAVÍC denied_kovarna (rozšíření existující budovy, ne nová).
         kovarna_ii: {
