@@ -891,22 +891,22 @@ const ChroniconSystem = {
         // icon, title_cs/en, text_cs/en, choices }. `contactId` určuje,
         // komu se připisuje vztah — na rozdíl od studovna (natvrdo
         // 'vrchnost') tady žádný default není, Chronicon musí poslat.
+        // Soft-bounce zde (a u 'vypujcka' níž) NEresetuje _advisoryShownThisSession:
+        // checkPendingAdvisory běží 1×/s, reset by gate modal vracel každou sekundu.
+        // Žádost zůstává pending; znovu ji otevře reopenAdvisory() / pult v Knihovně.
         if (choiceId === 'accept' && p && p.kind === 'ctenar') {
             const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
             if (!hasTech) {
-                ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'There is no room yet fit to receive him. (Requires: Studovna)'
                     : 'Zatím není žádná místnost hodná jeho přijetí. (Vyžaduje: Studovna)';
             }
             if (GameState.studovnaGuest && GameState.studovnaGuest.until > Date.now()) {
-                ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'The study room is already occupied by another guest.'
                     : 'Studovna je právě obsazená jiným hostem.';
             }
             if (!(GameState.library && GameState.library.unlockedBooks && GameState.library.unlockedBooks.length > 0)) {
-                ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'There is nothing yet in the library he could read.'
                     : 'V knihovně zatím není nic, co by mohl číst.';
@@ -921,14 +921,12 @@ const ChroniconSystem = {
         if ((choiceId === 'accept_standard' || choiceId === 'accept_higher') && p && p.kind === 'vypujcka') {
             const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_absentee_lending'));
             if (!hasTech) {
-                ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'No book may yet leave these walls. (Requires: Absentee Lending)'
                     : 'Zatím žádná kniha nesmí opustit tyto zdi. (Vyžaduje: Výpůjčka mimo klášter)';
             }
             const rank = GameState.rank && GameState.rank.monastic;
             if (rank !== 'prior') {
-                ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'Only the Prior may permit a book to leave the monastery.'
                     : 'Jen Prior smí dovolit, aby kniha opustila klášter.';
@@ -939,14 +937,12 @@ const ChroniconSystem = {
                 return prot !== 'catena' && prot !== 'secreta';
             });
             if (pool.length === 0) {
-                ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'Nothing in the fond may safely leave — the rest is chained or already lent.'
                     : 'Nic ve fondu nesmí bezpečně odejít — zbytek je přikován nebo už půjčen.';
             }
             const rel = Math.min(100, (GameState.contactRelation || {})[p.contactId] || 0);
             if (choiceId === 'accept_higher' && rel < 20) {
-                ChroniconSystem._advisoryShownThisSession = false;
                 return lang === 'en'
                     ? 'He does not trust thee enough yet to accept such terms — he simply leaves.'
                     : 'Ještě ti tolik nedůvěřuje, aby přijal takové podmínky — prostě odejde.';

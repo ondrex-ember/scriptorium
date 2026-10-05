@@ -3862,7 +3862,7 @@ const UI = {
                 contextHtml = `<div style="margin-bottom:10px;"><strong>${title}</strong><div style="font-size:0.85rem;opacity:0.85;margin-top:4px;">${text || ''}</div></div>`;
                 windowButtons = (extPending.choices || []).map(c => ({
                     label: lang === 'en' ? (c.label_en || c.label_cs) : c.label_cs,
-                    onclick: `ChroniconSystem._resolveAdvisory('${adv.activeId}', '${c.id}', '${lang}');UI.renderVypujckyTab();`,
+                    onclick: `UI.notify(ChroniconSystem._resolveAdvisory('${adv.activeId}', '${c.id}', '${lang}') || '');UI.renderVypujckyTab();`,
                 }));
             } else if (intPending) {
                 const bTitle = lang === 'en' ? `${intPending.borrowerName} asks to read` : `${intPending.borrowerName} žádá o čtení`;
