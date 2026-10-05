@@ -760,6 +760,13 @@ const ChroniconSystem = {
                 });
                 return;
             }
+            // Tech gate before showing (mirror ctenar/vypujcka above): 'accept' in
+            // _resolveAdvisory requires the same tech, so without it the modal only
+            // offers a choice that bounces (and 'decline' would burn the request).
+            // adv.pending is kept and retried on the next tick until the tech arrives.
+            const researched = GameState.researchedTechs || [];
+            if (p.kind === 'studovna' && !researched.includes('tech_studovna')) return;
+            if (p.kind === 'hospes' && p.cause !== 'war' && !researched.includes('tech_infirmarium_hospitalitas')) return;
             if (typeof EventsSystem === 'undefined') return;
             ChroniconSystem._advisoryShownThisSession = true;
             EventsSystem.showEvent({
