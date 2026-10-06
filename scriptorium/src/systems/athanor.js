@@ -456,7 +456,7 @@ const AthanorDB = {
     },
     {
       id: 'ash_water', name: 'Louh', name_en: 'Lye Water', name_lat: 'Aqua Cinerum', rarity: 'uncommon', source: 'crafted',
-      color: '#d4c9a8', icon: '💧', thermal: 2, moisture: -2,
+      color: '#d4c9a8', icon: '💧', thermal: 1, moisture: -2,
       lore: 'Voda protažená popelem. Zásaditý louh.',
       lore_en: 'Water passed through ash. An alkaline lye.'
     },
@@ -607,13 +607,13 @@ const AthanorDB = {
     },
     {
       id: 'calx_cupri', name: 'Žíhaná měď', name_en: 'Calcined Copper', name_lat: 'Calx Cupri', rarity: 'uncommon', source: 'crafted',
-      color: '#3a3a3a', icon: '⚫', thermal: 3, moisture: -3,
+      color: '#3a3a3a', icon: '⚫', thermal: 2, moisture: -3,
       lore: 'Černý oxid měďnatý ze žíhání.',
       lore_en: 'Black copper oxide from calcination.'
     },
     {
       id: 'sal_alkali', name: 'Louhová sůl', name_en: 'Alkali Salt', name_lat: 'Sal Alkali', rarity: 'uncommon', source: 'crafted',
-      color: '#e8e4d8', icon: '⚪', thermal: 3, moisture: -4,
+      color: '#e8e4d8', icon: '⚪', thermal: 1, moisture: -4,
       lore: 'Odpařený a žíhaný popelový louh.',
       lore_en: 'Ash lye, evaporated and calcined.'
     },
@@ -1475,7 +1475,7 @@ const AthanorDB = {
     },
 
     // ── Vlna 1 (media-materia-konsolidace.md §7) — Doly trojice: olovo/měď/cín
-    'lead+vinegar:maceratio': {
+    'lead+vinegar:coctio': {
       result: { id: 'cerusa', qty: 2 },
       name: 'Olověná běloba', name_en: 'Lead White',
       name_lat: 'Cerusa',
@@ -2229,6 +2229,11 @@ const CombinationEngine = {
     const nigredoMod = (typeof RankSystem !== 'undefined') ? Math.round((RankSystem.getActiveBonus('nigredo_bonus') - 1.0) * 15) : 0;
     const corruptionRoll = effectiveRoll + nigredoMod;
 
+    // Mastery: with more recipes in the Codex the Athanor tolerates hotter,
+    // moister and colder mixtures. Relief only moves a profile AWAY from a
+    // failure threshold, so it can revive a combo but never break a working one.
+    const relief = AthanorSystem.masteryRelief();
+
     // Zkontroluj failures
     for (const f of AthanorDB.failures) {
       if (f.id === 'CORRUPTIO') {
@@ -2236,7 +2241,9 @@ const CombinationEngine = {
           return { success: false, failure: f };
         }
       } else {
-        if (f.condition(thermal, moisture)) {
+        const t = f.id === 'COMBUSTIO' ? thermal - relief : f.id === 'INERTIA' ? thermal + relief : thermal;
+        const m = f.id === 'DILUTIO' ? moisture - relief : moisture;
+        if (f.condition(t, m)) {
           return { success: false, failure: f };
         }
       }
@@ -2345,6 +2352,77 @@ const AthanorSystem = {
     setInterval(() => AthanorSystem._tickProgressBar(), 500);
   },
 
+  // ── RECIPE GRANTS / STARTER RECIPE ────────────────────────
+  // The Codex (GameState.athanor.discovered) normally fills only by brewing.
+  // grantRecipe() writes a recipe into it without brewing — used for the
+  // guaranteed starter recipe and for any later gift (folio, book, Porta,
+  // Abbot). Idempotent; unknown keys are ignored.
+  STARTER_RECIPE_KEY: 'egg+wine:trituratio', // Egg Tempera — scriptorium staple (Theophilus, Cennini)
+
+  grantRecipe(key) {
+    const state = GameState.athanor;
+    const combo = AthanorDB.combinations[key];
+    if (!state || !combo) return false;
+    if (!state.discovered) state.discovered = [];
+    if (state.discovered.includes(key)) return false;
+    const tierBefore = AthanorSystem.masteryRelief();
+    state.discovered.push(key);
+    const lang = AthanorSystem._lang();
+    const dispName = (lang === 'en' && combo.name_en) ? combo.name_en : combo.name;
+    if (typeof UI !== 'undefined' && UI.notifyPanel) {
+      UI.notifyPanel(`📖 ${lang === 'en' ? 'Recipe added to the Codex' : 'Recept zapsán do Kodexu'}: ${combo.icon} ${dispName}`, 'system');
+    }
+    AthanorSystem._noteMastery(tierBefore);
+    Game.save();
+    return true;
+  },
+
+  // ── MASTERY ───────────────────────────────────────────────
+  // Number of recipes in the Codex needed for relief +1 / +2 / +3 on the
+  // COMBUSTIO (t>=7), DILUTIO (m>=7) and INERTIA (t<=-4) thresholds.
+  // Tunable values — adjust here only.
+  MASTERY_TIERS: [10, 25, 45],
+
+  masteryRelief() {
+    const n = (GameState.athanor && GameState.athanor.discovered) ? GameState.athanor.discovered.length : 0;
+    return AthanorSystem.MASTERY_TIERS.filter(need => n >= need).length;
+  },
+
+  // Tells the player when a new mastery tier is reached (call with the tier from BEFORE the new entry).
+  _noteMastery(tierBefore) {
+    const tier = AthanorSystem.masteryRelief();
+    if (tier <= tierBefore || typeof UI === 'undefined' || !UI.notifyPanel) return;
+    const lang = AthanorSystem._lang();
+    UI.notifyPanel(lang === 'en'
+      ? `⚗️ Mastery ${tier}/${AthanorSystem.MASTERY_TIERS.length}: the Athanor now tolerates hotter, moister and colder mixtures (+${tier}).`
+      : `⚗️ Mistrovství ${tier}/${AthanorSystem.MASTERY_TIERS.length}: Athanor nyní snese žhavější, vlhčí i chladnější směsi (+${tier}).`, 'system');
+  },
+
+  // Guarantee: once the laboratory is open and the Codex is still empty, one
+  // starter recipe is written into it, whichever route opened the laboratory.
+  ensureStarterRecipe() {
+    const state = GameState.athanor;
+    if (!state || !GameState.secrets || !GameState.secrets.laboratoryUnlocked) return;
+    if (state.discovered && state.discovered.length > 0) return;
+    AthanorSystem.grantRecipe(AthanorSystem.STARTER_RECIPE_KEY);
+  },
+
+  // Opens a library book for free (no research cost). Idempotent.
+  _unlockBook(bookId) {
+    const lib = GameState.library;
+    if (!lib || !Array.isArray(lib.unlockedBooks) || lib.unlockedBooks.includes(bookId)) return false;
+    lib.unlockedBooks.push(bookId);
+    if (!lib.acquisitionDates) lib.acquisitionDates = {};
+    lib.acquisitionDates[bookId] = Date.now();
+    const book = (typeof LibraryDB !== 'undefined') ? LibraryDB.books.find(b => b.id === bookId) : null;
+    const lang = AthanorSystem._lang();
+    if (book && typeof UI !== 'undefined' && UI.notifyPanel) {
+      UI.notifyPanel(`📚 ${lang === 'en' ? 'Book unlocked' : 'Kniha odemčena'}: ${(lang === 'en' && book.title_en) ? book.title_en : book.title}`, 'system');
+    }
+    Game.save();
+    return true;
+  },
+
   // ── PROGRESS BAR TICK (každých 500ms) ──────────────────────
   // Cíleně aktualizuje jen šířku pruhu a zbývající čas přes DOM, BEZ
   // překreslení celého panelu — jedině tak má CSS transition co animovat.
@@ -2378,6 +2456,7 @@ const AthanorSystem = {
   // ── TICK (každé 2s) ───────────────────────────────────────
   tick() {
     if (!GameState.athanor) return;
+    AthanorSystem.ensureStarterRecipe();
     const now = Date.now();
 
     // Brewing dokončení
@@ -2403,27 +2482,35 @@ const AthanorSystem = {
     if (!state) return;
 
     const slots = state.slots.filter(Boolean);
-    if (slots.length < 2) {
-      UI.notify('⚗️ Přidej alespoň 2 ingredience do kelímku.', true);
+    if (slots.length < 1) {
+      UI.notify(AthanorSystem._lang() === 'en'
+        ? '⚗️ Add at least 1 ingredient to the crucible.'
+        : '⚗️ Přidej alespoň 1 ingredienci do kelímku.', true);
       return;
     }
     if (!state.activeProcess) {
-      UI.notify('⚗️ Zvol proces.', true);
+      UI.notify(AthanorSystem._lang() === 'en' ? '⚗️ Choose a process.' : '⚗️ Zvol proces.', true);
       return;
     }
     if (state.brewing) {
-      UI.notify('⚗️ Athanor již pracuje — počkej na výsledek.', true);
+      UI.notify(AthanorSystem._lang() === 'en'
+        ? '⚗️ The Athanor is already working — wait for the result.'
+        : '⚗️ Athanor již pracuje — počkej na výsledek.', true);
       return;
     }
 
     // VITREA V3: destilace vyžaduje alembik (nástroj) + 1 baňku (spotřební) za běh
     if (state.activeProcess === 'destillatio') {
       if ((GameState.inventory['alembic'] || 0) <= 0) {
-        UI.notify('⚗️ Destilace vyžaduje alembik. Sklář ho dodá.', true);
+        UI.notify(AthanorSystem._lang() === 'en'
+          ? '⚗️ Distillation requires an alembic. The glassmaker supplies it.'
+          : '⚗️ Destilace vyžaduje alembik. Sklář ho dodá.', true);
         return;
       }
       if ((GameState.inventory['glass_flask'] || 0) <= 0) {
-        UI.notify('⚗️ Destilace vyžaduje baňku (spotřebuje se).', true);
+        UI.notify(AthanorSystem._lang() === 'en'
+          ? '⚗️ Distillation requires a flask (it is consumed).'
+          : '⚗️ Destilace vyžaduje baňku (spotřebuje se).', true);
         return;
       }
     }
@@ -2474,7 +2561,9 @@ const AthanorSystem = {
     if (processId === 'destillatio' && (GameState.inventory['alembic'] || 0) > 0 && Math.random() < 0.10) {
       Game.removeItem('alembic', 1);
       if (typeof UI !== 'undefined' && UI.notifyPanel) {
-        UI.notifyPanel('💥 Alembik žárem praskl. Sklář má náhradní — za groše.', 'warning');
+        UI.notifyPanel(AthanorSystem._lang() === 'en'
+          ? '💥 The alembic cracked in the heat. The glassmaker has a spare — for a few groschen.'
+          : '💥 Alembik žárem praskl. Sklář má náhradní — za groše.', 'warning');
       }
       Game.addKronikaEntry('minor', '💥 Alembik praskl při destilaci.', '💥 The alembic cracked during distillation.', '💥 Alembicum fractum est.');
     }
@@ -2524,7 +2613,9 @@ const AthanorSystem = {
       const key = [...slots].sort().join('+') + ':' + processId;
       const isNewDiscovery = !state.discovered.includes(key);
       if (isNewDiscovery) {
+        const tierBefore = AthanorSystem.masteryRelief();
         state.discovered.push(key);
+        AthanorSystem._noteMastery(tierBefore);
 
         // Ars Conservandi (confectio-mrd) — badatelské body + Kronika záznam
         // pro první objev každé z 7 zavařeninových receptur.
@@ -2537,6 +2628,9 @@ const AthanorSystem = {
           );
         }
       }
+
+      // The first successful brew opens the Ars Magna book (start of the research chain).
+      AthanorSystem._unlockBook('book_ars_magna');
 
       // Ulož lastResult
       state.lastResult = {
@@ -2593,13 +2687,15 @@ const AthanorSystem = {
     const state = GameState.athanor;
     if (state.brewing) return; // nelze měnit za vaření
     if (state.slots.length >= this.maxSlots()) {
-      UI.notify('⚗️ Kelímek je plný — nejprve odeber ingredienci.', true);
+      UI.notify(AthanorSystem._lang() === 'en'
+        ? '⚗️ The crucible is full — remove an ingredient first.'
+        : '⚗️ Kelímek je plný — nejprve odeber ingredienci.', true);
       return;
     }
     // Zkontroluj inventář (celkový počet tohoto ID v slotech vs inventáři)
     const alreadyIn = state.slots.filter(s => s === ingredientId).length;
     if ((GameState.inventory[ingredientId] || 0) <= alreadyIn) {
-      UI.notify('⚗️ Nemáš dostatek surovin.', true);
+      UI.notify(AthanorSystem._lang() === 'en' ? '⚗️ Not enough ingredients.' : '⚗️ Nemáš dostatek surovin.', true);
       return;
     }
     state.slots.push(ingredientId);
@@ -2786,6 +2882,15 @@ const AthanorSystem = {
       const level = (typeof Game !== 'undefined' && Game.dormitoriumBrotherLevel) ? Game.dormitoriumBrotherLevel(athanorBrother, 'athanor') : 1;
       brotherText = `${bIcon} ${athanorBrother.name} · Lv${level}`;
     }
+    // Mastery chip — shows the player that tolerance grows with the Codex and what comes next
+    const mTier = AthanorSystem.masteryRelief();
+    const mTiers = AthanorSystem.MASTERY_TIERS;
+    const mCount = (state.discovered || []).length;
+    const mNext = mTiers[mTier];
+    const mEn = AthanorSystem._lang() === 'en';
+    const mTitle = mEn
+      ? `Mastery: +${mTier} tolerance to heat, moisture and cold` + (mNext ? ` · next tier at ${mNext} recipes (${mCount}/${mNext})` : ' · maximum')
+      : `Mistrovství: +${mTier} snášenlivost žáru, vlhka a chladu` + (mNext ? ` · další stupeň při ${mNext} receptech (${mCount}/${mNext})` : ' · maximum');
     return `<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
       padding:7px 12px;margin-bottom:14px;
       background:rgba(0,0,0,0.12);border-radius:8px;
@@ -2798,6 +2903,8 @@ const AthanorSystem = {
       <span style="color:${tc};" title="Teplo">🌡️ ${thermal > 0 ? '+' : ''}${thermal}</span>
       <span style="opacity:0.3;">·</span>
       <span style="color:${mc};" title="Vlhkost">💧 ${moisture > 0 ? '+' : ''}${moisture}</span>
+      <span style="opacity:0.3;">·</span>
+      <span title="${mTitle}">⚗️ ${mTier}/${mTiers.length}</span>
       ${bonusText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;">✨ ${bonusText}</span>` : ''}
       ${brotherText ? `<span style="opacity:0.3;">·</span><span style="font-size:0.65rem;" title="Řídí">${brotherText}</span>` : ''}
     </div>`;
@@ -3020,17 +3127,18 @@ const AthanorSystem = {
     herbs: ['chamomile', 'st_johns_wort', 'thyme', 'hops', 'rose', 'gentian',
       'comfrey', 'fennel', 'herb_blue', 'hyssop', 'juniper', 'mandrake', 'plantain',
       'poppy', 'rosemary', 'wormwood', 'yarrow', 'vrbova_kura', 'berries', 'theriacum_simplex',
-      'cannabis', 'galium', 'linden_blossom'],
+      'cannabis', 'galium', 'linden_blossom',
+      'apple', 'quince', 'plum', 'cornel_cherry', 'wild_fruit'],
     pigments: ['lapis_lazuli', 'ochre', 'cinnabar', 'carbon_black', 'egg_tempera', 'linseed_oil', 'malachite',
       'auripigmentum', 'calx_cupri', 'cerusa', 'cinere_stanni', 'ink_gallic', 'lazulium_mellitum',
       'lithargyrum', 'minium', 'ochra_flava', 'palette_membrana', 'sinopia_tosta', 'verdigris_purum', 'verdigris'],
     liquids: ['water', 'wine', 'vinegar', 'ash_water',
       'acetum_destillatum', 'aqua_ardens', 'aqua_fortis', 'spiritus_vini'],
-    minerals: ['chalk', 'gum_arabic', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol', 'lead', 'copper', 'tin', 'sal_petrae', 'arsenicum',
+    minerals: ['chalk', 'gum_arabic', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol', 'lead', 'copper', 'tin', 'sal_petrae', 'arsenicum', 'antimony',
       'sal_alkali', 'sal_ammoniac', 'sandarak', 'tartarus', 'mercury', 'spodium', 'iron_ore', 'vapenec'],
     brewing: ['grain', 'hops', 'wort', 'kvasnice', 'honey', 'thyme'],
     materials: ['bone', 'cornu_cervi', 'egg', 'wood', 'stick', 'ash', 'charcoal', 'beeswax', 'propolis', 'bee_bread', 'resin_pine', 'lard',
-      'resin_spruce', 'resin_styrax', 'resin_olibanum', 'worms', 'acorn', 'wool', 'milk'],
+      'resin_spruce', 'resin_styrax', 'resin_olibanum', 'worms', 'acorn', 'wool', 'milk', 'substantia_ignota'],
     spices: ['pepr_cerny', 'zazvor', 'hrebicek', 'safran', 'skorice', 'muskat', 'salt'],
   },
 
@@ -3275,7 +3383,7 @@ const AthanorSystem = {
   // ── BUILD: START BUTTON ───────────────────────────────────
   buildStartBtn(state) {
     const isBrewing = !!state.brewing;
-    const hasSlots = state.slots.filter(Boolean).length >= 2;
+    const hasSlots = state.slots.filter(Boolean).length >= 1;
     const canStart = !isBrewing && hasSlots;
 
     return `

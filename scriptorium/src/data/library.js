@@ -132,6 +132,83 @@ Llull died in 1316, by legend a martyr on a mission to North Africa — though h
 
 *Whoever turns the wheels patiently enough will, in time, pass through every possibility the world conceals.*`
         },
+        // Athanor Quaternio gate (athanor-plan 6.10.2026). Facts verified: Cambridge "The Alchemy Reader"
+        // (Pseudo-Geber selections), Wikipedia "Pseudo-Geber". Deliberately NOT claimed: any four-component
+        // vessel or "athanor" in the source — the Quaternio tech is the monastery's own adaptation.
+        {
+            id: 'book_pseudo_geber_fornacum',
+            title: 'Summa perfectionis a Kniha pecí: Geberův oheň',
+            title_en: "Summa Perfectionis and the Book of Furnaces: Geber's Fire",
+            category: 'technical',
+            unlockDay: 118,
+            icon: '🏺',
+            author: 'Pseudo-Geber (latinský autor 13.–14. století; možná Pavel z Taranta)',
+            year: 'před r. 1310 (Summa perfectionis)',
+            content: `**Jméno z Bagdádu, ruka z latinské Evropy**
+
+Pod jménem „Geber“ kolovala v latinském světě 13. a 14. století řada alchymistických spisů. Jméno patří Džábiru ibn Hajjánovi, arabskému učenci z 8. století — dnešní badatelé ale vědí, že latinské spisy napsal někdo jiný a mnohem později. Hlavní z nich, *Summa perfectionis magisterii* („Souhrn dokonalosti díla“), vznikla nejspíš krátce před rokem 1310. Autor zůstává neznámý; zvažuje se Pavel z Taranta.
+
+**Oheň má stupně**
+
+Nejde o zaklínadla, ale o postup. Spisy probírají nauku o kovech jako směsích síry a rtuti a hlavní operace díla: sublimaci, descenzi, destilaci, kalcinaci, rozpouštění, koagulaci, fixaci a ceraci. Zvláštní spis, *Liber fornacum* (Kniha pecí), se věnuje pecím, „stupňům“ ohně a dalšímu laboratornímu nádobí. Praktické pokyny jsou natolik jasné, že autor zjevně mnohé z těch operací sám znal.
+
+**Opis, ne tisk**
+
+V roce 1465 kolují tyto spisy jen v rukopisech. Nejstarší tištěné vydání Summy, jaké známe, vyšlo až roku 1525 v Římě.
+
+*Kdo chce dílo složitější, potřebuje oheň odstupňovaný a nádobu k němu uzpůsobenou.*`,
+            content_en: `**A Name from Baghdad, a Hand from Latin Europe**
+
+Under the name "Geber" a series of alchemical writings circulated in the Latin world of the 13th and 14th centuries. The name belongs to Jabir ibn Hayyan, an Arabic scholar of the 8th century — yet modern scholars know that the Latin works were written by someone else, and much later. The chief of them, the *Summa perfectionis magisterii* ("Sum of the Perfection of the Work"), was probably written shortly before 1310. Its author remains unknown; Paul of Taranto has been proposed.
+
+**Fire Has Degrees**
+
+These are not spells but procedure. The works treat the theory of metals as mixtures of sulphur and mercury and the main operations of the work: sublimation, descent, distillation, calcination, solution, coagulation, fixation and ceration. A separate work, the *Liber fornacum* (Book of Furnaces), is devoted to furnaces, the "degrees" of fire and further laboratory equipment. The practical directions are so clear that the author evidently knew many of these operations at first hand.
+
+**Copied, Not Printed**
+
+In 1465 these works circulate only in manuscript. The earliest printed edition of the Summa that we know appeared only in 1525, in Rome.
+
+*Whoever wants a more complex work needs a graded fire and a vessel made for it.*`
+        },
+        // Pharmacopoeia, verified facts only (Wikipedia "Antidotarium Nicolai", Encyclopedia.com, OPenn Penn MS 14).
+        // Deliberately NOT claimed: fruit conserves / confections — not confirmed in any source consulted.
+        {
+            id: 'book_antidotarium_nicolai',
+            title: 'Antidotarium Nicolai: Salernská sbírka léků',
+            title_en: 'Antidotarium Nicolai: The Salerno Book of Remedies',
+            category: 'valetudo',
+            unlockDay: 52,
+            icon: '⚗️',
+            author: 'Nicolaus Salernitanus (totožnost nejistá)',
+            year: 'přelom 11. a 12. století (odhady kolísají)',
+            content: `**Kniha, kterou si opisovali lékaři celé Evropy**
+
+*Antidotarium Nicolai* je sbírka lékařských receptů ze Salerna, nejspíš z přelomu 11. a 12. století, ač odhady datace kolísají. Kdo byl onen „Nicolaus“, nikdo spolehlivě neví — Salernský lékař, učitel tamní lékařské školy, nebo dokonce jen jméno, pod nímž se dílo šířilo. Vycházelo pravděpodobně z ještě staršího anonymního spisu *Antidotarius magnus*.
+
+**Recepty v abecedním pořádku**
+
+Nejstarší verze mají kolem 115 receptů, pozdější až 175, většina asi 150 popisů léků z rostlin a nerostů. Řazeny jsou abecedně a zajímá je hlavně to, z čeho se lék skládá, v jakém množství a jak se podává — ne technika přípravy.
+
+**Opis, překlad, tisk**
+
+Spis se opisoval po celém středověku a byl přeložen do italštiny, francouzštiny, hebrejštiny, španělštiny, arabštiny i středověké nizozemštiny. V roce 1465 je to rukopis; první tisk vyšel až roku 1471 v Benátkách a do roku 1500 byl vytištěn nejméně osmkrát znovu. V lékárnách se jím řídili ještě v 18. století.
+
+*Recept bez míry je jen výčet bylin.*`,
+            content_en: `**A Book That Physicians Across Europe Copied**
+
+The *Antidotarium Nicolai* is a collection of medical recipes from Salerno, most likely from the turn of the 11th and 12th centuries, although estimates of its date vary. Who "Nicolaus" was nobody knows for certain — a Salerno physician, a teacher at the medical school there, or perhaps merely a name under which the work travelled. It was probably based on an older anonymous work, the *Antidotarius magnus*.
+
+**Recipes in Alphabetical Order**
+
+The oldest versions hold some 115 recipes, later ones up to 175, most about 150 descriptions of medicines made from plants and minerals. They are arranged alphabetically and care chiefly for what a medicine is made of, in what quantity and how it is given — not for the technique of preparing it.
+
+**Copied, Translated, Printed**
+
+The work was copied throughout the Middle Ages and translated into Italian, French, Hebrew, Spanish, Arabic and Middle Dutch. In 1465 it is a manuscript; the first printed edition appeared only in 1471 in Venice, and by 1500 it was reprinted at least eight more times. Apothecaries were still guided by it in the 18th century.
+
+*A recipe without measure is only a list of herbs.*`
+        },
 
         {
             id: 'book_regula_mensura_ciborum',

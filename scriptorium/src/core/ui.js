@@ -1885,8 +1885,8 @@ const UI = {
                 const hasRead = GameState.library && GameState.library.readBooks && GameState.library.readBooks.includes(tech.requiresBook);
                 if (!hasRead) {
                     canResearch = false;
-                    const bookDef = typeof LibraryDB !== 'undefined' ? LibraryDB[tech.requiresBook] : null;
-                    const bookName = bookDef ? ((lang !== 'cs' && bookDef.name_en) ? bookDef.name_en : bookDef.name) : tech.requiresBook;
+                    const bookDef = (typeof LibraryDB !== 'undefined' && LibraryDB.books) ? LibraryDB.books.find(b => b.id === tech.requiresBook) : null;
+                    const bookName = bookDef ? ((lang !== 'cs' && bookDef.title_en) ? bookDef.title_en : bookDef.title) : tech.requiresBook;
                     reqText += `<div class="text-sm text-danger">📖 ${lang === 'en' ? 'Requires reading:' : 'Vyžaduje přečtení:'} ${bookName}</div>`;
                 }
             }
