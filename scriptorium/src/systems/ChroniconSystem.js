@@ -732,41 +732,44 @@ const ChroniconSystem = {
         const adv = GameState.chroniconAdvisory;
         if (adv.pending && adv.activeId) {
             const p = adv.pending;
-            if (p.kind === 'ctenar' || p.kind === 'vypujcka') {
-                // eventy-audit-mrd (05.09.2026) — dřív se žádost ukázala
-                // (notifikace + gate modal) i bez postavené Studovny/pultu;
-                // hráč to zjistil, až proklikl "Vyřešit". Stejná tech-
-                // podmínka jako v _resolveAdvisory (choiceId==='accept'..)
-                // teď rozhoduje i tady — bez techu se zatím vůbec neukáže,
-                // Chronicon žádost neztrácí (adv.pending zůstává), zkusí
-                // se znovu příští tick, dokud tech nedojde.
-                const techOk = p.kind === 'ctenar'
-                    ? !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'))
-                    : !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_absentee_lending'));
-                if (!techOk) return;
+            const title = lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs;
 
+            // Blocked request: never hide it silently and never offer an action the
+            // player cannot take. Tell them (generally, no spoilers) what is missing;
+            // shown once per session, the Notifications panel keeps it reachable.
+            const blockers = ChroniconSystem.getAdvisoryBlockers(p);
+            if (blockers.length) {
+                ChroniconSystem._advisoryShownThisSession = true;
+                if (NotificationSystem.pendingEvent) {
+                    NotificationSystem.pendingEvent({
+                        id: p.id || adv.activeId,
+                        icon: p.icon || '☩',
+                        title: title,
+                        source: 'chronicon',
+                    });
+                }
+                ChroniconSystem._showBlockedAdvisoryModal(p, blockers, lang);
+                return;
+            }
+
+            if (p.kind === 'ctenar' || p.kind === 'vypujcka') {
+                // eventy-audit-mrd (05.09.2026) — knihovní žádost nejdřív lehký gate
+                // modal (Odložit/Vyřešit), skutečné řešení až na pultu v Knihovně.
                 ChroniconSystem._advisoryShownThisSession = true;
                 if (NotificationSystem.pendingEvent) {
                     NotificationSystem.pendingEvent({
                         id: p.id || adv.activeId,
                         icon: p.icon || '📤',
-                        title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
+                        title: title,
                         source: 'chronicon',
                     });
                 }
                 ChroniconSystem._showRequestGateModal({
                     icon: p.icon || '📤',
-                    title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
+                    title: title,
                 });
                 return;
             }
-            // Tech gate before showing (mirror ctenar/vypujcka above): 'accept' in
-            // _resolveAdvisory requires the same tech, so without it the modal only
-            // offers a choice that bounces (and 'decline' would burn the request).
-            // adv.pending is kept and retried on the next tick until the tech arrives.
-            const researched = GameState.researchedTechs || [];
-            if (p.kind === 'studovna' && !researched.includes('tech_studovna')) return;
-            if (p.kind === 'hospes' && p.cause !== 'war' && !researched.includes('tech_infirmarium_hospitalitas')) return;
             if (typeof EventsSystem === 'undefined') return;
             ChroniconSystem._advisoryShownThisSession = true;
             EventsSystem.showEvent({
@@ -821,6 +824,151 @@ const ChroniconSystem = {
         });
     },
 
+    // Why can this request NOT be accepted right now? Returns [] when nothing
+    // blocks it, else a list of { cs, en } sentences. Hints are deliberately
+    // general (what is missing, in which area) — they do not name the tech to
+    // research. choiceId is optional: pass 'accept_higher' etc. to include
+    // choice-specific blockers. Single source for the gate modal, the Library
+    // counter and _resolveAdvisory. Expected shape of `p` from the Chronicon side:
+    // { kind, contactId, icon, title_cs/en, text_cs/en, choices }.
+    getAdvisoryBlockers: function(p, choiceId) {
+        const out = [];
+        if (!p || typeof GameState === 'undefined') return out;
+        const techs = GameState.researchedTechs || [];
+        const now = Date.now();
+
+        const studyBlockers = () => {
+            if (!techs.includes('tech_studovna')) {
+                out.push({
+                    cs: 'Klášter zatím nemá místo, kde by takového hosta mohl přijmout. Zamysli se, co by k tomu při knihovně bylo třeba.',
+                    en: 'The monastery has no place yet to receive such a guest. Consider what the library would need for it.',
+                });
+                return;
+            }
+            const g = GameState.studovnaGuest;
+            if (g && g.until > now) {
+                const h = Math.max(1, Math.ceil((g.until - now) / 3600000));
+                out.push({
+                    cs: 'Studovna je právě obsazená jiným hostem — počkej, až odejde (asi ' + h + ' h).',
+                    en: 'The study room is occupied by another guest — wait until he leaves (about ' + h + ' h).',
+                });
+            }
+        };
+        const bedBlocker = () => {
+            const uby = GameState.ubytovna || { guests: [] };
+            const beds = (typeof Game !== 'undefined' && Game.ubytovnaCapacity) ? Game.ubytovnaCapacity() : 1;
+            if ((uby.guests || []).length >= beds) {
+                out.push({
+                    cs: 'Žádné místo k přenocování není volné. Počkej, až některý host odejde, nebo rozšiř ubytování.',
+                    en: 'No place to stay the night is free. Wait until a guest leaves, or expand the lodgings.',
+                });
+            }
+        };
+
+        if (p.kind === 'studovna') {
+            studyBlockers();
+        } else if (p.kind === 'ctenar') {
+            studyBlockers();
+            const lib = GameState.library;
+            if (!(lib && lib.unlockedBooks && lib.unlockedBooks.length > 0)) {
+                out.push({
+                    cs: 'V knihovně zatím není nic, co by host mohl číst. Knihovna se musí nejdřív rozrůst.',
+                    en: 'There is nothing in the library yet that he could read. The library must grow first.',
+                });
+            }
+        } else if (p.kind === 'vypujcka') {
+            if (!techs.includes('tech_absentee_lending')) {
+                out.push({
+                    cs: 'Žádná kniha zatím nesmí opustit klášterní zdi — chybí k tomu řád a pravidla výpůjček.',
+                    en: 'No book may leave the monastery walls yet — there is no rule or order for lending.',
+                });
+            }
+            const rank = GameState.rank && GameState.rank.monastic;
+            if (rank !== 'prior') {
+                out.push({
+                    cs: 'O tom, zda kniha opustí klášter, rozhoduje jen Prior. Dokud jím nejsi, můžeš žádost jen odložit nebo odmítnout.',
+                    en: 'Only the Prior decides whether a book may leave the monastery. Until you are Prior, you can only postpone or decline.',
+                });
+            }
+            const lib = GameState.library || {};
+            const pool = (lib.unlockedBooks || []).filter(id => {
+                if (lib.loanedBooks && lib.loanedBooks[id]) return false;
+                const prot = (typeof LibraryHelpers !== 'undefined' && LibraryHelpers.getBookProtection && typeof LibraryDB !== 'undefined')
+                    ? LibraryHelpers.getBookProtection(LibraryDB.books.find(b => b.id === id)) : null;
+                return prot !== 'catena' && prot !== 'secreta';
+            });
+            if (pool.length === 0) {
+                out.push({
+                    cs: 'Nic ve fondu nesmí bezpečně odejít — zbytek je přikován nebo už půjčen. Počkej na vrácení knih.',
+                    en: 'Nothing in the fond may safely leave — the rest is chained or already lent. Wait for books to return.',
+                });
+            }
+            if (choiceId === 'accept_higher') {
+                const rel = Math.min(100, (GameState.contactRelation || {})[p.contactId] || 0);
+                if (rel < 20) {
+                    out.push({
+                        cs: 'Ještě ti tolik nedůvěřuje, aby přijal takové podmínky. Zkus standardní podmínky, nebo si nejdřív získej jeho důvěru.',
+                        en: 'He does not trust you enough yet to accept such terms. Try the standard terms, or earn his trust first.',
+                    });
+                }
+            }
+        } else if (p.kind === 'hospes') {
+            if (p.cause === 'war') {
+                bedBlocker();
+            } else {
+                if (!techs.includes('tech_infirmarium_hospitalitas')) {
+                    out.push({
+                        cs: 'Bratři zatím nemají prostředky přijímat cizí nemocné — infirmarium se to musí nejdřív naučit.',
+                        en: 'The brothers lack the means to take in strangers who are ill — the infirmary must first learn how.',
+                    });
+                }
+                const inf = GameState.infirmarium || { beds: 3, patients: [] };
+                if ((inf.patients || []).length >= inf.beds) {
+                    out.push({
+                        cs: 'Žádná postel v infirmariu není volná. Počkej, až se některé lůžko uvolní.',
+                        en: 'No bed in the infirmary is free. Wait until one is vacated.',
+                    });
+                }
+            }
+        } else if (p.kind === 'pocestny') {
+            bedBlocker();
+        }
+        return out;
+    },
+
+    formatBlockers: function(blockers, lang) {
+        return blockers.map(b => lang === 'en' ? b.en : b.cs).join(' ');
+    },
+
+    // Informative modal for a request that cannot be accepted yet: what is
+    // wrong (formatBlockers) + Postpone / Decline. No accept button — the player
+    // is never offered an action that would bounce.
+    _showBlockedAdvisoryModal: function(p, blockers, lang) {
+        const adv = GameState.chroniconAdvisory;
+        const body = (lang === 'en' ? (p.text_en || p.text_cs) : p.text_cs) || '';
+        NotificationSystem.modal({
+            icon: p.icon || '☩',
+            title: lang === 'en' ? (p.title_en || p.title_cs) : p.title_cs,
+            text: (body ? body + '<br><br>' : '') + '<em>' + ChroniconSystem.formatBlockers(blockers, lang) + '</em>',
+            choices: [
+                {
+                    label: lang === 'en' ? 'Postpone' : 'Odložit',
+                    type: 'default',
+                    effect: () => { if (typeof UI !== 'undefined') UI.notify(ChroniconSystem._resolveAdvisory(adv.activeId, 'defer', lang)); },
+                },
+                {
+                    label: lang === 'en' ? 'Decline' : 'Odmítnout',
+                    type: 'default',
+                    effect: () => {
+                        const msg = ChroniconSystem._resolveAdvisory(adv.activeId, 'decline', lang);
+                        if (typeof UI !== 'undefined') UI.notify(msg);
+                        if (typeof Game !== 'undefined' && Game.save) Game.save();
+                    },
+                },
+            ],
+        });
+    },
+
     // Reopen z panelu "Zprávy kláštera" — mimo modal dismiss nic neztrácí,
     // jen skryje dialog; klik na pending položku spustí stejný modal znovu.
     reopenAdvisory: function() {
@@ -832,143 +980,19 @@ const ChroniconSystem = {
         const adv = GameState.chroniconAdvisory;
         const p = adv.pending;
 
-        // Hospes 'accept' — gate kontroly PŘED trvalým resolve (mirror 'defer'
-        // chování): plná lůžka nesmí kandidáta ztratit, hráč má šanci se
-        // vrátit, jakmile se uvolní. cause: 'war' (Vlna 1 / C —
-        // ubytovna-mrd.md §8c-C) míří na Ubytovnu místo Infirmaria —
-        // zdravý uprchlík, ne nemocný. Kapacita živě z Game.ubytovnaCapacity()
-        // (sklep upgrade 4/5) — základ 1 lůžko od začátku hry.
-        if (choiceId === 'accept' && p && p.kind === 'hospes' && p.cause === 'war') {
-            if (!GameState.ubytovna) GameState.ubytovna = { guests: [] };
-            const bedsNow = (typeof Game !== 'undefined' && Game.ubytovnaCapacity) ? Game.ubytovnaCapacity() : 1;
-            if ((GameState.ubytovna.guests || []).length >= bedsNow) {
-                ChroniconSystem._advisoryShownThisSession = false;
-                return lang === 'en'
-                    ? 'No room is free. He waits at the gate.'
-                    : 'Žádné místo není volné. Čeká u brány.';
-            }
-        }
-        if (choiceId === 'accept' && p && p.kind === 'hospes' && p.cause !== 'war') {
-            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_infirmarium_hospitalitas'));
-            if (!hasTech) {
-                ChroniconSystem._advisoryShownThisSession = false;
-                return lang === 'en'
-                    ? 'The brothers lack the means to take in strangers yet. (Requires: Hospitalitas)'
-                    : 'Bratři zatím nemají prostředky přijímat cizí. (Vyžaduje: Hospitalitas)';
-            }
-            if (!GameState.infirmarium) GameState.infirmarium = { beds: 3, patients: [] };
-            const inf = GameState.infirmarium;
-            if ((inf.patients || []).length >= inf.beds) {
-                ChroniconSystem._advisoryShownThisSession = false;
-                return lang === 'en'
-                    ? 'No bed is free. The traveler waits at the gate.'
-                    : 'Žádná postel není volná. Poutník čeká u brány.';
-            }
-        }
-
-        // Studovna 'accept' — stejný soft-bounce vzor jako hospes: zamčená
-        // tech nebo obsazenej hostí slot nesmí žádost ztratit, jen ji odloží.
-        if (choiceId === 'accept' && p && p.kind === 'studovna') {
-            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
-            if (!hasTech) {
-                ChroniconSystem._advisoryShownThisSession = false;
-                return lang === 'en'
-                    ? 'There is no room yet fit to receive him. (Requires: Studovna)'
-                    : 'Zatím není žádná místnost hodná jeho přijetí. (Vyžaduje: Studovna)';
-            }
-            if (GameState.studovnaGuest && GameState.studovnaGuest.until > Date.now()) {
-                ChroniconSystem._advisoryShownThisSession = false;
-                return lang === 'en'
-                    ? 'The study room is already occupied by another guest.'
-                    : 'Studovna je právě obsazená jiným hostem.';
-            }
-        }
-
-        // Čtenář 'accept' — Cluster C1 (knihovna-rozsireni-mrd §4C, 28.8.2026).
-        // Stejný soft-bounce vzor + navíc kontrola, že vůbec něco máš k
-        // přečtení (bez odemčené knihy nemá host co číst). Očekávaný tvar
-        // příchozího `p` z Chronicon strany: { kind:'ctenar', contactId,
-        // icon, title_cs/en, text_cs/en, choices }. `contactId` určuje,
-        // komu se připisuje vztah — na rozdíl od studovna (natvrdo
-        // 'vrchnost') tady žádný default není, Chronicon musí poslat.
-        // Soft-bounce zde (a u 'vypujcka' níž) NEresetuje _advisoryShownThisSession:
-        // checkPendingAdvisory běží 1×/s, reset by gate modal vracel každou sekundu.
-        // Žádost zůstává pending; znovu ji otevře reopenAdvisory() / pult v Knihovně.
-        if (choiceId === 'accept' && p && p.kind === 'ctenar') {
-            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_studovna'));
-            if (!hasTech) {
-                return lang === 'en'
-                    ? 'There is no room yet fit to receive him. (Requires: Studovna)'
-                    : 'Zatím není žádná místnost hodná jeho přijetí. (Vyžaduje: Studovna)';
-            }
-            if (GameState.studovnaGuest && GameState.studovnaGuest.until > Date.now()) {
-                return lang === 'en'
-                    ? 'The study room is already occupied by another guest.'
-                    : 'Studovna je právě obsazená jiným hostem.';
-            }
-            if (!(GameState.library && GameState.library.unlockedBooks && GameState.library.unlockedBooks.length > 0)) {
-                return lang === 'en'
-                    ? 'There is nothing yet in the library he could read.'
-                    : 'V knihovně zatím není nic, co by mohl číst.';
-            }
-        }
-
-        // Absenční výpůjčka — Cluster C2 (knihovna-rozsireni-mrd §4C2,
-        // 28.8.2026). Tři přijímací volby (standard/vyšší zástava/odmítnout)
-        // vedle sebe, ne binární accept/decline — Chronicon strana posílá
-        // `kind:'vypujcka'` s choices id `accept_standard`/`accept_higher`/
-        // `decline`. Sdílené soft-bounce kontroly pro obě accept varianty.
-        if ((choiceId === 'accept_standard' || choiceId === 'accept_higher') && p && p.kind === 'vypujcka') {
-            const hasTech = !!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_absentee_lending'));
-            if (!hasTech) {
-                return lang === 'en'
-                    ? 'No book may yet leave these walls. (Requires: Absentee Lending)'
-                    : 'Zatím žádná kniha nesmí opustit tyto zdi. (Vyžaduje: Výpůjčka mimo klášter)';
-            }
-            const rank = GameState.rank && GameState.rank.monastic;
-            if (rank !== 'prior') {
-                return lang === 'en'
-                    ? 'Only the Prior may permit a book to leave the monastery.'
-                    : 'Jen Prior smí dovolit, aby kniha opustila klášter.';
-            }
-            const pool = (GameState.library.unlockedBooks || []).filter(id => {
-                if (GameState.library.loanedBooks && GameState.library.loanedBooks[id]) return false;
-                const prot = LibraryHelpers.getBookProtection ? LibraryHelpers.getBookProtection(LibraryDB.books.find(b => b.id === id)) : null;
-                return prot !== 'catena' && prot !== 'secreta';
-            });
-            if (pool.length === 0) {
-                return lang === 'en'
-                    ? 'Nothing in the fond may safely leave — the rest is chained or already lent.'
-                    : 'Nic ve fondu nesmí bezpečně odejít — zbytek je přikován nebo už půjčen.';
-            }
-            const rel = Math.min(100, (GameState.contactRelation || {})[p.contactId] || 0);
-            if (choiceId === 'accept_higher' && rel < 20) {
-                return lang === 'en'
-                    ? 'He does not trust thee enough yet to accept such terms — he simply leaves.'
-                    : 'Ještě ti tolik nedůvěřuje, aby přijal takové podmínky — prostě odejde.';
-            }
-        }
-
-        // Pocestný 'accept' — stejný soft-bounce vzor jako hospes/studovna
-        // (ubytovna-mrd.md §8c-B, rozšíření): plná Ubytovna nesmí
-        // kandidáta ztratit, jen ho odloží. Kapacita živě z
-        // Game.ubytovnaCapacity() (sklep upgrade 4/5, §D — Bouvarde 24.7.),
-        // základ 1 lůžko od začátku hry.
-        if (choiceId === 'accept' && p && p.kind === 'pocestny') {
-            if (!GameState.ubytovna) GameState.ubytovna = { guests: [] };
-            const uby = GameState.ubytovna;
-            const bedsNow = (typeof Game !== 'undefined' && Game.ubytovnaCapacity) ? Game.ubytovnaCapacity() : 1;
-            if ((uby.guests || []).length >= bedsNow) {
-                ChroniconSystem._advisoryShownThisSession = false;
-                return lang === 'en'
-                    ? 'No room is free. The traveler waits at the gate.'
-                    : 'Žádné místo není volné. Pocestný čeká u brány.';
-            }
+        // Accept-type choices share ONE blocker check (getAdvisoryBlockers) with the
+        // gate modal and the Library counter. A blocked accept keeps the request
+        // pending and tells the player why — it does NOT re-arm the modal
+        // (checkPendingAdvisory ticks 1×/s, a reset would respawn it every second).
+        if (/^accept/.test(choiceId) && p) {
+            const blockers = ChroniconSystem.getAdvisoryBlockers(p, choiceId);
+            if (blockers.length) return ChroniconSystem.formatBlockers(blockers, lang);
         }
 
         if (choiceId === 'defer') {
-            // Nic se neztrácí — zůstává aktivní, může se ukázat znovu příště.
-            ChroniconSystem._advisoryShownThisSession = false;
+            // Nic se neztrácí — zůstává aktivní, znovu se ukáže při dalším načtení
+            // nebo z panelu Zprávy (reopenAdvisory). Bez resetu flagu — jinak by se
+            // modal po "Odložit" vracel každou sekundu.
             return lang === 'en'
                 ? 'You decide to think it over. The matter can wait.'
                 : 'Rozhodneš se to ještě promyslet. Věc může počkat.';

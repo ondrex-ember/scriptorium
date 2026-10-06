@@ -3820,7 +3820,7 @@ const UI = {
         let btnHtml = '';
         buttons.slice(0, 4).forEach((b, i) => {
             const n = niches[i];
-            btnHtml += `<button class="craft-btn" style="position:absolute;left:${n.left}%;top:${n.top}%;width:${n.width}%;height:${n.height}%;margin:0;font-size:0.8rem;" onclick="${b.onclick}">${b.label}</button>`;
+            btnHtml += `<button class="craft-btn" style="position:absolute;left:${n.left}%;top:${n.top}%;width:${n.width}%;height:${n.height}%;margin:0;font-size:0.8rem;${b.disabled ? 'opacity:0.45;cursor:not-allowed;' : ''}" ${b.disabled ? 'disabled' : `onclick="${b.onclick}"`}>${b.label}</button>`;
         });
         return `<div style="position:relative;width:100%;max-width:800px;margin:0 auto 20px;aspect-ratio:2/1;">
                   <div style="position:absolute;inset:0;">${this._lendingWindowSVG()}</div>
@@ -3853,17 +3853,36 @@ const UI = {
         // to vlastní hard rule "gatuj všechno". Bez aspoň jednoho ze tří
         // Výpůjčky-techů (D2/C2/interní) se okénko vůbec nestaví — jen
         // informace, co je potřeba prostudovat.
-        if (hasD2 || hasC2 || hasInternal) {
+        // A pending request always gets its counter: the gate modal's "Resolve" leads here, and a
+        // 'ctenar' request needs only tech_studovna — without this the player lands on a lock card.
+        if (hasD2 || hasC2 || hasInternal || extPending || intPending) {
             let contextHtml = '';
             let windowButtons = [];
             if (extPending) {
                 const title = lang === 'en' ? (extPending.title_en || extPending.title_cs) : extPending.title_cs;
                 const text = lang === 'en' ? (extPending.text_en || extPending.text_cs) : extPending.text_cs;
-                contextHtml = `<div style="margin-bottom:10px;"><strong>${title}</strong><div style="font-size:0.85rem;opacity:0.85;margin-top:4px;">${text || ''}</div></div>`;
+                // Shared blocker check (ChroniconSystem.getAdvisoryBlockers): a blocked accept is
+                // disabled and the reason stays visible on the card, not only in a toast.
+                const blockedAccept = (c) => /^accept/.test(c.id) && ChroniconSystem.getAdvisoryBlockers(extPending, c.id).length > 0;
+                const blockerMap = {};
+                (extPending.choices || []).filter(c => /^accept/.test(c.id)).forEach(c => {
+                    ChroniconSystem.getAdvisoryBlockers(extPending, c.id).forEach(b => { blockerMap[lang === 'en' ? b.en : b.cs] = true; });
+                });
+                const blockerNote = Object.keys(blockerMap).length
+                    ? `<div style="font-size:0.8rem;margin-top:6px;padding:6px 8px;border-left:3px solid var(--accent-gold);background:rgba(197,160,89,0.1);"><em>${Object.keys(blockerMap).join(' ')}</em></div>`
+                    : '';
+                contextHtml = `<div style="margin-bottom:10px;"><strong>${title}</strong><div style="font-size:0.85rem;opacity:0.85;margin-top:4px;">${text || ''}</div>${blockerNote}</div>`;
                 windowButtons = (extPending.choices || []).map(c => ({
                     label: lang === 'en' ? (c.label_en || c.label_cs) : c.label_cs,
+                    disabled: blockedAccept(c),
                     onclick: `UI.notify(ChroniconSystem._resolveAdvisory('${adv.activeId}', '${c.id}', '${lang}') || '');UI.renderVypujckyTab();`,
                 }));
+                if (!(extPending.choices || []).some(c => c.id === 'defer')) {
+                    windowButtons.push({
+                        label: lang === 'en' ? 'Postpone' : 'Odložit',
+                        onclick: `UI.notify(ChroniconSystem._resolveAdvisory('${adv.activeId}', 'defer', '${lang}'));`,
+                    });
+                }
             } else if (intPending) {
                 const bTitle = lang === 'en' ? `${intPending.borrowerName} asks to read` : `${intPending.borrowerName} žádá o čtení`;
                 const bText = lang === 'en' ? `"${intPending.bookTitle}", for ${intPending.days} days.` : `"${intPending.bookTitle}", na ${intPending.days} dní.`;
@@ -3871,6 +3890,7 @@ const UI = {
                 windowButtons = [
                     { label: lang === 'en' ? 'Approve' : 'Schválit', onclick: `LibraryHelpers.resolveInternalLoanRequest('approve');UI.renderVypujckyTab();` },
                     { label: lang === 'en' ? 'Deny' : 'Zamítnout', onclick: `LibraryHelpers.resolveInternalLoanRequest('deny');UI.renderVypujckyTab();` },
+                    { label: lang === 'en' ? 'Postpone' : 'Odložit', onclick: `UI.notify('${lang === 'en' ? 'You decide to think it over. The brother can wait — for a while.' : 'Rozhodneš se to ještě promyslet. Bratr chvíli počká.'}');` },
                 ];
             } else {
                 // Klidový stav — okénko je trvalá součást tabu (Bouvard,

@@ -1226,12 +1226,21 @@ const LibraryHelpers = {
                 if (now - entry.time > windowMs) {
                     const lang = (GameState.settings && GameState.settings.language) || 'cs';
                     const contactId = adv.pending.contactId;
+                    // A request the player could not have accepted (missing room, tech,
+                    // rank...) is not "ignored" — no penalty, only a note that the guest left.
+                    const blocked = typeof ChroniconSystem !== 'undefined' && ChroniconSystem.getAdvisoryBlockers
+                        && ChroniconSystem.getAdvisoryBlockers(adv.pending).length > 0;
                     if (typeof ChroniconSystem !== 'undefined' && ChroniconSystem._resolveAdvisory) {
                         ChroniconSystem._resolveAdvisory(adv.activeId, 'decline', lang);
                     }
+                    if (blocked && typeof NotificationSystem !== 'undefined' && NotificationSystem.panel) {
+                        NotificationSystem.panel(lang === 'en'
+                            ? '📤 A request went unanswered — the monastery was not ready to receive it. The guest left, no harm done.'
+                            : '📤 Žádost zůstala bez odpovědi — klášter na ni nebyl připraven. Host odešel, bez následků.', 'info');
+                    }
                     // Extra penalizace za ignorování navrch normálního decline
                     // (ten sám dnes nemá žádný dopad — čekání a pak nic je horší).
-                    if (typeof PersonaSystem !== 'undefined' && contactId) {
+                    if (!blocked && typeof PersonaSystem !== 'undefined' && contactId) {
                         if (PersonaSystem.addInfluence) PersonaSystem.addInfluence(contactId, -4);
                         const axis = contactId === 'vrchnost' ? 'slechta' : contactId === 'klaster' ? 'cirkev' : 'lidovost';
                         if (PersonaSystem.addReputation) PersonaSystem.addReputation(axis, -2);
