@@ -453,3 +453,47 @@ body.design-iluminovana .illum-minor-tabs[data-illum-group="templum"] > .illum-m
    This intentionally allows the functional subtabs to wrap into readable
    rows instead of forcing them back into a horizontal swipe strip. */
 
+/* ================================================================
+   TEST — Pracovna subtabs: dynamic width by label length
+   Append to END of illuminated-minor-miniatures.css
+   Scope: mobile only, home-workshops only.
+   ================================================================ */
+
+@media (max-width: 600px) {
+
+    body.design-iluminovana
+    .illum-minor-tabs[data-illum-group="home-workshops"] {
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+        gap: 5px !important;
+    }
+
+    /*
+       Override the v1.1 145px flex-basis.
+       Each button now takes only as much width as its content needs,
+       while the flex container still wraps onto following rows.
+    */
+    body.design-iluminovana
+    .illum-minor-tabs[data-illum-group="home-workshops"]
+    > .illum-minor-tab {
+        flex: 0 0 auto !important;
+        width: fit-content !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    body.design-iluminovana
+    .illum-minor-tabs[data-illum-group="home-workshops"]
+    .illum-minor-copy {
+        flex: 0 1 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    body.design-iluminovana
+    .illum-minor-tabs[data-illum-group="home-workshops"]
+    .illum-minor-label {
+        white-space: nowrap !important;
+    }
+}
