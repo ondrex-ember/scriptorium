@@ -271,6 +271,7 @@ const STRINGS_en = {
         snareCollected: '🐿️ Snares: {caught} catch(es), {broken} snare(s) broken.',
         needKnifeDress: '⚠️ Thou needest a knife.',
         gameDressed: '🔪 Dressed: wild meat, fat, scraps.',
+        seasonClosed: '🍂 Nothing can be gathered here at this time of year.',
         // v8.x — Farmyard notifications
         hennhouseBuilt: 'The henhouse stands ready.',
         sheepfoldBuilt: 'The sheepfold is built.',

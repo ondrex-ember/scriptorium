@@ -291,6 +291,7 @@ const STRINGS_cs = {
         snareCollected: '🐿️ Oka: úlovky {caught}, zničená oka {broken}.',
         needKnifeDress: '⚠️ Potřebuješ nůž.',
         gameDressed: '🔪 Zpracováno: divoké maso, tuk, zbytky.',
+        seasonClosed: '🍂 V této roční době tu nic nezískáš.',
         hiveStrength: 'Síla včelstva',
         noSeeds: '❌ Nemáš toto semeno!',
         slotOccupied: '❌ Slot je obsazen!',

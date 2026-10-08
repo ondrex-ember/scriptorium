@@ -104,6 +104,43 @@ const ScavengeManager = {
         return weighted[weighted.length - 1];
     },
 
+    // ═══════════════════════════════════════════════════════════════════
+    // Seasonal AVAILABILITY (winter transition, S1-2): the probability that one
+    // iteration of a scavenge action yields anything at all. This is a separate
+    // axis from SEASON_MODS (which only changes WHAT drops, never HOW MUCH).
+    // Curves: 12 knots (Jan..Dec) placed on the 15th of each month, linear
+    // interpolation between knots. Real calendar months (same source as
+    // Game._getApiarySeason). Actions not listed in ACTION_AVAILABILITY are
+    // always available (1).
+    // ═══════════════════════════════════════════════════════════════════
+    ACTION_AVAILABILITY_CURVES: {
+        ground: [0, 0, 0.3, 0.7, 1, 1, 1, 1, 1, 0.85, 0.35, 0],   // ground / plants
+        water:  [0, 0, 0.5, 1, 1, 1, 1, 1, 1, 1, 0.7, 0],         // open-water fishing
+        hunt:   [0.3, 0.3, 0.5, 0.8, 1, 1, 1, 1, 1, 1, 0.8, 0.4], // base hunting kit
+    },
+    ACTION_AVAILABILITY: {
+        foraging: 'ground', nature: 'ground', grass_gather: 'ground', wetlands: 'ground',
+        wild_beekeeping: 'ground', worms_dig: 'ground', dig_clay: 'ground',
+        fishing: 'water',
+        hunt: 'hunt',
+    },
+    // Below this the action is refused up front (no fatigue charged) instead of
+    // letting the player pay vigor for a near-zero yield.
+    AVAILABILITY_CLOSED_BELOW: 0.05,
+
+    // atMs: optional timestamp the availability is evaluated at (default: now).
+    _availability: function (type, atMs) {
+        const curve = this.ACTION_AVAILABILITY_CURVES[this.ACTION_AVAILABILITY[type]];
+        if (!curve) return 1;
+        const at = new Date(typeof atMs === 'number' ? atMs : Date.now());
+        const loMonth = at.getDate() >= 15 ? at.getMonth() : at.getMonth() - 1;
+        const t0 = new Date(at.getFullYear(), loMonth, 15).getTime();
+        const t1 = new Date(at.getFullYear(), loMonth + 1, 15).getTime();
+        const v0 = curve[((loMonth % 12) + 12) % 12];
+        const v1 = curve[(((loMonth + 1) % 12) + 12) % 12];
+        return v0 + (v1 - v0) * (at.getTime() - t0) / (t1 - t0);
+    },
+
     _checkRustyPotFind: function (actionType) {
         if (actionType !== 'basic' && actionType !== 'yard_cleanup') return;
         if ((GameState.inventory['zrezly_kotlik'] || 0) > 0 || (GameState.inventory['cooking_pot'] || 0) > 0) return;
@@ -132,7 +169,12 @@ const ScavengeManager = {
     // POZOR: quarry_stone/mine_iron_ore/quarry_limestone SEM NEPATŘÍ — jsou
     // to mine-collectMode typy se svými vlastními lokálními proměnnými
     // (_tier/_mMultC/_freshMult/_hasPalice/MINE_YIELD), zůstávají nedotčené.
-    _scavengeReward: function (type, r) {
+    // Returns false when the seasonal availability gate yielded nothing.
+    // atMs: optional timestamp the gate is evaluated at (default: now).
+    _scavengeReward: function (type, r, atMs) {
+        // Seasonal availability gate — single choke point for the instant,
+        // timed-completion and quick paths.
+        if (Math.random() >= this._availability(type, atMs)) return false;
         if (type === 'basic' || type === 'yard_cleanup') this._checkRustyPotFind(type);
         if (type === 'hunt') {
             Game.addItem('fat', 1);
@@ -473,6 +515,10 @@ const ScavengeManager = {
     },
 
     scavenge: function (type) {
+        // Seasonal closure: refuse before any fatigue is charged. Claiming or
+        // cancelling an expedition of this very action is always allowed.
+        const _runningThis = GameState.activeAction && GameState.activeAction.id === type;
+        if (!_runningThis && this._availability(type) < this.AVAILABILITY_CLOSED_BELOW) { UI.notify(t('game.seasonClosed'), true); return; }
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
 
         // Vigor — Fatigue z akce. Instant klik stojí víc než timed výprava
@@ -668,6 +714,8 @@ const ScavengeManager = {
             let count = 0; let msg = "";
             if (now >= GameState.activeAction.endTime) { count = Math.round(multiplier * _toolMult); msg = t('game.done'); }
             else { const ratio = elapsed / totalDur; count = Math.floor(multiplier * ratio * _toolMult); msg = t('game.interrupted'); }
+            // Availability is judged at the moment the work was done, not when it is claimed.
+            const _availAt = Math.min(now, GameState.activeAction.endTime);
             GameState.activeAction = null;
 
             // Track action completion
@@ -681,8 +729,9 @@ const ScavengeManager = {
             let total = 0;
             for (let i = 0; i < count; i++) {
                 let r = Math.random();
+                let _given = true;
                 if (['hunt', 'nature', 'basic', 'bark', 'fishing', 'foraging', 'wetlands', 'resin_harvest', 'wild_beekeeping', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'].includes(type)) {
-                    this._scavengeReward(type, r);
+                    _given = this._scavengeReward(type, r, _availAt) !== false;
                 }
                 else if (type === 'quarry_stone') {
                     const qty = Math.random() < 0.4 ? 6 : (Math.random() < 0.6 ? 4 : 3);
@@ -696,7 +745,7 @@ const ScavengeManager = {
                     if (Math.random() < 0.20) Game.addItem('charcoal', 1);
                     if (Math.random() < 0.05) Game.addItem('rock', 2);
                 }
-                total++;
+                if (_given) total++;
             }
             if (total > 0) {
                 const _tgains = {};
