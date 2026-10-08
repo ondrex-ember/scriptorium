@@ -352,6 +352,7 @@ const STRINGS_cs = {
         needFeedHen: 'Potřebuješ krmivo',
         needFeedSheep: 'Potřebuješ trávu',
         needHay: 'Potřebuješ seno',
+        needPigFeed: 'Prasata potřebují krmivo — zbytky z kuchyně, bukvice, žaludy nebo seno',
         henFed: 'Slepice nakrmeny zrním. 🌾',
         henFedSeeds: 'Slepice nakrmeny semínky (nouzové krmení).',
         seeds: 'semínek',

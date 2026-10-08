@@ -1282,6 +1282,46 @@ const FarmyardSystem = {
         }
     },
 
+    // Pig feed: 1 portion per pig per feeding. Anything in the order list covers one portion,
+    // taken in this order (kitchen waste first, hay last). An acorn also shortens growth (see
+    // applyAcornBoost). Approved design: no herd-count model, an acorn simply replaces a portion.
+    PIG_FEED_ORDER: ['scraps', 'beechnut', 'acorn', 'hay'],
+
+    // Plan for `need` portions from `order` (default PIG_FEED_ORDER): { items: {id: qty}, have, short }.
+    pigFeedPlan: function (need, order) {
+        order = order || this.PIG_FEED_ORDER;
+        let left = need, have = 0;
+        const items = {};
+        order.forEach(function (id) {
+            const q = GameState.inventory[id] || 0;
+            have += q;
+            const take = Math.min(q, left);
+            if (take > 0) { items[id] = take; left -= take; }
+        });
+        return { items: items, have: have, short: left > 0 };
+    },
+
+    // Shift growth of immature pigs by acornBoostMs per acorn eaten (round-robin over immature pigs).
+    applyAcornBoost: function (n) {
+        const st = GameState.pigsty, cfg = this.ANIMAL_CFG.pigsty;
+        if (!st || !st.animals) return;
+        const young = st.animals.filter(a => !this._pigMature(a));
+        for (let i = 0; i < n && young.length; i++) {
+            const a = young[i % young.length];
+            a.placedAt = (a.placedAt || a.bornAt || Date.now()) - cfg.acornBoostMs;
+        }
+    },
+
+    // Takes `need` portions from the inventory (see pigFeedPlan) and applies the acorn growth boost.
+    // Returns a label of the used items ("scraps+acorn") or null when there is not enough feed.
+    consumePigFeed: function (need, order) {
+        const plan = this.pigFeedPlan(need, order);
+        if (plan.short) return null;
+        Object.keys(plan.items).forEach(function (id) { Game.removeItem(id, plan.items[id]); });
+        if (plan.items.acorn) this.applyAcornBoost(plan.items.acorn);
+        return Object.keys(plan.items).join('+');
+    },
+
     feedAcorn: function (idx) {
         const st = GameState.pigsty, cfg = this.ANIMAL_CFG.pigsty;
         const a = st.animals[idx];
@@ -1462,9 +1502,10 @@ const FarmyardSystem = {
             const fedAgoP = st.lastFedAt ? Math.floor((Date.now() - st.lastFedAt) / 3600000) : null;
             const fedTxtP = fedAgoP === null ? (lang === 'en' ? 'Never' : 'Nikdy') : fedAgoP < 1 ? (lang === 'en' ? '< 1h ago' : 'před < 1h') : (lang === 'en' ? '~' + fedAgoP + 'h ago' : 'před ~' + fedAgoP + 'h');
             const hayNeeded = st.animals.length;
-            const canFeedP = (GameState.inventory['hay'] || 0) >= hayNeeded && this.getHunger(pen) < 90;
+            const feedHaveP = pen === 'pigsty' ? this.pigFeedPlan(hayNeeded).have : (GameState.inventory['hay'] || 0);
+            const canFeedP = feedHaveP >= hayNeeded && this.getHunger(pen) < 90;
             h += `<div style="font-size:0.82rem; margin-bottom:6px;">🌾 ${lang === 'en' ? 'Last fed' : 'Krmeno'}: <strong>${fedTxtP}</strong></div>`;
-            h += '<button class="craft-btn" style="margin-bottom:10px;" onclick="FarmyardSystem.feedPen(\'' + pen + '\')" ' + (canFeedP ? '' : 'disabled') + '>🌾 ' + t('farmyard.feed') + ' (' + (lang === 'en' ? 'have' : 'máš') + ' ' + (GameState.inventory['hay'] || 0) + '/' + hayNeeded + ')</button>';
+            h += '<button class="craft-btn" style="margin-bottom:10px;" onclick="FarmyardSystem.feedPen(\'' + pen + '\')" ' + (canFeedP ? '' : 'disabled') + '>🌾 ' + t('farmyard.feed') + ' (' + (lang === 'en' ? 'have' : 'máš') + ' ' + feedHaveP + '/' + hayNeeded + ')</button>';
         }
 
         if (Array.isArray(cfg.itemId)) {
@@ -2662,9 +2703,10 @@ const FarmyardSystem = {
         if (!st || !st.built || !st.animals || st.animals.length === 0) return;
         const hayNeeded = st.animals.length;
         const waterNeeded = st.animals.length;
-        if ((GameState.inventory['hay'] || 0) < hayNeeded) { UI.notify(t('game.needHay') + ' (' + hayNeeded + ')', true); return; }
+        const isPig = pen === 'pigsty';
+        if (isPig ? this.pigFeedPlan(hayNeeded).short : (GameState.inventory['hay'] || 0) < hayNeeded) { UI.notify(t(isPig ? 'game.needPigFeed' : 'game.needHay') + ' (' + hayNeeded + ')', true); return; }
         if (!this._checkFeedWater(waterNeeded, false).ok) { UI.notify(t('game.needWater'), true); return; }
-        Game.removeItem('hay', hayNeeded);
+        if (isPig) this.consumePigFeed(hayNeeded); else Game.removeItem('hay', hayNeeded);
         if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         this._checkFeedWater(waterNeeded, true);
         st.lastFedAt = Date.now();

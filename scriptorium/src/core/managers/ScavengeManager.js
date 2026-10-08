@@ -133,6 +133,23 @@ const ScavengeManager = {
     // letting the player pay vigor for a near-zero yield.
     AVAILABILITY_CLOSED_BELOW: 0.05,
 
+    // Acorn fall curve (multiplier on the 12% base roll in foraging), 12 knots on the 15th with
+    // linear interpolation like the availability curves. Replaces the old season step
+    // (autumn 1.6 / winter 0.5 / rest 0.1). Acorns ripen in October; fall runs ~Sept-Nov.
+    // [Jan..Dec]. Game parameter, not a historical datum beyond the ripening season.
+    ACORN_FALL_CURVE: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.3, 2.2, 4.0, 2.5, 0.3],
+
+    // Linear interpolation of a 12-knot curve (knots on the 15th) at atMs (default: now).
+    _curveAt: function (curve, atMs) {
+        const at = new Date(typeof atMs === 'number' ? atMs : Date.now());
+        const loMonth = at.getDate() >= 15 ? at.getMonth() : at.getMonth() - 1;
+        const t0 = new Date(at.getFullYear(), loMonth, 15).getTime();
+        const t1 = new Date(at.getFullYear(), loMonth + 1, 15).getTime();
+        const v0 = curve[((loMonth % 12) + 12) % 12];
+        const v1 = curve[(((loMonth + 1) % 12) + 12) % 12];
+        return v0 + (v1 - v0) * (at.getTime() - t0) / (t1 - t0);
+    },
+
     // atMs: optional timestamp the availability is evaluated at (default: now).
     _hasTech: function (id) {
         return !!(GameState.researchedTechs && GameState.researchedTechs.includes(id));
@@ -284,7 +301,7 @@ const ScavengeManager = {
             if (this._seasonRoll('seeds_garlic', 0.03)) Game.addItem('seeds_garlic', 1);
             if (this._seasonRoll('seeds_nettle', 0.02)) Game.addItem('seeds_nettle', 1);
             // Žaludy — podzimní nález
-            if (this._seasonRoll('acorn', 0.12)) Game.addItem('acorn', 1);
+            if (Math.random() < Math.min(0.12 * this._curveAt(this.ACORN_FALL_CURVE, atMs), 0.95)) Game.addItem('acorn', 1);
             // Hlemýždi — vyšší šance po dešti
             const _snailWet = (typeof WeatherSystem !== 'undefined') ? WeatherSystem.countWetDays(3) : { wet: 0 };
             if (this._seasonRoll('snail', _snailWet.wet >= 2 ? 0.15 : 0.05)) Game.addItem('snail', 1);

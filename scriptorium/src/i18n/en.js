@@ -289,6 +289,7 @@ const STRINGS_en = {
         iceTooThin: '🧊 The ice will not bear yet.',
         needTechAction: '⚠️ Thou lackest the knowledge for this yet.',
         acornCache: '🌰 Beneath a drift of leaves thou hast found someone\'s hoard of acorns (+{qty}) — a jay or squirrel had other plans for winter.',
+        needPigFeed: 'The pigs need feed — kitchen scraps, beechnuts, acorns or hay',
         winterNotice: '❄️ Winter draws near. Until mid-December gathering in field and forest will thin, then cease. Mow hay and lay in stores for thy beasts while there is time.',
         // v8.x — Farmyard notifications
         hennhouseBuilt: 'The henhouse stands ready.',

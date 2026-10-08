@@ -1540,16 +1540,17 @@ const ConversiManager = {
                     { key: 'rabbitry', built: GameState.rabbitry && GameState.rabbitry.built && GameState.rabbitry.animals && GameState.rabbitry.animals.length > 0, feedChain: ['scraps', 'hay'], feedAmt: 1, name: lang === 'en' ? 'Rabbits' : 'Králíci' },
                     { key: 'goatpen', built: GameState.goatpen && GameState.goatpen.built && GameState.goatpen.animals && GameState.goatpen.animals.length > 0, feedChain: ['hay', 'scraps', 'feed_meal'], feedAmt: 1, name: lang === 'en' ? 'Goats' : 'Kozy' },
                     { key: 'cowbyre', built: GameState.cowbyre && GameState.cowbyre.built && GameState.cowbyre.animals && GameState.cowbyre.animals.length > 0, feedChain: ['hay', 'feed_meal'], feedAmt: 1, name: lang === 'en' ? 'Cattle' : 'Skot' },
-                    { key: 'pigsty', built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feedChain: ['scraps', 'feed_meal', 'grain', 'hay'], feedAmt: 2, name: lang === 'en' ? 'Pigs' : 'Prasata' },
+                    { key: 'pigsty', built: GameState.pigsty && GameState.pigsty.built && GameState.pigsty.animals && GameState.pigsty.animals.length > 0, feedChain: ['scraps', 'beechnut', 'acorn', 'feed_meal', 'grain', 'hay'], feedAmt: 2, name: lang === 'en' ? 'Pigs' : 'Prasata' },
                 ];
                 animals.forEach(a => {
                     if (!a.built) return;
                     // v2: lastFedAt přímo na GameState[pen] — stejné pole jako getMood()/manuální Feed
                     const hoursSinceFed = (Date.now() - (GameState[a.key].lastFedAt || 0)) / 3600000;
                     if (hoursSinceFed < 24) return;
-                    const useFeed = a.feedChain.find(f => (GameState.inventory[f] || 0) >= a.feedAmt);
+                    // Pigs: portions may be mixed from several feeds (FarmyardSystem.consumePigFeed).
+                    const useFeed = a.key === 'pigsty' ? FarmyardSystem.consumePigFeed(a.feedAmt, a.feedChain) : a.feedChain.find(f => (GameState.inventory[f] || 0) >= a.feedAmt);
                     if (useFeed) {
-                        Game.removeItem(useFeed, a.feedAmt);
+                        if (a.key !== 'pigsty') Game.removeItem(useFeed, a.feedAmt);
                         GameState[a.key].lastFedAt = Date.now();
                         fedAny = true;
                     }
