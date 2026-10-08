@@ -107,7 +107,7 @@ const FarmyardSystem = {
     // křivka (první půlka skoro bez dopadu, pak prudčeji), + první sníh
     // v cyklu ji urychlí o 0.25. Reset firstSnowAt mimo podzim/zimu, ať je
     // připravený na příští rok.
-    GRAZING_PENS: ['goatpen', 'cowbyre', 'pigsty', 'stable', 'donkeyStall'],
+    GRAZING_PENS: ['goatpen', 'cowbyre', 'pigsty', 'stable', 'donkeyStall', 'henhouse', 'sheepfold'],
     grazeCoverage: function () {
         const season = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'summer';
         if (!GameState.weather) GameState.weather = {};
@@ -660,12 +660,12 @@ const FarmyardSystem = {
         return this.getMood(key) < 20;
     },
 
-    // Starvation gate (autumn-winter-audit F4): unfed animals (hunger fully
-    // depleted) give no yield at all. Checked on top of _penHungry for the
+    // Starvation gate (autumn-winter-audit F4): unfed animals (hunger below
+    // 5) give no yield at all. Checked on top of _penHungry for the
     // collect actions only. Horreum auto-feeding refreshes lastFedAt, so it
     // keeps pens out of starvation.
     _isStarved: function (key) {
-        return this.getHunger(key) <= 0;
+        return this.getHunger(key) < 5;
     },
 
     // ── Krmná voda — užitková primárně, pramenitá jako záloha ────────────────
