@@ -1044,6 +1044,7 @@ const Game = {
     // ═══ D4: Apiarium (včelíny) — extrahováno do ApiaryManager.js ═══
     // (Krok 2, refactoring-audit-mrd-19-8-2026.md §2, 19.8.2026)
     _getApiarySeason: function () { return ApiaryManager._getApiarySeason(); },
+    seasonProgress: function () { return ApiaryManager.seasonProgress(); },
     _randomQueenName: function () { return ApiaryManager._randomQueenName(); },
     _apiaryWeatherMod: function () { return ApiaryManager._apiaryWeatherMod(); },
     buildHive: function (slotIdx) { return ApiaryManager.buildHive(slotIdx); },

@@ -110,9 +110,9 @@ const FarmyardSystem = {
     GRAZING_PENS: ['goatpen', 'cowbyre', 'pigsty', 'stable', 'donkeyStall'],
     grazeCoverage: function () {
         const season = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'summer';
-        if (season === 'spring' || season === 'summer') return 1;
         if (!GameState.weather) GameState.weather = {};
         if (season !== 'autumn' && season !== 'winter') { GameState.weather.firstSnowAt = null; }
+        if (season === 'spring' || season === 'summer') return 1;
         if (season === 'winter') return 0;
         // autumn
         let progress = (typeof Game !== 'undefined' && Game.seasonProgress) ? Game.seasonProgress() : 0.5;
@@ -658,6 +658,14 @@ const FarmyardSystem = {
     // nízké náladě. Nad tím produkci škáluje MOOD_MULT samo.
     _penHungry: function (key) {
         return this.getMood(key) < 20;
+    },
+
+    // Starvation gate (autumn-winter-audit F4): unfed animals (hunger fully
+    // depleted) give no yield at all. Checked on top of _penHungry for the
+    // collect actions only. Horreum auto-feeding refreshes lastFedAt, so it
+    // keeps pens out of starvation.
+    _isStarved: function (key) {
+        return this.getHunger(key) <= 0;
     },
 
     // ── Krmná voda — užitková primárně, pramenitá jako záloha ────────────────
@@ -1217,7 +1225,7 @@ const FarmyardSystem = {
     collectGoatMilk: function () {
         const st = GameState.goatpen, cfg = this.ANIMAL_CFG.goatpen;
         if (!st || !st.built) return;
-        if (this._penHungry('goatpen')) { if (typeof UI !== 'undefined') UI.notify(t('dvur.goatsHungry'), true); return; }
+        if (this._penHungry('goatpen') || this._isStarved('goatpen')) { if (typeof UI !== 'undefined') UI.notify(t('dvur.goatsHungry'), true); return; }
         const now = Date.now();
         const moodMult = this.MOOD_MULT(this.getMood('goatpen'));
         let milk = 0;
@@ -1243,7 +1251,7 @@ const FarmyardSystem = {
     collectCowMilk: function () {
         const st = GameState.cowbyre, cfg = this.ANIMAL_CFG.cowbyre;
         if (!st || !st.built) return;
-        if (this._penHungry('cowbyre')) { if (typeof UI !== 'undefined') UI.notify(t('dvur.cowsHungry'), true); return; }
+        if (this._penHungry('cowbyre') || this._isStarved('cowbyre')) { if (typeof UI !== 'undefined') UI.notify(t('dvur.cowsHungry'), true); return; }
         const now = Date.now();
         const moodMult = this.MOOD_MULT(this.getMood('cowbyre'));
         let milk = 0;
@@ -1434,7 +1442,7 @@ const FarmyardSystem = {
             h += `<div style="font-size:0.82rem; margin-bottom:8px;">🌿 ${lang === 'en' ? 'Last fed' : 'Krmeno'}: <strong>${fedTxtR}</strong></div>`;
         }
 
-        if (this._penHungry(pen)) {
+        if (this._penHungry(pen) || this._isStarved(pen)) {
             h += `<div style="font-size:0.78rem; color:#c0392b; margin-bottom:8px;">⚠️ ${t('dvur.penHungry')}</div>`;
         }
 
@@ -2335,6 +2343,7 @@ const FarmyardSystem = {
     collectHenhouse: function () {
         const h = GameState.henhouse;
         if (!h.built || h.hens.length === 0) return;
+        if (this._isStarved('henhouse')) { UI.notify(t('dvur.penHungry'), true); return; }
         const now = Date.now();
         const EGG_INTERVAL = 8 * 3600000;
         const FEATH_INTERVAL = 24 * 3600000;
@@ -2613,12 +2622,13 @@ const FarmyardSystem = {
     collectSheepfold: function () {
         const s = GameState.sheepfold;
         if (!s.built || s.sheep === 0) return;
+        if (this._isStarved('sheepfold')) { UI.notify(t('dvur.penHungry'), true); return; }
         const now = Date.now();
         const MILK_INTERVAL = 12 * 3600000;
         const WOOL_INTERVAL = 48 * 3600000;
         // Sezóna — mléko jaro/léto/podzim (ne zima)
         const month = new Date().getMonth(); // 0-based
-        const milkSeason = month >= 2 && month <= 10; // březem–říjen
+        const milkSeason = month >= 2 && month <= 10; // March–November (0-based months 2–10)
         let collected = false;
         const moodMult = this.MOOD_MULT(this.getMood('sheepfold'));
         if (milkSeason && now >= (s.lastMilkAt || 0) + MILK_INTERVAL) {

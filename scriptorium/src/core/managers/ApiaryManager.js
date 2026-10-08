@@ -13,6 +13,21 @@ const ApiaryManager = {
         return 'winter';
     },
 
+    // Fraction (0–1) of the current meteorological season that has elapsed,
+    // by real calendar date (same season boundaries as _getApiarySeason).
+    // Used by FarmyardSystem.grazeCoverage() for the autumn grazing curve.
+    seasonProgress: function () {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = now.getMonth(); // 0-based
+        // First month (0-based) of the current season; Dec–Feb starts in Dec.
+        const startMonth = m >= 2 && m <= 4 ? 2 : m >= 5 && m <= 7 ? 5 : m >= 8 && m <= 10 ? 8 : 11;
+        const startYear = (startMonth === 11 && m < 2) ? y - 1 : y;
+        const start = new Date(startYear, startMonth, 1);
+        const end = new Date(startYear, startMonth + 3, 1);
+        return Math.min(1, Math.max(0, (now - start) / (end - start)));
+    },
+
     // ── Pomocná: pool jmen královen ───────────────────────────────────────────
     _queenNames: [
         'Hildegarda', 'Konstancie', 'Anežka', 'Dorota', 'Markéta',

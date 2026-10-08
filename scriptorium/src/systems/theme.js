@@ -51,8 +51,9 @@ const ThemeSystem = {
         const m = now.getMonth() + 1; // 1-12
         const d = now.getDate();
         
-        // Snow always → Winter
-        if(currentCode >= 71 && currentCode <= 86) return 'winter';
+        // Snow always → Winter (WMO 71–77 snow, 85–86 snow showers;
+        // 80–82 = rain showers are NOT snow)
+        if((currentCode >= 71 && currentCode <= 77) || (currentCode >= 85 && currentCode <= 86)) return 'winter';
         
         // Astronomické dělení roku
         if (m === 3 && d >= 20 || m === 4 || m === 5 || m === 6 && d < 21) return 'spring';
