@@ -265,6 +265,12 @@ const STRINGS_en = {
         needQueen: '❌ Thou hast no queen bee! (Buy at the Market)',
         hiveNotReady: '⏳ The bees still labour.',
         penNotReady: '⏳ Nothing ready to collect yet.',
+        snareNone: '⚠️ Thou hast no snare.',
+        snareMax: '⚠️ Thou canst not set more than 3 snares at once.',
+        snareSet: '🪤 Snare set. Return in 12 hours.',
+        snareCollected: '🐿️ Snares: {caught} catch(es), {broken} snare(s) broken.',
+        needKnifeDress: '⚠️ Thou needest a knife.',
+        gameDressed: '🔪 Dressed: wild meat, fat, scraps.',
         // v8.x — Farmyard notifications
         hennhouseBuilt: 'The henhouse stands ready.',
         sheepfoldBuilt: 'The sheepfold is built.',

@@ -1495,6 +1495,24 @@ const GardenSystem = {
         if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
         const now = Date.now();
         const DAY_MS = 86400000;
+        // Outside the planting window (Mar–Apr) the cutting is set dormant and wakes in spring
+        const plantMonth = new Date().getMonth() + 1;
+        if (plantMonth < 3 || plantMonth > 4) {
+            slot.state     = 'dormant';
+            slot.variety   = varietyId;
+            slot.plantedAt = 0;
+            slot.ripeAt    = 0;
+            slot.windowEnd = 0;
+            slot.pruned    = false;
+            slot.cuttingsAvailable = 0;
+            slot.lastWateredAt = 0;
+            Game.save();
+            this.renderVinohrad();
+            UI.notify('🌿 ' + (lang==='en'
+                ? (variety.name_en + ' set in the ground. It will wake in spring.')
+                : (variety.name + ' zasazena do země. Probudí se na jaře.')));
+            return;
+        }
         slot.state     = 'planted';
         slot.variety   = varietyId;
         slot.plantedAt = now;
@@ -1861,8 +1879,8 @@ const GardenSystem = {
                 changed = true;
             }
 
-            // Overripe → dormant: zima (listopad+)
-            if (slot.state === 'overripe' && month >= 11) {
+            // Overripe → dormant: zima (listopad–únor; do března se budí jako dormant)
+            if (slot.state === 'overripe' && (month >= 11 || month <= 2)) {
                 slot.state = 'dormant';
                 changed = true;
             }

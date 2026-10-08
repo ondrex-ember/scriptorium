@@ -45,7 +45,7 @@ const ScriniumDB = {
             },
             arcanum: {
                 textKey: 'scrinium.folios.epistola.arcanum',
-                cost: { item: 'wax_candle', amount: 3 },  // pouze vosková svíčka — Opat trvá
+                cost: { item: 'candle_wax', amount: 3 },  // pouze vosková svíčka — Opat trvá
                 reward: {
                     type: 'unlock_athanor',
                     notifyKey: 'scrinium.folios.epistola.reward_notify',

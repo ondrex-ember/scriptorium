@@ -999,18 +999,17 @@ const ScavengeManager = {
     SNARE_BREAK_CHANCE: 0.4,
 
     setSnare: function () {
-        if ((GameState.inventory['snare'] || 0) <= 0) { UI.notify('⚠️ Nemáš žádné oko.', true); return; }
+        if ((GameState.inventory['snare'] || 0) <= 0) { UI.notify(t('game.snareNone'), true); return; }
         if (!GameState.snareTraps) GameState.snareTraps = [];
-        if (GameState.snareTraps.length >= 3) { UI.notify('⚠️ Víc než 3 oka najednou nelíčíš.', true); return; }
+        if (GameState.snareTraps.length >= 3) { UI.notify(t('game.snareMax'), true); return; }
         Game.removeItem('snare', 1);
         GameState.snareTraps.push({ readyAt: Date.now() + this.SNARE_MS });
         Game.save();
-        UI.notify('🪤 Oko nalíčeno. Vrať se za 12 hodin.');
-        UI.renderScavengeActions();
+        UI.notify(t('game.snareSet'));
+        UI.renderActions();
     },
 
     collectSnares: function () {
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if (!GameState.snareTraps) GameState.snareTraps = [];
         const now = Date.now();
         const ready = GameState.snareTraps.filter(s => now >= s.readyAt);
@@ -1024,23 +1023,20 @@ const ScavengeManager = {
             else { returned++; Game.addItem('snare', 1); }
         });
         Game.save();
-        UI.notify('🐿️ ' + (lang === 'en'
-            ? 'Snares: ' + caught + ' catch(es), ' + broken + ' snare(s) broken.'
-            : 'Oka: úlovky ' + caught + ', zničená oka ' + broken + '.'));
-        UI.renderScavengeActions();
+        UI.notify(t('game.snareCollected').replace('{caught}', caught).replace('{broken}', broken));
+        UI.renderActions();
     },
 
     processCaughtGame: function () {
-        const lang = (GameState.settings && GameState.settings.language) || 'cs';
         if ((GameState.inventory['caught_small_game'] || 0) <= 0) return;
-        if ((GameState.inventory['stone_knife'] || 0) <= 0) { UI.notify('⚠️ ' + (lang === 'en' ? 'You need a knife.' : 'Potřebuješ nůž.'), true); return; }
+        if ((GameState.inventory['stone_knife'] || 0) <= 0 && (GameState.inventory['iron_knife'] || 0) <= 0) { UI.notify(t('game.needKnifeDress'), true); return; }
         Game.removeItem('caught_small_game', 1);
         Game.addItem('meat', 1);      // Divoké maso
         Game.addItem('fat', 1);
         Game.addItem('scraps', 1);    // zbytky — krmivo (B3 vazba)
         if (Math.random() < 0.5) Game.addItem('bone', 1);
         Game.save();
-        UI.notify('🔪 ' + (lang === 'en' ? 'Dressed: wild meat, fat, scraps.' : 'Zpracováno: divoké maso, tuk, zbytky.'));
-        UI.renderScavengeActions();
+        UI.notify(t('game.gameDressed'));
+        UI.renderActions();
     },
 };
