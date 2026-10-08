@@ -83,7 +83,7 @@ const ApiaryManager = {
         hive.lastCollectAt = 0;
         Game.save();
         UI.renderApiary();
-        UI.notify('🪹 ' + t('game.hiveBuilt'));
+        UI.notify(t('game.hiveBuilt'));
     },
 
     // ── Velký úl (Custos Apium, MRD Apiarium II) ──────────────────────────────
@@ -140,7 +140,7 @@ const ApiaryManager = {
         hive.lastCutAt = 0; // MRD 5.3 — řez matečníků, cooldown počítadlo
         Game.save();
         UI.renderApiary();
-        UI.notify('🐝 ' + t('game.queenAdded') + ' — ' + hive.queenName);
+        UI.notify(t('game.queenAdded') + ' — ' + hive.queenName);
     },
 
     // MRD 5.7 — chov matek: vysloužilá matka (z rojení, 280g na trhu) dá potomka
@@ -285,7 +285,7 @@ const ApiaryManager = {
             : `Oddělek vytvořen — nové včelstvo „${nuc.queenName}“ v novém slotu.`));
     },
 
-    // MRD 5.1 — bezplatná kontrola stavu Varroa kdykoliv, nezávisle na sklizni
+    // MRD 5.1 — bezplatná kontrola stavu plástů (zavíječ/plíseň) kdykoliv, nezávisle na sklizni
     inspectHive: function (slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
@@ -296,11 +296,11 @@ const ApiaryManager = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const v = hive.varroa || 0;
         const hint = v >= 70
-            ? (lang === 'en' ? 'critical — treat soon' : 'kritický — brzy ošetři')
+            ? (lang === 'en' ? 'critical — smoke the hive soon' : 'kritický — brzy vykuř')
             : v >= 40
                 ? (lang === 'en' ? 'rising' : 'roste')
                 : (lang === 'en' ? 'calm' : 'klidný');
-        UI.notify('🔍 ' + (lang === 'en' ? `Varroa: ${v}/100 (${hint})` : `Varroa: ${v}/100 (${hint})`));
+        UI.notify('🔍 ' + (lang === 'en' ? `Wax moth & mold: ${v}/100 (${hint})` : `Zavíječ a plíseň: ${v}/100 (${hint})`));
     },
 
     collectHive: function (slotIdx) {
@@ -312,7 +312,7 @@ const ApiaryManager = {
 
         // Zima — nelze sklízet
         if (season === 'winter') {
-            UI.notify('❄️ ' + t('game.hiveWinter'), true);
+            UI.notify(t('game.hiveWinter'), true);
             return;
         }
 
@@ -400,14 +400,14 @@ const ApiaryManager = {
             UI.renderApiary();
             UI.notify(isVeteran
                 ? '👑 ' + (lang === 'en' ? 'The queen survived the swarm — a veteran, worth a fortune!' : 'Matka roj přežila — vysloužilá, cenná k prodeji!')
-                : '🐝 ' + t('game.hiveRojivy'));
+                : t('game.hiveRojivy'));
             return;
         }
 
         hive.lastCollectAt = now;
         Game.save();
         UI.renderApiary();
-        UI.notify('🍯 ' + t('game.hiveCollected') + ' (' + honeyYield + '× med, ' + waxYield + '× vosk)');
+        UI.notify(t('game.hiveCollected') + ' ' + t('game.hiveYield').replace('{honey}', honeyYield).replace('{wax}', waxYield));
     },
 
     // ── Zimní přikrmení ────────────────────────────────────────────────────────
@@ -423,16 +423,16 @@ const ApiaryManager = {
         hive.strength = Math.min(10, (hive.strength || 3) + 1);
         Game.save();
         UI.renderApiary();
-        UI.notify('🍯 ' + t('game.hiveFed'));
+        UI.notify(t('game.hiveFed'));
     },
 
-    // ── Léčba Varroa ──────────────────────────────────────────────────────────
+    // ── Vykouření úlu (zavíječ/plíseň; interně treatVarroa) ──────────────────────────────────────────────────────────
     treatVarroa: function (slotIdx) {
         if (!GameState.apiary) return;
         const hive = GameState.apiary[slotIdx];
         if (!hive.built || !hive.hasQueen) return;
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
-        if ((hive.varroa || 0) <= 0) { UI.notify(lang === 'en' ? 'No Varroa pressure right now.' : 'Žádný tlak Varroa teď není.', true); return; }
+        if ((hive.varroa || 0) <= 0) { UI.notify(lang === 'en' ? 'The combs are in no danger right now.' : 'Plástům teď nic nehrozí.', true); return; }
         if ((GameState.inventory['thyme'] || 0) < 1) { UI.notify(t('game.hiveNeedThyme'), true); return; }
         Game.removeItem('thyme', 1);
         const reduction = 30 + (hive.queenVarroaResist || 3) * 5; // 40–50 dle odolnosti matky
@@ -440,7 +440,7 @@ const ApiaryManager = {
         hive.strength = Math.max(1, (hive.strength || 3) - 1); // léčba stojí trochu síly
         Game.save();
         UI.renderApiary();
-        UI.notify('🌿 ' + t('game.hiveTreated') + ' (-' + reduction + ' Varroa)');
+        UI.notify(t('game.hiveTreated') + ' (-' + reduction + ')');
     },
 
     // ── Zimní check (volá se 1× denně nebo při otevření Apiary) ───────────────
@@ -466,7 +466,7 @@ const ApiaryManager = {
                 changed = true;
                 UI.notify(isVeteran
                     ? '👑 ' + (lang === 'en' ? 'She did not survive the hive, but the veteran queen herself lived on!' : 'Včelstvo zimu nepřežilo, ale vysloužilá matka sama ano!')
-                    : '💀 ' + t('game.hiveDied'));
+                    : t('game.hiveDied'));
             }
         });
         if (changed) { Game.save(); UI.renderApiary(); }
@@ -482,6 +482,6 @@ const ApiaryManager = {
         hive.strength = Math.max(1, (hive.strength || 3) - 2);
         Game.save();
         UI.renderApiary();
-        UI.notify('⚠️ ' + t('game.hiveVarroa'));
+        UI.notify(t('game.hiveVarroa'));
     },
 };

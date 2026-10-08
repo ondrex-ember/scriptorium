@@ -343,8 +343,8 @@ const AthanorDB = {
     {
       id: 'thyme', name: 'Tymián', name_en: 'Thyme', name_lat: 'Thymus', rarity: 'common', source: 'existing',
       color: '#8ab87a', icon: '🌿', thermal: 1, moisture: 0,
-      lore: 'Odvání Varroa z úlů. Hildegarda ho znala jako bylinu síly a odvahy.',
-      lore_en: 'Drives Varroa from the hives. Hildegard knew it as a herb of strength and courage.',
+      lore: 'Vykuřuje úly a odpuzuje škůdce. Hildegarda ho znala jako bylinu síly a odvahy.',
+      lore_en: 'Smokes hives and drives off pests. Hildegard knew it as a herb of strength and courage.',
       dropNote: 'Sbírej při průzkumu nebo pěstuj v zahradě.'
     },
     {

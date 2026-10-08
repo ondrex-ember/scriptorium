@@ -4542,6 +4542,8 @@ const UI = {
     renderPiscina: function () { return GardenSystem.renderPiscina(); },
     renderOrchard: function () { return GardenSystem.renderOrchard(); },
     renderApiary: function () { return GardenSystem.renderApiary(); },
+    // Current UI language ('cs' | 'en'). GardenSystem renders choose their inline texts through UI.lang().
+    lang: function () { return (GameState.settings && GameState.settings.language) || 'cs'; },
     renderGarden: function () { return GardenSystem.renderGarden(); },
     notify: function (m, e) { const area = document.getElementById('notification-area'); if (!area) return; if (area.children.length >= 3) return; const n = document.createElement('div'); n.className = 'toast'; n.innerText = m; if (e) n.style.borderColor = 'red'; area.appendChild(n); setTimeout(() => n.remove(), 2600); },
     notifyPanel: function (m, category, e) {

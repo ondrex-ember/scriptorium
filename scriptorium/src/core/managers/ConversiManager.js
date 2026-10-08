@@ -1870,7 +1870,7 @@ const ConversiManager = {
                     const who = this._workCredit(apiaryBrother, beekeeper);
                     const parts_cs = [], parts_en = [];
                     if (honeyGained || waxGained) { parts_cs.push(`sklidil ${honeyGained}× med, ${waxGained}× vosk`); parts_en.push(`harvested ${honeyGained}× honey, ${waxGained}× wax`); }
-                    if (varroaTreated) { parts_cs.push(`ošetřil ${varroaTreated} úl(y) proti Varroa`); parts_en.push(`treated ${varroaTreated} hive(s) for Varroa`); }
+                    if (varroaTreated) { parts_cs.push(`vykouřil ${varroaTreated} úl(y) proti zavíječi a plísni`); parts_en.push(`smoked ${varroaTreated} hive(s) against wax moth and mold`); }
                     if (fedHives) { parts_cs.push(`přikrmil ${fedHives} úl(y)`); parts_en.push(`fed ${fedHives} hive(s)`); }
                     if (veteranQueens) { parts_cs.push(`zachránil ${veteranQueens} vysloužilou matku z roje`); parts_en.push(`saved ${veteranQueens} veteran queen from a swarm`); }
                     this._reportWork(

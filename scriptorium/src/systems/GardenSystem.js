@@ -825,7 +825,7 @@ const GardenSystem = {
         });
 
         const season = Game._getApiarySeason ? Game._getApiarySeason() : 'summer';
-        const seasonLabel = { spring:'🌸 Jaro', summer:'☀️ Léto', autumn:'🍂 Podzim', winter:'❄️ Zima' };
+        const seasonLabel = { spring: t('garden.seasonSpring'), summer: t('garden.seasonSummer'), autumn: t('garden.seasonAutumn'), winter: t('garden.seasonWinter') };
         const COLLECT_HOURS = { spring: 16, summer: 8, autumn: 20, winter: 999 };
         const hours = COLLECT_HOURS[season] || 12;
         const now = Date.now();
@@ -871,8 +871,8 @@ const GardenSystem = {
                 if (hasVeteran) {
                     btn += `<button class="craft-btn" onclick="Game.breedQueen(${idx})"
                              style="font-size:0.7rem; margin-top:4px; background:rgba(150,110,40,0.75);"
-                             title="Vysloužilá matka — zděděná síla i zimovatelnost">
-                             👑 Chovat z vysloužilé matky</button>`;
+                             title="${t('garden.apiaryVeteranTip')}">
+                             ${t('garden.apiaryVeteranBreed')}</button>`;
                 }
 
             } else {
@@ -887,10 +887,10 @@ const GardenSystem = {
                     ? `<div style="font-size:0.72rem; opacity:0.65; font-style:italic;">
                          👑 ${hive.queenName} ${'★'.repeat(hive.queenStrength || 2)}
                        </div>
-                       <div style="font-size:0.65rem; opacity:0.55;" title="Odolnost Varroa / Zimovatelnost">
+                       <div style="font-size:0.65rem; opacity:0.55;" title="${t('garden.apiaryPestResistTip')}">
                          🛡️${'★'.repeat(hive.queenVarroaResist || 2)} ❄️${'★'.repeat(hive.queenWinter || 2)}
                        </div>
-                       <div style="font-size:0.65rem; opacity:0.55;" title="Mírnost / Sklon k rojení">
+                       <div style="font-size:0.65rem; opacity:0.55;" title="${t('garden.apiaryTemperTip')}">
                          🕊️${'★'.repeat(hive.queenMildness || 2)} 🌪️${'★'.repeat(hive.queenSwarm || 2)}
                        </div>`
                     : '';
@@ -912,24 +912,24 @@ const GardenSystem = {
                     </div>`;
                 }
 
-                // Varroa varování — MRD 5.1: skryté, dokud hráč úl nezkontroluje nebo nesklidí
+                // Varování před zavíječem/plísní (interně varroa) — MRD 5.1: skryté, dokud hráč úl nezkontroluje nebo nesklidí
                 const varroa = hive.varroa || 0;
                 const varroaWarn = !hive.varroaRevealed
-                    ? `<div style="font-size:0.68rem; opacity:0.5; margin-top:2px;">🐝❔ Varroa: neznámo</div>`
+                    ? `<div style="font-size:0.68rem; opacity:0.5; margin-top:2px;">🐝❔ ${t('garden.apiaryPestUnknown')}</div>`
                     : varroa >= 70
-                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">🚨 Varroa ${varroa}/100</div>`
+                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">🚨 ${t('garden.apiaryPest')} ${varroa}/100</div>`
                     : varroa >= 40
-                    ? `<div style="font-size:0.72rem; color:#c90; margin-top:2px;">⚠️ Varroa ${varroa}/100</div>`
+                    ? `<div style="font-size:0.72rem; color:#c90; margin-top:2px;">⚠️ ${t('garden.apiaryPest')} ${varroa}/100</div>`
                     : varroa > 0
-                    ? `<div style="font-size:0.68rem; opacity:0.5; margin-top:2px;">Varroa ${varroa}/100</div>`
+                    ? `<div style="font-size:0.68rem; opacity:0.5; margin-top:2px;">${t('garden.apiaryPest')} ${varroa}/100</div>`
                     : '';
 
                 // Rojivá nálada — jen když je patrná
                 const swarmMood = hive.swarmMood || 0;
                 const swarmWarn = swarmMood >= 60
-                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">🐝 Rojivá nálada!</div>`
+                    ? `<div style="font-size:0.72rem; color:#c55; margin-top:2px;">🐝 ${t('garden.apiarySwarmy')}</div>`
                     : swarmMood >= 30
-                    ? `<div style="font-size:0.68rem; opacity:0.55; margin-top:2px;">🐝 Neklidná</div>`
+                    ? `<div style="font-size:0.68rem; opacity:0.55; margin-top:2px;">🐝 ${t('garden.apiaryRestless')}</div>`
                     : '';
 
                 if (season === 'winter') {
@@ -941,11 +941,11 @@ const GardenSystem = {
                     const hasHoney = (GameState.inventory['honey'] || 0) >= 1;
                     btn = `<button class="craft-btn" onclick="Game.feedHive(${idx})"
                             ${hasHoney ? '' : 'disabled'} style="font-size:0.72rem;">
-                            🍯 Přikrmit (1× med)</button>`;
+                            🍯 ${t('garden.apiaryFeed')}</button>`;
                     if (!hive.varroaRevealed) {
                         btn += `<button class="craft-btn" onclick="Game.inspectHive(${idx})"
                                  style="font-size:0.7rem; margin-top:4px; background:rgba(90,90,140,0.6);">
-                                 🔍 Zkontrolovat</button>`;
+                                 ${t('garden.apiaryInspect')}</button>`;
                     }
 
                 } else {
@@ -967,16 +967,16 @@ const GardenSystem = {
                     if (!hive.varroaRevealed) {
                         btn += `<button class="craft-btn" onclick="Game.inspectHive(${idx})"
                                  style="font-size:0.7rem; margin-top:4px; background:rgba(90,90,140,0.6);">
-                                 🔍 Zkontrolovat</button>`;
+                                 ${t('garden.apiaryInspect')}</button>`;
                     }
 
-                    // Léčba Varroa — dostupná jakmile je tlak patrný
+                    // Vykouření úlu — dostupné jakmile je tlak patrný
                     if (varroa > 0) {
                         const hasThyme = (GameState.inventory['thyme'] || 0) >= 1;
                         btn += `<button class="craft-btn" onclick="Game.treatVarroa(${idx})"
                                  ${hasThyme ? '' : 'disabled'}
                                  style="font-size:0.7rem; margin-top:4px; background:rgba(60,120,60,0.8);">
-                                 🌿 Léčit (1× tymián)</button>`;
+                                 ${t('garden.apiarySmoke')}</button>`;
                     }
 
                     // Řez matečníků — aktivní správa roje (MRD 5.3), jen s tech_custos_apium
@@ -990,7 +990,7 @@ const GardenSystem = {
                         } else {
                             btn += `<button class="craft-btn" onclick="Game.cutQueenCells(${idx})"
                                      style="font-size:0.7rem; margin-top:4px; background:rgba(150,110,40,0.75);">
-                                     ✂️ Vyříznout matečníky</button>`;
+                                     ✂️ ${t('garden.apiaryCutCells')}</button>`;
                         }
                     }
 
@@ -998,8 +998,8 @@ const GardenSystem = {
                     if (hasCustosApium && (hive.strength || 0) >= 6 && GameState.apiary.some(h => !h.built)) {
                         btn += `<button class="craft-btn" onclick="Game.makeNuc(${idx})"
                                  style="font-size:0.7rem; margin-top:4px; background:rgba(90,140,90,0.7);"
-                                 title="Založí nové včelstvo ve volném slotu, oslabí tento úl o 3 síly">
-                                 🐣 Vytvořit oddělek</button>`;
+                                 title="${t('garden.apiaryNucTip')}">
+                                 ${t('garden.apiaryNuc')}</button>`;
                     }
                 }
             }
