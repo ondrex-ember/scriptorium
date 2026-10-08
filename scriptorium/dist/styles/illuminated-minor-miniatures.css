@@ -265,8 +265,9 @@ body.design-iluminovana .illum-minor-tabs[data-illum-group="scrinium"] .illum-mi
 /* =====================================================================
    6. PHONE / PORTRAIT
    ---------------------------------------------------------------------
-   L2/L3 navigation becomes one swipeable manuscript strip. It does not
-   consume multiple rows above the content.
+   L2/L3 navigation remains fully visible. Real subtabs wrap naturally
+   beside and below each other and use ordinary vertical page scrolling.
+   Horizontal swipe/scroll is intentionally disabled here.
    ===================================================================== */
 
 @media (max-width: 600px) {
@@ -277,8 +278,9 @@ body.design-iluminovana .illum-minor-tabs[data-illum-group="scrinium"] .illum-mi
     }
 
     body.design-iluminovana .illum-minor-tabs {
-        flex-wrap: nowrap !important;
+        flex-wrap: wrap !important;
         align-items: stretch !important;
+        justify-content: flex-start !important;
 
         width: 100% !important;
 
@@ -288,24 +290,21 @@ body.design-iluminovana .illum-minor-tabs[data-illum-group="scrinium"] .illum-mi
             1px
             5px !important;
 
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
+        overflow-x: visible !important;
+        overflow-y: visible !important;
 
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior-x: contain;
-        touch-action: pan-x;
+        -webkit-overflow-scrolling: auto !important;
+        overscroll-behavior-x: auto !important;
+        touch-action: auto !important;
 
-        scrollbar-width: thin;
-        scrollbar-color:
-            rgba(174,129,53,.72)
-            rgba(75,51,25,.07);
+        scrollbar-width: none !important;
 
-        scroll-snap-type: x proximity;
-        scroll-padding-inline: 3px;
+        scroll-snap-type: none !important;
+        scroll-padding-inline: 0 !important;
     }
 
     body.design-iluminovana .illum-minor-tab {
-        flex: 0 0 auto !important;
+        flex: 0 1 auto !important;
 
         min-height: 39px !important;
 
@@ -317,7 +316,7 @@ body.design-iluminovana .illum-minor-tabs[data-illum-group="scrinium"] .illum-mi
 
         gap: 6px !important;
 
-        scroll-snap-align: start;
+        scroll-snap-align: none !important;
     }
 
     body.design-iluminovana .illum-minor-label {
@@ -325,18 +324,9 @@ body.design-iluminovana .illum-minor-tabs[data-illum-group="scrinium"] .illum-mi
     }
 
     body.design-iluminovana .illum-minor-tabs::-webkit-scrollbar {
-        display: block !important;
-        height: 3px !important;
-    }
-
-    body.design-iluminovana .illum-minor-tabs::-webkit-scrollbar-track {
-        background: rgba(75,51,25,.07) !important;
-        border-radius: 999px !important;
-    }
-
-    body.design-iluminovana .illum-minor-tabs::-webkit-scrollbar-thumb {
-        background: rgba(174,129,53,.70) !important;
-        border-radius: 999px !important;
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
 }
 
@@ -373,3 +363,93 @@ body.design-iluminovana .illum-minor-tabs[data-illum-group="scrinium"] .illum-mi
         scroll-behavior: auto !important;
     }
 }
+
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED MINOR MINIATURES v1.1 ROLLOUT
+   ---------------------------------------------------------------------
+   Extends the approved L2/L3 visual grammar to:
+   - Pracovna -> work areas
+   - Cellarium -> entities
+   - Saeculum -> entities
+   - Saeculum/Hospoda -> subordinate activities
+   - Scriptorium/Persona -> persona sections
+   - Templum -> Hřbitov / Hlavní
+   ===================================================================== */
+
+body.design-iluminovana .illum-minor-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+}
+
+body.design-iluminovana .illum-minor-meta {
+    display: block !important;
+    max-width: 100% !important;
+    font-family: "Crimson Text", Georgia, serif !important;
+    font-size: .62rem !important;
+    line-height: 1 !important;
+    color: currentColor !important;
+    opacity: .60 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+body.design-iluminovana .illum-minor-status-dot {
+    display: inline-block !important;
+    margin-left: 2px !important;
+    font-size: .52rem !important;
+    line-height: 1 !important;
+    vertical-align: .08em !important;
+}
+
+/* Dense system indexes: distribute evenly without becoming MAJOR tabs. */
+body.design-iluminovana .illum-minor-tabs[data-illum-group="home-workshops"] > .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="cellarium"] > .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="saeculum"] > .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="persona"] > .illum-minor-tab {
+    flex: 1 1 145px !important;
+}
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="cellarium"] .illum-miniature-mark,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="saeculum"] .illum-miniature-mark,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="persona"] .illum-miniature-mark,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="home-workshops"] .illum-miniature-mark {
+    --illum-miniature-size: 31px;
+}
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="cellarium"] .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="saeculum"] .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="persona"] .illum-minor-tab,
+body.design-iluminovana .illum-minor-tabs[data-illum-group="home-workshops"] .illum-minor-tab {
+    min-height: 41px !important;
+}
+
+/* Tavern is L3: a touch smaller than the surrounding Saeculum index. */
+body.design-iluminovana .illum-minor-tabs[data-illum-group="tavern"] {
+    margin-top: 1px !important;
+    margin-bottom: 12px !important;
+}
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="tavern"] > .illum-minor-tab {
+    flex: 1 1 155px !important;
+    min-height: 39px !important;
+}
+
+body.design-iluminovana .illum-minor-tabs[data-illum-group="tavern"] .illum-miniature-mark {
+    --illum-miniature-size: 29px;
+}
+
+/* Two Templum choices should read as a balanced subordinate pair. */
+body.design-iluminovana .illum-minor-tabs[data-illum-group="templum"] > .illum-minor-tab {
+    flex: 1 1 180px !important;
+    justify-content: center !important;
+}
+
+/* On phones the dense-group desktop flex-basis rules above are retained.
+   This intentionally allows the functional subtabs to wrap into readable
+   rows instead of forcing them back into a horizontal swipe strip. */
+
