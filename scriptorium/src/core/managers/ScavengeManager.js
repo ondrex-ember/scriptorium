@@ -141,6 +141,18 @@ const ScavengeManager = {
         return v0 + (v1 - v0) * (at.getTime() - t0) / (t1 - t0);
     },
 
+    // One-time-per-year winter warning (panel entry), shown from 15 Oct to 30 Nov.
+    winterNoticeTick: function () {
+        const now = new Date();
+        const inWindow = (now.getMonth() === 9 && now.getDate() >= 15) || now.getMonth() === 10;
+        if (!inWindow) return;
+        if (!GameState.flags) GameState.flags = {};
+        if (GameState.flags.winterNoticeYear === now.getFullYear()) return;
+        GameState.flags.winterNoticeYear = now.getFullYear();
+        UI.notifyPanel(t('game.winterNotice'), 'system');
+        Game.save();
+    },
+
     _checkRustyPotFind: function (actionType) {
         if (actionType !== 'basic' && actionType !== 'yard_cleanup') return;
         if ((GameState.inventory['zrezly_kotlik'] || 0) > 0 || (GameState.inventory['cooking_pot'] || 0) > 0) return;

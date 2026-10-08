@@ -1039,6 +1039,18 @@ const UI = {
                 btnText += ` (${GameState.selectedDuration}m)`;
             }
 
+            // Seasonal availability: closed → disabled + reason; reduced → yield hint.
+            // A running/finished expedition of this action stays claimable.
+            if (typeof ScavengeManager !== 'undefined' && !(GameState.activeAction && GameState.activeAction.id === act.id)) {
+                const _avail = ScavengeManager._availability(act.id);
+                if (_avail < ScavengeManager.AVAILABILITY_CLOSED_BELOW) {
+                    btnDisabled = "disabled";
+                    infoText = t('actions.seasonClosed');
+                } else if (_avail < 0.9) {
+                    infoText += ' · ' + t('actions.seasonReduced').replace('{pct}', Math.round(_avail * 100));
+                }
+            }
+
             const cardHtml = `<div class="card"><div class="item-icon">${act.icon}</div><div><strong>${actName}</strong><div class="text-sm">${infoText}</div></div><button class="${btnClass}" onclick="Game.scavenge('${act.id}')" ${btnDisabled}>${btnText}</button></div>`;
 
             if (act.id === 'well_water') {

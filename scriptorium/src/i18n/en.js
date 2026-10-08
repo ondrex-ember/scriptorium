@@ -188,7 +188,9 @@ const STRINGS_en = {
         cancel: 'CANCEL', claim: 'COLLECT',
         quick: 'Quick!', quickDesc: 'Gather by hand',
         done: 'Done!', waiting: 'Waiting...', remaining: 'Remaining:',
-        instantly: 'Instantly!'
+        instantly: 'Instantly!',
+        seasonClosed: '❄️ Out of season — returns with spring.',
+        seasonReduced: '🍂 off-season: yield ~{pct}%'
     },
     titivillus: [
         '👿 Titivillus hath visited. A note hath vanished.',
@@ -272,6 +274,7 @@ const STRINGS_en = {
         needKnifeDress: '⚠️ Thou needest a knife.',
         gameDressed: '🔪 Dressed: wild meat, fat, scraps.',
         seasonClosed: '🍂 Nothing can be gathered here at this time of year.',
+        winterNotice: '❄️ Winter draws near. Until mid-December gathering in field and forest will thin, then cease. Mow hay and lay in stores for thy beasts while there is time.',
         // v8.x — Farmyard notifications
         hennhouseBuilt: 'The henhouse stands ready.',
         sheepfoldBuilt: 'The sheepfold is built.',

@@ -859,6 +859,8 @@ const Game = {
                     Game.checkOrchardGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkFieldGrowth();
                     if (typeof GardenSystem !== 'undefined') GardenSystem.checkVineaGrowth();
+                    // Winter warning — one panel entry per year (15 Oct – 30 Nov)
+                    if (typeof ScavengeManager !== 'undefined' && ScavengeManager.winterNoticeTick) ScavengeManager.winterNoticeTick();
                     // Felis Monastica — denní tick (self-guarded 24h)
                     if (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.dailyTick) ScriptoriumCat.dailyTick();
                     // FarmyardSystem — mood tick (self-guarded 24h)

@@ -206,7 +206,9 @@ const STRINGS_cs = {
         cancel: 'ZRUŠIT', claim: 'VYZVEDNOUT',
         quick: 'Rychle!', quickDesc: 'Ruční sběr',
         done: 'Hotovo!', waiting: 'Čekám...', remaining: 'Zbývá:',
-        instantly: 'Ihned!'
+        instantly: 'Ihned!',
+        seasonClosed: '❄️ Mimo sezónu — vrátí se s jarem.',
+        seasonReduced: '🍂 mimo plnou sezónu: výnos ~{pct} %'
     },
     titivillus: [
         '👿 Titivillus byl zde. Zápisek zmizel.',
@@ -292,6 +294,7 @@ const STRINGS_cs = {
         needKnifeDress: '⚠️ Potřebuješ nůž.',
         gameDressed: '🔪 Zpracováno: divoké maso, tuk, zbytky.',
         seasonClosed: '🍂 V této roční době tu nic nezískáš.',
+        winterNotice: '❄️ Zima se blíží. Do poloviny prosince bude sběr v polích a lesích postupně řídnout a pak ustane. Nasekej seno a obstarej zásoby pro zvířata, dokud je čas.',
         hiveStrength: 'Síla včelstva',
         noSeeds: '❌ Nemáš toto semeno!',
         slotOccupied: '❌ Slot je obsazen!',
