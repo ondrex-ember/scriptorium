@@ -117,7 +117,12 @@ const ScavengeManager = {
         ground: [0, 0, 0.3, 0.7, 1, 1, 1, 1, 1, 0.85, 0.35, 0],   // ground / plants
         water:  [0, 0, 0.5, 1, 1, 1, 1, 1, 1, 1, 0.7, 0],         // open-water fishing
         hunt:   [0.3, 0.3, 0.5, 0.8, 1, 1, 1, 1, 1, 1, 0.8, 0.4], // base hunting kit
+        hunt_trained: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],        // with tech_ius_venandi
     },
+    // Ice fishing (tech_ice_fishing): fixed availability while the ice rule holds, else closed.
+    ICE_AVAILABILITY: 0.6,
+    // With tech_ius_venandi winter is the richest hunting season (tracks in snow, best pelts).
+    WINTER_HUNT_BONUS: { extraMeatFat: 0.5, extraHide: 0.4, extraSnare: 0.5 },
     ACTION_AVAILABILITY: {
         foraging: 'ground', nature: 'ground', grass_gather: 'ground', wetlands: 'ground',
         wild_beekeeping: 'ground', worms_dig: 'ground', dig_clay: 'ground',
@@ -129,8 +134,31 @@ const ScavengeManager = {
     AVAILABILITY_CLOSED_BELOW: 0.05,
 
     // atMs: optional timestamp the availability is evaluated at (default: now).
+    _hasTech: function (id) {
+        return !!(GameState.researchedTechs && GameState.researchedTechs.includes(id));
+    },
+
+    // Meteorological winter (Dec–Feb), the same split as Game._getApiarySeason.
+    _isWinter: function (atMs) {
+        const m = new Date(typeof atMs === 'number' ? atMs : Date.now()).getMonth();
+        return m === 11 || m <= 1;
+    },
+
+    // Ice fishing is offered Nov–Mar; the ice itself needs >= 3 of the last 5 days
+    // with a daily minimum <= -3 °C (game parameter, not a historical datum).
+    isIceSeason: function () {
+        const m = new Date().getMonth();
+        return m >= 10 || m <= 2;
+    },
+    _iceOk: function () {
+        if (!this.isIceSeason() || typeof WeatherSystem === 'undefined' || !WeatherSystem.countFrostDays) return false;
+        return WeatherSystem.countFrostDays(4, -3).frost >= 3;
+    },
+
     _availability: function (type, atMs) {
-        const curve = this.ACTION_AVAILABILITY_CURVES[this.ACTION_AVAILABILITY[type]];
+        if (type === 'ice_fishing') return this._iceOk() ? this.ICE_AVAILABILITY : 0;
+        const curveKey = (type === 'hunt' && this._hasTech('tech_ius_venandi')) ? 'hunt_trained' : this.ACTION_AVAILABILITY[type];
+        const curve = this.ACTION_AVAILABILITY_CURVES[curveKey];
         if (!curve) return 1;
         const at = new Date(typeof atMs === 'number' ? atMs : Date.now());
         const loMonth = at.getDate() >= 15 ? at.getMonth() : at.getMonth() - 1;
@@ -197,6 +225,11 @@ const ScavengeManager = {
             if (r > 0.7) Game.addItem('feather', 1); // 30% chance - for quill
             // Lůj (tallow-mrd, 7.8.2026): 3x řidčeji než tuk
             if (this._seasonRoll('tallow', 0.33)) Game.addItem('tallow', 1);
+            // tech_ius_venandi: winter hunts are richer than in any other season
+            if (this._hasTech('tech_ius_venandi') && this._isWinter(atMs)) {
+                if (Math.random() < this.WINTER_HUNT_BONUS.extraMeatFat) { Game.addItem('meat', 1); Game.addItem('fat', 1); }
+                if (r <= 0.5 && Math.random() < this.WINTER_HUNT_BONUS.extraHide) Game.addItem('hide', 1);
+            }
         }
         else if (type === 'bark') {
             if (Math.random() < 0.15) Game.addItem('vrbova_kura', 1);
@@ -222,6 +255,14 @@ const ScavengeManager = {
                 Game.addItem(found, 1);
                 UI.notify('🔍 ' + (iName ? iName(found) : found) + '!');
             }
+        }
+        else if (type === 'ice_fishing') {
+            // Under the ice pike bites best (Hoffmann, Internet Archaeology 3); eels lie buried in winter.
+            const qty = r < 0.3 ? 2 : 1;
+            const sr = Math.random();
+            if (sr < 0.55) Game.addItem('stika', qty);
+            else if (sr < 0.85) Game.addItem('pstruh', qty);
+            else Game.addItem('carp', qty);
         }
         else if (type === 'foraging') {
             const _forPick = this._weightedSeasonPick([
@@ -530,7 +571,10 @@ const ScavengeManager = {
         // Seasonal closure: refuse before any fatigue is charged. Claiming or
         // cancelling an expedition of this very action is always allowed.
         const _runningThis = GameState.activeAction && GameState.activeAction.id === type;
-        if (!_runningThis && this._availability(type) < this.AVAILABILITY_CLOSED_BELOW) { UI.notify(t('game.seasonClosed'), true); return; }
+        // Actions that need a tech (ice fishing) are refused before any fatigue is charged.
+        const _techAction = ActionsDB.find(a => a.id === type);
+        if (!_runningThis && _techAction && _techAction.requiresTech && !this._hasTech(_techAction.requiresTech)) { UI.notify(t('game.needTechAction'), true); return; }
+        if (!_runningThis && this._availability(type) < this.AVAILABILITY_CLOSED_BELOW) { UI.notify(t(type === 'ice_fishing' ? 'game.iceTooThin' : 'game.seasonClosed'), true); return; }
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
 
         // Vigor — Fatigue z akce. Instant klik stojí víc než timed výprava
@@ -742,7 +786,7 @@ const ScavengeManager = {
             for (let i = 0; i < count; i++) {
                 let r = Math.random();
                 let _given = true;
-                if (['hunt', 'nature', 'basic', 'bark', 'fishing', 'foraging', 'wetlands', 'resin_harvest', 'wild_beekeeping', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'].includes(type)) {
+                if (['hunt', 'nature', 'basic', 'bark', 'fishing', 'ice_fishing', 'foraging', 'wetlands', 'resin_harvest', 'wild_beekeeping', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'].includes(type)) {
                     _given = this._scavengeReward(type, r, _availAt) !== false;
                 }
                 else if (type === 'quarry_stone') {
@@ -834,7 +878,7 @@ const ScavengeManager = {
             const _s0before = {};
             for (const k of Object.keys(GameState.inventory)) _s0before[k] = GameState.inventory[k] || 0;
             let r = Math.random();
-            if (['hunt', 'nature', 'basic', 'bark', 'fishing', 'foraging', 'wetlands', 'resin_harvest', 'wild_beekeeping', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'].includes(type)) {
+            if (['hunt', 'nature', 'basic', 'bark', 'fishing', 'ice_fishing', 'foraging', 'wetlands', 'resin_harvest', 'wild_beekeeping', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'].includes(type)) {
                 this._scavengeReward(type, r);
             }
             // ── notifyAccum: single scavenge ──
@@ -1077,9 +1121,18 @@ const ScavengeManager = {
         if (!ready.length) return;
         GameState.snareTraps = GameState.snareTraps.filter(s => now < s.readyAt);
         let caught = 0, returned = 0, broken = 0;
-        ready.forEach(() => {
-            caught++;
-            Game.addItem('caught_small_game', 1);
+        const _huntRight = this._hasTech('tech_ius_venandi');
+        ready.forEach(s => {
+            // The catch follows the hunting season at the time the snare was ready:
+            // winter is poor without the hunting right, richer with it.
+            if (Math.random() < this._availability('hunt', s.readyAt)) {
+                caught++;
+                Game.addItem('caught_small_game', 1);
+                if (_huntRight && this._isWinter(s.readyAt) && Math.random() < this.WINTER_HUNT_BONUS.extraSnare) {
+                    caught++;
+                    Game.addItem('caught_small_game', 1);
+                }
+            }
             if (Math.random() < this.SNARE_BREAK_CHANCE) broken++;
             else { returned++; Game.addItem('snare', 1); }
         });

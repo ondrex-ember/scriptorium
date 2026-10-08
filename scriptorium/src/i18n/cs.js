@@ -196,7 +196,7 @@ const STRINGS_cs = {
         hunt: 'Lovit', bark: 'Řezat',
         basic: 'Prozkoumat', wetlands: 'Prozkoumat',
         nature: 'Sbírat', foraging: 'Sbírat', resin_harvest: 'Sbírat', wild_beekeeping: 'Sbírat',
-        fishing: 'Rybařit',
+        fishing: 'Rybařit', ice_fishing: 'Rybařit',
         well_water: 'Nabrat',
         grass_gather: 'Sekat',
         wood_harvest: 'Kácet',
@@ -208,7 +208,9 @@ const STRINGS_cs = {
         done: 'Hotovo!', waiting: 'Čekám...', remaining: 'Zbývá:',
         instantly: 'Ihned!',
         seasonClosed: '❄️ Mimo sezónu — vrátí se s jarem.',
-        seasonReduced: '🍂 mimo plnou sezónu: výnos ~{pct} %'
+        seasonReduced: '🍂 mimo plnou sezónu: výnos ~{pct} %',
+        iceClosed: '🧊 Led zatím neunese.',
+        huntTrainHint: 'znalost lovu by zimní úlovky zlepšila'
     },
     titivillus: [
         '👿 Titivillus byl zde. Zápisek zmizel.',
@@ -294,6 +296,8 @@ const STRINGS_cs = {
         needKnifeDress: '⚠️ Potřebuješ nůž.',
         gameDressed: '🔪 Zpracováno: divoké maso, tuk, zbytky.',
         seasonClosed: '🍂 V této roční době tu nic nezískáš.',
+        iceTooThin: '🧊 Led zatím neunese.',
+        needTechAction: '⚠️ K tomu ti zatím chybí znalost.',
         winterNotice: '❄️ Zima se blíží. Do poloviny prosince bude sběr v polích a lesích postupně řídnout a pak ustane. Nasekej seno a obstarej zásoby pro zvířata, dokud je čas.',
         hiveStrength: 'Síla včelstva',
         noSeeds: '❌ Nemáš toto semeno!',
@@ -1713,6 +1717,7 @@ const STRINGS_cs = {
         loanActive_billy_goat: 'Kozel vypůjčen',
         loanActive_boar: 'Kanec vypůjčen',
         feedSlug: 'Nakrmit slimáky', slugFed: '🐌 Slepice se napásly na slimácích. +25% vajec po dobu 8h.',
+        winterLaying: 'Zima: slepice snášejí jen poloviční počet vajec.',
         slugBonus: 'Slug bonus', needSlug: 'Chybí slimáci (2× na slepici)',
     },
 

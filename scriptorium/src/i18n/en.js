@@ -178,7 +178,7 @@ const STRINGS_en = {
         hunt: 'Hunt', bark: 'Cut',
         basic: 'Explore', wetlands: 'Explore',
         nature: 'Gather', foraging: 'Gather', resin_harvest: 'Gather', wild_beekeeping: 'Gather',
-        fishing: 'Fish',
+        fishing: 'Fish', ice_fishing: 'Fish',
         well_water: 'Draw',
         grass_gather: 'Mow',
         wood_harvest: 'Chop',
@@ -190,7 +190,9 @@ const STRINGS_en = {
         done: 'Done!', waiting: 'Waiting...', remaining: 'Remaining:',
         instantly: 'Instantly!',
         seasonClosed: '❄️ Out of season — returns with spring.',
-        seasonReduced: '🍂 off-season: yield ~{pct}%'
+        seasonReduced: '🍂 off-season: yield ~{pct}%',
+        iceClosed: '🧊 The ice will not bear yet.',
+        huntTrainHint: 'knowledge of the chase would improve winter catches'
     },
     titivillus: [
         '👿 Titivillus hath visited. A note hath vanished.',
@@ -274,6 +276,8 @@ const STRINGS_en = {
         needKnifeDress: '⚠️ Thou needest a knife.',
         gameDressed: '🔪 Dressed: wild meat, fat, scraps.',
         seasonClosed: '🍂 Nothing can be gathered here at this time of year.',
+        iceTooThin: '🧊 The ice will not bear yet.',
+        needTechAction: '⚠️ Thou lackest the knowledge for this yet.',
         winterNotice: '❄️ Winter draws near. Until mid-December gathering in field and forest will thin, then cease. Mow hay and lay in stores for thy beasts while there is time.',
         // v8.x — Farmyard notifications
         hennhouseBuilt: 'The henhouse stands ready.',
@@ -2513,6 +2517,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         loanActive_billy_goat: 'Billy goat on loan',
         loanActive_boar: 'Boar on loan',
         feedSlug: 'Feed slugs', slugFed: '🐌 Hens feasted on slugs. +25% eggs for 8h.',
+        winterLaying: 'Winter: hens lay only half as many eggs.',
         slugBonus: 'Slug bonus', needSlug: 'Not enough slugs (2× per hen)',
     },
     // ── VALETUDO (Health System) ────────────────────────────────────────────

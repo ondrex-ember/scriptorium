@@ -120,6 +120,14 @@ const FarmyardSystem = {
         return Math.max(0, 1 - Math.pow(progress, 3));
     },
 
+    // winter transition S1-5: hens lay half as many eggs in winter (Dec–Feb, same
+    // season split as Game._getApiarySeason). Eggs only — feathers are unaffected.
+    HEN_WINTER_EGG_MULT: 0.5,
+    henWinterEggMult: function () {
+        const season = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'summer';
+        return season === 'winter' ? this.HEN_WINTER_EGG_MULT : 1;
+    },
+
     getHunger: function (pen) {
         const penKey = pen === 'kurnik' ? 'henhouse' : pen === 'kosar' ? 'sheepfold' : pen;
         const st = GameState[penKey];
@@ -1756,7 +1764,7 @@ const FarmyardSystem = {
                 var moodIconHen = this.MOOD_ICON(moodAvgHen);
                 var eggReady = now >= (h.lastEggAt || 0) + 28800000;
                 var feathReady = now >= (h.lastFeatherAt || 0) + 86400000;
-                var eggYield = Math.floor(hensCount * (h.rooster ? 1.2 : 1.0) * moodMultHen);
+                var eggYield = Math.floor(hensCount * (h.rooster ? 1.2 : 1.0) * moodMultHen * this.henWinterEggMult());
                 html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;font-size:0.82rem;">';
                 html += '<div>🐔 ' + t('farmyard.hens') + ': <strong>' + hensCount + '/10</strong></div>';
                 html += '<div>🐓 ' + t('farmyard.rooster') + ': <strong>' + (h.rooster ? '✓' : '✗') + '</strong></div>';
@@ -1771,6 +1779,7 @@ const FarmyardSystem = {
                 const slugActive = h.slugFedAt && (now - h.slugFedAt) < 28800000;
                 const slugRemH = slugActive ? Math.ceil((h.slugFedAt + 28800000 - now) / 3600000) : 0;
                 html += '<div style="color:' + (slugActive ? '#4a7c59' : 'inherit') + ';">🐌 ' + t('farmyard.slugBonus') + ': <strong>' + (slugActive ? (lang === 'en' ? '+25% eggs (' + slugRemH + 'h)' : '+25% vajec (' + slugRemH + 'h)') : '—') + '</strong></div>';
+                if (this.henWinterEggMult() < 1) html += '<div style="grid-column:1/4;font-size:0.75rem;">❄️ ' + t('farmyard.winterLaying') + '</div>';
                 html += '</div>';
                 if (hensCount > 0) {
                     html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
@@ -2351,7 +2360,7 @@ const FarmyardSystem = {
         if (now >= (h.lastEggAt || 0) + EGG_INTERVAL) {
             const moodMult = this.MOOD_MULT(this.getMood('henhouse'));
             const slugBonus = (h.slugFedAt && (now - h.slugFedAt) < 28800000) ? 1.25 : 1.0;
-            const mult = (h.rooster ? 1.2 : 1.0) * moodMult * slugBonus;
+            const mult = (h.rooster ? 1.2 : 1.0) * moodMult * slugBonus * this.henWinterEggMult();
             const eggs = Math.floor(h.hens.length * mult);
             if (eggs > 0) { Game.addItem('egg', eggs); h.lastEggAt = now; collected = true; }
         }

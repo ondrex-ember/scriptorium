@@ -815,3 +815,30 @@ TechTree.push({
   unlocks: ["burn_lime", "slake_lime", "soaked_hide_lime", "premium_soaked_hide", "premium_soaked_hide_goat", "premium_stretched_hide", "premium_vellum"],
   requires: ["tech_fodina"]
 });
+// ── ZIMNÍ ROZŠÍŘENÍ (winter transition, S1-4, 8.10.2026) ──────────────────
+// Rybolov pod ledem: historická opora = štika píchaná přes led (Prusko c. 1453,
+// Hoffmann, Internet Archaeology 3); sekera na vysekání otvoru je herní logika.
+TechTree.push({
+  id: "tech_ice_fishing",
+  name: "Piscatio sub Glacie — Rybolov pod ledem",
+  name_en: "Piscatio sub Glacie — Fishing Through the Ice",
+  cost: 6,
+  desc: "Když rybník zamrzne, rybáři nezahálejí: v ledu vysekají otvor a ryba se vytáhne i v zimě. Potřebuješ sekeru a pořádný mráz. Odemkne: rybolov pod ledem (jen v zimě, když led unese).",
+  desc_en: "When the pond freezes, fishermen do not idle: a hole is cut in the ice and fish are drawn out even in winter. Thou needest an axe and a hard frost. Unlocks: ice fishing (winter only, when the ice bears).",
+  unlocks: [],
+  requires: ["tech_fishing"]
+});
+// Právo lovu: HERNÍ FIKCE (rozhodnutí Bouvarda 8.10.2026 — klášter má právo lovu).
+// Pozor: pro kláštery jsem v historických zdrojích lovecké privilegium nenašel
+// (lov jako výsada vrchnosti: dekret Václava IV. 1388; klerikům lov zakazoval
+// IV. lateránský koncil 1215 — z paměti). Nepoužívat jako historické tvrzení.
+TechTree.push({
+  id: "tech_ius_venandi",
+  name: "Ius Venandi — Právo lovu",
+  name_en: "Ius Venandi — The Right of the Chase",
+  cost: 12,
+  desc: "Klášter smí lovit ve svých lesích. Kdo čte stopy ve sněhu a smí lovit i v zimě, přinese víc masa, tuku i kožešin než kdokoli jiný. Odemkne: plný zimní lov a oka v zimě; v zimě je lov výnosnější.",
+  desc_en: "The monastery may hunt in its own woods. He who reads tracks in the snow and may hunt in winter brings home more meat, fat and pelts than any other. Unlocks: full winter hunting and winter snares; winter hunts are richer.",
+  unlocks: [],
+  requires: []
+});

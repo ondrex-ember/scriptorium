@@ -9,7 +9,7 @@ const TerrainSystem = {
     // ── Akce ovlivněné únavou krajiny (whitelist) ──────────────────────────────
     // Vše mimo tento seznam = bez terrain efektu (workshop/dvůr/studna akce)
     TERRAIN_ACTIONS: [
-        'hunt', 'bark', 'fishing', 'wetlands', 'resin_harvest', 'wild_beekeeping',
+        'hunt', 'bark', 'fishing', 'ice_fishing', 'wetlands', 'resin_harvest', 'wild_beekeeping',
         'worms_dig', 'dig_clay', 'foraging', 'grass_gather', 'wood_harvest',
     ],
 

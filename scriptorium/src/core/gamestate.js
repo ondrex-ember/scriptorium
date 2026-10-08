@@ -4,6 +4,8 @@ const ActionsDB = [
     { id: 'hunt', cat: 'scavenge', name: 'Lov zvěře', name_en: 'Hunt game', icon: '🐗', desc: 'Tuk/Kosti', desc_en: 'Fat / Bones', yield: 1, req: [{ item: 'stone_knife', mult: 0.7 }, { item: 'iron_knife', mult: 1.2 }] },
     { id: 'bark', cat: 'scavenge', name: 'Oloupat strom', name_en: 'Strip bark', icon: '🗡️', desc: 'Kůra', desc_en: 'Bark', yield: 1, req: [{ item: 'stone_knife', mult: 0.7 }, { item: 'iron_knife', mult: 1.2 }] },
     { id: 'fishing', cat: 'scavenge', name: 'Rybolov', name_en: 'Fish', icon: '🎣', desc: 'Ryby', desc_en: 'Fish', yield: 1, req: 'fishing_rod' },
+    // winter transition S1-4 — tech_ice_fishing; availability = ice rule in ScavengeManager._iceOk()
+    { id: 'ice_fishing', cat: 'scavenge', requiresTech: 'tech_ice_fishing', name: 'Rybolov pod ledem', name_en: 'Ice fishing', icon: '🧊', desc: 'Ryby', desc_en: 'Fish', yield: 1, req: [{ item: 'stone_axe', mult: 0.6 }, { item: 'iron_axe', mult: 1.0 }] },
     { id: 'foraging', cat: 'scavenge', name: 'Sběr potravy', name_en: 'Forage', icon: '🧺', desc: 'Houby/Bobule', desc_en: 'Mushrooms / Berries', yield: 1, req: 'basket' },
     { id: 'wetlands', cat: 'scavenge', name: 'Průzkum mokřadu', name_en: 'Search the wetlands', icon: '🐸', desc: 'Žáby/Slimáci', desc_en: 'Frogs / Snails', yield: 1, req: [{ item: 'stone_knife', mult: 0.7 }, { item: 'iron_knife', mult: 1.2 }] },
     { id: 'resin_harvest', cat: 'scavenge', name: 'Sběr pryskyřice', name_en: 'Harvest resin', icon: '🌲', desc: 'Pryskyřice/Med', desc_en: 'Resin / Honey', yield: 1, req: [{ item: 'stone_knife', mult: 0.7 }, { item: 'iron_knife', mult: 1.2 }] },

@@ -203,6 +203,24 @@ const WeatherSystem = {
         return false;
     },
 
+    // Počet mrazových dní (denní minimum ≤ threshold °C) v okně [dnes−daysBack … dnes] včetně.
+    // Vzor identický s countDryDays — pro pravidlo ledu (rybolov pod ledem).
+    countFrostDays: function (daysBack = 4, threshold = -3) {
+        const out = { frost: 0, total: 0 };
+        try {
+            const tmin = this.cache && this.cache.daily && this.cache.daily.temperature_2m_min;
+            if (!Array.isArray(tmin) || !tmin.length) return out;
+            const todayIdx = this.getDailyIndex(0);
+            const start = Math.max(0, todayIdx - daysBack);
+            const end = Math.min(tmin.length - 1, todayIdx);
+            for (let i = start; i <= end; i++) {
+                out.total++;
+                if (typeof tmin[i] === 'number' && tmin[i] <= threshold) out.frost++;
+            }
+        } catch (e) { }
+        return out;
+    },
+
     init: function () {
         // Try to load from cache first (instant display)
         try {

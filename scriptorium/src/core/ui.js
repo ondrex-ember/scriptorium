@@ -982,6 +982,8 @@ const UI = {
                 // Well action passes checks - continue to render it below
             } else {
                 // NORMAL REQUIREMENT CHECK - ONLY FOR NON-WELL ACTIONS
+                if (act.requiresTech && !(GameState.researchedTechs && GameState.researchedTechs.includes(act.requiresTech))) return;
+                if (act.id === 'ice_fishing' && typeof ScavengeManager !== 'undefined' && !ScavengeManager.isIceSeason()) return;
                 if (act.req) {
                     if (Array.isArray(act.req)) {
                         // Pole req — zobrazit pokud hráč má alespoň jeden nástroj,
@@ -1002,7 +1004,7 @@ const UI = {
             const actName = (lang === 'en' && act.name_en) ? act.name_en : act.name;
             const actDesc = (lang === 'en' && act.desc_en) ? act.desc_en : act.desc;
 
-            const _actionBtnKeys = ['hunt', 'bark', 'basic', 'wetlands', 'nature', 'foraging', 'resin_harvest', 'wild_beekeeping', 'fishing', 'well_water', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'];
+            const _actionBtnKeys = ['hunt', 'bark', 'basic', 'wetlands', 'nature', 'foraging', 'resin_harvest', 'wild_beekeeping', 'fishing', 'ice_fishing', 'well_water', 'grass_gather', 'wood_harvest', 'worms_dig', 'dig_clay', 'yard_cleanup'];
             let btnText = t('actions.' + (_actionBtnKeys.includes(act.id) ? act.id : 'default'));
             let btnClass = "craft-btn";
             let btnDisabled = "";
@@ -1045,9 +1047,10 @@ const UI = {
                 const _avail = ScavengeManager._availability(act.id);
                 if (_avail < ScavengeManager.AVAILABILITY_CLOSED_BELOW) {
                     btnDisabled = "disabled";
-                    infoText = t('actions.seasonClosed');
-                } else if (_avail < 0.9) {
+                    infoText = t(act.id === 'ice_fishing' ? 'actions.iceClosed' : 'actions.seasonClosed');
+                } else if (_avail < 0.9 && act.id !== 'ice_fishing') {
                     infoText += ' · ' + t('actions.seasonReduced').replace('{pct}', Math.round(_avail * 100));
+                    if (act.id === 'hunt' && !ScavengeManager._hasTech('tech_ius_venandi')) infoText += ' · ' + t('actions.huntTrainHint');
                 }
             }
 
