@@ -576,6 +576,7 @@ const ScavengeManager = {
         if (!_runningThis && _techAction && _techAction.requiresTech && !this._hasTech(_techAction.requiresTech)) { UI.notify(t('game.needTechAction'), true); return; }
         if (!_runningThis && this._availability(type) < this.AVAILABILITY_CLOSED_BELOW) { UI.notify(t(type === 'ice_fishing' ? 'game.iceTooThin' : 'game.seasonClosed'), true); return; }
         if (typeof VigorSystem !== 'undefined' && !VigorSystem.canAct()) { UI.notify(t('game.vigor.exhausted'), true); return; }
+        this.winterCacheTick(type);
 
         // Vigor — Fatigue z akce. Instant klik stojí víc než timed výprava
         // (stejná filozofie jako TerrainSystem — grind je dražší než rozvržené hraní).
@@ -1114,11 +1115,34 @@ const ScavengeManager = {
         UI.renderActions();
     },
 
+    // Winter acorn cache ("Zásoba pod listím"): a rare find of a jay's / squirrel's hoard while
+    // working outdoors in winter (Dec–Feb). Game fiction — no source found for people raiding
+    // such caches; jays do scatter-hoard acorns in leaf litter / topsoil. Tunable here.
+    ACORN_CACHE: { dailyChance: 0.015, minGapDays: 5, minQty: 4, maxQty: 8 },
+    winterCacheTick: function (type) {
+        if (type === 'well_water' || type === 'yard_cleanup') return;
+        if (!this._isWinter()) return;
+        if (!GameState.flags) GameState.flags = {};
+        const f = GameState.flags;
+        const now = new Date();
+        const dayKey = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+        if (f.acornCacheRollDay === dayKey) return;          // one roll per day (first outdoor action)
+        f.acornCacheRollDay = dayKey;
+        const cfg = this.ACORN_CACHE;
+        if (f.acornCacheLastAt && now.getTime() - f.acornCacheLastAt < cfg.minGapDays * 86400000) return;
+        if (Math.random() >= cfg.dailyChance) return;
+        const qty = cfg.minQty + Math.floor(Math.random() * (cfg.maxQty - cfg.minQty + 1));
+        f.acornCacheLastAt = now.getTime();
+        Game.addItem('acorn', qty);
+        UI.notify(t('game.acornCache').replace('{qty}', qty));
+    },
+
     collectSnares: function () {
         if (!GameState.snareTraps) GameState.snareTraps = [];
         const now = Date.now();
         const ready = GameState.snareTraps.filter(s => now >= s.readyAt);
         if (!ready.length) return;
+        this.winterCacheTick('snares');
         GameState.snareTraps = GameState.snareTraps.filter(s => now < s.readyAt);
         let caught = 0, returned = 0, broken = 0;
         const _huntRight = this._hasTech('tech_ius_venandi');

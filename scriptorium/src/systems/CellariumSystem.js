@@ -176,6 +176,7 @@ const CellariumSystem = {
     // Suroviny
     fiber: 1,
     bark: 1,
+    acorn: 1,          // pig feed; bought at the Market for 2+ g (buy always > sell)
     hide: 4,
     leather: 6,
     bone: 1,
@@ -515,6 +516,7 @@ const CellariumSystem = {
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify(t('cellarium.soldNotify').replace('{total}', total).replace('{qty}', qty).replace('{item}', itemName));
+    if (itemId === 'acorn') UI.notify(t('cellarium.acornSell'));
     if (total >= 15 && typeof NotificationSystem !== 'undefined') {
       const _slang = (GameState.settings && GameState.settings.language) || 'cs';
       NotificationSystem.panel('💰 ' + itemName + ' ×' + qty + ' → ' + total + ' g · ' + (_slang === 'en' ? entity : entity), 'system');
@@ -609,6 +611,8 @@ const CellariumSystem = {
       { itemId: 'paper_fine', basePrice: 18, dailyStock: 2, req_tech: 'tech_porta' },
       { itemId: 'palice_zelezna', basePrice: 50, dailyStock: 2, req_tech: 'tech_fodina' },
       { itemId: 'salt', basePrice: 9, dailyStock: 20 },
+      // Acorns: pig feed. Plentiful in autumn (mast), scarce and dearer in winter.
+      { itemId: 'acorn', basePrice: 2, dailyStock: { autumn: 15, winter: 4, other: 2 }, priceMult: { winter: 1.5 } },
       // kovani-rozsireni-mrd (7.8.2026): hřebíky před tech_kovarina — střední kanál
       { itemId: 'hrebiky', basePrice: 4, dailyStock: 10 },
       // Zvířata
@@ -704,6 +708,14 @@ const CellariumSystem = {
   // ── Daily Stock helpers ────────────────────────────────────────────────────
   _stockKey: function (entity, itemId) { return entity + ':' + itemId; },
 
+  // dailyStock may be a number or a per-season map {autumn, winter, other}.
+  _stockCap: function (entry) {
+    const d = entry.dailyStock;
+    if (d === undefined || typeof d === 'number') return d;
+    const season = Game._getApiarySeason ? Game._getApiarySeason() : 'summer';
+    return d[season] !== undefined ? d[season] : d.other;
+  },
+
   _resetStockIfNewDay: function () {
     if (!GameState.shopStock) GameState.shopStock = { date: '', used: {}, dailySold: {} };
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -726,7 +738,7 @@ const CellariumSystem = {
     const entry = shopList.find(s => s.itemId === itemId);
     if (!entry || entry.dailyStock === undefined) return 999; // bez limitu
     const used = GameState.shopStock.used[this._stockKey(entity, itemId)] || 0;
-    return Math.max(0, entry.dailyStock - used);
+    return Math.max(0, this._stockCap(entry) - used);
   },
 
   _useStock: function (entity, itemId) {
@@ -782,6 +794,7 @@ const CellariumSystem = {
     Game.save();
     const itemName = (typeof iName === 'function') ? iName(itemId) : itemId;
     UI.notify(t('cellarium.boughtNotify').replace('{qty}', 1).replace('{item}', itemName).replace('{total}', price));
+    if (itemId === 'acorn') UI.notify(t('cellarium.acornBuy' + (1 + Math.floor(Math.random() * 3))));
     if (typeof SaeculumSystem !== 'undefined') SaeculumSystem.switchEntity(GameState.ui.saeculumEntity || 'tavern');
   },
 
@@ -826,11 +839,13 @@ const CellariumSystem = {
     const entry = shopList.find(s => s.itemId === itemId);
     const base = basePrice !== undefined ? basePrice : (entry ? entry.basePrice : 0);
     if (!base) return 0;
+    // Optional seasonal price multiplier, e.g. acorns cost more in winter.
+    const seasonMult = (entry && entry.priceMult) ? (entry.priceMult[Game._getApiarySeason ? Game._getApiarySeason() : 'summer'] || 1) : 1;
     const today = new Date();
     const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
     const pseudoRand = ((seed * 9301 + entity.charCodeAt(0) * 49297 + itemId.charCodeAt(0) * 233 + 777) % 1000) / 1000;
     const offset = 0.85 + pseudoRand * 0.30;
-    return Math.max(1, Math.round(base * offset));
+    return Math.max(1, Math.round(base * seasonMult * offset));
   },
 
   // Pivo/víno vypité rovnou u pultu — platí se zvlášť od BUY, žádný item
@@ -961,7 +976,7 @@ const CellariumSystem = {
       const canAfford = this.getGrose() >= price;
       const canBuy = canAfford && hasStock;
       const stockLabel = entry.dailyStock !== undefined
-        ? `<span style="opacity:0.5; font-size:0.7rem; margin-left:4px;">${remaining}/${entry.dailyStock}</span>`
+        ? `<span style="opacity:0.5; font-size:0.7rem; margin-left:4px;">${remaining}/${this._stockCap(entry)}</span>`
         : '';
       const soldOut = !hasStock
         ? `<div style="font-size:0.7rem; color:#f44336; margin-top:2px;">${lang === 'en' ? '📦 Sold out' : '📦 Vyprodáno'}</div>`
