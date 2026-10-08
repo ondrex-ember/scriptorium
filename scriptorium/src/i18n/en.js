@@ -114,6 +114,7 @@ const STRINGS_en = {
         musicTier1: '🏛️ Sacral Cathedral',
         musicTier2: '🏰 Abyssal Keep',
         musicTier3: '🎻 Ars Nova',
+        musicLockedHint: 'Music is unlocked by studying neume notation.',
         volume: 'Volume',
         fireVolume: '🔥 Hearth Volume',
         fireVolumeDesc: 'Controls only the sound of the burning hearth',

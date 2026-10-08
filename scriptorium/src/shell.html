@@ -4708,6 +4708,12 @@
 
                 <div class="card" style="flex-direction: column; align-items: flex-start;">
                     <strong data-i18n="settingsUI.musicTitle">🎵 Hudba</strong>
+                    <div id="music-locked-hint"
+                        style="display:none; margin-top: 6px; font-size: 0.85rem; color: var(--ink-secondary);"
+                        data-i18n="settingsUI.musicLockedHint">
+                        Music is unlocked by studying neume notation.
+                    </div>
+                    <div id="music-controls" style="display:contents;">
                     <label style="display:flex; align-items:center; gap:10px; margin-top:8px; cursor:pointer;">
                         <input type="checkbox" id="music-enabled-checkbox" checked
                             onchange="Game.setMusicEnabled(this.checked)"
@@ -4742,6 +4748,7 @@
                                 <span data-i18n="settingsUI.musicTier3">🎻 Ars Nova</span>
                             </label>
                         </div>
+                    </div>
                     </div>
                 </div>
 

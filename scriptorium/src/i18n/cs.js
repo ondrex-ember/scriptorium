@@ -129,6 +129,7 @@ const STRINGS_cs = {
         musicTier1: '🏛️ Sacral Cathedral',
         musicTier2: '🏰 Abyssal Keep',
         musicTier3: '🎻 Ars Nova',
+        musicLockedHint: 'Hudba se odemkne studiem neumatické notace.',
         volume: 'Hlasitost',
         fireVolume: '🔥 Hlasitost krbu',
         fireVolumeDesc: 'Ovládá pouze zvuk hořícího krbu',

@@ -151,6 +151,13 @@ const UI = {
             const tier2 = techs.includes('tech_schola_cantorum');
             const tier3 = secrets.cellariumUnlocked || techs.includes('tech_cellarium');
 
+            // Music controls are hidden until any track is unlocked; a hint explains how to unlock music
+            const musicAvailable = !!(tier1 || tier2 || tier3);
+            const musicControls = document.getElementById('music-controls');
+            const musicLockedHint = document.getElementById('music-locked-hint');
+            if (musicControls) musicControls.style.display = musicAvailable ? 'contents' : 'none';
+            if (musicLockedHint) musicLockedHint.style.display = musicAvailable ? 'none' : 'block';
+
             const trackSelector = document.getElementById('music-track-selector');
             const tier2Option = document.getElementById('music-tier2-option');
             const tier3Option = document.getElementById('music-tier3-option');
