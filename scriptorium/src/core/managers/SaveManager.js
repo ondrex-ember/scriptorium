@@ -17,6 +17,65 @@ const SaveManager = {
     // undefined = load ještě neproběhl / gate ještě neuzavřen.
     _loadedProgressBaseline: undefined,
 
+    // save-window-guard (11.10.2026) — protects against a stale window
+    // (e.g. an old tab or PWA revived from memory) overwriting newer progress
+    // saved by another window of the same browser profile. Each window has a
+    // random id; every successful save writes a tiny meta record
+    // { id, seq } where seq is a monotonic counter (no clock dependence).
+    // A window may save only if no OTHER window wrote a higher seq than the
+    // one this window last loaded or wrote. Fails open: any storage error
+    // here must never block a legitimate save.
+    META_KEY: 'scriptorium_save_meta',
+    _windowId: Math.random().toString(36).slice(2) + Date.now().toString(36),
+    _knownSeq: 0,
+    _staleNoticeAt: 0,
+    _persistRequested: false,
+
+    _readMeta: function () {
+        try {
+            const raw = localStorage.getItem(SaveManager.META_KEY);
+            if (!raw) return null;
+            const m = JSON.parse(raw);
+            return (m && typeof m.seq === 'number') ? m : null;
+        } catch (e) { return null; }
+    },
+    _isStaleWindow: function () {
+        const m = SaveManager._readMeta();
+        return !!(m && m.id !== SaveManager._windowId && m.seq > SaveManager._knownSeq);
+    },
+    _writeMeta: function () {
+        try {
+            const m = SaveManager._readMeta();
+            const seq = Math.max(m ? m.seq : 0, SaveManager._knownSeq) + 1;
+            localStorage.setItem(SaveManager.META_KEY, JSON.stringify({ id: SaveManager._windowId, seq: seq }));
+            SaveManager._knownSeq = seq;
+        } catch (e) { }
+    },
+    _notifyStaleWindow: function () {
+        // Throttled: save() is called from hundreds of places, one notice per minute is enough.
+        const now = Date.now();
+        if (now - SaveManager._staleNoticeAt < 60000) return;
+        SaveManager._staleNoticeAt = now;
+        console.error('❌ SAVE BLOCKED — another window saved newer progress; this window is stale. Reload the page.');
+        if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel('🛑 ' + t('game.saveStaleWindow'), 'warning');
+    },
+
+    // Asks the browser not to evict this origin's storage under storage pressure.
+    // Called once per session, after the first successful save. Chrome (Android)
+    // decides silently (installed PWAs are usually granted); the result is only logged.
+    _requestPersist: function () {
+        SaveManager._persistRequested = true;
+        try {
+            if (!navigator.storage || !navigator.storage.persist) return;
+            navigator.storage.persisted()
+                .then(already => already ? true : navigator.storage.persist())
+                .then(granted => console.log(granted
+                    ? '💾 Persistent storage: granted'
+                    : '💾 Persistent storage: not granted (the browser may evict saved data under storage pressure)'))
+                .catch(() => { });
+        } catch (e) { }
+    },
+
     _hideLoadingGate: function () {
         const gate = document.getElementById('save-loading-gate');
         if (gate && gate.style.display !== 'none') {
@@ -88,7 +147,9 @@ const SaveManager = {
         }
     },
 
-    save: function () {
+    // force === true (strict) skips ONLY the stale-window check; used by importSave,
+    // where overwriting the stored progress is the player's explicit intent.
+    save: function (force) {
         // data-save-safety-mrd (25.8.2026) — pojistka proti přepsání reálnýho
         // postupu čerstvým/resetnutým stavem (viz _loadedProgressBaseline výš).
         // researchedTechs.length je monotónní — v normální hře nikdy neklesá,
@@ -107,11 +168,18 @@ const SaveManager = {
             }
             return;
         }
+        // save-window-guard (11.10.2026) — another window saved newer progress.
+        if (force !== true && SaveManager._isStaleWindow()) {
+            SaveManager._notifyStaleWindow();
+            return;
+        }
         try {
             GameState.lastSeen = Date.now();
             const _sd = JSON.stringify(GameState);
             localStorage.setItem('scriptorium_save_v6_4', _sd);
+            SaveManager._writeMeta();
             SaveManager._idbSave(_sd);
+            if (!SaveManager._persistRequested) SaveManager._requestPersist();
             // Reset save hint counter
             Game._saveHint.actions = 0;
             Game._saveHint.lastSaveTime = Date.now();
@@ -180,6 +248,12 @@ const SaveManager = {
                 }
             }
         }
+
+        // save-window-guard (11.10.2026) — read the meta record BEFORE the save itself:
+        // if another window writes in between, our known seq is merely lower than
+        // reality, so we err on the safe side (a save may be paused, never overwritten).
+        const _meta = SaveManager._readMeta();
+        SaveManager._knownSeq = _meta ? _meta.seq : 0;
 
         // STEP 1 — synchronous localStorage load (identical behaviour to pre-IDB)
         let lsTs = 0;
@@ -397,8 +471,8 @@ const SaveManager = {
                 // Import data
                 Object.assign(GameState, importedData);
 
-                // Save to localStorage
-                SaveManager.save();
+                // Save to localStorage (force: explicit player intent, skips the stale-window check only)
+                SaveManager.save(true);
 
                 UI.notify(t('game.successImport'));
 
