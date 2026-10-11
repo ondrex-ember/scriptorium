@@ -254,6 +254,7 @@ const STRINGS_en = {
         errorImport: '❌ An error occurred during import!',
         errorRead: '❌ The file could not be read!',
         successImport: '✅ Save imported! Refreshing to be certain.',
+        saveStaleWindow: 'Saving is paused in this window: another Scriptorium window has saved newer progress. Reload the page to continue, otherwise this window would overwrite that progress with an older state. Anything done in this window since then is not saved.',
         // v8.x — Orchard & Apiary notifications
         treePlanted: '🌱 The sapling is set in earth.',
         treeHarvested: '🍎 Harvest complete — {qty} gathered.',
