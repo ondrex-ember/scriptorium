@@ -172,6 +172,12 @@ body.design-iluminovana [data-illum-vignette="sad"] {
     --illum-vignette-position: center center;
 }
 
+body.design-iluminovana [data-illum-vignette="apiarium"] {
+    --illum-vignette-image:
+        url("/ui/illuminated/vignettes/apiarium.webp");
+    --illum-vignette-position: center center;
+}
+
 body.design-iluminovana [data-illum-vignette="opisovani"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/opisovani.webp");
@@ -305,6 +311,12 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
     body.design-iluminovana [data-illum-vignette="sad"] {
         --illum-vignette-image:
             url("/ui/illuminated/vignettes/sad-mobile.webp");
+        --illum-vignette-position: center center;
+    }
+
+    body.design-iluminovana [data-illum-vignette="apiarium"] {
+        --illum-vignette-image:
+            url("/ui/illuminated/vignettes/apiarium-mobile.webp");
         --illum-vignette-position: center center;
     }
 
