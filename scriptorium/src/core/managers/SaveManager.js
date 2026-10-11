@@ -147,6 +147,8 @@ const SaveManager = {
         }
     },
 
+    // Returns true when the save was written to localStorage, false when it was blocked
+    // (progress baseline / stale window) or the write failed. Existing callers ignore the result.
     // force === true (strict) skips ONLY the stale-window check; used by importSave,
     // where overwriting the stored progress is the player's explicit intent.
     save: function (force) {
@@ -166,12 +168,12 @@ const SaveManager = {
                     ? 'Save blocked — your progress looks incomplete (fewer techs than were loaded). Reload the page before continuing, or you may lose progress.'
                     : 'Uložení zablokováno — tvůj postup vypadá neúplně (míň techů, než se načetlo). Než budeš pokračovat, obnov stránku (F5), jinak riskuješ ztrátu postupu.'), 'warning');
             }
-            return;
+            return false;
         }
         // save-window-guard (11.10.2026) — another window saved newer progress.
         if (force !== true && SaveManager._isStaleWindow()) {
             SaveManager._notifyStaleWindow();
-            return;
+            return false;
         }
         try {
             GameState.lastSeen = Date.now();
@@ -189,7 +191,8 @@ const SaveManager = {
                 const lang = (GameState.settings && GameState.settings.language) || 'cs';
                 _el.textContent = lang === 'en' ? 'just now' : 'právě teď';
             }
-        } catch (e) { }
+            return true;
+        } catch (e) { return false; }
     },
     // Historický základ — klášter roku 1465 už nějakou dobu stojí, hřbitov
     // ani rajský dvůr by neměly být prázdné od prvního dne. Idempotentní —
@@ -462,22 +465,20 @@ const SaveManager = {
                     return;
                 }
 
+                // Regression: the backup has fewer researched techs than the current game.
+                // The progress guard would silently reject it, so the player decides explicitly.
+                if (SaveManager._techCount(importedData) < SaveManager._techCount(GameState)) {
+                    SaveManager._showImportRegressionModal(importedData);
+                    return;
+                }
+
                 // Confirm before overwriting
                 if (!confirm(t('game.overwriteSave'))) {
                     UI.notify(t('game.saveImportCancelled'));
                     return;
                 }
 
-                // Import data
-                Object.assign(GameState, importedData);
-
-                // Save to localStorage (force: explicit player intent, skips the stale-window check only)
-                SaveManager.save(true);
-
-                UI.notify(t('game.successImport'));
-
-                // Auto-refresh after 2 seconds
-                setTimeout(() => location.reload(), 2000);
+                SaveManager._applyImport(importedData);
 
             } catch (e) {
                 UI.notify(t('game.errorImport'), true);
@@ -490,6 +491,80 @@ const SaveManager = {
         };
 
         reader.readAsText(file);
+    },
+
+    // Number of researched techs — the progress metric shared with the baseline guard in save().
+    _techCount: function (state) {
+        return (state && Array.isArray(state.researchedTechs)) ? state.researchedTechs.length : 0;
+    },
+
+    // Applies an imported save. Import is an explicit overwrite, so the imported state becomes the
+    // new progress baseline. Success is reported only if the save was really written.
+    // (Object.assign keeps current-game sections that the backup does not contain — unchanged behaviour.)
+    _applyImport: function (importedData) {
+        Object.assign(GameState, importedData);
+        SaveManager._loadedProgressBaseline = SaveManager._techCount(GameState);
+
+        // Save to localStorage (force: explicit player intent, skips the stale-window check only)
+        if (!SaveManager.save(true)) {
+            UI.notify(t('game.errorImport'), true);
+            return;
+        }
+
+        UI.notify(t('game.successImport'));
+
+        // Auto-refresh after 2 seconds
+        setTimeout(() => location.reload(), 2000);
+    },
+
+    // ── Import regression modal (markup: #import-regression-modal in shell.html) ──
+    _pendingImport: null,
+
+    _showImportRegressionModal: function (importedData) {
+        SaveManager._pendingImport = importedData;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const locale = lang === 'en' ? 'en-GB' : 'cs-CZ';
+        const fmt = ts => (typeof ts === 'number' && ts > 0)
+            ? new Date(ts).toLocaleString(locale)
+            : t('game.importRegressionUnknownDate');
+        const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+        setText('import-regression-heading', t('game.importRegressionHeading'));
+        setText('import-regression-text', t('game.importRegressionText'));
+        setText('import-regression-current', t('game.importRegressionCurrent')
+            .replace('{techs}', SaveManager._techCount(GameState)).replace('{date}', fmt(GameState.lastSeen)));
+        setText('import-regression-backup', t('game.importRegressionBackup')
+            .replace('{techs}', SaveManager._techCount(importedData)).replace('{date}', fmt(importedData.lastSeen)));
+        setText('import-regression-btn-cancel', t('game.importRegressionCancel'));
+        setText('import-regression-btn-export', t('game.importRegressionExport'));
+        setText('import-regression-btn-confirm', t('game.importRegressionConfirm'));
+
+        const modal = document.getElementById('import-regression-modal');
+        if (modal) modal.style.display = 'flex';
+    },
+
+    _closeImportRegressionModal: function () {
+        SaveManager._pendingImport = null;
+        const modal = document.getElementById('import-regression-modal');
+        if (modal) modal.style.display = 'none';
+    },
+
+    importRegressionCancel: function () {
+        SaveManager._closeImportRegressionModal();
+        UI.notify(t('game.saveImportCancelled'));
+    },
+
+    // Downloads the CURRENT game (the import has not been applied yet); the modal stays open.
+    importRegressionExport: function () {
+        SaveManager.exportSave();
+        const btn = document.getElementById('import-regression-btn-export');
+        if (btn) btn.textContent = t('game.importRegressionExported');
+    },
+
+    importRegressionConfirm: function () {
+        const data = SaveManager._pendingImport;
+        SaveManager._closeImportRegressionModal();
+        if (data) SaveManager._applyImport(data);
     },
 
     triggerImport: function () {
