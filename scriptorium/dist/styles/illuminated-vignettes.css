@@ -156,7 +156,7 @@ body.design-iluminovana [data-illum-vignette="infirmarium"] {
 body.design-iluminovana [data-illum-vignette="dvur"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/dvur.webp");
-    --illum-vignette-position: center 56%;
+    --illum-vignette-position: center center;
 }
 
 
@@ -316,7 +316,9 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
     }
 
     body.design-iluminovana [data-illum-vignette="dvur"] {
-        --illum-vignette-position: center 56%;
+        --illum-vignette-image:
+            url("/ui/illuminated/vignettes/dvur-mobile.webp");
+        --illum-vignette-position: center center;
     }
 
 
