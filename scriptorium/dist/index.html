@@ -147,6 +147,7 @@
         /* Modaly – dark theme čitelnost */
         body.theme-dark #welcome-modal>div,
         body.theme-dark #fireout-modal>div,
+        body.theme-dark #import-regression-modal>div,
         body.theme-dark #lang-picker-modal>div {
             border-color: var(--accent-gold);
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 20px rgba(240, 217, 143, 0.15);
@@ -556,6 +557,7 @@
 
         body.theme-night #welcome-modal>div,
         body.theme-night #fireout-modal>div,
+        body.theme-night #import-regression-modal>div,
         body.theme-night #lang-picker-modal>div {
             border-color: var(--accent-gold);
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.95), 0 0 20px rgba(127, 168, 201, 0.15);
@@ -3686,6 +3688,41 @@
                     K ohništi</button>
                 <button id="fireout-btn-close" onclick="UI.closeFireoutModal()"
                     style="width:100%; padding:9px; background:transparent; color:var(--ink-secondary); border:none; font-family:'Cinzel Decorative'; font-size:0.75rem; cursor:pointer; letter-spacing:1.5px; opacity:0.55;">Zavřít</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMPORT REGRESSION MODAL – shown when an imported backup has fewer researched techs than the current game.
+         Texts are filled by SaveManager._showImportRegressionModal() via t(); the English text below is only the default. -->
+    <div id="import-regression-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1400; justify-content:center; align-items:center;">
+        <div
+            style="background:var(--bg-parchment); border:2px solid var(--accent-gold); padding:30px; max-width:460px; width:92%; max-height:92vh; overflow-y:auto; box-shadow: 0 0 80px rgba(0,0,0,0.9); animation: fadeIn 0.3s;">
+            <div style="text-align:center; margin-bottom:14px;">
+                <div style="font-size:2.6rem; margin-bottom:6px;">⚠️</div>
+                <h2 id="import-regression-heading"
+                    style="color:var(--ink-primary); margin:0; font-size:1.05rem; letter-spacing:2px; text-transform:uppercase;">
+                    Older backup</h2>
+            </div>
+            <div id="import-regression-text"
+                style="line-height:1.7; color:var(--ink-primary); font-size:0.9rem; margin-bottom:14px;">
+                This backup has less progress than your current game (fewer researched techs). Importing it will replace
+                your current progress. This cannot be undone.</div>
+            <div
+                style="background:rgba(0,0,0,0.05); padding:12px 14px; border-left:3px solid var(--accent-gold); font-size:0.85rem; line-height:1.8; color:var(--ink-primary); margin-bottom:18px;">
+                <div id="import-regression-current"></div>
+                <div id="import-regression-backup"></div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <button id="import-regression-btn-cancel" onclick="SaveManager.importRegressionCancel()"
+                    style="width:100%; padding:13px; background:var(--accent-gold); color:#241c0e; border:none; font-family:'Cinzel Decorative'; font-size:0.85rem; cursor:pointer; border-radius:3px; letter-spacing:1.5px; font-weight:700;">Cancel
+                    (keep current game)</button>
+                <button id="import-regression-btn-export" onclick="SaveManager.importRegressionExport()"
+                    style="width:100%; padding:11px; background:transparent; color:var(--ink-primary); border:1px solid var(--accent-gold); font-family:'Cinzel Decorative'; font-size:0.8rem; cursor:pointer; border-radius:3px; letter-spacing:1.5px;">💾
+                    Download current save first</button>
+                <button id="import-regression-btn-confirm" onclick="SaveManager.importRegressionConfirm()"
+                    style="width:100%; padding:11px; background:transparent; color:#c44536; border:1px solid #c44536; font-family:'Cinzel Decorative'; font-size:0.8rem; cursor:pointer; border-radius:3px; letter-spacing:1.5px;">⚠️
+                    Import older backup</button>
             </div>
         </div>
     </div>
