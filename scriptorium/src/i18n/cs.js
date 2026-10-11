@@ -271,6 +271,7 @@ const STRINGS_cs = {
         errorImport: '❌ Chyba při importu!',
         errorRead: '❌ Nelze přečíst soubor!',
         successImport: '✅ Save importován! Refresh pro jistotu.',
+        saveStaleWindow: 'Ukládání je v tomto okně pozastaveno: jiné okno Scriptoria uložilo novější postup. Pro pokračování obnov stránku, jinak by toto okno přepsalo ten postup starším stavem. Co jsi v tomto okně od té doby udělal, se neuloží.',
         saveImportFail: '❌ Neplatný save file!',
         // v8.x — Sad & Apiarium notifikace
         treePlanted: '🌱 Strom zasazen.',
