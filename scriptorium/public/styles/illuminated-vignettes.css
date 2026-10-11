@@ -159,6 +159,13 @@ body.design-iluminovana [data-illum-vignette="dvur"] {
     --illum-vignette-position: center 56%;
 }
 
+
+body.design-iluminovana [data-illum-vignette="zahony"] {
+    --illum-vignette-image:
+        url("/ui/illuminated/vignettes/zahony.webp");
+    --illum-vignette-position: center center;
+}
+
 body.design-iluminovana [data-illum-vignette="opisovani"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/opisovani.webp");
@@ -280,6 +287,13 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
 
     body.design-iluminovana [data-illum-vignette="dvur"] {
         --illum-vignette-position: center 56%;
+    }
+
+
+    body.design-iluminovana [data-illum-vignette="zahony"] {
+        --illum-vignette-image:
+            url("/ui/illuminated/vignettes/zahony-mobile.webp");
+        --illum-vignette-position: center center;
     }
 
     body.design-iluminovana [data-illum-vignette="opisovani"]::before {
