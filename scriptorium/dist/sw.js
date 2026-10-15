@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════════════════
-// SCRIPTORIUM – Service Worker v5.23
+// SCRIPTORIUM – Service Worker v5.24
 // ⚠️  DŮLEŽITÉ: Při každém deploymentu zvyš číslo verze!
 //     Jinak uživatelé dostanou starý obsah z cache.
 // ═══════════════════════════════════════════════════════
-const CACHE_NAME = 'scriptorium-v5.23';
+const CACHE_NAME = 'scriptorium-v5.24';
 
 // Soubory cachované při instalaci (precache)
 const PRECACHE_ASSETS = [
