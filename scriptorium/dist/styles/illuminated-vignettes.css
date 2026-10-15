@@ -202,15 +202,6 @@ body.design-iluminovana [data-illum-vignette="research"] {
     --illum-vignette-position: center center;
 }
 
-/* ---------------------------------------------------------------------
-   Scriptorium Pack 03 layout cleanup
-   The old root-room hero is no longer used on #screen-lore.
-   Keep major vignettes close to the wrapped major-tab row.
-   --------------------------------------------------------------------- */
-body.design-iluminovana #screen-lore #lore-content-wrapper > .illum-major-vignette {
-    margin-top: 8px !important;
-}
-
 /*
    Výzkum je na desktopu už existující fluidní CSS grid.
    Hero pseudo-element proto musí zabrat celou šířku mřížky,
@@ -425,46 +416,4 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
     body.design-iluminovana .illum-major-vignette::before {
         transition: none !important;
     }
-}
-
-/* =====================================================================
-   SCRIPTORIUM — LEGACY ROOT HERO NEUTRALIZATION v2
-   ---------------------------------------------------------------------
-   illuminated.css still contains the old Phase-1 #screen-lore::before
-   artwork independently of the newer .illum-room--hero-ready class.
-   Pack 03 no longer uses that root hero, so explicitly neutralize the
-   legacy layer whenever #screen-lore is NOT hero-ready.
-
-   Presentation only. No routing, state or gameplay changes.
-   ===================================================================== */
-
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)::before,
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)::after {
-    content: none !important;
-    display: none !important;
-    background: none !important;
-    background-image: none !important;
-    border: 0 !important;
-    box-shadow: none !important;
-}
-
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)
-    > .screen-header-row {
-    min-height: 0 !important;
-    padding: 0 !important;
-    align-items: center !important;
-}
-
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)
-    > .screen-header-row::before {
-    content: none !important;
-    display: none !important;
-}
-
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)
-    > .screen-header-row h2 {
-    color: var(--ink-primary) !important;
-    font-size: 1.5em !important;
-    letter-spacing: .02em !important;
-    text-shadow: none !important;
 }
