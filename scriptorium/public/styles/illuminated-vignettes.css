@@ -214,6 +214,18 @@ body.design-iluminovana [data-illum-vignette="codex"] {
     --illum-vignette-position: center center;
 }
 
+body.design-iluminovana [data-illum-vignette="notebooks"] {
+    --illum-vignette-image:
+        url("/ui/illuminated/vignettes/zapisniky.webp");
+    --illum-vignette-position: center center;
+}
+
+body.design-iluminovana [data-illum-vignette="calendarium"] {
+    --illum-vignette-image:
+        url("/ui/illuminated/vignettes/calendarium.webp");
+    --illum-vignette-position: center center;
+}
+
 /* ---------------------------------------------------------------------
    Scriptorium Pack 03 layout cleanup
    The old root-room hero is no longer used on #screen-lore.
@@ -412,6 +424,18 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
     body.design-iluminovana [data-illum-vignette="codex"] {
         --illum-vignette-image:
             url("/ui/illuminated/vignettes/codex-mobile.webp");
+        --illum-vignette-position: center center;
+    }
+
+    body.design-iluminovana [data-illum-vignette="notebooks"] {
+        --illum-vignette-image:
+            url("/ui/illuminated/vignettes/zapisniky-mobile.webp");
+        --illum-vignette-position: center center;
+    }
+
+    body.design-iluminovana [data-illum-vignette="calendarium"] {
+        --illum-vignette-image:
+            url("/ui/illuminated/vignettes/calendarium-mobile.webp");
         --illum-vignette-position: center center;
     }
 
