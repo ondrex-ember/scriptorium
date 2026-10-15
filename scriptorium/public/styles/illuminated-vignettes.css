@@ -202,12 +202,6 @@ body.design-iluminovana [data-illum-vignette="research"] {
     --illum-vignette-position: center center;
 }
 
-body.design-iluminovana [data-illum-vignette="tasks"] {
-    --illum-vignette-image:
-        url("/ui/illuminated/vignettes/denni-rad.webp");
-    --illum-vignette-position: center center;
-}
-
 /* ---------------------------------------------------------------------
    Scriptorium Pack 03 layout cleanup
    The old root-room hero is no longer used on #screen-lore.
@@ -394,12 +388,6 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
     body.design-iluminovana [data-illum-vignette="research"] {
         --illum-vignette-image:
             url("/ui/illuminated/vignettes/research-mobile.webp");
-        --illum-vignette-position: center center;
-    }
-
-    body.design-iluminovana [data-illum-vignette="tasks"] {
-        --illum-vignette-image:
-            url("/ui/illuminated/vignettes/denni-rad-mobile.webp");
         --illum-vignette-position: center center;
     }
 
