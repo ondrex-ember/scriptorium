@@ -196,6 +196,24 @@ body.design-iluminovana [data-illum-vignette="vinohrad"] {
     --illum-vignette-position: center center;
 }
 
+body.design-iluminovana [data-illum-vignette="research"] {
+    --illum-vignette-image:
+        url("/ui/illuminated/vignettes/research.webp");
+    --illum-vignette-position: center center;
+}
+
+/*
+   Výzkum je na desktopu už existující fluidní CSS grid.
+   Hero pseudo-element proto musí zabrat celou šířku mřížky,
+   jinak by se stal prvním "sloupcem" vedle research karet.
+*/
+@media (min-width: 768px) {
+    body.design-iluminovana #lore-research-content.illum-major-vignette::before {
+        grid-column: 1 / -1;
+        margin-bottom: 0;
+    }
+}
+
 body.design-iluminovana [data-illum-vignette="opisovani"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/opisovani.webp");
@@ -355,6 +373,12 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
     body.design-iluminovana [data-illum-vignette="vinohrad"] {
         --illum-vignette-image:
             url("/ui/illuminated/vignettes/vinohrad-mobile.webp");
+        --illum-vignette-position: center center;
+    }
+
+    body.design-iluminovana [data-illum-vignette="research"] {
+        --illum-vignette-image:
+            url("/ui/illuminated/vignettes/research-mobile.webp");
         --illum-vignette-position: center center;
     }
 
