@@ -196,75 +196,6 @@ body.design-iluminovana [data-illum-vignette="vinohrad"] {
     --illum-vignette-position: center center;
 }
 
-body.design-iluminovana [data-illum-vignette="research"] {
-    --illum-vignette-image:
-        url("/ui/illuminated/vignettes/research.webp");
-    --illum-vignette-position: center center;
-}
-
-body.design-iluminovana [data-illum-vignette="tasks"] {
-    --illum-vignette-image:
-        url("/ui/illuminated/vignettes/denni-rad.webp");
-    --illum-vignette-position: center center;
-}
-
-body.design-iluminovana [data-illum-vignette="codex"] {
-    --illum-vignette-image:
-        url("/ui/illuminated/vignettes/codex.webp");
-    --illum-vignette-position: center center;
-}
-
-body.design-iluminovana [data-illum-vignette="notebooks"] {
-    --illum-vignette-image:
-        url("/ui/illuminated/vignettes/zapisniky.webp");
-    --illum-vignette-position: center center;
-}
-
-body.design-iluminovana [data-illum-vignette="calendarium"] {
-    --illum-vignette-image:
-        url("/ui/illuminated/vignettes/calendarium.webp");
-    --illum-vignette-position: center center;
-}
-
-body.design-iluminovana [data-illum-vignette="persona"] {
-    --illum-vignette-image:
-        url("/ui/illuminated/vignettes/persona.webp");
-    --illum-vignette-position: center center;
-}
-
-body.design-iluminovana [data-illum-vignette="porta"] {
-    --illum-vignette-image:
-        url("/ui/illuminated/vignettes/porta.webp");
-    --illum-vignette-position: center center;
-}
-
-body.design-iluminovana [data-illum-vignette="commitments"] {
-    --illum-vignette-image:
-        url("/ui/illuminated/vignettes/zakazky.webp");
-    --illum-vignette-position: center center;
-}
-
-/* ---------------------------------------------------------------------
-   Scriptorium Pack 03 layout cleanup
-   The old root-room hero is no longer used on #screen-lore.
-   Keep major vignettes close to the wrapped major-tab row.
-   --------------------------------------------------------------------- */
-body.design-iluminovana #screen-lore #lore-content-wrapper > .illum-major-vignette {
-    margin-top: 8px !important;
-}
-
-/*
-   Výzkum je na desktopu už existující fluidní CSS grid.
-   Hero pseudo-element proto musí zabrat celou šířku mřížky,
-   jinak by se stal prvním "sloupcem" vedle research karet.
-*/
-@media (min-width: 768px) {
-    body.design-iluminovana #lore-research-content.illum-major-vignette::before {
-        grid-column: 1 / -1;
-        margin-bottom: 0;
-    }
-}
-
 body.design-iluminovana [data-illum-vignette="opisovani"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/opisovani.webp");
@@ -275,6 +206,12 @@ body.design-iluminovana [data-illum-vignette="knihy"] {
     --illum-vignette-image:
         url("/ui/illuminated/vignettes/knihy.webp");
     --illum-vignette-position: center 54%;
+}
+
+body.design-iluminovana [data-illum-vignette="iching"] {
+    --illum-vignette-image:
+        url("/ui/illuminated/vignettes/iching.webp");
+    --illum-vignette-position: center center;
 }
 
 
@@ -427,51 +364,9 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
         --illum-vignette-position: center center;
     }
 
-    body.design-iluminovana [data-illum-vignette="research"] {
+    body.design-iluminovana [data-illum-vignette="iching"] {
         --illum-vignette-image:
-            url("/ui/illuminated/vignettes/research-mobile.webp");
-        --illum-vignette-position: center center;
-    }
-
-    body.design-iluminovana [data-illum-vignette="tasks"] {
-        --illum-vignette-image:
-            url("/ui/illuminated/vignettes/denni-rad-mobile.webp");
-        --illum-vignette-position: center center;
-    }
-
-    body.design-iluminovana [data-illum-vignette="codex"] {
-        --illum-vignette-image:
-            url("/ui/illuminated/vignettes/codex-mobile.webp");
-        --illum-vignette-position: center center;
-    }
-
-    body.design-iluminovana [data-illum-vignette="notebooks"] {
-        --illum-vignette-image:
-            url("/ui/illuminated/vignettes/zapisniky-mobile.webp");
-        --illum-vignette-position: center center;
-    }
-
-    body.design-iluminovana [data-illum-vignette="calendarium"] {
-        --illum-vignette-image:
-            url("/ui/illuminated/vignettes/calendarium-mobile.webp");
-        --illum-vignette-position: center center;
-    }
-
-    body.design-iluminovana [data-illum-vignette="persona"] {
-        --illum-vignette-image:
-            url("/ui/illuminated/vignettes/persona-mobile.webp");
-        --illum-vignette-position: center center;
-    }
-
-    body.design-iluminovana [data-illum-vignette="porta"] {
-        --illum-vignette-image:
-            url("/ui/illuminated/vignettes/porta-mobile.webp");
-        --illum-vignette-position: center center;
-    }
-
-    body.design-iluminovana [data-illum-vignette="commitments"] {
-        --illum-vignette-image:
-            url("/ui/illuminated/vignettes/zakazky-mobile.webp");
+            url("/ui/illuminated/vignettes/iching-mobile.webp");
         --illum-vignette-position: center center;
     }
 
@@ -509,46 +404,4 @@ body.design-iluminovana [data-illum-vignette="opisovani"]::before {
     body.design-iluminovana .illum-major-vignette::before {
         transition: none !important;
     }
-}
-
-/* =====================================================================
-   SCRIPTORIUM — LEGACY ROOT HERO NEUTRALIZATION v2
-   ---------------------------------------------------------------------
-   illuminated.css still contains the old Phase-1 #screen-lore::before
-   artwork independently of the newer .illum-room--hero-ready class.
-   Pack 03 no longer uses that root hero, so explicitly neutralize the
-   legacy layer whenever #screen-lore is NOT hero-ready.
-
-   Presentation only. No routing, state or gameplay changes.
-   ===================================================================== */
-
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)::before,
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)::after {
-    content: none !important;
-    display: none !important;
-    background: none !important;
-    background-image: none !important;
-    border: 0 !important;
-    box-shadow: none !important;
-}
-
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)
-    > .screen-header-row {
-    min-height: 0 !important;
-    padding: 0 !important;
-    align-items: center !important;
-}
-
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)
-    > .screen-header-row::before {
-    content: none !important;
-    display: none !important;
-}
-
-body.design-iluminovana #screen-lore:not(.illum-room--hero-ready)
-    > .screen-header-row h2 {
-    color: var(--ink-primary) !important;
-    font-size: 1.5em !important;
-    letter-spacing: .02em !important;
-    text-shadow: none !important;
 }
