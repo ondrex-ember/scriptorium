@@ -2879,21 +2879,15 @@ const UI = {
         el.innerHTML = html;
     },
 
-    renderLibraryNews: function () {
-        const el = document.getElementById('library-news-content');
-        if (!el) return;
-
-        // ── Herní den a sezóna ───────────────────────────────────────────
-        const day = GameState.library
-            ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000)
-            : 0;
-        const season = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'spring';
-
-        // ── TidingsDB — plná databáze zpráv ─────────────────────────────
-        // trigger: 'day'     → minDay podmínka
-        // trigger: 'flag'    → condition() musí vrátit true
-        // trigger: 'season'  → season podmínka
-        const TidingsDB = [
+    // ── TidingsDB — plná databáze statických zpráv ───────────────────────
+    // trigger: 'day'     → minDay podmínka
+    // trigger: 'flag'    → condition() musí vrátit true
+    // trigger: 'season'  → season podmínka
+    // Vytažené z renderLibraryNews do vlastní metody (porta-tidings-routing-fix,
+    // 15.10.2026), aby ji mohl použít i openTiding() při hledání ikony/odesílatele
+    // bez duplikace definice.
+    _tidingsDB: function () {
+        return [
             // Denní zprávy
             { id: 'news_0', trigger: 'day', minDay: 0, icon: '✉️', sender: 'scribe', condition: null },
             { id: 'news_3', trigger: 'day', minDay: 3, icon: '📜', sender: 'unknown', condition: null },
@@ -2941,9 +2935,20 @@ const UI = {
             { id: 'mystery_3', trigger: 'day', minDay: 18, icon: '🕯️', sender: 'unknown', condition: null },
             { id: 'mystery_4', trigger: 'day', minDay: 35, icon: '🕯️', sender: 'unknown', condition: null },
         ];
+    },
 
-        // ── Filtrovat dostupné zprávy ────────────────────────────────────
-        const available = TidingsDB.filter(n => {
+    renderLibraryNews: function () {
+        const el = document.getElementById('library-news-content');
+        if (!el) return;
+
+        // ── Herní den a sezóna ───────────────────────────────────────────
+        const day = GameState.library
+            ? Math.floor((Date.now() - new Date(GameState.library.startDate).getTime()) / 86400000)
+            : 0;
+        const season = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'spring';
+
+        // ── Filtrovat dostupné statické zprávy ──────────────────────────
+        const available = UI._tidingsDB().filter(n => {
             if (n.trigger === 'day') return day >= n.minDay;
             if (n.trigger === 'season') return season === n.season;
             if (n.trigger === 'flag') return n.condition && n.condition();
@@ -2954,8 +2959,12 @@ const UI = {
         if (!GameState.library) GameState.library = {};
         if (!GameState.library.tidingsRead) GameState.library.tidingsRead = [];
         if (!GameState.library.tidingsNotified) GameState.library.tidingsNotified = [];
+        if (!GameState.library.tidingsDynamic) GameState.library.tidingsDynamic = [];
 
-        // Nové Tidings → panel (jednou per tiding)
+        // Nové statické Tidings → panel (jednou per tiding). Dynamické
+        // (Chronicon B/D, porta-tidings-routing-fix 15.10.2026) notifikaci
+        // dávají už při vzniku v EventFeedScheduler._toLibraryTiding — tady
+        // by to bylo podruhé.
         const _tlang = (GameState.settings && GameState.settings.language) || 'cs';
         available.forEach(n => {
             if (!GameState.library.tidingsNotified.includes(n.id)) {
@@ -2967,8 +2976,23 @@ const UI = {
             }
         });
 
+        // ── Sloučit statické + dynamické (Chronicon) zprávy do jednoho tvaru ──
+        // Dynamické mají vlastní inline text_cs/text_en/sender_cs/sender_en a
+        // reálný timestamp (ts) — normalizace na stejná pole jako statické.
+        const merged = available.map(n => ({
+            id: n.id, dynamic: false, icon: n.icon, isFlagOrSeason: (n.trigger === 'flag' || n.trigger === 'season'), minDay: n.minDay || 0,
+            senderText: t('tidings.senders.' + n.sender) || n.sender,
+            fullText: t('tidings.' + n.id),
+            ts: 0
+        })).concat(GameState.library.tidingsDynamic.map(n => ({
+            id: n.id, dynamic: true, icon: n.icon || '🛡️', isFlagOrSeason: false, minDay: 0,
+            senderText: (_tlang === 'en' ? n.sender_en : n.sender_cs) || n.sender_cs || '',
+            fullText: (_tlang === 'en' ? n.text_en : n.text_cs) || n.text_cs || '',
+            ts: n.ts || 0
+        })));
+
         // Badge na záložce
-        const unreadCount = available.filter(n => !GameState.library.tidingsRead.includes(n.id)).length;
+        const unreadCount = merged.filter(n => !GameState.library.tidingsRead.includes(n.id)).length;
         const tabEl = document.getElementById('lib-tab-news');
         if (tabEl) {
             const badge = unreadCount > 0 ? ` <span style="background:#c0392b;color:#fff;font-size:0.65rem;border-radius:10px;padding:1px 5px;vertical-align:middle;">${unreadCount}</span>` : '';
@@ -2976,7 +3000,7 @@ const UI = {
         }
 
         // ── Render ───────────────────────────────────────────────────────
-        if (available.length === 0) {
+        if (merged.length === 0) {
             el.innerHTML = `<div style="text-align:center;padding:30px;opacity:0.6;">
                 <div style="font-size:2rem;">📭</div>
                 <p>${t('tidings.empty')}</p>
@@ -2986,62 +3010,82 @@ const UI = {
 
         let h = `<div style="margin-bottom:14px;font-style:italic;opacity:0.7;font-size:0.85rem;">${t('tidings.subtitle')}</div>`;
 
-        // Nejnovější nahoře — záhadné a flag zprávy na začátek, pak denní sestupně
-        const sorted = [...available].sort((a, b) => {
-            if (a.trigger === 'flag' && b.trigger !== 'flag') return -1;
-            if (b.trigger === 'flag' && a.trigger !== 'flag') return 1;
-            if (a.trigger === 'season' && b.trigger !== 'season') return -1;
-            if (b.trigger === 'season' && a.trigger !== 'season') return 1;
-            return (b.minDay || 0) - (a.minDay || 0);
+        // Čerstvé Chronicon zprávy (mají reálný čas) nahoře, od nejnovější;
+        // pak statické — záhadné/flag/sezónní první, pak denní sestupně
+        // (stejné pořadí jako dřív, jen přesunuté na druhé místo).
+        const dynList = merged.filter(n => n.dynamic).sort((a, b) => b.ts - a.ts);
+        const staticList = merged.filter(n => !n.dynamic).sort((a, b) => {
+            if (a.isFlagOrSeason && !b.isFlagOrSeason) return -1;
+            if (b.isFlagOrSeason && !a.isFlagOrSeason) return 1;
+            return b.minDay - a.minDay;
         });
+        const sorted = dynList.concat(staticList);
 
         sorted.forEach(n => {
             const isRead = GameState.library.tidingsRead.includes(n.id);
-            const fromText = t('tidings.senders.' + n.sender) || n.sender;
-            const fullText = t('tidings.' + n.id);
-            const preview = fullText.length > 120 ? fullText.substring(0, 120) + '…' : fullText;
+            const preview = n.fullText.length > 120 ? n.fullText.substring(0, 120) + '…' : n.fullText;
             const unreadDot = !isRead ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#c0392b;margin-right:6px;vertical-align:middle;"></span>' : '';
+            const dateLine = (n.ts && typeof PortaSystem !== 'undefined' && PortaSystem._dateStr) ? ` · ${PortaSystem._dateStr(n.ts)}` : '';
 
             h += `<div class="tiding-card ${isRead ? 'tiding-read' : 'tiding-unread'}"
                        style="margin-bottom:12px;padding:12px 14px;background:var(--bg-card);
-                              border:1px solid var(--border-color);border-radius:4px;cursor:pointer;
-                              opacity:${isRead ? '0.7' : '1'};"
-                       onclick="UI._toggleTiding(this, '${n.id}')">
+                              border:1px solid var(--border-color);border-radius:4px;
+                              opacity:${isRead ? '0.7' : '1'};">
                 <div style="font-size:0.75rem;opacity:0.7;margin-bottom:6px;">
-                    ${unreadDot}${n.icon} ${t('tidings.from')} <strong>${fromText}</strong>
+                    ${unreadDot}${n.icon} ${t('tidings.from')} <strong>${n.senderText}</strong>${dateLine}
                 </div>
-                <div class="tiding-preview" style="font-size:0.9rem;font-style:italic;line-height:1.5;">"${preview}"</div>
-                <div class="tiding-full" style="display:none;font-size:0.9rem;font-style:italic;line-height:1.6;margin-top:6px;">"${fullText}"</div>
+                <div style="font-size:0.9rem;font-style:italic;line-height:1.5;">"${preview}"</div>
+                <button class="craft-btn" style="margin-top:8px;font-size:0.72rem;" onclick="UI.openTiding('${n.id}')">📖 ${t('tidings.open')}</button>
             </div>`;
         });
 
         el.innerHTML = h;
     },
 
-    // ── Rozbalit/sbalit tiding + označit jako přečtené ───────────────────
-    _toggleTiding: function (card, id) {
-        const preview = card.querySelector('.tiding-preview');
-        const full = card.querySelector('.tiding-full');
-        if (!preview || !full) return;
+    // ── Otevřít Tiding v modalu na jeden klik, označit jako přečtené ─────
+    // porta-tidings-routing-fix (15.10.2026): nahrazuje _toggleTiding, které
+    // se při prvním (nepřečteném) kliknutí samo překreslilo přes
+    // renderLibraryNews() a tím hned zavřelo kartu, co se právě otevřela —
+    // reálně fungovalo až na druhý klik. Modal žije mimo seznam karet,
+    // takže ho případné překreslení pod ním nemůže zavřít.
+    openTiding: function (id) {
+        if (typeof NotificationSystem === 'undefined' || !NotificationSystem.modal) return;
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
 
-        const isOpen = full.style.display !== 'none';
-        preview.style.display = isOpen ? '' : 'none';
-        full.style.display = isOpen ? 'none' : '';
+        let icon = '📜', senderText = '', text = '', ts = 0;
+        const dyn = (GameState.library && GameState.library.tidingsDynamic || []).find(n => n.id === id);
+        if (dyn) {
+            icon = dyn.icon || '🛡️';
+            senderText = (lang === 'en' ? dyn.sender_en : dyn.sender_cs) || dyn.sender_cs || '';
+            text = (lang === 'en' ? dyn.text_en : dyn.text_cs) || dyn.text_cs || '';
+            ts = dyn.ts || 0;
+        } else {
+            const entry = UI._tidingsDB().find(n => n.id === id);
+            if (!entry) return;
+            icon = entry.icon;
+            senderText = t('tidings.senders.' + entry.sender) || entry.sender;
+            text = t('tidings.' + id);
+        }
 
-        // Označit jako přečtené
         if (!GameState.library.tidingsRead) GameState.library.tidingsRead = [];
         if (!GameState.library.tidingsRead.includes(id)) {
             GameState.library.tidingsRead.push(id);
             Game.save();
-            // Aktualizovat badge
-            const tabEl = document.getElementById('lib-tab-news');
-            if (tabEl) UI.renderLibraryNews();
+            UI.renderLibraryNews();
         }
 
-        // Aktualizovat vizuál
-        card.style.opacity = '0.7';
-        const dot = card.querySelector('span[style*="border-radius:50%"]');
-        if (dot) dot.remove();
+        const received = (ts && typeof PortaSystem !== 'undefined' && PortaSystem._dateStr) ? PortaSystem._dateStr(ts) : '';
+        const dateline = `<div style="font-size:0.74rem;opacity:0.6;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1);">
+            ${senderText ? `<div>${t('tidings.from')} <strong>${senderText}</strong></div>` : ''}
+            ${received ? `<div>${t('tidings.received')}: ${received}</div>` : ''}
+        </div>`;
+
+        NotificationSystem.modal({
+            icon: icon,
+            title: '',
+            text: dateline + `<div style="font-style:italic;line-height:1.6;">"${text}"</div>`,
+            choices: [{ label: lang === 'en' ? 'Close' : 'Zavřít', type: 'primary', effect: () => {} }]
+        });
     },
 
     renderLibrary: function () {

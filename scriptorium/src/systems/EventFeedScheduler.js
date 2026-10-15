@@ -96,26 +96,28 @@ const EventFeedScheduler = {
             ChroniconSystem._injectToKronika(entry, snapTs, maxTick);
         }
 
-        // eventy-audit-mrd (04.09.2026) §1.1 dodatek: jen B (hrozba) a D
-        // (škoda) jdou navíc jako Porta dopis — A/C/E (drby/info/pozitivní)
-        // zůstávají jen v Kronice. Mirror vzoru z PortaSystem._checkOutgoingReplies
-        // (jednoduchý dopis, jedna volba "Vzít na vědomí", žádný effect).
+        // porta-tidings-routing-fix (15.10.2026): jen B (hrozba) a D (škoda)
+        // jdou navíc jako Tidings zápis do Knihovny — A/C/E (drby/info/
+        // pozitivní) zůstávají jen v Kronice. Dřív tohle padalo jako falešný
+        // Porta dopis (_toPortaLetter, mířilo do GameState.letters.dynamic,
+        // stejný pool jako skutečná korespondence) — Porta teď dostává jen
+        // opravdovou poštu, světové zprávy jdou do Tidings/Zprávy.
         if (entry.type === 'B' || entry.type === 'D') {
-            this._toPortaLetter(entry);
+            this._toLibraryTiding(entry);
         }
 
         if (typeof Game !== 'undefined' && Game.save) Game.save();
     },
 
-    _toPortaLetter: function (entry) {
+    _toLibraryTiding: function (entry) {
         if (typeof GameState === 'undefined') return;
-        if (!GameState.letters) GameState.letters = { readIds: {}, archive: [], firstSeen: {} };
-        if (!GameState.letters.dynamic) GameState.letters.dynamic = [];
+        if (!GameState.library) GameState.library = {};
+        if (!GameState.library.tidingsDynamic) GameState.library.tidingsDynamic = [];
 
         const rawId = (typeof ChroniconSystem !== 'undefined' && typeof ChroniconSystem._entryId === 'function')
             ? ChroniconSystem._entryId(entry) : (entry.id || entry.text_cs || '');
-        const letterId = 'feed_' + rawId;
-        if (GameState.letters.dynamic.some(function (l) { return l.id === letterId; })) return; // už existuje
+        const tidingId = 'feed_' + rawId;
+        if (GameState.library.tidingsDynamic.some(function (n) { return n.id === tidingId; })) return; // už existuje
 
         const src = entry.source || '';
         const senderFallback_cs = src === 'distant_events' ? 'Zprávy z dálky'
@@ -123,25 +125,21 @@ const EventFeedScheduler = {
         const senderFallback_en = src === 'distant_events' ? 'News from afar'
             : (src === 'local_events' ? 'News from the region' : 'Monastery notes');
 
-        GameState.letters.dynamic.push({
-            id: letterId,
-            seal: 'noble', // 🛡️ — hrozba/škoda, odlišené od běžné korespondence
+        GameState.library.tidingsDynamic.push({
+            id: tidingId,
+            icon: entry.icon || '🛡️',
             sender_cs: entry.source_label || senderFallback_cs,
             sender_en: entry.source_label || senderFallback_en,
             title_cs: entry.icon ? (entry.icon + ' Znepokojivá zvěst') : 'Znepokojivá zvěst',
             title_en: entry.icon ? (entry.icon + ' Troubling news') : 'Troubling news',
             text_cs: entry.text_cs || entry.text || '',
             text_en: entry.text_en || entry.text || '',
-            choices: [{
-                label_cs: '📜 Vzít na vědomí', label_en: '📜 Take note',
-                effect: function () {}, notify_cs: '', notify_en: ''
-            }]
+            ts: Date.now()
         });
-        GameState.letters.firstSeen[letterId] = Date.now();
 
         if (typeof NotificationSystem !== 'undefined') {
             const lang = (GameState.settings && GameState.settings.language) || 'cs';
-            NotificationSystem.panel('🕊️ ' + (lang === 'en' ? 'A troubling letter has arrived' : 'Dorazil znepokojivý dopis'), 'porta');
+            NotificationSystem.panel('📖 ' + (lang === 'en' ? 'A troubling tiding has arrived' : 'Dorazila znepokojivá zvěst'), 'tidings');
         }
     },
 };

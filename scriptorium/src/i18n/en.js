@@ -1527,6 +1527,8 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         subtitle: "Letters and tidings that have reached the scriptorium...",
         from: "From:",
         unread: "Unread",
+        open: "Open",
+        received: "Received",
         senders: {
             scribe: "The Elder Scribe",
             unknown: "Unknown",

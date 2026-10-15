@@ -268,6 +268,7 @@ const SaveManager = {
                 lsTs = loadedState.lastSeen || 0;
                 console.log('✅ Save loaded from localStorage');
                 SaveManager.syncTechUnlocks();
+                SaveManager.migratePortaTidingsFeed();
             }
         } catch (e) {
             console.error('❌ Load error (localStorage):', e);
@@ -298,6 +299,7 @@ const SaveManager = {
                     // Sync IDB back to localStorage for next load
                     localStorage.setItem('scriptorium_save_v6_4', typeof idbRecord.data === 'string' ? idbRecord.data : JSON.stringify(idbRecord.data));
                     SaveManager.syncTechUnlocks();
+                    SaveManager.migratePortaTidingsFeed();
                     SaveManager._seedHistoricalGraves();
                     if (typeof UI !== 'undefined' && UI.renderAll) UI.renderAll();
                     // fireplace-idb-refresh-fix (9.8.2026): renderAll() nevolá
@@ -318,6 +320,48 @@ const SaveManager = {
 
 
     resetSave: function () { if (confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); SaveManager._idbClear(); } catch (e) { } location.reload(); } },
+
+    // porta-tidings-routing-fix (15.10.2026) — retroaktivní úklid: staré savy
+    // mají "feed_*" záznamy (Chronicon B/D zprávy) omylem uložené jako Porta
+    // dopisy (GameState.letters.dynamic), z dob před touto opravou (viz
+    // EventFeedScheduler._toLibraryTiding). Přesunout je do Tidings/Zprávy
+    // (GameState.library.tidingsDynamic), kam teď patří, a z Porty je úplně
+    // odstranit (dynamic/archive/readIds/firstSeen) — Porta má dál mít jen
+    // opravdovou korespondenci.
+    migratePortaTidingsFeed: function () {
+        if (!GameState.letters || !Array.isArray(GameState.letters.dynamic)) return;
+        const stray = GameState.letters.dynamic.filter(l => l.id && l.id.indexOf('feed_') === 0);
+        if (!stray.length) return;
+
+        if (!GameState.library) GameState.library = {};
+        if (!GameState.library.tidingsDynamic) GameState.library.tidingsDynamic = [];
+        if (!GameState.library.tidingsRead) GameState.library.tidingsRead = [];
+
+        stray.forEach(l => {
+            const alreadyMoved = GameState.library.tidingsDynamic.some(n => n.id === l.id);
+            if (!alreadyMoved) {
+                GameState.library.tidingsDynamic.push({
+                    id: l.id,
+                    icon: '🛡️',
+                    sender_cs: l.sender_cs, sender_en: l.sender_en,
+                    title_cs: l.title_cs, title_en: l.title_en,
+                    text_cs: l.text_cs, text_en: l.text_en,
+                    ts: (GameState.letters.firstSeen && GameState.letters.firstSeen[l.id]) || Date.now()
+                });
+            }
+            // Dopis už jednou "vzatý na vědomí" v Portě → nebrat ho v Tidings jako nový.
+            if (GameState.letters.readIds && GameState.letters.readIds[l.id] && !GameState.library.tidingsRead.includes(l.id)) {
+                GameState.library.tidingsRead.push(l.id);
+            }
+            if (GameState.letters.readIds) delete GameState.letters.readIds[l.id];
+            if (GameState.letters.firstSeen) delete GameState.letters.firstSeen[l.id];
+        });
+
+        GameState.letters.dynamic = GameState.letters.dynamic.filter(l => !(l.id && l.id.indexOf('feed_') === 0));
+        if (Array.isArray(GameState.letters.archive)) {
+            GameState.letters.archive = GameState.letters.archive.filter(e => !(e.id && e.id.indexOf('feed_') === 0));
+        }
+    },
 
     // Retroaktivní sync: každý researchnutý tech musí mít své unlocks v unlockedRecipes
     syncTechUnlocks: function () {
