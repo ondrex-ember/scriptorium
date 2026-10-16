@@ -1,0 +1,373 @@
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED RAIL ORNAMENT v1
+   ---------------------------------------------------------------------
+   Visual-only override for the Illuminated design.
+   Load AFTER illuminated-foundation.css.
+
+   Goal:
+   - keep the approved responsive behaviour
+     portrait/mobile = bottom dock
+     landscape/tablet/desktop = left rail
+   - make the navigation read as an illuminated manuscript margin,
+     not a generic dark UI bar
+   - preserve all IDs, routing, onclick handlers and gameplay
+   ===================================================================== */
+
+body.design-iluminovana {
+    --illum-rail-parchment: #d8c38e;
+    --illum-rail-parchment-dark: #b79b61;
+    --illum-rail-ink: #392719;
+    --illum-rail-rubric: #7c2b23;
+    --illum-rail-blue: #314d63;
+    --illum-rail-green: #52643e;
+    --illum-rail-gold: #c49a46;
+}
+
+
+/* =====================================================================
+   1. LEFT RAIL — landscape / tablet / desktop
+   ===================================================================== */
+
+@media (orientation: landscape), (min-width: 901px) {
+
+    body.design-iluminovana .main-nav {
+        border-right:
+            2px solid
+            rgba(116, 77, 31, .82) !important;
+
+        background:
+            /* faded red rubric stains */
+            radial-gradient(
+                circle at 20% 8%,
+                rgba(125, 43, 35, .34) 0 3px,
+                transparent 4px
+            ),
+            radial-gradient(
+                circle at 76% 22%,
+                rgba(80, 101, 61, .28) 0 4px,
+                transparent 5px
+            ),
+            radial-gradient(
+                circle at 24% 44%,
+                rgba(49, 77, 99, .26) 0 3px,
+                transparent 4px
+            ),
+            radial-gradient(
+                circle at 74% 68%,
+                rgba(125, 43, 35, .28) 0 4px,
+                transparent 5px
+            ),
+
+            /* manuscript edge rules */
+            linear-gradient(
+                90deg,
+                rgba(96, 52, 27, .45) 0 2px,
+                transparent 2px 5px,
+                rgba(196, 154, 70, .38) 5px 7px,
+                transparent 7px calc(100% - 7px),
+                rgba(196, 154, 70, .28) calc(100% - 7px) calc(100% - 5px),
+                transparent calc(100% - 5px) calc(100% - 2px),
+                rgba(74, 45, 25, .58) calc(100% - 2px)
+            ),
+
+            /* aged paper mottling */
+            radial-gradient(
+                ellipse at 25% 18%,
+                rgba(255, 247, 215, .32),
+                transparent 44%
+            ),
+            radial-gradient(
+                ellipse at 70% 76%,
+                rgba(98, 57, 29, .13),
+                transparent 48%
+            ),
+            repeating-linear-gradient(
+                0deg,
+                rgba(74, 43, 24, .025) 0 1px,
+                transparent 1px 6px
+            ),
+            linear-gradient(
+                180deg,
+                #d7c08a 0%,
+                #cab078 38%,
+                #d4bc86 67%,
+                #bda16a 100%
+            ) !important;
+
+        box-shadow:
+            inset -7px 0 12px rgba(69, 38, 20, .18),
+            inset 7px 0 10px rgba(255, 241, 196, .20),
+            5px 0 16px rgba(35, 20, 10, .16) !important;
+    }
+
+
+    /* gold/red manuscript flourishes */
+    body.design-iluminovana .main-nav::before,
+    body.design-iluminovana .main-nav::after {
+        color: var(--illum-rail-rubric) !important;
+        font-size: 1.15rem !important;
+        opacity: .88 !important;
+
+        text-shadow:
+            1px 0 0 rgba(196, 154, 70, .72),
+            -1px 0 0 rgba(89, 47, 25, .18),
+            0 1px 0 rgba(255, 240, 192, .32) !important;
+    }
+
+
+    body.design-iluminovana .main-nav .nav-btn {
+        color: #4a3322 !important;
+
+        border:
+            1px solid
+            rgba(113, 75, 35, .28) !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255, 247, 220, .19),
+                rgba(105, 70, 32, .05)
+            ) !important;
+
+        text-shadow:
+            0 1px 0 rgba(255, 240, 205, .62) !important;
+    }
+
+
+    body.design-iluminovana .main-nav .nav-btn:hover:not(:disabled),
+    body.design-iluminovana .main-nav .nav-btn:focus-visible {
+        color: #3d291d !important;
+
+        border-color:
+            rgba(137, 92, 39, .58) !important;
+
+        background:
+            linear-gradient(
+                90deg,
+                rgba(124, 43, 35, .09),
+                rgba(196, 154, 70, .15),
+                rgba(49, 77, 99, .06)
+            ) !important;
+
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 236, 186, .16),
+            0 2px 6px rgba(65, 37, 20, .10) !important;
+    }
+
+
+    body.design-iluminovana .main-nav .nav-art {
+        border-color:
+            rgba(112, 75, 35, .68) !important;
+
+        outline-color:
+            rgba(245, 218, 148, .20) !important;
+
+        filter:
+            sepia(.10)
+            saturate(.90)
+            brightness(.96) !important;
+
+        box-shadow:
+            inset 0 0 0 1px rgba(53, 31, 17, .26),
+            inset 0 0 10px rgba(72, 42, 20, .12),
+            0 2px 4px rgba(63, 35, 17, .22) !important;
+    }
+
+
+    /* Active tab becomes a true illuminated rubric card */
+    body.design-iluminovana .main-nav .nav-btn.active {
+        color: #f2ddb0 !important;
+
+        border-color:
+            rgba(151, 105, 43, .88) !important;
+
+        background:
+            linear-gradient(
+                90deg,
+                rgba(95, 28, 22, .96) 0%,
+                rgba(125, 43, 35, .91) 48%,
+                rgba(93, 37, 27, .88) 100%
+            ) !important;
+
+        box-shadow:
+            inset 4px 0 0 #c89e49,
+            inset 0 0 0 1px rgba(237, 203, 124, .16),
+            inset 0 0 14px rgba(55, 19, 13, .24),
+            0 2px 7px rgba(60, 30, 14, .20) !important;
+
+        text-shadow:
+            0 1px 1px rgba(43, 12, 8, .82) !important;
+    }
+
+
+    body.design-iluminovana .main-nav .nav-btn.active .nav-art {
+        border-color:
+            #d0aa58 !important;
+
+        outline-color:
+            rgba(248, 222, 151, .34) !important;
+
+        filter:
+            sepia(.02)
+            saturate(1.04)
+            brightness(1.04) !important;
+
+        box-shadow:
+            inset 0 0 0 2px rgba(244, 213, 135, .12),
+            0 0 8px rgba(196, 154, 70, .30),
+            0 2px 5px rgba(54, 24, 12, .28) !important;
+    }
+}
+
+
+/* =====================================================================
+   2. MOBILE PORTRAIT — illuminated bottom manuscript dock
+   ===================================================================== */
+
+@media (max-width: 900px) and (orientation: portrait) {
+
+    body.design-iluminovana .main-nav {
+        border-top:
+            2px solid
+            rgba(111, 72, 32, .88) !important;
+
+        background:
+            radial-gradient(
+                circle at 7% 24%,
+                rgba(125, 43, 35, .31) 0 3px,
+                transparent 4px
+            ),
+            radial-gradient(
+                circle at 33% 74%,
+                rgba(49, 77, 99, .22) 0 3px,
+                transparent 4px
+            ),
+            radial-gradient(
+                circle at 67% 28%,
+                rgba(80, 101, 61, .24) 0 4px,
+                transparent 5px
+            ),
+            radial-gradient(
+                circle at 91% 66%,
+                rgba(125, 43, 35, .26) 0 3px,
+                transparent 4px
+            ),
+
+            linear-gradient(
+                180deg,
+                rgba(196, 154, 70, .36) 0 2px,
+                transparent 2px 5px,
+                rgba(104, 66, 28, .26) 5px 6px,
+                transparent 6px
+            ),
+
+            repeating-linear-gradient(
+                90deg,
+                rgba(70, 40, 20, .025) 0 1px,
+                transparent 1px 8px
+            ),
+
+            linear-gradient(
+                180deg,
+                #d8c28d 0%,
+                #c9ad72 100%
+            ) !important;
+
+        box-shadow:
+            inset 0 8px 12px rgba(255, 240, 197, .16),
+            inset 0 -7px 12px rgba(70, 38, 18, .15),
+            0 -5px 18px rgba(40, 23, 12, .18) !important;
+    }
+
+
+    body.design-iluminovana .main-nav .nav-btn {
+        color: #463021 !important;
+
+        border-color:
+            rgba(117, 77, 35, .34) !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255, 247, 218, .16),
+                rgba(98, 61, 28, .05)
+            ) !important;
+
+        text-shadow:
+            0 1px 0 rgba(255, 242, 210, .58) !important;
+    }
+
+
+    body.design-iluminovana .main-nav .nav-btn.active {
+        color: #f2ddb0 !important;
+
+        border-color:
+            rgba(154, 108, 43, .86) !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(128, 45, 35, .96),
+                rgba(93, 30, 24, .93)
+            ) !important;
+
+        box-shadow:
+            inset 0 3px 0 #d0aa58,
+            inset 0 0 0 1px rgba(246, 217, 145, .15),
+            0 1px 6px rgba(60, 31, 15, .20) !important;
+
+        text-shadow:
+            0 1px 1px rgba(49, 15, 10, .78) !important;
+    }
+}
+
+
+/* =====================================================================
+   3. VERY SMALL PHONES
+   Keep the ornament subdued so the dock remains readable.
+   ===================================================================== */
+
+@media (max-width: 380px) and (orientation: portrait) {
+
+    body.design-iluminovana .main-nav {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(196, 154, 70, .30) 0 2px,
+                transparent 2px 5px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                rgba(70, 40, 20, .02) 0 1px,
+                transparent 1px 8px
+            ),
+            linear-gradient(
+                180deg,
+                #d6bf88,
+                #c5a96e
+            ) !important;
+    }
+}
+
+
+/* =====================================================================
+   4. DARK MODE
+   Illuminated remains parchment-led, only slightly dimmed.
+   ===================================================================== */
+
+body.theme-dark.design-iluminovana .main-nav {
+    filter: brightness(.88) saturate(.93);
+}
+
+
+/* =====================================================================
+   5. ACCESSIBILITY
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    body.design-iluminovana .main-nav,
+    body.design-iluminovana .main-nav .nav-btn,
+    body.design-iluminovana .main-nav .nav-art {
+        transition: none !important;
+    }
+}
