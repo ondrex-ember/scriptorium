@@ -1,89 +1,91 @@
 /* =====================================================================
-   SCRIPTORIUM — ILLUMINATED ALIGNMENT FIX + RAIL BACKGROUND v1.1
+   SCRIPTORIUM — ILLUMINATED ALIGNMENT FIX + RAIL BACKGROUND v1.2
    ---------------------------------------------------------------------
    Load AFTER:
      illuminated-page-background.css
 
-   Purpose:
-   1) align the left corner family inward, but push the RIGHT ornament family
-      back toward the real right manuscript edge so it does not float left
-   2) move rail decoration LEFT so it sits in the rail margin rather than
-      drifting into the main page
+   Purpose of this pass:
+   - use one consistent inner manuscript window on desktop
+   - LEFT manuscript corners move clearly to the right so they align with
+     the true page window next to the rail
+   - RIGHT manuscript corner family moves fully back to the right edge
+   - the decorative margin rules follow the same geometry
+   - rail bottom decoration no longer uses a harsh cropped spray; instead
+     it uses a proper lower corner and softer left-margin placement
 
-   Previous v1 intent retained:
-   - top/bottom corner alignment
-   - real parchment rail background
-
-   Earlier note:
-   - move the top/bottom illuminated corners inward so they align with
-      the real inner manuscript window, not the raw main area edges
-   2) give the left rail a true manuscript background using the same
-      parchment texture family as the main page
-
-   Presentation only. No HTML / JS changes.
+   Presentation only. No HTML / JS / mechanics changes.
    ===================================================================== */
 
 
 /* =====================================================================
-   1. PAGE CORNER ALIGNMENT
-   The middle/right marginalia already feel aligned well. We therefore
-   move only the corner family inward to match that visual window.
+   1. DESKTOP / LEFT-RAIL LAYOUT
+   The manuscript window begins to the right of the rail. We therefore
+   align every left ornament to one shared inner edge.
    ===================================================================== */
 
-body.design-iluminovana {
-    --illum-page-left-inset: 22px;
-    --illum-page-right-inset: 24px;
-    --illum-page-top-inset: 10px;
-    --illum-page-bottom-inset: 14px;
-}
+@media (min-width: 768px) {
 
-body.design-iluminovana main#main-content {
-    background-position:
-        left var(--illum-page-left-inset) top var(--illum-page-top-inset),
-        right -8px top var(--illum-page-top-inset),
-        left var(--illum-page-left-inset) bottom var(--illum-page-bottom-inset),
-        right -8px bottom var(--illum-page-bottom-inset),
-
-        /* right-side ornament follows the true right edge of the manuscript */
-        right -4px top 58%,
-        left 14px top 0,
-
-        center,
-        center,
-        center,
-        center,
-        center top !important;
-}
-
-
-/* Slightly smaller and more tucked in on medium desktop widths. */
-@media (min-width: 768px) and (max-width: 1199px) {
     body.design-iluminovana {
-        --illum-page-left-inset: 18px;
-        --illum-page-right-inset: 20px;
-        --illum-page-top-inset: 9px;
-        --illum-page-bottom-inset: 12px;
-    }
-}
-
-
-/* Very wide layouts can breathe a little more. */
-@media (min-width: 1200px) {
-    body.design-iluminovana {
-        --illum-page-left-inset: 26px;
-        --illum-page-right-inset: 28px;
-        --illum-page-top-inset: 11px;
-        --illum-page-bottom-inset: 16px;
+        /* One shared reference line for the visible manuscript page. */
+        --illum-main-left-edge: 70px;
+        --illum-main-right-edge: -12px;
+        --illum-main-top-edge: 6px;
+        --illum-main-bottom-edge: 8px;
     }
 
     body.design-iluminovana main#main-content {
         background-position:
-            left var(--illum-page-left-inset) top var(--illum-page-top-inset),
-            right -10px top var(--illum-page-top-inset),
-            left var(--illum-page-left-inset) bottom var(--illum-page-bottom-inset),
-            right -10px bottom var(--illum-page-bottom-inset),
-            right -5px top 59%,
-            left 16px top 0,
+            /* top-left page corner */
+            left var(--illum-main-left-edge) top var(--illum-main-top-edge),
+
+            /* top-right page corner */
+            right var(--illum-main-right-edge) top var(--illum-main-top-edge),
+
+            /* bottom-left page corner */
+            left var(--illum-main-left-edge) bottom var(--illum-main-bottom-edge),
+
+            /* bottom-right page corner */
+            right var(--illum-main-right-edge) bottom var(--illum-main-bottom-edge),
+
+            /* right floral marginalia — align to the same right edge family */
+            right -10px top 58%,
+
+            /* left gold vine / outer margin — align to the manuscript window */
+            left 68px top 0,
+
+            center,
+            center,
+            center,
+            center,
+            center top !important;
+    }
+
+    /* The drawn manuscript rules must follow the same page window. */
+    body.design-iluminovana main#main-content::before {
+        left: 76px !important;
+    }
+
+    body.design-iluminovana main#main-content::after {
+        right: 8px !important;
+    }
+}
+
+
+/* Medium desktop widths can use almost the same geometry, just a touch
+   less aggressive on the right so the corner does not overhang too much. */
+@media (min-width: 768px) and (max-width: 1199px) {
+    body.design-iluminovana {
+        --illum-main-right-edge: -10px;
+    }
+
+    body.design-iluminovana main#main-content {
+        background-position:
+            left var(--illum-main-left-edge) top var(--illum-main-top-edge),
+            right var(--illum-main-right-edge) top var(--illum-main-top-edge),
+            left var(--illum-main-left-edge) bottom var(--illum-main-bottom-edge),
+            right var(--illum-main-right-edge) bottom var(--illum-main-bottom-edge),
+            right -8px top 58%,
+            left 68px top 0,
             center,
             center,
             center,
@@ -93,19 +95,35 @@ body.design-iluminovana main#main-content {
 }
 
 
-/* Phone portrait: reduce the insets so the content area stays spacious. */
-@media (max-width: 900px) and (orientation: portrait) {
+/* Very wide layouts: preserve the same logic, breathe by only 1–2 px. */
+@media (min-width: 1200px) {
     body.design-iluminovana {
-        --illum-page-left-inset: 10px;
-        --illum-page-right-inset: 10px;
-        --illum-page-top-inset: 6px;
-        --illum-page-bottom-inset: 10px;
+        --illum-main-left-edge: 72px;
+        --illum-main-right-edge: -12px;
+        --illum-main-top-edge: 7px;
+        --illum-main-bottom-edge: 10px;
     }
 
+    body.design-iluminovana main#main-content::before {
+        left: 78px !important;
+    }
+
+    body.design-iluminovana main#main-content::after {
+        right: 8px !important;
+    }
+}
+
+
+/* =====================================================================
+   2. MOBILE / BOTTOM-DOCK LAYOUT
+   Keep the lighter mobile geometry from the previous pass.
+   ===================================================================== */
+
+@media (max-width: 767px) {
     body.design-iluminovana main#main-content {
         background-position:
-            left var(--illum-page-left-inset) top var(--illum-page-top-inset),
-            right -2px bottom var(--illum-page-bottom-inset),
+            left 10px top 6px,
+            right -2px bottom 10px,
             right -18px top 68%,
             center,
             center,
@@ -116,46 +134,44 @@ body.design-iluminovana main#main-content {
 
 
 /* =====================================================================
-   2. RAIL / TAB COLUMN BACKGROUND
-   The rail should also feel like manuscript material, not a plain beige UI
-   strip. Keep it subtle so the active tab remains readable.
+   3. RAIL / LEFT MANUSCRIPT MARGIN
+   Top-left is already good. Bottom-left was too harshly cropped and too
+   contrasty, so we switch to a true bottom-left corner and softer margin.
    ===================================================================== */
 
-@media (orientation: landscape), (min-width: 901px) {
+@media (min-width: 768px) {
 
     body.design-iluminovana .main-nav {
         background:
-            /* faint top ornament */
+            /* upper rail ornament — keep, already works well */
             url('/rooms/illum-corner-tl.webp'),
 
-            /* subtle botanical accent low in the column */
-            url('/rooms/illum-floral-spray.webp'),
+            /* proper lower rail corner instead of harsh floral crop */
+            url('/rooms/illum-corner-bl.webp'),
 
-            /* thin gilded vine running down the rail */
+            /* thin gilded vine in the left margin */
             url('/rooms/illum-gold-vine.webp'),
 
-            /* warm age / stain layer */
+            /* real parchment texture */
+            url('/rooms/parchment-texture.webp'),
+
+            /* soft age / paper toning */
             radial-gradient(
-                ellipse at 40% 16%,
-                rgba(126, 78, 39, .08),
+                ellipse at 46% 18%,
+                rgba(126, 78, 39, .05),
                 transparent 40%
             ),
             radial-gradient(
-                ellipse at 60% 78%,
-                rgba(96, 58, 31, .06),
-                transparent 38%
+                ellipse at 34% 82%,
+                rgba(96, 58, 31, .045),
+                transparent 36%
             ),
-
-            /* existing manuscript body tone */
             linear-gradient(
                 180deg,
-                rgba(255,250,233,.22) 0%,
-                rgba(255,250,233,.10) 28%,
-                rgba(118,77,36,.04) 100%
+                rgba(255,250,233,.16) 0%,
+                rgba(255,250,233,.05) 28%,
+                rgba(118,77,36,.03) 100%
             ),
-
-            url('/rooms/parchment-texture.webp'),
-
             linear-gradient(
                 180deg,
                 #d7c08a 0%,
@@ -168,38 +184,37 @@ body.design-iluminovana main#main-content {
             no-repeat,
             no-repeat,
             repeat-y,
-            no-repeat,
-            no-repeat,
-            no-repeat,
             repeat,
+            no-repeat,
+            no-repeat,
+            no-repeat,
             no-repeat !important;
 
         background-position:
-            left -18px top -2px,
-            right 10px bottom 10%,
-            left -8px top 0,
-            center,
-            center,
-            center,
+            left -6px top -2px,
+            left -4px bottom 6px,
+            left -10px top 0,
             center top,
+            center,
+            center,
+            center,
             center !important;
 
         background-size:
             82px auto,
-            112px auto,
+            84px auto,
             28px auto,
-            100% 100%,
-            100% 100%,
-            100% 100%,
             360px auto,
+            100% 100%,
+            100% 100%,
+            100% 100%,
             100% 100% !important;
     }
 }
 
 
-/* Mobile dock: only a hint of real parchment so it does not become noisy. */
-@media (max-width: 900px) and (orientation: portrait) {
-
+/* Mobile dock stays materially connected to the manuscript, but subdued. */
+@media (max-width: 767px) {
     body.design-iluminovana .main-nav {
         background:
             linear-gradient(
@@ -233,7 +248,7 @@ body.design-iluminovana main#main-content {
 
 
 /* =====================================================================
-   3. KEEP ORNAMENTS BEHIND CONTENT
+   4. STABILITY
    ===================================================================== */
 
 body.design-iluminovana .main-nav,
@@ -241,14 +256,11 @@ body.design-iluminovana main#main-content {
     background-clip: padding-box;
 }
 
-
-/* =====================================================================
-   4. ACCESSIBILITY
-   ===================================================================== */
-
 @media (prefers-reduced-motion: reduce) {
     body.design-iluminovana .main-nav,
-    body.design-iluminovana main#main-content {
+    body.design-iluminovana main#main-content,
+    body.design-iluminovana main#main-content::before,
+    body.design-iluminovana main#main-content::after {
         transition: none !important;
     }
 }
