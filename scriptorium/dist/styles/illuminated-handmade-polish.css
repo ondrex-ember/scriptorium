@@ -1,0 +1,366 @@
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED HANDMADE POLISH v1
+   ---------------------------------------------------------------------
+   Load AFTER:
+     illuminated-foundation.css
+     illuminated-rail-ornament.css
+
+   Purpose:
+   - remove the "six identical UI tiles" feeling
+   - introduce small, deterministic handmade irregularities
+   - make the active root tab read as an illuminated manuscript marker
+   - presentation only; no routing, IDs or gameplay changes
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. GLOBAL HANDMADE CHARACTER
+   ===================================================================== */
+
+body.design-iluminovana .main-nav .nav-btn {
+    /* a little less "component library", a little more cut parchment */
+    border-radius: 2px 3px 2px 4px !important;
+}
+
+body.design-iluminovana .main-nav .nav-art {
+    position: relative;
+    transform-origin: 50% 50%;
+}
+
+
+/* Tiny individual imperfections.
+   These are intentionally subtle and deterministic — no animation. */
+
+body.design-iluminovana #nav-home .nav-art {
+    transform: rotate(-0.65deg) translateY(0px);
+    border-radius: 2px 1px 3px 2px !important;
+}
+
+body.design-iluminovana #nav-garden .nav-art {
+    transform: rotate(0.75deg) translateX(1px);
+    border-radius: 1px 3px 2px 2px !important;
+}
+
+body.design-iluminovana #nav-craft .nav-art {
+    transform: rotate(-0.35deg) translateX(-1px);
+    border-radius: 3px 2px 1px 3px !important;
+}
+
+body.design-iluminovana #nav-inv .nav-art {
+    transform: rotate(0.45deg) translateY(1px);
+    border-radius: 2px 4px 2px 1px !important;
+}
+
+body.design-iluminovana #nav-lore .nav-art {
+    transform: rotate(-0.8deg) translateX(1px);
+    border-radius: 3px 1px 3px 2px !important;
+}
+
+body.design-iluminovana #nav-library .nav-art {
+    transform: rotate(0.3deg) translateX(-1px);
+    border-radius: 1px 3px 2px 4px !important;
+}
+
+
+/* Labels should not look perfectly typeset.
+   Micro variations stay well below "crooked UI" territory. */
+
+body.design-iluminovana #nav-home .nav-label {
+    transform: translateX(-0.4px);
+}
+
+body.design-iluminovana #nav-garden .nav-label {
+    transform: translateX(0.7px);
+}
+
+body.design-iluminovana #nav-craft .nav-label {
+    transform: translateX(-0.8px);
+}
+
+body.design-iluminovana #nav-inv .nav-label {
+    transform: translateX(0.4px);
+}
+
+body.design-iluminovana #nav-lore .nav-label {
+    transform: translateX(-0.3px);
+}
+
+body.design-iluminovana #nav-library .nav-label {
+    transform: translateX(0.6px);
+}
+
+
+/* =====================================================================
+   2. HAND-INKED MINIATURE FRAMES
+   ===================================================================== */
+
+body.design-iluminovana .main-nav .nav-art {
+    outline:
+        1px solid
+        rgba(91, 57, 27, .26) !important;
+
+    outline-offset:
+        -4px !important;
+
+    box-shadow:
+        inset 1px 0 0 rgba(255, 239, 194, .20),
+        inset -1px 0 0 rgba(67, 39, 20, .20),
+        inset 0 1px 0 rgba(255, 245, 211, .16),
+        inset 0 -1px 0 rgba(73, 43, 23, .17),
+        0 1px 0 rgba(255, 238, 192, .14),
+        0 2px 4px rgba(50, 27, 14, .18) !important;
+}
+
+
+/* Different "aged pigment" bias for each miniature,
+   like pages painted by hand at different moments. */
+
+body.design-iluminovana #nav-home .nav-art {
+    filter: sepia(.16) saturate(.88) brightness(.95) contrast(.98) !important;
+}
+
+body.design-iluminovana #nav-garden .nav-art {
+    filter: sepia(.10) saturate(.94) brightness(.96) contrast(.98) !important;
+}
+
+body.design-iluminovana #nav-craft .nav-art {
+    filter: sepia(.18) saturate(.87) brightness(.94) contrast(1.01) !important;
+}
+
+body.design-iluminovana #nav-inv .nav-art {
+    filter: sepia(.13) saturate(.90) brightness(.95) contrast(.99) !important;
+}
+
+body.design-iluminovana #nav-lore .nav-art {
+    filter: sepia(.08) saturate(.97) brightness(.95) contrast(1.00) !important;
+}
+
+body.design-iluminovana #nav-library .nav-art {
+    filter: sepia(.15) saturate(.89) brightness(.96) contrast(.98) !important;
+}
+
+
+/* =====================================================================
+   3. SUBTLE "HAND-DRAWN" CARD VARIATION — LEFT RAIL
+   ===================================================================== */
+
+@media (orientation: landscape), (min-width: 901px) {
+
+    body.design-iluminovana #nav-home {
+        margin-left: 0 !important;
+        margin-right: 2px !important;
+    }
+
+    body.design-iluminovana #nav-garden {
+        margin-left: 2px !important;
+        margin-right: 0 !important;
+    }
+
+    body.design-iluminovana #nav-craft {
+        margin-left: 0 !important;
+        margin-right: 1px !important;
+    }
+
+    body.design-iluminovana #nav-inv {
+        margin-left: 1px !important;
+        margin-right: 1px !important;
+    }
+
+    body.design-iluminovana #nav-lore {
+        margin-left: 2px !important;
+        margin-right: 0 !important;
+    }
+
+    body.design-iluminovana #nav-library {
+        margin-left: 0 !important;
+        margin-right: 2px !important;
+    }
+
+
+    /*
+       Small manuscript "prick marks" / faded ink dots.
+       Only visual; pointer-events off.
+    */
+    body.design-iluminovana .main-nav .nav-btn::before {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        pointer-events: none;
+
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+
+        background:
+            rgba(117, 68, 40, .24);
+
+        box-shadow:
+            0 0 0 1px rgba(255, 235, 185, .05);
+    }
+
+    body.design-iluminovana #nav-home::before {
+        right: 6px;
+        top: 9px;
+    }
+
+    body.design-iluminovana #nav-garden::before {
+        left: 5px;
+        bottom: 12px;
+    }
+
+    body.design-iluminovana #nav-craft::before {
+        right: 8px;
+        bottom: 8px;
+    }
+
+    body.design-iluminovana #nav-inv::before {
+        left: 7px;
+        top: 12px;
+    }
+
+    body.design-iluminovana #nav-lore::before {
+        right: 5px;
+        top: 14px;
+    }
+
+    body.design-iluminovana #nav-library::before {
+        left: 6px;
+        bottom: 9px;
+    }
+}
+
+
+/* =====================================================================
+   4. ACTIVE TAB — ILLUMINATED BOOKMARK, NOT MODERN BUTTON
+   ===================================================================== */
+
+body.design-iluminovana .main-nav .nav-btn.active {
+    /*
+       Remove the impression of one large flat red rectangle.
+       Parchment remains visible through the pigment.
+    */
+    background:
+        radial-gradient(
+            ellipse at 18% 15%,
+            rgba(245, 208, 128, .11),
+            transparent 42%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(106, 31, 24, .92) 0%,
+            rgba(128, 46, 34, .86) 48%,
+            rgba(92, 32, 25, .81) 100%
+        ) !important;
+
+    border-color:
+        rgba(177, 132, 57, .82) !important;
+
+    box-shadow:
+        inset 3px 0 0 rgba(201, 157, 73, .98),
+        inset -1px 0 0 rgba(64, 26, 19, .34),
+        inset 0 1px 0 rgba(246, 217, 148, .14),
+        inset 0 -1px 0 rgba(52, 20, 15, .24),
+        0 2px 5px rgba(59, 29, 14, .16) !important;
+}
+
+
+/* A hand-painted golden top/bottom hairline on active tab */
+body.design-iluminovana .main-nav .nav-btn.active::after {
+    content: "" !important;
+    display: block !important;
+
+    position: absolute;
+    left: 8px;
+    right: 7px;
+    bottom: 3px;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(226, 187, 91, .70) 17%,
+            rgba(193, 145, 59, .50) 72%,
+            transparent 100%
+        ) !important;
+
+    opacity: .82;
+    pointer-events: none;
+}
+
+
+/* Active miniature is brighter but not "glowing neon". */
+body.design-iluminovana .main-nav .nav-btn.active .nav-art {
+    filter:
+        sepia(.03)
+        saturate(1.02)
+        brightness(1.03)
+        contrast(1.01) !important;
+
+    border-color:
+        rgba(194, 151, 64, .94) !important;
+
+    outline-color:
+        rgba(244, 215, 139, .30) !important;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(249, 223, 154, .12),
+        0 0 0 1px rgba(83, 39, 21, .14),
+        0 2px 5px rgba(55, 27, 13, .22) !important;
+}
+
+
+/* =====================================================================
+   5. MOBILE PORTRAIT
+   Keep handmade character, but prevent the dock from becoming noisy.
+   ===================================================================== */
+
+@media (max-width: 900px) and (orientation: portrait) {
+
+    body.design-iluminovana .main-nav .nav-btn {
+        border-radius: 2px 3px 2px 2px !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn::before {
+        content: none !important;
+        display: none !important;
+    }
+
+    body.design-iluminovana .main-nav .nav-btn.active::after {
+        left: 10px;
+        right: 10px;
+        bottom: 2px;
+    }
+
+    body.design-iluminovana #nav-home .nav-art,
+    body.design-iluminovana #nav-garden .nav-art,
+    body.design-iluminovana #nav-craft .nav-art,
+    body.design-iluminovana #nav-inv .nav-art,
+    body.design-iluminovana #nav-lore .nav-art,
+    body.design-iluminovana #nav-library .nav-art {
+        transform: none;
+    }
+
+    body.design-iluminovana #nav-home .nav-label,
+    body.design-iluminovana #nav-garden .nav-label,
+    body.design-iluminovana #nav-craft .nav-label,
+    body.design-iluminovana #nav-inv .nav-label,
+    body.design-iluminovana #nav-lore .nav-label,
+    body.design-iluminovana #nav-library .nav-label {
+        transform: none;
+    }
+}
+
+
+/* =====================================================================
+   6. ACCESSIBILITY
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    body.design-iluminovana .main-nav .nav-btn,
+    body.design-iluminovana .main-nav .nav-art,
+    body.design-iluminovana .main-nav .nav-label {
+        transition: none !important;
+    }
+}
