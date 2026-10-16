@@ -34,6 +34,21 @@ const LandParcelsDB = {
         desc: 'Holý hřeben nad klášterem, otevřený všem větrům — pastviny nahoře řídké, ale vítr tu nikdy neustává. Přesně to místo, kde by se otáčela mlýnská křídla.',
         desc_en: "A bare ridge above the monastery, open to every wind — the pasture up top is thin, but the wind never stops. Just the place for a mill's sails to turn.",
     },
+    // trap-ladder-mrd v0.2 §5 + hunting-ladder-catalog-mrd v0.3 (L1, 16.10.2026).
+    // General parcel, mirror of navrsi: gated only by flags.pozemky_active
+    // (tech_regalia), no own abbot petition, 24h Land Register after purchase.
+    // Slot 1 = Konvrš trapline (L2); slot 2 = reserve (timber / brickyard, or
+    // phase-B nets) — still open (MRD §10 point 3). Price 220 and phase 2 are
+    // [hypotéza], to be tuned by the economy simulation (L5a).
+    hvozd: {
+        name: 'Hvozd', name_en: 'The Deep Wood',
+        tags: ['les'],
+        slotsCapacity: 2,
+        price: 220,
+        phase: 2,
+        desc: 'Hustý les nad klášterními poli, kde se duby a buky tísní tak těsně, že slunce dopadá na zem jen místy. Houby, dřevo a stopy v listí — a pod kmeny stezky vyšlapané drobnou zvěří. Dobré místo pro oka na drobnou zvěř, kdyby se našel, kdo je bude obcházet.',
+        desc_en: "A dense wood above the monastery's fields, where oaks and beeches crowd so close that the sun reaches the ground only in patches. Mushrooms, timber, and tracks in the leaves — and, beneath the trunks, paths worn by small game. A good place for snares set for small game, if someone could be found to tend them.",
+    },
     // Nový tag `slunce` (pozemky-mrd.md §3.2, 16.8.2026) — žádnej z
     // předchozích pěti neseděl na "sluneční svah" z historickýho
     // podkladu o vinařství. Přesná shoda, ne kompromis na existujícím.

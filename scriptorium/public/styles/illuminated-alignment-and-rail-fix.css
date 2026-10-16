@@ -1,58 +1,39 @@
 /* =====================================================================
-   SCRIPTORIUM — ILLUMINATED ALIGNMENT FIX + RAIL BACKGROUND v1.2
+   SCRIPTORIUM — ILLUMINATED ALIGNMENT FIX + RAIL BACKGROUND v1.3
    ---------------------------------------------------------------------
    Load AFTER:
      illuminated-page-background.css
 
-   Purpose of this pass:
-   - use one consistent inner manuscript window on desktop
-   - LEFT manuscript corners move clearly to the right so they align with
-     the true page window next to the rail
-   - RIGHT manuscript corner family moves fully back to the right edge
-   - the decorative margin rules follow the same geometry
-   - rail bottom decoration no longer uses a harsh cropped spray; instead
-     it uses a proper lower corner and softer left-margin placement
-
-   Presentation only. No HTML / JS / mechanics changes.
+   This pass focuses only on the remaining right-edge detail:
+   - top-right and bottom-right illuminated corners move further RIGHT
+   - the right floral band also moves right with them
+   - a soft parchment fade is added so the right ornaments do not look
+     abruptly chopped
+   - left side geometry from v1.2 stays intact
    ===================================================================== */
 
 
 /* =====================================================================
    1. DESKTOP / LEFT-RAIL LAYOUT
-   The manuscript window begins to the right of the rail. We therefore
-   align every left ornament to one shared inner edge.
    ===================================================================== */
 
 @media (min-width: 768px) {
 
     body.design-iluminovana {
-        /* One shared reference line for the visible manuscript page. */
         --illum-main-left-edge: 70px;
-        --illum-main-right-edge: -12px;
+        --illum-main-right-edge: -28px;
         --illum-main-top-edge: 6px;
         --illum-main-bottom-edge: 8px;
     }
 
     body.design-iluminovana main#main-content {
         background-position:
-            /* top-left page corner */
             left var(--illum-main-left-edge) top var(--illum-main-top-edge),
-
-            /* top-right page corner */
             right var(--illum-main-right-edge) top var(--illum-main-top-edge),
-
-            /* bottom-left page corner */
             left var(--illum-main-left-edge) bottom var(--illum-main-bottom-edge),
-
-            /* bottom-right page corner */
             right var(--illum-main-right-edge) bottom var(--illum-main-bottom-edge),
-
-            /* right floral marginalia — align to the same right edge family */
-            right -10px top 58%,
-
-            /* left gold vine / outer margin — align to the manuscript window */
+            right -20px top 58%,
             left 68px top 0,
-
             center,
             center,
             center,
@@ -60,22 +41,79 @@
             center top !important;
     }
 
-    /* The drawn manuscript rules must follow the same page window. */
     body.design-iluminovana main#main-content::before {
         left: 76px !important;
     }
 
     body.design-iluminovana main#main-content::after {
-        right: 8px !important;
+        right: 2px !important;
+    }
+
+    body.design-iluminovana main#main-content > .screen.active {
+        position: relative;
+        isolation: isolate;
+    }
+
+    body.design-iluminovana main#main-content > .screen.active::before,
+    body.design-iluminovana main#main-content > .screen.active::after {
+        content: "";
+        position: absolute;
+        right: -8px;
+        width: 122px;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    body.design-iluminovana main#main-content > .screen.active::before {
+        top: 0;
+        height: 120px;
+        background:
+            linear-gradient(
+                180deg,
+                rgba(239, 231, 210, .00) 0%,
+                rgba(239, 231, 210, .00) 58%,
+                rgba(239, 231, 210, .20) 84%,
+                rgba(239, 231, 210, .42) 100%
+            ),
+            linear-gradient(
+                270deg,
+                rgba(239, 231, 210, .00) 0%,
+                rgba(239, 231, 210, .00) 46%,
+                rgba(239, 231, 210, .18) 74%,
+                rgba(239, 231, 210, .34) 100%
+            );
+    }
+
+    body.design-iluminovana main#main-content > .screen.active::after {
+        bottom: 0;
+        height: 138px;
+        background:
+            linear-gradient(
+                0deg,
+                rgba(239, 231, 210, .00) 0%,
+                rgba(239, 231, 210, .00) 54%,
+                rgba(239, 231, 210, .18) 78%,
+                rgba(239, 231, 210, .36) 100%
+            ),
+            linear-gradient(
+                270deg,
+                rgba(239, 231, 210, .00) 0%,
+                rgba(239, 231, 210, .00) 44%,
+                rgba(239, 231, 210, .18) 72%,
+                rgba(239, 231, 210, .34) 100%
+            );
+    }
+
+    body.design-iluminovana main#main-content > .screen.active > * {
+        position: relative;
+        z-index: 1;
     }
 }
 
 
-/* Medium desktop widths can use almost the same geometry, just a touch
-   less aggressive on the right so the corner does not overhang too much. */
 @media (min-width: 768px) and (max-width: 1199px) {
     body.design-iluminovana {
-        --illum-main-right-edge: -10px;
+        --illum-main-right-edge: -26px;
     }
 
     body.design-iluminovana main#main-content {
@@ -84,7 +122,7 @@
             right var(--illum-main-right-edge) top var(--illum-main-top-edge),
             left var(--illum-main-left-edge) bottom var(--illum-main-bottom-edge),
             right var(--illum-main-right-edge) bottom var(--illum-main-bottom-edge),
-            right -8px top 58%,
+            right -18px top 58%,
             left 68px top 0,
             center,
             center,
@@ -95,11 +133,10 @@
 }
 
 
-/* Very wide layouts: preserve the same logic, breathe by only 1–2 px. */
 @media (min-width: 1200px) {
     body.design-iluminovana {
         --illum-main-left-edge: 72px;
-        --illum-main-right-edge: -12px;
+        --illum-main-right-edge: -30px;
         --illum-main-top-edge: 7px;
         --illum-main-bottom-edge: 10px;
     }
@@ -109,21 +146,22 @@
     }
 
     body.design-iluminovana main#main-content::after {
-        right: 8px !important;
+        right: 2px !important;
+    }
+
+    body.design-iluminovana main#main-content > .screen.active::before,
+    body.design-iluminovana main#main-content > .screen.active::after {
+        right: -10px;
+        width: 128px;
     }
 }
 
-
-/* =====================================================================
-   2. MOBILE / BOTTOM-DOCK LAYOUT
-   Keep the lighter mobile geometry from the previous pass.
-   ===================================================================== */
 
 @media (max-width: 767px) {
     body.design-iluminovana main#main-content {
         background-position:
             left 10px top 6px,
-            right -2px bottom 10px,
+            right -4px bottom 10px,
             right -18px top 68%,
             center,
             center,
@@ -133,29 +171,14 @@
 }
 
 
-/* =====================================================================
-   3. RAIL / LEFT MANUSCRIPT MARGIN
-   Top-left is already good. Bottom-left was too harshly cropped and too
-   contrasty, so we switch to a true bottom-left corner and softer margin.
-   ===================================================================== */
-
 @media (min-width: 768px) {
 
     body.design-iluminovana .main-nav {
         background:
-            /* upper rail ornament — keep, already works well */
             url('/rooms/illum-corner-tl.webp'),
-
-            /* proper lower rail corner instead of harsh floral crop */
             url('/rooms/illum-corner-bl.webp'),
-
-            /* thin gilded vine in the left margin */
             url('/rooms/illum-gold-vine.webp'),
-
-            /* real parchment texture */
             url('/rooms/parchment-texture.webp'),
-
-            /* soft age / paper toning */
             radial-gradient(
                 ellipse at 46% 18%,
                 rgba(126, 78, 39, .05),
@@ -213,7 +236,6 @@
 }
 
 
-/* Mobile dock stays materially connected to the manuscript, but subdued. */
 @media (max-width: 767px) {
     body.design-iluminovana .main-nav {
         background:
@@ -247,10 +269,6 @@
 }
 
 
-/* =====================================================================
-   4. STABILITY
-   ===================================================================== */
-
 body.design-iluminovana .main-nav,
 body.design-iluminovana main#main-content {
     background-clip: padding-box;
@@ -260,7 +278,9 @@ body.design-iluminovana main#main-content {
     body.design-iluminovana .main-nav,
     body.design-iluminovana main#main-content,
     body.design-iluminovana main#main-content::before,
-    body.design-iluminovana main#main-content::after {
+    body.design-iluminovana main#main-content::after,
+    body.design-iluminovana main#main-content > .screen.active::before,
+    body.design-iluminovana main#main-content > .screen.active::after {
         transition: none !important;
     }
 }
