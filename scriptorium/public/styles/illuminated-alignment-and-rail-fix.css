@@ -1,0 +1,244 @@
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED ALIGNMENT FIX + RAIL BACKGROUND v1
+   ---------------------------------------------------------------------
+   Load AFTER:
+     illuminated-page-background.css
+
+   Purpose:
+   1) move the top/bottom illuminated corners inward so they align with
+      the real inner manuscript window, not the raw main area edges
+   2) give the left rail a true manuscript background using the same
+      parchment texture family as the main page
+
+   Presentation only. No HTML / JS changes.
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. PAGE CORNER ALIGNMENT
+   The middle/right marginalia already feel aligned well. We therefore
+   move only the corner family inward to match that visual window.
+   ===================================================================== */
+
+body.design-iluminovana {
+    --illum-page-left-inset: 22px;
+    --illum-page-right-inset: 24px;
+    --illum-page-top-inset: 10px;
+    --illum-page-bottom-inset: 14px;
+}
+
+body.design-iluminovana main#main-content {
+    background-position:
+        left var(--illum-page-left-inset) top var(--illum-page-top-inset),
+        right var(--illum-page-right-inset) top var(--illum-page-top-inset),
+        left var(--illum-page-left-inset) bottom var(--illum-page-bottom-inset),
+        right var(--illum-page-right-inset) bottom var(--illum-page-bottom-inset),
+
+        /* keep the side marginalia family close to the real content window */
+        right 18px top 58%,
+        left 14px top 0,
+
+        center,
+        center,
+        center,
+        center,
+        center top !important;
+}
+
+
+/* Slightly smaller and more tucked in on medium desktop widths. */
+@media (min-width: 768px) and (max-width: 1199px) {
+    body.design-iluminovana {
+        --illum-page-left-inset: 18px;
+        --illum-page-right-inset: 20px;
+        --illum-page-top-inset: 9px;
+        --illum-page-bottom-inset: 12px;
+    }
+}
+
+
+/* Very wide layouts can breathe a little more. */
+@media (min-width: 1200px) {
+    body.design-iluminovana {
+        --illum-page-left-inset: 26px;
+        --illum-page-right-inset: 28px;
+        --illum-page-top-inset: 11px;
+        --illum-page-bottom-inset: 16px;
+    }
+
+    body.design-iluminovana main#main-content {
+        background-position:
+            left var(--illum-page-left-inset) top var(--illum-page-top-inset),
+            right var(--illum-page-right-inset) top var(--illum-page-top-inset),
+            left var(--illum-page-left-inset) bottom var(--illum-page-bottom-inset),
+            right var(--illum-page-right-inset) bottom var(--illum-page-bottom-inset),
+            right 22px top 59%,
+            left 16px top 0,
+            center,
+            center,
+            center,
+            center,
+            center top !important;
+    }
+}
+
+
+/* Phone portrait: reduce the insets so the content area stays spacious. */
+@media (max-width: 900px) and (orientation: portrait) {
+    body.design-iluminovana {
+        --illum-page-left-inset: 10px;
+        --illum-page-right-inset: 10px;
+        --illum-page-top-inset: 6px;
+        --illum-page-bottom-inset: 10px;
+    }
+
+    body.design-iluminovana main#main-content {
+        background-position:
+            left var(--illum-page-left-inset) top var(--illum-page-top-inset),
+            right var(--illum-page-right-inset) bottom var(--illum-page-bottom-inset),
+            right -8px top 68%,
+            center,
+            center,
+            center,
+            center top !important;
+    }
+}
+
+
+/* =====================================================================
+   2. RAIL / TAB COLUMN BACKGROUND
+   The rail should also feel like manuscript material, not a plain beige UI
+   strip. Keep it subtle so the active tab remains readable.
+   ===================================================================== */
+
+@media (orientation: landscape), (min-width: 901px) {
+
+    body.design-iluminovana .main-nav {
+        background:
+            /* faint top ornament */
+            url('/rooms/illum-corner-tl.webp'),
+
+            /* subtle botanical accent low in the column */
+            url('/rooms/illum-floral-spray.webp'),
+
+            /* thin gilded vine running down the rail */
+            url('/rooms/illum-gold-vine.webp'),
+
+            /* warm age / stain layer */
+            radial-gradient(
+                ellipse at 40% 16%,
+                rgba(126, 78, 39, .08),
+                transparent 40%
+            ),
+            radial-gradient(
+                ellipse at 60% 78%,
+                rgba(96, 58, 31, .06),
+                transparent 38%
+            ),
+
+            /* existing manuscript body tone */
+            linear-gradient(
+                180deg,
+                rgba(255,250,233,.22) 0%,
+                rgba(255,250,233,.10) 28%,
+                rgba(118,77,36,.04) 100%
+            ),
+
+            url('/rooms/parchment-texture.webp'),
+
+            linear-gradient(
+                180deg,
+                #d7c08a 0%,
+                #cab078 38%,
+                #d4bc86 67%,
+                #bda16a 100%
+            ) !important;
+
+        background-repeat:
+            no-repeat,
+            no-repeat,
+            repeat-y,
+            no-repeat,
+            no-repeat,
+            no-repeat,
+            repeat,
+            no-repeat !important;
+
+        background-position:
+            left -2px top -2px,
+            right -36px bottom 10%,
+            left 2px top 0,
+            center,
+            center,
+            center,
+            center top,
+            center !important;
+
+        background-size:
+            82px auto,
+            112px auto,
+            28px auto,
+            100% 100%,
+            100% 100%,
+            100% 100%,
+            360px auto,
+            100% 100% !important;
+    }
+}
+
+
+/* Mobile dock: only a hint of real parchment so it does not become noisy. */
+@media (max-width: 900px) and (orientation: portrait) {
+
+    body.design-iluminovana .main-nav {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(196, 154, 70, .30) 0 2px,
+                transparent 2px 5px
+            ),
+            url('/rooms/parchment-texture.webp'),
+            linear-gradient(
+                180deg,
+                #d8c28d 0%,
+                #c9ad72 100%
+            ) !important;
+
+        background-repeat:
+            no-repeat,
+            repeat,
+            no-repeat !important;
+
+        background-position:
+            center,
+            center top,
+            center !important;
+
+        background-size:
+            100% 100%,
+            300px auto,
+            100% 100% !important;
+    }
+}
+
+
+/* =====================================================================
+   3. KEEP ORNAMENTS BEHIND CONTENT
+   ===================================================================== */
+
+body.design-iluminovana .main-nav,
+body.design-iluminovana main#main-content {
+    background-clip: padding-box;
+}
+
+
+/* =====================================================================
+   4. ACCESSIBILITY
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    body.design-iluminovana .main-nav,
+    body.design-iluminovana main#main-content {
+        transition: none !important;
+    }
+}
