@@ -1,11 +1,21 @@
 /* =====================================================================
-   SCRIPTORIUM — ILLUMINATED ALIGNMENT FIX + RAIL BACKGROUND v1
+   SCRIPTORIUM — ILLUMINATED ALIGNMENT FIX + RAIL BACKGROUND v1.1
    ---------------------------------------------------------------------
    Load AFTER:
      illuminated-page-background.css
 
    Purpose:
-   1) move the top/bottom illuminated corners inward so they align with
+   1) align the left corner family inward, but push the RIGHT ornament family
+      back toward the real right manuscript edge so it does not float left
+   2) move rail decoration LEFT so it sits in the rail margin rather than
+      drifting into the main page
+
+   Previous v1 intent retained:
+   - top/bottom corner alignment
+   - real parchment rail background
+
+   Earlier note:
+   - move the top/bottom illuminated corners inward so they align with
       the real inner manuscript window, not the raw main area edges
    2) give the left rail a true manuscript background using the same
       parchment texture family as the main page
@@ -30,12 +40,12 @@ body.design-iluminovana {
 body.design-iluminovana main#main-content {
     background-position:
         left var(--illum-page-left-inset) top var(--illum-page-top-inset),
-        right var(--illum-page-right-inset) top var(--illum-page-top-inset),
+        right -8px top var(--illum-page-top-inset),
         left var(--illum-page-left-inset) bottom var(--illum-page-bottom-inset),
-        right var(--illum-page-right-inset) bottom var(--illum-page-bottom-inset),
+        right -8px bottom var(--illum-page-bottom-inset),
 
-        /* keep the side marginalia family close to the real content window */
-        right 18px top 58%,
+        /* right-side ornament follows the true right edge of the manuscript */
+        right -4px top 58%,
         left 14px top 0,
 
         center,
@@ -69,10 +79,10 @@ body.design-iluminovana main#main-content {
     body.design-iluminovana main#main-content {
         background-position:
             left var(--illum-page-left-inset) top var(--illum-page-top-inset),
-            right var(--illum-page-right-inset) top var(--illum-page-top-inset),
+            right -10px top var(--illum-page-top-inset),
             left var(--illum-page-left-inset) bottom var(--illum-page-bottom-inset),
-            right var(--illum-page-right-inset) bottom var(--illum-page-bottom-inset),
-            right 22px top 59%,
+            right -10px bottom var(--illum-page-bottom-inset),
+            right -5px top 59%,
             left 16px top 0,
             center,
             center,
@@ -95,8 +105,8 @@ body.design-iluminovana main#main-content {
     body.design-iluminovana main#main-content {
         background-position:
             left var(--illum-page-left-inset) top var(--illum-page-top-inset),
-            right var(--illum-page-right-inset) bottom var(--illum-page-bottom-inset),
-            right -8px top 68%,
+            right -2px bottom var(--illum-page-bottom-inset),
+            right -18px top 68%,
             center,
             center,
             center,
@@ -165,9 +175,9 @@ body.design-iluminovana main#main-content {
             no-repeat !important;
 
         background-position:
-            left -2px top -2px,
-            right -36px bottom 10%,
-            left 2px top 0,
+            left -18px top -2px,
+            right 10px bottom 10%,
+            left -8px top 0,
             center,
             center,
             center,
