@@ -1,0 +1,242 @@
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED SCRIBAL TRACES v1
+   ---------------------------------------------------------------------
+   Load AFTER:
+     illuminated-alignment-and-rail-fix.css
+
+   Goal:
+   - keep everything subtle and readable
+   - add tiny manuscript-life traces: gloss notes, pen tests, ink blots
+   - preserve gameplay and all existing layout / geometry
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. BASE: allow small decorative traces to sit in the margins
+   ===================================================================== */
+
+body.design-iluminovana main#main-content > .screen.active > .screen-header-row,
+body.design-iluminovana main#main-content > .screen.active > .filter-bar:first-of-type,
+body.design-iluminovana main#main-content > .screen.active > .filter-bar:nth-of-type(2) {
+    position: relative;
+    overflow: visible;
+}
+
+
+/* =====================================================================
+   2. UPPER-LEFT SCRIPTOR NOTE
+   A tiny marginal note next to the page heading.
+   ===================================================================== */
+
+body.design-iluminovana main#main-content > .screen.active > .screen-header-row::before {
+    content: "nota";
+    position: absolute;
+    left: -46px;
+    top: 14px;
+
+    font-family: "Crimson Text", Georgia, serif;
+    font-style: italic;
+    font-size: 0.82rem;
+    letter-spacing: 0.035em;
+    line-height: 1;
+
+    color: rgba(95, 53, 31, 0.34);
+    text-shadow: 0 1px 0 rgba(255, 244, 216, 0.26);
+
+    transform: rotate(-8deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+/* small quill flourish just under the note */
+body.design-iluminovana main#main-content > .screen.active > .screen-header-row::after {
+    content: "";
+    position: absolute;
+    left: -41px;
+    top: 34px;
+    width: 26px;
+    height: 10px;
+
+    background:
+        radial-gradient(circle at 18% 54%, rgba(82, 43, 23, 0.18) 0 1.2px, transparent 1.3px),
+        radial-gradient(circle at 42% 58%, rgba(82, 43, 23, 0.13) 0 1.1px, transparent 1.2px),
+        radial-gradient(circle at 68% 44%, rgba(82, 43, 23, 0.11) 0 1px, transparent 1.1px),
+        linear-gradient(105deg,
+            transparent 0 18%,
+            rgba(88, 49, 27, 0.16) 18% 23%,
+            transparent 23% 100%);
+    opacity: .72;
+    transform: rotate(-7deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+/* =====================================================================
+   3. LIGHT GLOSS ABOVE / AROUND TABS
+   Feels like a scribe left a quick annotation in the margin.
+   ===================================================================== */
+
+body.design-iluminovana main#main-content > .screen.active > .filter-bar:first-of-type::before {
+    content: "vide etiam";
+    position: absolute;
+    right: 108px;
+    top: -15px;
+
+    font-family: "Crimson Text", Georgia, serif;
+    font-style: italic;
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+
+    color: rgba(102, 59, 36, 0.24);
+    transform: rotate(3deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+/* Tiny ink drop cluster near the tab line */
+body.design-iluminovana main#main-content > .screen.active > .filter-bar:first-of-type::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: -10px;
+    width: 18px;
+    height: 16px;
+
+    background:
+        radial-gradient(circle at 28% 34%, rgba(77, 41, 22, 0.16) 0 1.6px, transparent 1.7px),
+        radial-gradient(circle at 58% 62%, rgba(77, 41, 22, 0.12) 0 1.2px, transparent 1.3px),
+        radial-gradient(circle at 76% 40%, rgba(77, 41, 22, 0.10) 0 1px, transparent 1.1px);
+    opacity: .8;
+    transform: rotate(11deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+/* =====================================================================
+   4. SECONDARY, EVEN LIGHTER TRACE LOWER IN THE PAGE
+   Only when another filter row is present (like home/work screens).
+   ===================================================================== */
+
+body.design-iluminovana main#main-content > .screen.active > .filter-bar:nth-of-type(2)::before {
+    content: "manu";
+    position: absolute;
+    right: 14px;
+    bottom: -18px;
+
+    font-family: "Crimson Text", Georgia, serif;
+    font-style: italic;
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    line-height: 1;
+
+    color: rgba(102, 59, 36, 0.18);
+    transform: rotate(-5deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+/* =====================================================================
+   5. A FEW SUBTLE PAGE SPECKS IN EMPTY AREAS
+   Very soft; avoids looking dirty or broken.
+   ===================================================================== */
+
+body.design-iluminovana main#main-content {
+    --illum-speck-a: rgba(84, 49, 29, 0.055);
+    --illum-speck-b: rgba(84, 49, 29, 0.040);
+}
+
+body.design-iluminovana main#main-content .section-header,
+body.design-iluminovana main#main-content h3 {
+    position: relative;
+}
+
+body.design-iluminovana main#main-content .section-header::after,
+body.design-iluminovana main#main-content h3::after {
+    content: "";
+    position: absolute;
+    right: -14px;
+    top: 0.24em;
+    width: 10px;
+    height: 10px;
+
+    background:
+        radial-gradient(circle at 50% 50%, var(--illum-speck-a) 0 1.1px, transparent 1.2px),
+        radial-gradient(circle at 20% 74%, var(--illum-speck-b) 0 0.9px, transparent 1px);
+    opacity: .55;
+    pointer-events: none;
+}
+
+
+/* =====================================================================
+   6. RAIL — ONE FAINT SCRIBAL MARK ONLY
+   Keep the rail elegant, not cluttered.
+   ===================================================================== */
+
+@media (min-width: 768px) {
+    body.design-iluminovana .main-nav .nav-btn.active::before {
+        content: "✶";
+        position: absolute;
+        left: -14px;
+        top: 10px;
+
+        font-size: 0.62rem;
+        line-height: 1;
+        color: rgba(107, 58, 33, 0.26);
+
+        text-shadow: none;
+        background: none;
+        box-shadow: none;
+        pointer-events: none;
+    }
+}
+
+
+/* =====================================================================
+   7. MOBILE — tone the traces down even more
+   ===================================================================== */
+
+@media (max-width: 767px) {
+    body.design-iluminovana main#main-content > .screen.active > .screen-header-row::before {
+        left: -4px;
+        top: -12px;
+        font-size: 0.72rem;
+        opacity: .65;
+    }
+
+    body.design-iluminovana main#main-content > .screen.active > .screen-header-row::after {
+        left: 8px;
+        top: -1px;
+        opacity: .45;
+    }
+
+    body.design-iluminovana main#main-content > .screen.active > .filter-bar:first-of-type::before {
+        right: 14px;
+        top: -13px;
+        font-size: 0.66rem;
+    }
+
+    body.design-iluminovana main#main-content > .screen.active > .filter-bar:nth-of-type(2)::before {
+        display: none;
+    }
+}
+
+
+/* =====================================================================
+   8. ACCESSIBILITY
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    body.design-iluminovana main#main-content > .screen.active > .screen-header-row::before,
+    body.design-iluminovana main#main-content > .screen.active > .screen-header-row::after,
+    body.design-iluminovana main#main-content > .screen.active > .filter-bar:first-of-type::before,
+    body.design-iluminovana main#main-content > .screen.active > .filter-bar:first-of-type::after,
+    body.design-iluminovana main#main-content > .screen.active > .filter-bar:nth-of-type(2)::before {
+        transition: none !important;
+    }
+}
