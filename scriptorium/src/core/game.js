@@ -1263,6 +1263,7 @@ const Game = {
     setSnare: function () { return ScavengeManager.setSnare(); },
     collectSnares: function () { return ScavengeManager.collectSnares(); },
     processCaughtGame: function () { return ScavengeManager.processCaughtGame(); },
+    processAllCaughtGame: function () { return ScavengeManager.processAllCaughtGame(); },
 
 
     // ═══ D10 (3/12) ═══

@@ -948,7 +948,13 @@ const UI = {
         const lang = (GameState.settings && GameState.settings.language) || 'cs';
         const _terrainF = (GameState.terrain && GameState.terrain.fatigue) || 0;
         const _curiaF = (GameState.curia && GameState.curia.fatigue) || 0;
-        const _hAct = JSON.stringify(GameState.inventory) + lang + 'd:' + (GameState.selectedDuration ?? 0) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '') + (GameState.scavengeCooldownUntil ? 'cd:' + Math.floor(Date.now() / 1000) : '') + (_terrainF > 20 ? 'tf:' + Math.floor(Date.now() / 60000) : '') + (_curiaF > 20 ? 'cf:' + Math.floor(Date.now() / 60000) : '');
+        // Trapline card state is not part of the inventory: fingerprint it so assigning a Konvrš,
+        // buying the parcel or the hourly countdown re-render the card (L2).
+        const _tlHash = (typeof ScavengeManager !== 'undefined' && ScavengeManager.traplineLevel())
+            ? 'tl:' + ((GameState.trapline && GameState.trapline.deployed) || 0) + ':' + (ScavengeManager.traplineParcelOwned() ? 1 : 0)
+                + ':' + ((GameState.conversi || []).some(k => k.task === 'trapline') ? 1 : 0) + ':' + Math.floor(Date.now() / 3600000)
+            : '';
+        const _hAct = JSON.stringify(GameState.inventory) + _tlHash + lang + 'd:' + (GameState.selectedDuration ?? 0) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '') + (GameState.scavengeCooldownUntil ? 'cd:' + Math.floor(Date.now() / 1000) : '') + (_terrainF > 20 ? 'tf:' + Math.floor(Date.now() / 60000) : '') + (_curiaF > 20 ? 'cf:' + Math.floor(Date.now() / 60000) : '');
         if (_hAct === this._hashActions) return;
         this._hashActions = _hAct;
         const el = document.getElementById('workspace-actions');
@@ -1101,8 +1107,28 @@ const UI = {
             </div></div>`;
             if (caughtInv > 0) {
                 const hasKnife = (GameState.inventory['stone_knife'] || 0) > 0;
-                newHTML += `<div class="card"><div class="item-icon">🐿️</div><div><strong>${lang === 'en' ? 'Caught small game' : 'Ulovená drobná zvěř'} (${caughtInv})</strong><div class="text-sm">${lang === 'en' ? 'Dress with a knife: wild meat + fat + scraps (bone by chance). Or sell whole to the Hunter.' : 'Zpracuj nožem: divoké maso + tuk + zbytky (kost s šancí). Nebo prodej vcelku Lovci.'}</div></div><button class="action-btn" onclick="Game.processCaughtGame()" ${hasKnife ? '' : 'disabled'}>🔪 ${lang === 'en' ? 'Dress ×1' : 'Zpracovat ×1'}</button></div>`;
+                newHTML += `<div class="card"><div class="item-icon">🐿️</div><div><strong>${lang === 'en' ? 'Caught small game' : 'Ulovená drobná zvěř'} (${caughtInv})</strong><div class="text-sm">${lang === 'en' ? 'Dress with a knife: wild meat + fat + scraps (bone by chance). Or sell whole to the Hunter.' : 'Zpracuj nožem: divoké maso + tuk + zbytky (kost s šancí). Nebo prodej vcelku Lovci.'}</div></div><div style="display:flex;flex-direction:column;gap:4px;"><button class="action-btn" onclick="Game.processCaughtGame()" ${hasKnife ? '' : 'disabled'}>🔪 ${lang === 'en' ? 'Dress ×1' : 'Zpracovat ×1'}</button><button class="action-btn" onclick="Game.processAllCaughtGame()" ${hasKnife && caughtInv > 1 ? '' : 'disabled'}>🔪 ${t('game.dressAll')} (${caughtInv})</button></div></div>`;
             }
+        }
+
+        // ── Linie pastí (hunting-ladder-catalog-mrd v0.3, L2) — blok jen s technem tech_laquei ──
+        const traplineLvl = (typeof ScavengeManager !== 'undefined') ? ScavengeManager.traplineLevel() : null;
+        if (traplineLvl) {
+            const tl = GameState.trapline || { lastTendedAt: 0, deployed: 0 };
+            const tlKonvrs = (GameState.conversi || []).find(k => k.task === 'trapline');
+            const tlNow = Date.now();
+            let tlStatus;
+            if (!ScavengeManager.traplineParcelOwned()) tlStatus = t('trapline.cardNoLand');
+            else if (!tlKonvrs) tlStatus = t('trapline.cardNoKonvrs');
+            else {
+                const tlHoursLeft = Math.ceil((tl.lastTendedAt + ScavengeManager.TRAPLINE_CYCLE_MS - tlNow) / 3600000);
+                tlStatus = t('trapline.cardKonvrs').replace('{name}', tlKonvrs.name) + ' ' +
+                    (tlHoursLeft > 0 ? t('trapline.cardNext').replace('{h}', tlHoursLeft) : t('trapline.cardDue'));
+            }
+            const tlStock = (tl.deployed < traplineLvl.slots && snareInv <= 0) ? t('trapline.cardNoStock') : t('trapline.cardStock').replace('{n}', snareInv);
+            const tlWinter = ScavengeManager._isWinter() ? `<div class="text-sm">${t('trapline.cardWinter')}</div>` : '';
+            newHTML += `<div style="${groupTitleStyle}">🪤 ${t('trapline.cardTitle')}</div>`;
+            newHTML += `<div class="card"><div class="item-icon">🪤</div><div><strong>${t('trapline.cardDeployed').replace('{deployed}', tl.deployed).replace('{slots}', traplineLvl.slots)}</strong><div class="text-sm">${tlStatus}</div><div class="text-sm">${tlStock}</div>${tlWinter}</div></div>`;
         }
 
         if (el.innerHTML !== newHTML) el.innerHTML = newHTML;

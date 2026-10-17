@@ -830,8 +830,9 @@ TechTree.push({
 });
 // Právo lovu: HERNÍ FIKCE (rozhodnutí Bouvarda 8.10.2026 — klášter má právo lovu).
 // Pozor: pro kláštery jsem v historických zdrojích lovecké privilegium nenašel
-// (lov jako výsada vrchnosti: dekret Václava IV. 1388; klerikům lov zakazoval
-// IV. lateránský koncil 1215 — z paměti). Nepoužívat jako historické tvrzení.
+// (lov jako výsada vrchnosti: dekret Václava IV. 1388 [ověřeno, sekundární];
+// klerikům lov a odchyt ptáků zakazoval IV. lateránský koncil 1215, kán. 15
+// [ověřeno, Fordham Sourcebooks]). Nepoužívat jako historické tvrzení.
 TechTree.push({
   id: "tech_ius_venandi",
   name: "Ius Venandi — Právo lovu",
@@ -841,4 +842,18 @@ TechTree.push({
   desc_en: "The monastery may hunt in its own woods. He who reads tracks in the snow and may hunt in winter brings home more meat, fat and pelts than any other. Unlocks: full winter hunting and winter snares; winter hunts are richer.",
   unlocks: [],
   requires: []
+});
+// Trapline level 1 (hunting-ladder-catalog-mrd v0.3, L2). GAME FICTION: lay brothers
+// (Konvrši) tending snares on monastery land has no historical source (MRD §2, H5).
+// Requires tech_ius_venandi (audit decision O9): without the right of the chase the
+// line loses money in winter. Cost 10 is a [hypotéza], tuned in L5a.
+TechTree.push({
+  id: "tech_laquei",
+  name: "Laquei — Oka na zvěř",
+  name_en: "Laquei — Snares",
+  cost: 10,
+  desc: "Oko z provazu nastražené na stezce drobné zvěře — kdo umí uplést smyčku a ohnout větev, nemusí oka kupovat od Lovce. Na pozemku Hvozd je může obcházet Konvrš. Odemkne: výrobu oka (provaz + větev) a úkol Linie pastí (5 ok) pro Konvrše. Potřebuješ: pozemek Hvozd (Cellarium — Pozemky), Konvrše a právo lovu.",
+  desc_en: "A rope snare laid on a small-game trail — he who can plait a noose and bend a branch need not buy snares from the Hunter. On the Hvozd parcel a lay brother may tend them. Unlocks: crafting the snare (rope + branch) and the Trapline task (5 snares) for a lay brother. Thou needest: the Hvozd parcel (Cellarium — Land), a lay brother, and the right of the chase.",
+  unlocks: ["snare"],
+  requires: ["tech_de_animalibus", "tech_ius_venandi"]
 });

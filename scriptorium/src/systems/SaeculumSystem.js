@@ -814,7 +814,8 @@ const SaeculumSystem = {
         const label = ({
           dvur: lang === 'en' ? 'Farmyard' : 'Dvůr', zahony: lang === 'en' ? 'Garden' : 'Záhony', sad: lang === 'en' ? 'Orchard' : 'Sad', apiarium: lang === 'en' ? 'Apiary' : 'Apiarium', piscina: lang === 'en' ? 'Fishpond' : 'Piscina', pole: lang === 'en' ? 'Field' : 'Pole', vinohrad: lang === 'en' ? 'Vineyard' : 'Vinohrad', scavenge: 'Scavenge', doly: lang === 'en' ? 'Mine' : 'Doly', kostel: lang === 'en' ? 'Church' : 'Kostel', hrbitov: lang === 'en' ? 'Cemetery' : 'Hřbitov',
           servitor: lang === 'en' ? 'Servitor' : 'Ošetřovatel', coquus: lang === 'en' ? 'Coquus' : 'Kuchař', hortulanus: lang === 'en' ? 'Hortulanus' : 'Bylinář', balneator: lang === 'en' ? 'Balneator' : 'Topič',
-          focarius: 'Focarius', zvonarna: lang === 'en' ? 'Bell-Casting' : 'Zvonařna'
+          focarius: 'Focarius', zvonarna: lang === 'en' ? 'Bell-Casting' : 'Zvonařna',
+          trapline: t('trapline.taskLabel')
         })[taskId];
         let hint = '';
         if (gate.locked) {
@@ -825,7 +826,9 @@ const SaeculumSystem = {
                   : gate.reasonKey === 'gate_focarius_tech' ? (lang === 'en' ? 'needs tech: Focarius' : 'chybí tech: Focarius')
                     : gate.reasonKey === 'gate_ars_campanaria_tech' ? (lang === 'en' ? 'needs tech: Ars Campanaria' : 'chybí tech: Ars Campanaria')
                       : gate.reasonKey === 'gate_kovarna_tier3' ? (lang === 'en' ? 'needs: Kovárna — Bell-Casting Hearth built' : 'chybí: postavená zvonařská výhrň v Kovárně')
-                        : '';
+                        : gate.reasonKey === 'gate_trapline_tech' ? t('trapline.gateTech')
+                          : gate.reasonKey === 'gate_trapline_land' ? t('trapline.gateLand')
+                            : '';
         } else if (full) {
           hint = lang === 'en' ? 'slots full' : 'plno';
         } else {
@@ -1375,6 +1378,13 @@ const SaeculumSystem = {
     if (c.chroniconActorId && typeof ChroniconSystem !== 'undefined') {
       const live = ChroniconSystem.getActorItemStock(c.chroniconActorId, itemId);
       if (live !== null) stock = live;
+    }
+    // Optional offer.stockTiers [{ minRelation, stock }]: a higher relation raises the daily
+    // stock (hunting-ladder-catalog-mrd v0.3, O8). Shared by the shop list and buyFromContact.
+    const tierOffer = c.buyOffer && c.buyOffer.items && c.buyOffer.items[itemId];
+    if (tierOffer && tierOffer.stockTiers) {
+      const rel = (GameState.contactRelation || {})[contactId] || 0;
+      tierOffer.stockTiers.forEach(tier => { if (rel >= tier.minRelation && tier.stock > stock) stock = tier.stock; });
     }
     if (contactId === 'giacomo' && typeof CellariumSystem !== 'undefined') {
       stock = Math.max(0, Math.round(stock * CellariumSystem.giacomoStockMult()));

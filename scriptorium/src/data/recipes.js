@@ -10,6 +10,9 @@ const RecipesDB = [
   // Alternativní cesta k provazu z konopného vlákna (tech_susarna řetězec
   // beze změny) — kvalitnější surovina, méně kusů na výsledek.
   { id: "rope_hemp", output: "rope", qty: 1, req: { "hemp_fiber": 1 }, cat: "craft" },
+  // hunting-ladder-catalog-mrd v0.3 (L2, 16.10.2026): own-made snare, unlocked by
+  // tech_laquei. Cost ~3.5 g vs 5 g at the Hunter (ratio ~0.7, [hypotéza], tuned in L5a).
+  { id: "snare", output: "snare", qty: 1, req: { "rope": 1, "stick": 1 }, cat: "craft", locked: true, desc: "Smyčka z provazu na ohnuté větvi.", desc_en: "A rope noose on a bent branch." },
   // pyl-prepracovani-mrd (18.8.2026): sink pro nahromaděný pyl — fermentace
   // s medem. Bez vlastního tech gate, tech_liber_apium (Apiarium) už gatuje
   // pyl samotný.

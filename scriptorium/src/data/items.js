@@ -848,7 +848,7 @@ const ItemsDB = {
     "acorns": { name: "Žaludy", name_en: "Acorns", icon: "🌰", type: "mat", desc: "Lesní plody z dubu. Krmivo pro prasata. Sbírají se na podzim.", desc_en: "Oak fruits from the forest. Pig fodder. Gathered in autumn." },
     "leaves": { name: "Listí", name_en: "Leaves", icon: "🍃", type: "mat", desc: "Čerstvé listí stromů. Oblíbená pochutina koz.", desc_en: "Fresh tree leaves. A favourite treat for goats." },
     "scraps": { name: "Zbytky", name_en: "Scraps", icon: "🍖", type: "mat", desc: "Kuchyňské zbytky. Prasata sní vše.", desc_en: "Kitchen scraps. Pigs eat everything." },
-    "snare": { name: "Oko na drobnou zvěř", name_en: "Small Game Snare", icon: "🪤", type: "tool", desc: "Drátěné oko od Lovce. Na plchy, veverky a ptáky — velká zvěř patří pánům.", desc_en: "A wire snare from the Hunter. For dormice, squirrels and birds — big game belongs to the lords." },
+    "snare": { name: "Oko na drobnou zvěř", name_en: "Small Game Snare", icon: "🪤", type: "tool", desc: "Oko z provazu na drobnou zvěř. Koupíš ho u Lovce, nebo (s Laquei) vyrobíš sám. Velká zvěř patří pánům.", desc_en: "A rope snare for small game. Buy it from the Hunter or, with Laquei, make your own. Big game belongs to the lords." },
     "caught_small_game": { name: "Ulovená drobná zvěř", name_en: "Caught Small Game", icon: "🐿️", type: "mat", desc: "Úlovek z oka. Prodej Lovci vcelku, nebo zpracuj nožem na maso, tuk a zbytky.", desc_en: "A snare catch. Sell whole to the Hunter, or dress it with a knife for meat, fat and scraps." },
 
     // ── VITREA: klášterní vybavení (MRD vitrea-equipment-reference.md) ──

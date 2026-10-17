@@ -1182,16 +1182,123 @@ const ScavengeManager = {
         UI.renderActions();
     },
 
-    processCaughtGame: function () {
-        if ((GameState.inventory['caught_small_game'] || 0) <= 0) return;
-        if ((GameState.inventory['stone_knife'] || 0) <= 0 && (GameState.inventory['iron_knife'] || 0) <= 0) { UI.notify(t('game.needKnifeDress'), true); return; }
-        Game.removeItem('caught_small_game', 1);
+    _hasDressingKnife: function () {
+        return (GameState.inventory['stone_knife'] || 0) > 0 || (GameState.inventory['iron_knife'] || 0) > 0;
+    },
+
+    // Drops of one dressed animal, shared by processCaughtGame and processAllCaughtGame
+    // (the caller removes the caught game itself).
+    _dressDrops: function () {
         Game.addItem('meat', 1);      // Divoké maso
         Game.addItem('fat', 1);
         Game.addItem('scraps', 1);    // zbytky — krmivo (B3 vazba)
         if (Math.random() < 0.5) Game.addItem('bone', 1);
+    },
+
+    processCaughtGame: function () {
+        if ((GameState.inventory['caught_small_game'] || 0) <= 0) return;
+        if (!this._hasDressingKnife()) { UI.notify(t('game.needKnifeDress'), true); return; }
+        Game.removeItem('caught_small_game', 1);
+        this._dressDrops();
         Game.save();
         UI.notify(t('game.gameDressed'));
         UI.renderActions();
+    },
+
+    // Dress every caught animal in one go (audit decision O10, hunting-ladder-catalog-mrd v0.3 §14):
+    // same drops as processCaughtGame, one save and one notice instead of one per animal.
+    processAllCaughtGame: function () {
+        const n = GameState.inventory['caught_small_game'] || 0;
+        if (n <= 0) return;
+        if (!this._hasDressingKnife()) { UI.notify(t('game.needKnifeDress'), true); return; }
+        const inv = GameState.inventory;
+        const before = { meat: inv.meat || 0, fat: inv.fat || 0, scraps: inv.scraps || 0, bone: inv.bone || 0 };
+        // Same batch gate as the scavenge claim: no per-item toast, save and re-render inside the loop.
+        this._scavenging = true;
+        try {
+            Game.removeItem('caught_small_game', n);
+            for (let i = 0; i < n; i++) this._dressDrops();
+        } finally { this._scavenging = false; }
+        const gains = {};
+        Object.keys(before).forEach(k => { const d = (inv[k] || 0) - before[k]; if (d > 0) gains[k] = d; });
+        UI.notifyAccum(gains);
+        Game.checkAchievements();
+        Game.save();
+        UI.notify(t('game.gameDressedAll').replace('{n}', n));
+        UI.renderAll();
+    },
+
+    // ── Trapline (hunting-ladder-catalog-mrd v0.3, L2, 16.10.2026) ───────────────────────
+    // A Konvrš on the 'trapline' task tends a fixed line of snares on the Hvozd parcel once
+    // per 24 h (ConversiManager.checkConversiChores). The hand snares above (setSnare /
+    // collectSnares) are independent and unchanged. GAME FICTION: lay brothers tending snares
+    // has no historical source (MRD §2, H5). Level = number of snares in the line; the trap
+    // type fixes the break chance (per deployed snare, every round) and the catch factor.
+    // All numbers are [hypotéza], tuned in L5a.
+    TRAPLINE_CYCLE_MS: 24 * 60 * 60 * 1000,
+    TRAPLINE_LEVELS: [
+        { tech: 'tech_laquei', slots: 5 },
+    ],
+    TRAPLINE_SNARE: { breakChance: 0.25, catchMult: 0.9 },
+
+    // Highest level whose tech is researched, or null.
+    traplineLevel: function () {
+        let level = null;
+        this.TRAPLINE_LEVELS.forEach(l => { if (this._hasTech(l.tech)) level = l; });
+        return level;
+    },
+    traplineParcelOwned: function () {
+        const p = GameState.landParcels && GameState.landParcels.hvozd;
+        return !!(p && p.status === 'owned');
+    },
+
+    // One round of the line. Returns null when nothing happened (not unlocked, no parcel, not
+    // due yet), else { tended, caught, broken, refilled, deployed, slots }. The catch follows
+    // the hunting season like the hand snares (availability x catchMult, plus the winter bonus
+    // with tech_ius_venandi, O11); broken snares are replaced from the player's stock.
+    tendTrapline: function (now) {
+        const level = this.traplineLevel();
+        if (!level || !this.traplineParcelOwned()) return null;
+        if (!GameState.trapline) GameState.trapline = { lastTendedAt: 0, deployed: 0 };
+        const line = GameState.trapline;
+        if (now - line.lastTendedAt < this.TRAPLINE_CYCLE_MS) return null;
+        line.lastTendedAt = now;
+
+        const cfg = this.TRAPLINE_SNARE;
+        const huntRight = this._hasTech('tech_ius_venandi');
+        const winter = this._isWinter(now);
+        const availability = this._availability('hunt', now);
+        const tended = line.deployed;
+        let caught = 0, broken = 0;
+        for (let i = 0; i < tended; i++) {
+            if (Math.random() < availability * cfg.catchMult) {
+                caught++;
+                if (huntRight && winter && Math.random() < this.WINTER_HUNT_BONUS.extraSnare) caught++;
+            }
+            if (Math.random() < cfg.breakChance) broken++;
+        }
+        line.deployed -= broken;
+        if (caught > 0) Game.addItem('caught_small_game', caught);
+
+        const refilled = Math.min(Math.max(0, level.slots - line.deployed), GameState.inventory['snare'] || 0);
+        if (refilled > 0) {
+            Game.removeItem('snare', refilled);
+            line.deployed += refilled;
+        }
+        return { tended, caught, broken, refilled, deployed: line.deployed, slots: level.slots };
+    },
+
+    // cs + en report text of one round (ConversiManager._reportWork takes both languages).
+    traplineReport: function (name, res) {
+        const fill = (s) => s.replace('{name}', name).replace('{caught}', res.caught).replace('{broken}', res.broken)
+            .replace('{deployed}', res.deployed).replace('{slots}', res.slots);
+        const build = (S) => {
+            const T = S.trapline;
+            if (res.tended === 0 && res.deployed === 0) return fill(T.reportNoSnares);
+            let txt = fill(res.tended === 0 ? T.reportFirst : T.report);
+            if (res.deployed < res.slots) txt += ' ' + T.reportShort;
+            return txt;
+        };
+        return { cs: build(STRINGS.cs), en: build(STRINGS.en) };
     },
 };

@@ -345,6 +345,9 @@ const ConversiManager = {
         hortulanus: { icon: '🌿', away: false, dailyRiskPct: 2, injuryKind: 'physical' },
         balneator: { icon: '🔥', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
         focarius: { icon: '🔥', away: false, dailyRiskPct: 7, injuryKind: 'physical' },
+        // hunting-ladder-catalog-mrd v0.3 (L2, 16.10.2026) — snare line on the Hvozd parcel,
+        // tended once per 24 h (ScavengeManager.tendTrapline). dailyRiskPct 6 is a [hypotéza].
+        trapline: { icon: '🪤', away: false, dailyRiskPct: 6, injuryKind: 'physical' },
     },
     CONVERSI_TASK_SLOTS: 2,
 
@@ -359,6 +362,8 @@ const ConversiManager = {
             if (t.includes('tech_polnosti_ii')) return 3;
             return 2;
         },
+        // One Konvrš tends the whole line (MRD §4.1); the level only raises the snare count.
+        trapline: function () { return 1; },
     },
 
     conversiTaskSlots: function (taskId) {
@@ -402,6 +407,16 @@ const ConversiManager = {
         if (taskId === 'focarius') {
             if (!(GameState.researchedTechs && GameState.researchedTechs.includes('tech_focarius'))) {
                 return { locked: true, reasonKey: 'gate_focarius_tech' };
+            }
+            return { locked: false };
+        }
+        // Trapline: needs the tech (tech_laquei) and the owned Hvozd parcel (MRD §4.1).
+        if (taskId === 'trapline') {
+            if (!(typeof ScavengeManager !== 'undefined' && ScavengeManager.traplineLevel())) {
+                return { locked: true, reasonKey: 'gate_trapline_tech' };
+            }
+            if (!ScavengeManager.traplineParcelOwned()) {
+                return { locked: true, reasonKey: 'gate_trapline_land' };
             }
             return { locked: false };
         }
@@ -2180,6 +2195,27 @@ const ConversiManager = {
                     );
                     Game.save();
                 }
+            }
+        }
+
+        // ── Trapline (hunting-ladder-catalog-mrd v0.3, L2): the assigned Konvrš tends the
+        //    snare line on the Hvozd parcel; ScavengeManager.tendTrapline is self-guarded 24h
+        //    (GameState.trapline.lastTendedAt). The hand snares are not touched. ──
+        const trapper = GameState.conversi
+            .filter(k => k.task === 'trapline'
+                && k.fatigue < (this._konvrsTraits(k).includes('pilny') ? 90 : 80)
+                && (typeof k.mood !== 'number' || k.mood >= 30)
+                && !(k.penanceUntil && k.penanceUntil > Date.now())
+                && !(k.injuredUntil && k.injuredUntil > Date.now())
+                && !(k.awayUntil && k.awayUntil > Date.now()))
+            .sort((a, b) => a.fatigue - b.fatigue)[0];
+        if ((!onlyTab || onlyTab === 'trapline') && trapper && typeof ScavengeManager !== 'undefined') {
+            const round = ScavengeManager.tendTrapline(Date.now());
+            if (round) {
+                trapper.fatigue = Math.min(100, trapper.fatigue + (this._konvrsTraits(trapper).includes('silak') ? 10 : 15));
+                const report = ScavengeManager.traplineReport(trapper.name, round);
+                this._reportWork(report.cs, report.en);
+                Game.save();
             }
         }
 

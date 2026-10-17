@@ -234,7 +234,10 @@ const ContactsDB = {
             }
         }, // L2: Divoké maso exkluzivně (mimo trh), kůže z BASE_PRICES; fat/bone záměrně mimo (craft užití); cornu_cervi/rabbit_pelt: Clientela pool MRD 25.7.2026
         // L3a: exkluzivní nabídka — oko až od vztahu ≥ 25 (MRD bod 8 mechanismus)
-        buyOffer: { items: { snare: { price: 5, stock: 3, minRelation: 25 } } },
+        // L2 (hunting-ladder-catalog-mrd v0.3, O8): daily stock rises 3 -> 5 from relation >= 50
+        // (optional stockTiers field, read by SaeculumSystem._effectiveStock). Price and the
+        // relation >= 25 gate are unchanged.
+        buyOffer: { items: { snare: { price: 5, stock: 3, minRelation: 25, stockTiers: [{ minRelation: 50, stock: 5 }] } } },
         desc: 'Lovec drobné zvěře. Velká zvěř patří pánům — on to ví nejlíp.',
         desc_en: 'A hunter of small game. The big game belongs to the lords — he knows it best.'
     },
