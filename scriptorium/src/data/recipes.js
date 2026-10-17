@@ -13,6 +13,9 @@ const RecipesDB = [
   // hunting-ladder-catalog-mrd v0.3 (L2, 16.10.2026): own-made snare, unlocked by
   // tech_laquei. Cost ~3.5 g vs 5 g at the Hunter (ratio ~0.7, [hypotéza], tuned in L5a).
   { id: "snare", output: "snare", qty: 1, req: { "rope": 1, "stick": 1 }, cat: "craft", locked: true, desc: "Smyčka z provazu na ohnuté větvi.", desc_en: "A rope noose on a bent branch." },
+  // hunting-ladder-catalog-mrd v0.6 (L3b): wire snare, unlocked by tech_laquei_2. Cost ~3.3 g
+  // (wire from one ingot makes 6) vs 9 g at the Hunter (ratio ~0.37, [hypotéza], tuned in L5).
+  { id: "wire_snare", output: "wire_snare", qty: 1, req: { "iron_wire": 1, "stick": 1 }, cat: "craft", locked: true, desc: "Smyčka z drátu na ohnuté větvi. Nalíčí ji Konvrš na Linii pastí.", desc_en: "A wire noose on a bent branch. A lay brother sets it on the Trapline." },
   // pyl-prepracovani-mrd (18.8.2026): sink pro nahromaděný pyl — fermentace
   // s medem. Bez vlastního tech gate, tech_liber_apium (Apiarium) už gatuje
   // pyl samotný.
@@ -895,6 +898,12 @@ const RecipesDB = [
   {
     id: "iron_tongs", output: "iron_tongs", qty: 1, req: { iron_ingot: 1, wild_leather: 1 }, cat: "iron", locked: true, maxStack: 1,
     desc: "Kovářské kleště. Nezbytné pro opravy v Kovárně.", desc_en: "Blacksmith tongs. Essential for repairs at the Smithy."
+  },
+  // hunting-ladder-catalog-mrd v0.6 (L3b): iron wire for the wire snare, unlocked by tech_laquei_2.
+  // kovarnaTier = generic Kovárna tier gate checked in InventoryManager.craft().
+  {
+    id: "iron_wire", output: "iron_wire", qty: 6, req: { iron_ingot: 1, charcoal: 2 }, toolReq: [{ item: "iron_tongs" }], cat: "iron", kovarnaTier: 2, locked: true,
+    desc: "Z jednoho ingotu a uhlí vznikne šest kusů drátu. Vyžaduje Kovárnu (stupeň 2) a kleště.", desc_en: "One ingot and charcoal make six lengths of wire. Needs the Kovárna (tier 2) and tongs."
   },
 
   // ── OPRAVA OPOTŘEBENÝCH NÁSTROJŮ (Fabrica — vyžaduje iron_tongs) ─────────

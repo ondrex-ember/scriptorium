@@ -1238,8 +1238,11 @@ const ScavengeManager = {
     TRAPLINE_CYCLE_MS: 24 * 60 * 60 * 1000,
     TRAPLINE_LEVELS: [
         { tech: 'tech_laquei', slots: 5 },
+        { tech: 'tech_laquei_2', slots: 8 },
     ],
     TRAPLINE_SNARE: { breakChance: 0.25, catchMult: 0.9 },
+    // L3b (MRD v0.6): the wire snare breaks about half as often; the catch factor is the same.
+    TRAPLINE_WIRE_SNARE: { breakChance: 0.12, catchMult: 0.9 },
 
     // Highest level whose tech is researched, or null.
     traplineLevel: function () {
@@ -1259,33 +1262,44 @@ const ScavengeManager = {
     tendTrapline: function (now) {
         const level = this.traplineLevel();
         if (!level || !this.traplineParcelOwned()) return null;
-        if (!GameState.trapline) GameState.trapline = { lastTendedAt: 0, deployed: 0 };
+        if (!GameState.trapline) GameState.trapline = { lastTendedAt: 0, deployed: 0, wire: 0 };
         const line = GameState.trapline;
+        // line.wire = how many of the deployed snares are wire snares (saves from before L3b: 0)
+        if (typeof line.wire !== 'number') line.wire = 0;
         if (now - line.lastTendedAt < this.TRAPLINE_CYCLE_MS) return null;
         line.lastTendedAt = now;
 
-        const cfg = this.TRAPLINE_SNARE;
+        const ropeCfg = this.TRAPLINE_SNARE, wireCfg = this.TRAPLINE_WIRE_SNARE;
         const huntRight = this._hasTech('tech_ius_venandi');
         const winter = this._isWinter(now);
         const availability = this._availability('hunt', now);
         const tended = line.deployed;
-        let caught = 0, broken = 0;
+        const tendedWire = Math.min(line.wire, tended);
+        let caught = 0, broken = 0, brokenWire = 0;
         for (let i = 0; i < tended; i++) {
+            const isWire = i < tendedWire;
+            const cfg = isWire ? wireCfg : ropeCfg;
             if (Math.random() < availability * cfg.catchMult) {
                 caught++;
                 if (huntRight && winter && Math.random() < this.WINTER_HUNT_BONUS.extraSnare) caught++;
             }
-            if (Math.random() < cfg.breakChance) broken++;
+            if (Math.random() < cfg.breakChance) { broken++; if (isWire) brokenWire++; }
         }
         line.deployed -= broken;
+        line.wire = tendedWire - brokenWire;
         if (caught > 0) Game.addItem('caught_small_game', caught);
 
-        const refilled = Math.min(Math.max(0, level.slots - line.deployed), GameState.inventory['snare'] || 0);
-        if (refilled > 0) {
-            Game.removeItem('snare', refilled);
-            line.deployed += refilled;
-        }
-        return { tended, caught, broken, refilled, deployed: line.deployed, slots: level.slots };
+        // Only broken places are refilled, with the best snare type in stock (wire before rope, MRD §4).
+        let free = Math.max(0, level.slots - line.deployed);
+        const laidWire = Math.min(free, GameState.inventory['wire_snare'] || 0);
+        free -= laidWire;
+        const laidRope = Math.min(free, GameState.inventory['snare'] || 0);
+        if (laidWire > 0) Game.removeItem('wire_snare', laidWire);
+        if (laidRope > 0) Game.removeItem('snare', laidRope);
+        line.deployed += laidWire + laidRope;
+        line.wire += laidWire;
+        const refilled = laidWire + laidRope;
+        return { tended, caught, broken, refilled, deployed: line.deployed, wire: line.wire, slots: level.slots };
     },
 
     // cs + en report text of one round (ConversiManager._reportWork takes both languages).

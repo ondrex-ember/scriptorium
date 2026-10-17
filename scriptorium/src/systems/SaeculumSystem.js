@@ -1443,6 +1443,10 @@ const SaeculumSystem = {
     if (itemId === 'snare') {
       UI.notify(lang === 'en' ? '🪤 Set it in the Workshop (Pracovna).' : '🪤 Nalíčíš ho v Pracovně.');
     }
+    // L3b: the wire snare is set by the lay brother on the Trapline, not by hand.
+    if (itemId === 'wire_snare') {
+      UI.notify(lang === 'en' ? '🪤 The lay brother sets wire snares first on the Trapline (Workshop).' : '🪤 Drátěná oka nalíčí Konvrš na Linii pastí (Pracovna).');
+    }
     // giacomo-market-stall (1.9.2026): stejný refresh-cíl fix jako sellToContact — viz komentář tam.
     this.switchEntity(GameState.ui.saeculumEntity === 'market' ? 'market' : 'clientela');
   },

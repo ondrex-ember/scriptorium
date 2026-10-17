@@ -150,6 +150,17 @@ const InventoryManager = {
             }
         }
 
+        // Generic Kovárna tier gate (hunting-ladder-catalog-mrd v0.6, L3b): a recipe may carry
+        // kovarnaTier. The three horseshoe gates above stay as they are.
+        if (r.kovarnaTier) {
+            const _kt = (GameState.storage && GameState.storage.kovarna && GameState.storage.kovarna.tier) || 0;
+            if (_kt < r.kovarnaTier) {
+                const _gl = (GameState.settings && GameState.settings.language) || 'cs';
+                UI.notify(_gl === 'en' ? `❌ Requires Kovárna Tier ${r.kovarnaTier}. Upgrade it in the Kovárna.` : `❌ Vyžaduje Kovárnu, stupeň ${r.kovarnaTier}. Vylepši ji v Kovárně.`, true);
+                return;
+            }
+        }
+
         // Gate: JAKMILE Kovárna stojí, VŠECHNO kovářský kování (starejch 33
         // receptů + nový 3 podkovářský) potřebuje hořící pec — mirror
         // Foculus principu, ale samostatný stav (kovarna-dilna-mrd.md v0.6,

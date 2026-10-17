@@ -954,7 +954,7 @@ const UI = {
         // Trapline card state is not part of the inventory: fingerprint it so assigning a Konvrš,
         // buying the parcel or the hourly countdown re-render the card (L2).
         const _tlHash = (typeof ScavengeManager !== 'undefined' && ScavengeManager.traplineLevel())
-            ? 'tl:' + ((GameState.trapline && GameState.trapline.deployed) || 0) + ':' + (ScavengeManager.traplineParcelOwned() ? 1 : 0)
+            ? 'tl:' + ScavengeManager.traplineLevel().slots + ':' + ((GameState.trapline && GameState.trapline.deployed) || 0) + ':' + ((GameState.trapline && GameState.trapline.wire) || 0) + ':' + (ScavengeManager.traplineParcelOwned() ? 1 : 0)
                 + ':' + ((GameState.conversi || []).some(k => k.task === 'trapline') ? 1 : 0) + ':' + Math.floor(Date.now() / 3600000)
             : '';
         const _hAct = JSON.stringify(GameState.inventory) + _tlHash + lang + 'd:' + (GameState.selectedDuration ?? 0) + (GameState.activeAction ? GameState.activeAction.id + GameState.activeAction.endTime : '') + (GameState.flags.fireplaceLit ? '1' : '0') + (GameState.activeAction ? Math.floor(Date.now() / 1000) : '') + (GameState.scavengeCooldownUntil ? 'cd:' + Math.floor(Date.now() / 1000) : '') + (_terrainF > 20 ? 'tf:' + Math.floor(Date.now() / 60000) : '') + (_curiaF > 20 ? 'cf:' + Math.floor(Date.now() / 60000) : '');
@@ -1128,10 +1128,13 @@ const UI = {
                 tlStatus = t('trapline.cardKonvrs').replace('{name}', tlKonvrs.name) + ' ' +
                     (tlHoursLeft > 0 ? t('trapline.cardNext').replace('{h}', tlHoursLeft) : t('trapline.cardDue'));
             }
-            const tlStock = (tl.deployed < traplineLvl.slots && snareInv <= 0) ? t('trapline.cardNoStock') : t('trapline.cardStock').replace('{n}', snareInv);
+            const wireInv = GameState.inventory['wire_snare'] || 0;   // L3b: wire snares are set before rope ones
+            const tlWire = tl.wire || 0;
+            const tlStock = (tl.deployed < traplineLvl.slots && snareInv + wireInv <= 0) ? t('trapline.cardNoStock') : t('trapline.cardStock').replace('{n}', snareInv);
+            const tlWireInfo = (wireInv > 0 || tlWire > 0) ? `<div class="text-sm">${t('trapline.cardWire').replace('{laid}', tlWire).replace('{n}', wireInv)}</div>` : '';
             const tlWinter = ScavengeManager._isWinter() ? `<div class="text-sm">${t('trapline.cardWinter')}</div>` : '';
             newHTML += `<div style="${groupTitleStyle}">🪤 ${t('trapline.cardTitle')}</div>`;
-            newHTML += `<div class="card"><div class="item-icon">🪤</div><div><strong>${t('trapline.cardDeployed').replace('{deployed}', tl.deployed).replace('{slots}', traplineLvl.slots)}</strong><div class="text-sm">${tlStatus}</div><div class="text-sm">${tlStock}</div>${tlWinter}</div></div>`;
+            newHTML += `<div class="card"><div class="item-icon">🪤</div><div><strong>${t('trapline.cardDeployed').replace('{deployed}', tl.deployed).replace('{slots}', traplineLvl.slots)}</strong><div class="text-sm">${tlStatus}</div><div class="text-sm">${tlStock}</div>${tlWireInfo}${tlWinter}</div></div>`;
         }
 
         if (el.innerHTML !== newHTML) el.innerHTML = newHTML;

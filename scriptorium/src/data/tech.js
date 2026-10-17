@@ -857,3 +857,18 @@ TechTree.push({
   unlocks: ["snare"],
   requires: ["tech_de_animalibus", "tech_ius_venandi"]
 });
+// Trapline level 2 + wire snare (hunting-ladder-catalog-mrd v0.6, L3a + L3b): the line grows from
+// 5 to 8 snares and the Kovárna can draw iron wire for a snare that breaks less often.
+// GAME FICTION (as tech_laquei): a wire snare in 1465 is not sourced (MRD H17).
+// tech_ius_venandi is inherited through tech_laquei (O9); tech_kovarina is needed for the wire.
+// Cost 16 is a [hypotéza], tuned in L5.
+TechTree.push({
+  id: "tech_laquei_2",
+  name: "Laquei Ferrei — Drátěná oka",
+  name_en: "Laquei Ferrei — Wire Snares",
+  cost: 16,
+  desc: "Delší linie a pevnější oka. Konvrš na Hvozdu obejde místo pěti ok osm a drátěné oko se rozbíjí méně často než provazové. Odemkne: Linii pastí úrovně 2 (8 ok), výrobu železného drátu (Kovárna stupně 2, kleště, ingot a uhlí) a drátěného oka (drát + větev; koupíš ho i u Lovce od vztahu 50). Konvrš líčí nejdřív drátěná oka, pak provazová. Potřebuješ: Laquei a Kovářinu.",
+  desc_en: "A longer line and sturdier snares. On the Hvozd the lay brother tends eight snares instead of five, and a wire snare breaks less often than a rope one. Unlocks: Trapline level 2 (8 snares), making iron wire (Kovárna tier 2, tongs, an ingot and charcoal) and the wire snare (wire + branch; the Hunter sells it too, from relation 50). The lay brother sets wire snares first, then rope ones. Thou needest: Laquei and Smithcraft.",
+  unlocks: ["iron_wire", "wire_snare"],
+  requires: ["tech_laquei", "tech_kovarina"]
+});
