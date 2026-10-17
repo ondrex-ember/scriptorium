@@ -16,6 +16,9 @@ const RecipesDB = [
   // hunting-ladder-catalog-mrd v0.6 (L3b): wire snare, unlocked by tech_laquei_2. Cost ~3.3 g
   // (wire from one ingot makes 6) vs 9 g at the Hunter (ratio ~0.37, [hypotéza], tuned in L5).
   { id: "wire_snare", output: "wire_snare", qty: 1, req: { "iron_wire": 1, "stick": 1 }, cat: "craft", locked: true, desc: "Smyčka z drátu na ohnuté větvi. Nalíčí ji Konvrš na Linii pastí.", desc_en: "A wire noose on a bent branch. A lay brother sets it on the Trapline." },
+  // hunting-ladder-catalog-mrd v0.8 (L6): hunting net, unlocked by tech_retia. The tech needs the read book
+  // book_ruralia_aucupium, so only this one (cheaper) recipe exists (D1, approved 17.10.2026).
+  { id: "hunting_net", output: "hunting_net", qty: 1, req: { "rope": 2, "wicker": 2, "stick": 2 }, cat: "craft", locked: true, desc: "Síť z provazu a proutí na ptáky a drobnou zvěř. Nalíčí ji Konvrš na Linii pastí.", desc_en: "A net of rope and withies for birds and small game. A lay brother sets it on the Trapline." },
   // pyl-prepracovani-mrd (18.8.2026): sink pro nahromaděný pyl — fermentace
   // s medem. Bez vlastního tech gate, tech_liber_apium (Apiarium) už gatuje
   // pyl samotný.

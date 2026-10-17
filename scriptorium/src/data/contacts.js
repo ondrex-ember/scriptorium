@@ -239,9 +239,12 @@ const ContactsDB = {
         // relation >= 25 gate are unchanged.
         // L3b (hunting-ladder-catalog-mrd v0.6): wire snare 9 g, 2 per day, from relation >= 50 and
         // only with tech_laquei_2 (per-item requiresTech, read by SaeculumSystem).
+        // L6 (MRD v0.8): hunting net 16 g, 2 per day, from relation >= 50 and only with tech_retia
+        // (which already needs the read book, so no second gate). Price is a [hypotéza], tuned in L5b.
         buyOffer: { items: {
             snare: { price: 5, stock: 3, minRelation: 25, stockTiers: [{ minRelation: 50, stock: 5 }] },
-            wire_snare: { price: 9, stock: 2, minRelation: 50, requiresTech: 'tech_laquei_2' }
+            wire_snare: { price: 9, stock: 2, minRelation: 50, requiresTech: 'tech_laquei_2' },
+            hunting_net: { price: 16, stock: 2, minRelation: 50, requiresTech: 'tech_retia' }
         } },
         desc: 'Lovec drobné zvěře. Velká zvěř patří pánům — on to ví nejlíp.',
         desc_en: 'A hunter of small game. The big game belongs to the lords — he knows it best.'

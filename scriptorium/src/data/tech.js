@@ -872,3 +872,20 @@ TechTree.push({
   unlocks: ["iron_wire", "wire_snare"],
   requires: ["tech_laquei", "tech_kovarina"]
 });
+
+// L6 (hunting-ladder-catalog-mrd v0.8): nets. A third trap type for the Trapline. Double gate as the
+// Sklář (O2): the tech needs the read book (requiresBook), so there is a single, cheaper recipe (D1).
+// GAME FICTION (as tech_laquei): lay brothers setting nets on monastery land has no source (MRD §2, H5);
+// the book's contents are sourced in the MRD §17 (Wikipedia, Arrigoni Martelli 2015, Lateran IV c.15).
+// Cost 22 is a [hypotéza], tuned in L5b.
+TechTree.push({
+  id: "tech_retia",
+  name: "Retia — Sítě",
+  name_en: "Retia — Nets",
+  cost: 22,
+  desc: "Podle desáté knihy Crescenziho Ruralia Commoda se ptáci chytají i do sítí. Konvrš na Hvozdu pak nasadí do linie sítě, které se rozbíjejí méně často než oka z drátu i z provazu. Odemkne: lovecké sítě (provaz, proutí a větve; koupíš je i u Lovce od vztahu 50). Konvrš líčí nejdřív sítě, pak drátěná oka, pak provazová. Potřebuješ: Laquei Ferrei a přečtenou knihu Ruralia Commoda o lovu a odchytu ptáků.",
+  desc_en: "The tenth book of Crescenzi's Ruralia Commoda tells how birds are caught, among other means in nets. On the Hvozd the lay brother then sets nets in the line; they break less often than wire or rope snares. Unlocks: hunting nets (rope, wicker and sticks; the Hunter sells them too, from relation 50). The lay brother sets nets first, then wire snares, then rope ones. Thou needest: Laquei Ferrei and the read book Ruralia Commoda on hunting and the catching of birds.",
+  unlocks: ["hunting_net"],
+  requires: ["tech_laquei_2"],
+  requiresBook: "book_ruralia_aucupium"
+});

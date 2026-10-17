@@ -2442,6 +2442,7 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         cardStock: 'Snares in stock: {n}.',
         cardNoStock: 'Snares are running out — make some or buy them from the Hunter.',
         cardWire: 'Of these wire snares: {laid}. Wire snares in stock: {n}.',
+        cardNet: 'Of these nets: {laid}. Nets in stock: {n}.',
         cardWinter: 'Winter: with the Right of the Chase the line yields the most. Dress the catch and cook it in the pot for the refectory — meat spoils fast, let it not lie.',
     },
     decay: {

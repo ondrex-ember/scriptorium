@@ -1812,6 +1812,46 @@ Unlike the drier Palladius, Crescenzi stresses something more: the hive asks for
 **GAME EFFECT:** Reading this treatise unlocks the POSSIBILITY of researching the new tech *Custos Apium* (working title, pending confirmation) — without reading it, the tech cannot be researched at all, no matter how much research you have.`
         },
         {
+            id: 'book_ruralia_aucupium',
+            title: 'Ruralia Commoda: O lovu a odchytu ptáků',
+            title_en: 'Ruralia Commoda: On Hunting and the Catching of Birds',
+            category: 'innovation',
+            unlockDay: 56,
+            icon: '🐦',
+            author: "Petrus de Crescentiis (Pietro de' Crescenzi)",
+            year: 'psáno 1304–1309 (opis z mnišské tradice, ne tisk)',
+            // L6 (hunting-ladder-catalog-mrd v0.8, §17): only verified claims, no invented quotes.
+            // Wikipedia (Pietro de' Crescenzi): date, 12 books, Columella, Albertus Magnus, Book X "Hunting and fishing";
+            // Arrigoni Martelli, Reinardus 27 (2015), abstract: commercial fowling, prestige food, marginal income, oral tradition;
+            // Lateran IV (1215) c.15: clerics may not hunt or fowl. "Lay brother sets the nets" is GAME FICTION (MRD §2).
+            content: `**Desátá kniha statkářova díla**
+
+Petrus de Crescentiis, bolognský právník a statkář, sepsal své *Ruralia Commoda* mezi lety 1304 a 1309 ve dvanácti knihách. Osnovu převzal od římského hospodáře Columelly, látku čerpal z Albertuse Magna, ze starších autorů a z vlastní zkušenosti na statku. Desátá kniha patří lovu a rybolovu. Popisuje i to, jak se ptáci lákají a chytají, mimo jiné do sítí.
+
+**Co měl lovec v hlavě**
+
+Ptáky chytali v severní a střední Itálii hlavně lidé, kteří je prodávali. Ptáci byli prestižním pokrmem, a přesto zůstával jejich lov jen okrajovým výdělkem. Umění, jak na ně, se předávalo hlavně ústně, ne písmem.
+
+**Číst není lovit**
+
+Lateránský koncil r. 1215 zakázal klerikům lov i odchyt ptáků. Bratr tedy desátou knihu opíše a pochopí, ale sítě na klášterní půdě nasadí Konvrš.
+
+**HERNÍ EFEKT:** Přečtením odemkneš možnost výzkumu *Retia — Sítě*. Pak půjdou vyrobit lovecké sítě a Konvrš je nasadí do linie pastí na Hvozdu. Bez přečtení knihy nejde tento tech zkoumat, i kdyby bylo dost bodů výzkumu.`,
+            content_en: `**The Tenth Book of a Landowner's Work**
+
+Petrus de Crescentiis, a Bolognese jurist and landowner, wrote his *Ruralia Commoda* between 1304 and 1309, in twelve books. He took the outline from the Roman husbandman Columella and drew his material from Albertus Magnus, from earlier authors and from his own experience on the estate. The tenth book is given to hunting and fishing. It also describes how birds are lured and caught, among other means in nets.
+
+**What the Fowler Carried in His Head**
+
+Fowlers in northern and central Italy caught birds mostly to sell them. Birds were a prestige dish, yet taking them remained a marginal source of income. The craft was passed on chiefly by word of mouth, not in writing.
+
+**Reading Is Not Setting a Net**
+
+The Fourth Lateran Council of 1215 forbade clerics to hunt or to catch birds. A brother may therefore copy the tenth book and understand it, but the nets on the monastery's land are set by a lay brother.
+
+**GAME EFFECT:** Reading this book unlocks the option to research *Retia — Nets*. You can then make hunting nets, and a lay brother sets them on the Trapline at the Hvozd. This tech cannot be researched without reading the book, even with enough research points.`
+        },
+        {
             id: 'book_palladius_columbaria',
             title: 'Opus Agriculturae: O stavbě holubníku',
             title_en: 'Opus Agriculturae: On the Building of the Dovecote',

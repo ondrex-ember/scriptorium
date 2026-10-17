@@ -1447,6 +1447,10 @@ const SaeculumSystem = {
     if (itemId === 'wire_snare') {
       UI.notify(lang === 'en' ? '🪤 The lay brother sets wire snares first on the Trapline (Workshop).' : '🪤 Drátěná oka nalíčí Konvrš na Linii pastí (Pracovna).');
     }
+    // L6: the net is set by the lay brother on the Trapline too, before wire and rope snares.
+    if (itemId === 'hunting_net') {
+      UI.notify(lang === 'en' ? '🕸️ The lay brother sets nets first on the Trapline (Workshop).' : '🕸️ Sítě nalíčí Konvrš na Linii pastí jako první (Pracovna).');
+    }
     // giacomo-market-stall (1.9.2026): stejný refresh-cíl fix jako sellToContact — viz komentář tam.
     this.switchEntity(GameState.ui.saeculumEntity === 'market' ? 'market' : 'clientela');
   },

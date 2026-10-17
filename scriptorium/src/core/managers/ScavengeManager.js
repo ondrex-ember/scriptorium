@@ -1243,6 +1243,9 @@ const ScavengeManager = {
     TRAPLINE_SNARE: { breakChance: 0.25, catchMult: 0.9 },
     // L3b (MRD v0.6): the wire snare breaks about half as often; the catch factor is the same.
     TRAPLINE_WIRE_SNARE: { breakChance: 0.12, catchMult: 0.9 },
+    // L6 (MRD v0.8): the hunting net, a third trap type (tech_retia, which needs the book
+    // book_ruralia_aucupium). It breaks least often; the catch factor is the same. [hypotéza], tuned in L5b.
+    TRAPLINE_NET: { breakChance: 0.08, catchMult: 0.9 },
 
     // Highest level whose tech is researched, or null.
     traplineLevel: function () {
@@ -1266,40 +1269,49 @@ const ScavengeManager = {
         const line = GameState.trapline;
         // line.wire = how many of the deployed snares are wire snares (saves from before L3b: 0)
         if (typeof line.wire !== 'number') line.wire = 0;
+        // line.net = how many of the deployed snares are hunting nets (saves from before L6: 0)
+        if (typeof line.net !== 'number') line.net = 0;
         if (now - line.lastTendedAt < this.TRAPLINE_CYCLE_MS) return null;
         line.lastTendedAt = now;
 
-        const ropeCfg = this.TRAPLINE_SNARE, wireCfg = this.TRAPLINE_WIRE_SNARE;
+        const ropeCfg = this.TRAPLINE_SNARE, wireCfg = this.TRAPLINE_WIRE_SNARE, netCfg = this.TRAPLINE_NET;
         const huntRight = this._hasTech('tech_ius_venandi');
         const winter = this._isWinter(now);
         const availability = this._availability('hunt', now);
         const tended = line.deployed;
-        const tendedWire = Math.min(line.wire, tended);
-        let caught = 0, broken = 0, brokenWire = 0;
+        const tendedNet = Math.min(line.net, tended);
+        const tendedWire = Math.min(line.wire, tended - tendedNet);
+        let caught = 0, broken = 0, brokenWire = 0, brokenNet = 0;
         for (let i = 0; i < tended; i++) {
-            const isWire = i < tendedWire;
-            const cfg = isWire ? wireCfg : ropeCfg;
+            const isNet = i < tendedNet;
+            const isWire = !isNet && i < tendedNet + tendedWire;
+            const cfg = isNet ? netCfg : (isWire ? wireCfg : ropeCfg);
             if (Math.random() < availability * cfg.catchMult) {
                 caught++;
                 if (huntRight && winter && Math.random() < this.WINTER_HUNT_BONUS.extraSnare) caught++;
             }
-            if (Math.random() < cfg.breakChance) { broken++; if (isWire) brokenWire++; }
+            if (Math.random() < cfg.breakChance) { broken++; if (isNet) brokenNet++; else if (isWire) brokenWire++; }
         }
         line.deployed -= broken;
+        line.net = tendedNet - brokenNet;
         line.wire = tendedWire - brokenWire;
         if (caught > 0) Game.addItem('caught_small_game', caught);
 
-        // Only broken places are refilled, with the best snare type in stock (wire before rope, MRD §4).
+        // Only broken places are refilled, with the best snare type in stock (net before wire before rope, MRD v0.8).
         let free = Math.max(0, level.slots - line.deployed);
+        const laidNet = Math.min(free, GameState.inventory['hunting_net'] || 0);
+        free -= laidNet;
         const laidWire = Math.min(free, GameState.inventory['wire_snare'] || 0);
         free -= laidWire;
         const laidRope = Math.min(free, GameState.inventory['snare'] || 0);
+        if (laidNet > 0) Game.removeItem('hunting_net', laidNet);
         if (laidWire > 0) Game.removeItem('wire_snare', laidWire);
         if (laidRope > 0) Game.removeItem('snare', laidRope);
-        line.deployed += laidWire + laidRope;
+        line.deployed += laidNet + laidWire + laidRope;
+        line.net += laidNet;
         line.wire += laidWire;
-        const refilled = laidWire + laidRope;
-        return { tended, caught, broken, refilled, deployed: line.deployed, wire: line.wire, slots: level.slots };
+        const refilled = laidNet + laidWire + laidRope;
+        return { tended, caught, broken, refilled, deployed: line.deployed, wire: line.wire, net: line.net, slots: level.slots };
     },
 
     // cs + en report text of one round (ConversiManager._reportWork takes both languages).

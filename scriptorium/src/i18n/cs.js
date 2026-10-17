@@ -1629,6 +1629,7 @@ const STRINGS_cs = {
         cardStock: 'Zásoba ok: {n}.',
         cardNoStock: 'Docházejí oka — vyrob je nebo je kup u Lovce.',
         cardWire: 'Z toho drátěných: {laid}. Zásoba drátěných ok: {n}.',
+        cardNet: 'Z toho sítí: {laid}. Zásoba sítí: {n}.',
         cardWinter: 'Zima: s Právem lovu nese linie nejvíc. Zvěř zpracuj a uvař v hrnci pro refektář — maso se kazí rychle, nenech ho ležet.',
     },
     decay: {
