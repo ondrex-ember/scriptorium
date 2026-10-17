@@ -3041,6 +3041,14 @@ const CellariumSystem = {
       </div>`;
     }
 
+    // Cold (winter-decay-ice-cellar-mrd, D1) — mention only when it matters
+    // (seasonMult < 0.9); the primary place is the Farmyard dashboard.
+    if (ds && ds.seasonMult && ds.seasonMult() < 0.9) {
+      h += `<div style="margin-bottom:12px; padding:8px 10px; background:rgba(0,0,0,0.04); border-radius:6px; font-size:0.78rem; font-style:italic; opacity:0.8;">
+        ❄️ ${ds.coldFuzzyShort()}
+      </div>`;
+    }
+
     // Včerejší ztráty
     const losses = (GameState.decay && GameState.decay.lastLosses) || [];
     if (losses.length) {

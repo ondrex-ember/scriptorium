@@ -775,8 +775,11 @@ const UI = {
                 const pctStr = (rate * 100).toFixed(rate < 0.01 ? 3 : 1);
                 const halfLifeDays = rate > 0 ? Math.round(Math.log(0.5) / Math.log(1 - rate)) : null;
                 const durNote = isDurable ? (lang === 'en' ? ' (durable goods — slow erosion)' : ' (trvanlivé zboží — pomalá eroze)') : '';
+                // Cold (D1): the rate above already includes the season; show how much it takes off.
+                const coldMult = DecaySystem.DECAY_RATES[id] ? DecaySystem.seasonMult() : 1;
+                const coldNote = coldMult <= 0.95 ? ` <span style="opacity:0.75;">❄️ ${lang === 'en' ? 'cold' : 'chlad'} −${Math.round((1 - coldMult) * 100)} %</span>` : '';
                 decayHtml = `<div style="margin:10px 0;padding:8px 12px;background:rgba(192,57,43,0.08);border-radius:6px;border-left:3px solid #c0392b;font-size:0.85rem;">
-                    ⏳ ${lang === 'en' ? 'Losing' : 'Ztrácí'}: <strong>~${pctStr}%/${lang === 'en' ? 'day' : 'den'}</strong>${durNote}
+                    ⏳ ${lang === 'en' ? 'Losing' : 'Ztrácí'}: <strong>~${pctStr}%/${lang === 'en' ? 'day' : 'den'}</strong>${durNote}${coldNote}
                     ${halfLifeDays ? `<br><small style="opacity:0.7;">${lang === 'en' ? '~half gone in' : '~polovina zmizí za'} ${halfLifeDays} ${lang === 'en' ? 'days' : 'dní'}</small>` : ''}</div>`;
             }
         } else if (item.type !== 'animal' && item.type !== 'key') {

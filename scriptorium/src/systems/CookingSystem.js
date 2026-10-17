@@ -378,6 +378,39 @@ const CookingSystem = {
         if (typeof CellariumSystem !== 'undefined' && CellariumSystem.render) CellariumSystem.render();
     },
 
+    // ── Cook all (hunting-ladder-catalog-mrd §14.4, O14) ───────────────────
+    // UI convenience only: starts one batch per click-worth of stock by
+    // calling startCooking() repeatedly, so every rule (pot, input, oven,
+    // any future slot limit) stays in startCooking and nothing is duplicated
+    // here. Limited to cheap, fast-spoiling recipes — one click must never
+    // swallow the ingredients of an expensive dish.
+    COOK_ALL_TYPES: ['cooked_meat'],
+
+    cookAllBatches: function(typeKey) {
+        const def = this.COOK_TYPES[typeKey];
+        if (!def) return 0;
+        return Math.floor((GameState.inventory[def.input] || 0) / def.inputQty);
+    },
+
+    startCookingAll: function(typeKey) {
+        if (!this.COOK_ALL_TYPES.includes(typeKey)) return;
+        const def = this.COOK_TYPES[typeKey];
+        if (!def || !this.isActive()) return;
+        const list = this._ensureState();
+        const batches = this.cookAllBatches(typeKey);
+        let started = 0;
+        for (let i = 0; i < batches; i++) {
+            const before = list.length;
+            this.startCooking(typeKey);
+            if (list.length <= before) break;   // refused — startCooking already said why
+            started++;
+        }
+        if (started > 0 && typeof UI !== 'undefined' && UI.notify) {
+            const lang = (GameState.settings && GameState.settings.language) || 'cs';
+            UI.notify(t('game.gameCookedAll').replace('{n}', started).replace('{time}', this._formatDuration(this._effectiveDuration(def), lang)));
+        }
+    },
+
     // ── Tick (self-guarded 5 min, volán z game.js tick batch) ──────────────
     tick: function() {
         if (!this.isActive()) return;
@@ -617,7 +650,10 @@ const CookingSystem = {
                         ${!hasBuild ? `<div style="font-size:0.65rem; color:#e07a5f;">🔒 ${isCs ? 'Potřeba' : 'Needs'}: ${this._buildName(def.needsBuild, lang)}</div>` : ''}
                         ${missingTool ? `<div style="font-size:0.65rem; color:#e07a5f;">🔒 ${isCs ? 'Potřeba' : 'Needs'}: ${(typeof iName === 'function') ? iName(missingTool) : missingTool}</div>` : ''}
                       </div>
-                      <button class="craft-btn" onclick="CookingSystem.startCooking('${key}')" ${can ? '' : 'disabled'} style="font-size:0.72rem;">🍲 ${isCs ? 'Vařit' : 'Start'}</button>
+                      <div style="display:flex; flex-direction:column; gap:4px;">
+                        <button class="craft-btn" onclick="CookingSystem.startCooking('${key}')" ${can ? '' : 'disabled'} style="font-size:0.72rem;">🍲 ${isCs ? 'Vařit' : 'Start'}</button>
+                        ${this.COOK_ALL_TYPES.includes(key) ? `<button class="craft-btn" onclick="CookingSystem.startCookingAll('${key}')" ${can && this.cookAllBatches(key) > 1 ? '' : 'disabled'} style="font-size:0.72rem;">🍲 ${t('game.cookAll')} (${this.cookAllBatches(key)})</button>` : ''}
+                      </div>
                     </div>
                   </div>`;
         };

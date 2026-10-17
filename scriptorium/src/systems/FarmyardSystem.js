@@ -2006,6 +2006,10 @@ const FarmyardSystem = {
         const fliesTxt = ds && ds.fliesFuzzyShort ? ds.fliesFuzzyShort() : '';
         if (fliesTxt) h += `<div style="font-size:0.8rem;">🪰 ${fliesTxt}</div>`;
 
+        // Cold (winter-decay-ice-cellar-mrd, D1) — decay runs only with
+        // tech_inventarium, so a player without it is told nothing.
+        if (ds && ds.isActive && ds.isActive() && ds.coldFuzzyShort) h += `<div style="font-size:0.8rem;">❄️ ${ds.coldFuzzyShort()}</div>`;
+
         if (hasCatTech) {
             const title = (typeof ScriptoriumCat !== 'undefined' && ScriptoriumCat.getTitle) ? ScriptoriumCat.getTitle() : '';
             const state = (cat.satiety !== undefined && cat.satiety < 30) ? t('dvur.catHunting') : t('dvur.catFed');

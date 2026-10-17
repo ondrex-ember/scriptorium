@@ -625,6 +625,29 @@ const DecaySystem = {
         return Math.min(0.4, n * 0.015);
     },
 
+    // ── Seasonal cold (winter-decay-ice-cellar-mrd §3, D1) ────────────────
+    // Multiplier on every DECAY_RATES entry (never on DURABLE_DECAY_RATES).
+    // 12 knots (Jan..Dec) on the 15th of each month, linear interpolation,
+    // real calendar months — the same pattern as
+    // ScavengeManager.ACTION_AVAILABILITY_CURVES. Summer stays 1 (= today's
+    // behaviour); flies are handled separately by fliesMult. Game parameter,
+    // not a historical datum (the only claim made to the player is that cold
+    // slows spoilage).
+    DECAY_SEASON_CURVE: [0.45, 0.45, 0.6, 0.8, 1, 1, 1, 1, 1, 0.85, 0.65, 0.5],
+
+    // Single source of truth: called by dailyTick AND effectiveRate, so the
+    // UI never shows a different rate than the one actually applied.
+    seasonMult: function(atMs) {
+        const at = new Date(typeof atMs === 'number' ? atMs : Date.now());
+        const loMonth = at.getDate() >= 15 ? at.getMonth() : at.getMonth() - 1;
+        const t0 = new Date(at.getFullYear(), loMonth, 15).getTime();
+        const t1 = new Date(at.getFullYear(), loMonth + 1, 15).getTime();
+        const c = this.DECAY_SEASON_CURVE;
+        const v0 = c[((loMonth % 12) + 12) % 12];
+        const v1 = c[(((loMonth + 1) % 12) + 12) % 12];
+        return v0 + (v1 - v0) * (at.getTime() - t0) / (t1 - t0);
+    },
+
     // Mouchový multiplikátor (jen pro flies:true položky, monastery-decay-mrd).
     // Aktivní hlavně v teplém období (květen–září). Hlavní faktor: postavené
     // Dvůr budovy + neuklizený hnůj (manure) ve skladu — vysoký stav manure
@@ -756,6 +779,7 @@ const DecaySystem = {
         const fMult = this.fliesMult();
         const sRed = this.storageReduction();
         const oMult = this.isOverflow() ? 2 : 1;
+        const cMult = this.seasonMult();
 
         // Bestiář — Belzebub, Cesta A: mouchy poprvé dosáhnou nejhoršího
         // stupně ("many", fliesMult > 1.7) → auto-odemkne. Idempotentní.
@@ -767,7 +791,7 @@ const DecaySystem = {
         for (const [id, def] of Object.entries(this.DECAY_RATES)) {
             const count = inv[id] || 0;
             if (count <= 0) continue;
-            let rate = def.rate * sRed * oMult;
+            let rate = def.rate * sRed * oMult * cMult;
             if (def.mice) rate *= mMult;
             if (def.flies) rate *= fMult;
             rate = Math.min(0.9, rate);
@@ -868,7 +892,7 @@ const DecaySystem = {
     effectiveRate: function(id, qty) {
         const def = this.DECAY_RATES[id];
         if (def) {
-            let rate = def.rate * this.storageReduction() * (this.isOverflow() ? 2 : 1);
+            let rate = def.rate * this.storageReduction() * (this.isOverflow() ? 2 : 1) * this.seasonMult();
             if (def.mice) rate *= this.miceMult();
             if (def.flies) rate *= this.fliesMult();
             return Math.min(0.9, rate);
@@ -893,6 +917,19 @@ const DecaySystem = {
         if (n <= 6)  return t('decay.miceFew');
         if (n <= 15) return t('decay.miceSome');
         return t('decay.miceMany');
+    },
+
+    // Fuzzy text for the cold (MRD §5), bands of seasonMult:
+    // >= 0.9 none / 0.7-0.9 few / 0.5-0.7 some / < 0.5 many. While the cold
+    // is fading (multiplier rising over the next week, spring) the hint
+    // switches to "use the fresh stock" — "lay in stores" would be wrong then.
+    coldFuzzyShort: function() {
+        const m = this.seasonMult();
+        if (m >= 0.9) return t('decay.coldNone');
+        if (m < 0.5)  return t('decay.coldMany');
+        if (this.seasonMult(Date.now() + 7 * this.DAY_MS) > m + 0.005) return t('decay.coldFading');
+        if (m >= 0.7) return t('decay.coldFew');
+        return t('decay.coldSome');
     },
 
     // Fuzzy text pro mouchy (monastery-decay-mrd) — na škále fliesMult (1.0–2.0)
