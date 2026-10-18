@@ -2532,8 +2532,23 @@ const GardenSystem = {
             : (lang === 'en'
                 ? 'Where to sell the wine: the Tavern pays best, the Market less, the Shop least (Saeculum).'
                 : 'Kam s vínem: nejlépe zaplatí Hospoda, hůř Trh, nejméně Obchod (Saeculum).');
+        // PV-7 doplněk (18.10.2026): Giacomo vykupuje 5 vlastních vín (+30 % s Cellarium Vini).
+        // Zmínka jen tam, kde ho hráč reálně najde: Clientela (tier >= 3) nebo stánek na Trhu
+        // (tier < 3) až po prvním setkání. Bonus čte ze stejného zdroje jako sloupec Výkup.
+        let giaLine = '';
+        const giaDef = (typeof ContactsDB !== 'undefined') ? ContactsDB.giacomo : null;
+        const giaEverMet = !!(GameState.economy && GameState.economy.lastGiacomoVisit);
+        const giaUnlocked = !!(giaDef && giaDef.sellBonus
+            && (!giaDef.unlockTech || (GameState.researchedTechs || []).includes(giaDef.unlockTech)));
+        if (giaUnlocked && (rankTier >= 3 || giaEverMet)) {
+            const giaBonus = !!(typeof SaeculumSystem !== 'undefined' && SaeculumSystem.contactSellBonusMult
+                && SaeculumSystem.contactSellBonusMult('giacomo', 'vinum') > 1);
+            giaLine = lang === 'en'
+                ? `Giacomo (${rankTier >= 3 ? 'Clientela' : 'Market stall'}, only while his ship is in port) also buys your own wines${giaBonus ? ' — 30% more thanks to Cellarium Vini.' : '; once Cellarium Vini is built he pays 30% more.'}`
+                : `Giacomo (${rankTier >= 3 ? 'Clientela' : 'stánek na Trhu'}, jen když je jeho loď v přístavu) vykupuje i tvá vlastní vína${giaBonus ? ' — s Cellarium Vini o 30 % výš.' : '; po postavení Cellarium Vini platí o 30 % více.'}`;
+        }
         let h = `<div style="background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-gold); padding:10px 14px; border-radius:6px; margin-top:12px; font-size:0.78rem;">
-            🍷 ${hintText}
+            🍷 ${hintText}${giaLine ? `<div style="margin-top:6px;">⚓ ${giaLine}</div>` : ''}
         </div>`;
         if (!Array.isArray(GameState.activeGuilds) || !GameState.activeGuilds.includes('vintners')) return h;
         const g = (typeof GuildsDB !== 'undefined') ? GuildsDB['vintners'] : null;

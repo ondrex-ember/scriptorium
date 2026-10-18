@@ -562,7 +562,10 @@ const CellariumSystem = {
     tavern: [
       { itemId: 'stamina_tonic', basePrice: 8, dailyStock: 3 },
       { itemId: 'beer', basePrice: 2, dailyStock: 20 },
-      { itemId: 'wine', basePrice: 7, dailyStock: 8 },
+      // PV-4/F2 (18.10.2026, schváleno — dokončení uzavření gapu): 7 → 8. Při 7 g (nákup 6–8 g) zbýval
+      // přeprodej Hospoda → Hospoda se ziskem 1 g/ks (21 % dní tier 6, až 68 % Celerarius t6); při 8 g
+      // (nákup 7–9 g) je v simulaci 2 let denních seedů 0 % dní se ziskem ve všech scénářích.
+      { itemId: 'wine', basePrice: 8, dailyStock: 8 },
       { itemId: 'seeds_cannabis', basePrice: 45, dailyStock: 1 }, // konopí seté — vzácné
     ],
     shop: [
@@ -3662,8 +3665,8 @@ const CellariumSystem = {
       {
         id: 'cellarium_vini', icon: '🏺',
         name: 'Cellarium Vini — Vinný sklep', name_en: 'Cellarium Vini — Wine Cellar',
-        desc: 'Chladný sklep s regály pro sudy. Giacomo platí za víno o 30% více.',
-        desc_en: 'Cool cellar with barrel racks. Giacomo pays 30% more for wine.',
+        desc: 'Chladný sklep s regály pro sudy. Giacomo platí za vlastní víno o 30% více.',
+        desc_en: 'Cool cellar with barrel racks. Giacomo pays 30% more for your own wine.',
         cost: { cut_stone: 10, plank: 6, rope: 4, hrebiky: 3 },
         req_tech: hasTonn,
         req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,

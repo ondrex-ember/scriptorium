@@ -1256,6 +1256,16 @@ const SaeculumSystem = {
     return 1.10 + (r / 100) * 0.25;
   },
 
+  // giacomo-vino-mrd (18.10.2026): budova Cellarium Vini → Giacomo platí za vlastní vína o 30 % více.
+  // Jediný zdroj pravdy pro cenu (sellToContact) i pro UI (renderContactPanel), ať se nemohou rozejít.
+  // Seznam je explicitní (ne klíče sellBonus), aby případná další položka Giacoma bonus nezdědila omylem.
+  GIACOMO_WINE_BONUS_ITEMS: ['vinum', 'vinum_rubrum', 'vinum_praeclarum', 'vinum_obscurum', 'vinum_baci'],
+  contactSellBonusMult: function (contactId, itemId) {
+    if (contactId !== 'giacomo' || !this.GIACOMO_WINE_BONUS_ITEMS.includes(itemId)) return 1.0;
+    const cv = GameState.storage && GameState.storage.cellarium_vini;
+    return (cv && cv.built) ? 1.30 : 1.0;
+  },
+
   // sellToContact-cap-audit (7.8.2026): tvrdý denní strop prodeje KONTAKTU
   // (výkup) — mirror filozofie dailyStock u nákupu. Bez tohohle šlo prodat
   // neomezené množství (např. nahromaděnou vlnu) jedním "vše" klikem za
@@ -1302,6 +1312,12 @@ const SaeculumSystem = {
     const sbEntry = items[itemId];
     const sbMinRel = (sbEntry && typeof sbEntry === 'object') ? (sbEntry.minRelation || 0) : 0;
     if (((GameState.contactRelation || {})[contactId] || 0) < sbMinRel) return;
+    // giacomo-vino-mrd (18.10.2026): Giacomo je jen 3 dny "v přístavu" — mimo okno nevykupuje (mirror buyFromContact)
+    if (contactId === 'giacomo' && !CellariumSystem.isGiacomoPresent()) {
+      const lang = (GameState.settings && GameState.settings.language) || 'cs';
+      UI.notify(lang === 'en' ? "Giacomo's ship is at sea — return after he arrives." : 'Giacomova loď je na moři — vrať se po jeho příjezdu.', true);
+      return;
+    }
     if (contactId === 'stationarius' && typeof CellariumSystem !== 'undefined' && !CellariumSystem.isStationariusPresent()) {
       const lang = (GameState.settings && GameState.settings.language) || 'cs';
       UI.notify(lang === 'en' ? 'The Stationarius travels between book fairs — he is not in Olomouc now.' : 'Stationarius cestuje mezi veletrhy — teď není v Olomouci.', true);
@@ -1317,7 +1333,7 @@ const SaeculumSystem = {
     // sellToContact-cap-audit (7.8.2026): relation markup se aplikuje PŘED
     // saturací (je součástí "základní" ceny, kterou pak saturace odstupňuje
     // dolů) — stejný princip jako calcPrice(entity, skipSaturation) v Cellariu.
-    const relPrice = Math.max(1, Math.round(basePrice * this.contactPriceMult(contactId)));
+    const relPrice = Math.max(1, Math.round(basePrice * this.contactPriceMult(contactId) * this.contactSellBonusMult(contactId, itemId)));
     const soldBefore = this._contactSellSoldToday(contactId, itemId);
     const result = CellariumSystem._calcSaturatedSale(relPrice, qty, soldBefore, this._contactSellCap(basePrice));
     if (result.actuallySold <= 0) {
@@ -1690,7 +1706,12 @@ const SaeculumSystem = {
     // 💰 Výkup (hráč prodává kontaktu)
     h += `<div><div style="font-size:0.7rem; font-weight:bold; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-gold); margin-bottom:8px; padding-bottom:4px; border-bottom:2px solid var(--accent-gold);">💰 ${lang === 'en' ? 'BUYING FROM YOU' : 'VÝKUP'} <span style="opacity:0.6; font-weight:normal; text-transform:none;">(+${Math.round((this.contactPriceMult(id) - 1) * 100)} % ${lang === 'en' ? 'over market' : 'nad trh'})</span></div>`;
     const sbItems = c.sellBonus && c.sellBonus.items;
-    if (sbItems && Object.keys(sbItems).length) {
+    // giacomo-vino-mrd (18.10.2026): mimo okno přítomnosti rovnou jasná zpráva (mirror sloupce Nabídka)
+    if (id === 'giacomo' && typeof CellariumSystem !== 'undefined' && !CellariumSystem.isGiacomoPresent()) {
+      h += `<div style="font-size:0.78rem; opacity:0.6; font-style:italic; padding:10px 0;">${lang === 'en'
+        ? 'His ship is at sea. He buys nothing until he returns.'
+        : 'Jeho loď je na moři. Nic nevykoupí, dokud se nevrátí.'}</div>`;
+    } else if (sbItems && Object.keys(sbItems).length) {
       let anyStock = false;
       Object.keys(sbItems).forEach(itemId => {
         // vykup-vapna-mrd (7.8.2026): sellBonus polozka muze byt cislo
@@ -1710,14 +1731,22 @@ const SaeculumSystem = {
         if (have <= 0) return;
         anyStock = true;
         const basePrice = CellariumSystem.calcPrice(itemId, 'market') || sbPrice || 0;
-        const price = Math.max(1, Math.round(basePrice * this.contactPriceMult(id)));
+        const bonusMult = this.contactSellBonusMult(id, itemId);
+        const price = Math.max(1, Math.round(basePrice * this.contactPriceMult(id) * bonusMult));
         // sellToContact-cap-audit (7.8.2026): zbývající denní kapacita —
         // stejný princip jako "skladem X" na nákupní straně.
         const soldToday = this._contactSellSoldToday(id, itemId);
         const left = Math.max(0, this._contactSellCap(basePrice) - soldToday);
         const capLabel = `<span style="opacity:0.55;"> · ${lang === 'en' ? 'buys up to' : 'koupí do'} ${left}${lang === 'en' ? '/day' : '/den'}</span>`;
+        // giacomo-vino-mrd (18.10.2026): štítek bonusu Cellarium Vini — zelený s budovou, šedý bez ní (hráč musí vědět proč)
+        let bonusTag = '';
+        if (id === 'giacomo' && this.GIACOMO_WINE_BONUS_ITEMS.includes(itemId)) {
+          bonusTag = bonusMult > 1
+            ? `<span style="display:block; font-size:0.66rem; color:#5a9a5a;">🏺 +30 % (Cellarium Vini)</span>`
+            : `<span style="display:block; font-size:0.66rem; opacity:0.5;">🏺 ${lang === 'en' ? '+30 % once Cellarium Vini is built' : '+30 % po postavení Cellarium Vini'}</span>`;
+        }
         h += `<div style="display:flex; align-items:center; gap:6px; font-size:0.78rem; margin-bottom:6px;">
-                <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${lang === 'en' ? 'have' : 'máš'} ${have} · ${price} g/${lang === 'en' ? 'pc' : 'ks'})</span>${capLabel}</span>
+                <span style="flex:1;">${itemName} <span style="opacity:0.6;">(${lang === 'en' ? 'have' : 'máš'} ${have} · ${price} g/${lang === 'en' ? 'pc' : 'ks'})</span>${capLabel}${bonusTag}</span>
                 <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left > 0 ? '' : 'disabled'} onclick="SaeculumSystem.sellToContact('${id}','${itemId}',1)">×1</button>
                 <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left >= 5 ? '' : 'disabled'} onclick="SaeculumSystem.sellToContact('${id}','${itemId}',5)">×5</button>
                 <button class="craft-btn" style="padding:2px 8px; font-size:0.7rem;" ${left > 0 ? '' : 'disabled'} onclick="SaeculumSystem.sellToContact('${id}','${itemId}','all')">${lang === 'en' ? 'all' : 'vše'}</button>

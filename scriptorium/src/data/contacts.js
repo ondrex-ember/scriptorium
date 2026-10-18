@@ -371,7 +371,17 @@ const ContactsDB = {
         primaryAxis: 'scholars',
         secondaryAxis: null,
         unlockTech: null,                     // dostupný hned, jako dnes (persona.influence.giacomo)
-        sellBonus: {},                        // Giacomo jen prodává — výkup řeší jinde (vinum bonus zůstává legacy mechanika)
+        // giacomo-vino-mrd (18.10.2026): výkup 5 vín z vlastní výroby, cena = trh × vztah (mirror Vinař);
+        // +30 % s postaveným Cellarium Vini řeší SaeculumSystem.contactSellBonusMult. Záměrně BEZ legacy
+        // `wine` — jinak by se otevřela arbitráž Hospoda/Obchod → Giacomo (MRD §4.3). Prodej jen v okně
+        // přítomnosti (gate v sellToContact), cechy se nekontrolují (Clientela = soukromý obchod).
+        sellBonus: {
+            items: {
+                vinum: null, vinum_rubrum: null, vinum_praeclarum: null,
+                vinum_obscurum: { price: 14, minRelation: 15 },
+                vinum_baci: null
+            }
+        },
         // Přítomen jen v okně po příjezdu (CellariumSystem.isGiacomoPresent) — gate v buyFromContact
         // giacomo-obchod-audit (7.8.2026): DVĚ NEZÁVISLÉ vrstvy gatingu navrch k sobě:
         //   1) minRelation — osobní důvěra k Giacomovi (beze změny, jako dnes)
