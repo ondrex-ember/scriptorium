@@ -3662,8 +3662,8 @@ const CellariumSystem = {
       {
         id: 'cellarium_vini', icon: '🏺',
         name: 'Cellarium Vini — Vinný sklep', name_en: 'Cellarium Vini — Wine Cellar',
-        desc: 'Chladný sklep s regály pro sudy. Giacomo platí za víno o 30% více.',
-        desc_en: 'Cool cellar with barrel racks. Giacomo pays 30% more for wine.',
+        desc: 'Chladný sklep s regály pro sudy. Giacomo platí za vlastní víno o 30% více.',
+        desc_en: 'Cool cellar with barrel racks. Giacomo pays 30% more for your own wine.',
         cost: { cut_stone: 10, plank: 6, rope: 4, hrebiky: 3 },
         req_tech: hasTonn,
         req_build: GameState.storage && GameState.storage.foudres && GameState.storage.foudres.built,
