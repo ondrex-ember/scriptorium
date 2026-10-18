@@ -100,10 +100,15 @@ const ContactsDB = {
         unlockTech: 'tech_vinifikace',        // existuje (Mustum→Vinum řetězec)
         sellBonus: {
             items: {
+                // PV-3 (18.10.2026, Q6a): vína jsou teď v BASE_PRICES → výplata = tržní cena × vztah
+                // (calcPrice('market') × contactPriceMult), pevné 9/10/22 se už nepoužijí (zůstávají jako fallback);
+                // mustum a raisins zůstávají exkluzivní (mimo BASE_PRICES).
                 mustum: 3, vinum: 9, vinum_rubrum: 10, vinum_praeclarum: 22,
+                vinum_obscurum: { price: 14, minRelation: 15 },
+                vinum_baci: null,
                 raisins: 4
             }
-        }, // K4b: exkluzivní odbyt — trh vinum neprodává (mimo BASE_PRICES); raisins: popisek slibuje prodej, dosud bez ceny (Clientela pool MRD 25.7.2026)
+        }, // K4b: mustum/raisins exkluzivní odbyt (mimo BASE_PRICES); raisins: popisek slibuje prodej, dosud bez ceny (Clientela pool MRD 25.7.2026)
         buyOffer: {
             items: {
                 vinegar: { price: 3, stock: 5 },
@@ -112,6 +117,28 @@ const ContactsDB = {
         },
         desc: 'Vinař z jižních strání. Mešní víno dodává i biskupství.',
         desc_en: 'A winemaker from the southern slopes. He supplies mass wine even to the bishopric.'
+    },
+    // pivo-vino-tri-kanaly-prodej-mrd v0.3 (PV-2, 18.10.2026) — Clientela kanál
+    // pro pivo z Pivovaru. Soukromý odbyt: cechy se tu nekontrolují (sellToContact
+    // nevolá sellItem), platí o ~25 % méně než Hospoda, ale bez rizika fušerství.
+    // Bez chroniconActorId (mirror vinar) — Chronicon vazba není součástí balíku.
+    // Ceny/prahy [hypotéza], ladí se v PV-4.
+    innkeeper: {
+        confession: "Přiznává, že klášterní pivo čepuje bez vědomí pivovarského cechu — a co zbyde na dně, dolévá vodou.",
+        confession_en: "He confesses to tapping the monastery's beer without the brewers' guild knowing — and topping up what is left at the bottom with water.",
+        name: 'Šenkýř', name_en: 'Innkeeper', icon: '🍻',
+        primaryAxis: 'village',
+        secondaryAxis: null,
+        unlockTech: 'tech_braxatio',          // existuje (Vaření ve velkém → brew_prima_cervisia)
+        sellBonus: {
+            items: {
+                prima_cervisia: null,                                    // null = BASE_PRICES; bez prahu, ať jde první prodej udělat (vztah se buduje prodejem)
+                prima_cervisia_lepsi: { price: 5, minRelation: 10 },
+                cervisia_nigra: { price: 8, minRelation: 20 }
+            }
+        },
+        desc: 'Vesnický šenkýř. Sudy od kláštera bere mimo oči pivovarského cechu — a platí hotově.',
+        desc_en: 'A village innkeeper. He takes casks from the monastery out of sight of the brewers\' guild — and pays in cash.'
     },
     kovar: {
         confession: "Klel při kování tak, že se vesnice žehnala. A v neděli rozdělal výheň.",

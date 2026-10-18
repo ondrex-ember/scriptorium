@@ -229,7 +229,7 @@ const GuildsDB = {
                 privilegeType: 'A',
                 privilegeLabel: 'Právo prodeje piva na Trhu bez fušerství (průběžný poplatek 10%)',
                 privilegeLabel_en: 'Right to sell beer at Market without botching (10% ongoing fee)',
-                affectedGoods: ['prima_cervisia', 'cervisia_nigra'],
+                affectedGoods: ['prima_cervisia', 'prima_cervisia_lepsi', 'cervisia_nigra'],
             },
         ],
     },
@@ -253,6 +253,33 @@ const GuildsDB = {
                 privilegeLabel: 'Právo prodeje zvonů na Trhu bez fušerství (průběžný poplatek 10%)',
                 privilegeLabel_en: 'Right to sell bells at Market without botching (10% ongoing fee)',
                 affectedGoods: ['small_bell'],
+            },
+        ],
+    },
+    // pivo-vino-tri-kanaly-prodej-mrd v0.4 (PV-3, 18.10.2026) — Vinařský cech,
+    // mirror pivovarsky přesně. [HERNÍ FIKCE]: pro vinařský cech ani právo
+    // vinného šenku v Olomouci před 1500 není doklad (ověřeno 18.10.2026,
+    // sekundární zdroje). Cech je rámovaný jako držitel městského práva
+    // vinného čepu, NE pěstitel (pěstování cech nemá — chmelnice-mrd §3).
+    // Mešní víno je z jeho zájmu vyňaté (kláštery měly víno pro vlastní
+    // potřebu a mši). Jméno i popis cechmistra schválil Bouvard 18.10.2026.
+    vintners: {
+        id: 'vintners',
+        name: 'Vinařský cech',
+        name_en: "The Vintners' Guild",
+        masterName: 'Jošt Sudek',
+        masterIcon: '🍷',
+        desc: 'Kulatý, rudolící muž, který víno nejdřív přivoní a teprve potom pozdraví. Drží městské právo vinného čepu a hlídá, aby se víno nepouštělo do světa mimo jeho sklep. Mešní víno klášteru nezávidí — ale co se prodává za groše, to chce vidět na své váze.',
+        desc_en: "A round, ruddy man who smells the wine before he greets you. He holds the town's right to tap wine and watches that no cask leaves for the world past his cellar. He does not begrudge the monastery its mass wine — but what is sold for groats, he wants to see on his own scales.",
+        matters: [
+            {
+                key: 'vintners:wine',
+                label: 'Povolení k jednání o prodeji vína',
+                label_en: 'Permission to negotiate wine sales',
+                privilegeType: 'A',
+                privilegeLabel: 'Právo prodeje vína na Trhu bez fušerství (průběžný poplatek 10%)',
+                privilegeLabel_en: 'Right to sell wine at Market without botching (10% ongoing fee)',
+                affectedGoods: ['vinum', 'vinum_rubrum', 'vinum_praeclarum', 'vinum_obscurum', 'vinum_baci'],
             },
         ],
     },

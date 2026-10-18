@@ -197,6 +197,19 @@ const CellariumSystem = {
     // Nápoje
     beer: 2,
     wine: 5,
+    // pivo-vino-tri-kanaly-prodej-mrd v0.2 (PV-1, 18.10.2026) — vyrobené pivo
+    // z Pivovaru konečně prodejné. Ceny [hypotéza], ladí se v PV-4.
+    prima_cervisia: 5,
+    prima_cervisia_lepsi: 6,
+    cervisia_nigra: 9,
+    // PV-3 (18.10.2026) — víno. Ceny [hypotéza], ladí se v PV-4. Základ zvolen tak,
+    // aby Vinař při vztahu 0 platil ≈ dřívějších pevných 9/10/22 g
+    // (12/13/29 × 0,7 × 1,10 = 9,2/10,0/22,3).
+    vinum: 12,
+    vinum_rubrum: 13,
+    vinum_praeclarum: 29,
+    vinum_obscurum: 14,
+    vinum_baci: 9,
     // Suroviny — nové
     chalk: 2,
     // Leather system
@@ -315,6 +328,8 @@ const CellariumSystem = {
     senet_board: 'tool', backgammon_board: 'tool', draughts_board: 'tool', hnefatafl_board: 'tool',
     potion_heal: 'alchemy', antidote: 'alchemy', stamina_tonic: 'alchemy',
     beer: 'food', wine: 'food',
+    prima_cervisia: 'food', prima_cervisia_lepsi: 'food', cervisia_nigra: 'food',
+    vinum: 'food', vinum_rubrum: 'food', vinum_praeclarum: 'food', vinum_obscurum: 'food', vinum_baci: 'food',
     preservation_oil: 'alchemy', candle: 'alchemy',
     // Ovoce
     apple: 'food', pear: 'food', plum: 'food', cherry: 'food',
@@ -450,7 +465,11 @@ const CellariumSystem = {
     // do té doby fušerství nehlásíme, aby stará rozjetá hra nedostala tension
     // bez jakýhokoliv varování (v0.6 bod 5).
     const guildsNoticedPlayer = GameState.unlockedFlags && GameState.unlockedFlags.includes('guilds_noticed');
-    if (affectedMatter && guildsNoticedPlayer) {
+    // PV-1b (18.10.2026, Bouvard) — fušerství se může projevit až po aktivaci
+    // cechu (checkGuildActivations → GameState.activeGuilds). Neaktivní cech
+    // hráč v panelu Cechy nevidí, takže by si privilegium neměl jak vyjednat.
+    const guildIsActive = !!(affectedMatter && typeof getActiveGuilds === 'function' && getActiveGuilds().includes(affectedMatter.guild.id));
+    if (affectedMatter && guildsNoticedPlayer && guildIsActive) {
       const guildId = affectedMatter.guild.id;
       const matterKey = affectedMatter.matter.key;
       const privilegeStatus = GameState.guildPravo && GameState.guildPravo[matterKey] && GameState.guildPravo[matterKey].status;
@@ -1675,6 +1694,8 @@ const CellariumSystem = {
       'egg', 'milk', 'chicken_meat', 'mutton', 'pigeon_squab', 'pigeon_meat',
       'apple', 'pear', 'plum', 'cherry',
       'beer', 'wine',
+      'prima_cervisia', 'prima_cervisia_lepsi', 'cervisia_nigra',
+      'vinum', 'vinum_rubrum', 'vinum_praeclarum', 'vinum_obscurum', 'vinum_baci',
       // udirna-mrd (7.8.2026): Trh čeká na Cechy, Hospoda může teď
       'cured_meat', 'cured_beef',
       'goat_cheese_fresh', 'goat_cheese_mature', 'goat_cheese_aged',
@@ -2670,6 +2691,44 @@ const CellariumSystem = {
       h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'The kettle stands ready — malting knowledge (Regalia → Maltatio) is still to come.' : 'Kotel stojí připravený — sladovnické řemeslo (Regálie → Sladovnictví) teprve přijde.'}</div>`;
     } else if (typeof CervisiariaSystem === 'undefined' || !(CervisiariaSystem.isActive('prima_cervisia') || CervisiariaSystem.isActive('cervisia_nigra'))) {
       h += `<div style="opacity:0.6; font-style:italic; font-size:0.82rem;">${lang === 'en' ? 'Malt is ready — but no one here yet knows the craft of yeast (Fermentum), nor how to brew at scale (Braxatio).' : 'Slad je hotový — ale nikdo zatím nezná řemeslo kvasu (Kvas), ani jak vařit ve velkém (Vaření ve velkém).'}</div>`;
+    } else {
+      h += this._renderPivovarSaleHint(lang);
+    }
+    return h;
+  },
+
+  // pivo-vino-tri-kanaly-prodej-mrd v0.2 (PV-1, 18.10.2026) — kam s hotovým
+  // pivem. Zrcadlí _renderKovarnaGuildReminder; cechový řádek jen když je
+  // Pivovarnický cech aktivní (jinak by hráč dostal odkaz na něco, co v
+  // Cellariu - Cechy zatím nevidí).
+  _renderPivovarSaleHint: function (lang) {
+    const gold = 'background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-gold); padding:10px 14px; border-radius:6px; margin-top:12px; font-size:0.78rem;';
+    // PV-2: Clientela (Šenkýř) se zmiňuje jen když záložka Clientela existuje
+    // (secular tier >= 3, mirror SaeculumSystem.renderEntityTabs).
+    const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
+    const hasClientela = rankTier >= 3 && typeof ContactsDB !== 'undefined' && !!ContactsDB.innkeeper;
+    const hintText = hasClientela
+      ? (lang === 'en'
+        ? 'Where to sell the beer: the Tavern pays best, then the Innkeeper in Clientela (private deal — no guild asked), then the Market, the Shop least (Saeculum).'
+        : 'Kam s pivem: nejlépe zaplatí Hospoda, o něco hůř Šenkýř v Clientele (soukromý obchod — cech se neptá), pak Trh a nejméně Obchod (Saeculum).')
+      : (lang === 'en'
+        ? 'Where to sell the beer: the Tavern pays best, the Market less, the Shop least (Saeculum).'
+        : 'Kam s pivem: nejlépe zaplatí Hospoda, hůř Trh, nejméně Obchod (Saeculum).');
+    let h = `<div style="${gold}">
+      🍺 ${hintText}
+    </div>`;
+    if (!Array.isArray(GameState.activeGuilds) || !GameState.activeGuilds.includes('pivovarsky')) return h;
+    const g = (typeof GuildsDB !== 'undefined') ? GuildsDB['pivovarsky'] : null;
+    const gName = g ? (lang === 'en' ? g.name_en : g.name) : 'Pivovarnický cech';
+    const pravoStatus = (GameState.guildPravo && GameState.guildPravo['pivovarsky:pivo'] && GameState.guildPravo['pivovarsky:pivo'].status) || 'none';
+    if (pravoStatus === 'granted') {
+      h += `<div style="background:rgba(76,175,80,0.1); border:1px solid #4CAF50; padding:10px 14px; border-radius:6px; margin-top:8px; font-size:0.78rem;">
+        ✅ ${lang === 'en' ? `Legal sale right with ${gName} — 10% fee applies, no risk.` : `Máš právo prodeje od cechu ${gName} — platí se 10 % poplatek, bez rizika.`}
+      </div>`;
+    } else {
+      h += `<div style="background:rgba(197,90,60,0.1); border:1px solid #b05a3c; padding:10px 14px; border-radius:6px; margin-top:8px; font-size:0.78rem;">
+        ⚠️ ${lang === 'en' ? `Selling beer without ${gName}'s leave is fušerství — no fee, but suspicion grows and a raid may follow. Negotiate in Cellarium — Guilds.` : `Prodej piva bez svolení cechu ${gName} je fušerství — bez poplatku, ale podezření roste a časem hrozí nájezd. Vyjednej si to v Cellariu — Cechy.`}
+      </div>`;
     }
     return h;
   },
@@ -2764,6 +2823,10 @@ const CellariumSystem = {
       // si v Athanoru uvařil pár piv pro radost, cech ještě nezajímá; až
       // se z toho stane objem (velkovýroba), cechmistr si všimne.
       pivovarsky: (GameState.inventory && ((GameState.inventory['prima_cervisia'] || 0) + (GameState.inventory['cervisia_nigra'] || 0)) >= 10),
+      // PV-3 (18.10.2026) — Vinařský cech [herní fikce], mirror pivovarsky:
+      // aktivace objemem, součet všech 5 vín v inventáři >= 10.
+      vintners: (GameState.inventory && ['vinum', 'vinum_rubrum', 'vinum_praeclarum', 'vinum_obscurum', 'vinum_baci']
+        .reduce((sum, id) => sum + (GameState.inventory[id] || 0), 0) >= 10),
       // bell-casting-mrd v0.1 (21.9.2026) — mirror pekarsky přesně: aktivace
       // buď dosažením Kovárny tier 3 (zvonařská výhrň, KOVARNA_TIERS), nebo
       // objemem (kdyby zvonky přišly jinou cestou, cechmistr by si stejně všiml).
