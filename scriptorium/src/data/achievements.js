@@ -27,9 +27,9 @@ const AchievementsDB = [
     {
         id: "encyclopedist",
         name: "Encyklopedista",             name_en: "Encyclopaedist",
-        desc: "Objevil všech 107 položek!",  desc_en: "Discover all 107 items!",
+        desc: "Objevil všech 111 položek!",  desc_en: "Discover all 111 items!",
         icon: "🎓", category: "Discovery",
-        condition: () => GameState.discoveredLore.length >= 107,
+        condition: () => GameState.discoveredLore.length >= 111,
         reward: { research: 5 }
     },
 

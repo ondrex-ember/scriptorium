@@ -170,6 +170,40 @@ const LoreDB = {
         text: `Konopí poskytovalo provazy pro lodě, oprátky pro zločince, papír pro knihy.\n\nProvazníci byli důležitým cechem. Bez provazů žádné studny, žádné zvony, žádné lešení.\n\n"Pevnost provazu závisí na nejslabším vláknu" - řemeslnická pravda`,
         text_en: `Hemp provided ropes for ships, nooses for criminals, paper for books.\n\nRopemakers were a vital guild. Without ropes, no wells, no bells, no scaffolding.\n\n"The strength of the rope depends upon its weakest thread" - tradesman's truth`
     },
+    // L7 (hunting-lore-l7-mrd v0.2): only sentences that are sourced in the MRD (H13, H17, H20-H23, H30, H32, H33).
+    // No quote line. That the brothers themselves hunt in the monastery's wood is GAME FICTION and the text says so.
+    "snare": {
+        title: "Oko (Laqueus)",
+        title_en: "Snare (Laqueus)",
+        category: "Nástroj",
+        category_en: "Tool",
+        text: `Smyčka nastražená na stezce drobné zvěře je jednou z nejjednodušších pastí. Gaston Fébus věnoval pastem, okům a kuši čtvrtou část své <em>Livre de chasse</em> (1387–1389), ač takový lov pokládal za méně ušlechtilý.\n\nCírkev lov a chytání ptáků klerikům zakazovala (Lateránský koncil, 1215, kán. 15). Že oka v klášterním lese stavějí sami bratři, doloženo není — je to uspořádání tohoto herního světa.`,
+        text_en: `A noose laid on a small-game trail is one of the simplest traps there is. Gaston Fébus gave the fourth part of his <em>Livre de chasse</em> (1387–1389) to hunting with traps, snares and the crossbow, though he thought such hunting less noble.\n\nThe Church forbade clerics to hunt or to catch birds (Fourth Lateran Council, 1215, canon 15). That the brothers themselves set snares in the monastery's wood is not documented — it is an arrangement of this game's world.`
+    },
+    "wire_snare": {
+        title: "Drátěné oko",
+        title_en: "Wire Snare",
+        category: "Nástroj",
+        category_en: "Tool",
+        text: `Z doby kolem roku 1465 se nepodařilo najít jediný doklad o oku z železného drátu.\n\nV této hře je drátěné oko vynález místních lovců a kovářů: drát zvíře jen tak nepřekousne. Je to herní fikce, ne dobová praxe.`,
+        text_en: `Not a single record of a snare made of iron wire could be found for the years around 1465.\n\nIn this game the wire snare is an invention of local hunters and smiths: an animal cannot easily gnaw through wire. It is game fiction, not period practice.`
+    },
+    "hunting_net": {
+        title: "Lovecká síť (Rete)",
+        title_en: "Hunting Net (Rete)",
+        category: "Nástroj",
+        category_en: "Tool",
+        text: `Pietro de' Crescenzi píše v desáté knize svých <em>Ruralia Commoda</em> (1304–1309) o lovu a rybolovu, včetně chytání ptáků do sítí. Podle studie z roku 2015 je v severní a střední Itálii chytali hlavně ti, kdo je prodávali; ptáci byli prestižním pokrmem, ale výdělek zůstával okrajový a umění se předávalo hlavně ústně.\n\nŽe síť v klášterním lese rozvěšuje Konvrš, doloženo není — je to uspořádání tohoto herního světa.`,
+        text_en: `In the tenth book of his <em>Ruralia Commoda</em> (1304–1309), Pietro de' Crescenzi writes of hunting and fishing, including the catching of birds in nets. A 2015 study finds that in northern and central Italy birds were caught mostly by those who sold them; birds were a prestige food, yet the income stayed marginal and the craft was passed on chiefly by word of mouth.\n\nThat a lay brother hangs nets in the monastery's wood is not documented — it is an arrangement of this game's world.`
+    },
+    "iron_wire": {
+        title: "Železný drát",
+        title_en: "Iron Wire",
+        category: "Materiál",
+        category_en: "Material",
+        text: `Drát se táhl za studena: železo se protahovalo stále užšími otvory v tažném železe. Podle městského archivu v Norimberku se tam před rokem 1360 zřejmě vynalezlo půlstrojové tažení a v letech 1408–1415 tažení vodní silou. Drát sloužil mimo jiné na kroužky zbrojí.\n\nŽe by ho klášterní kovárna tahala sama, je herní fikce.`,
+        text_en: `Wire was drawn cold: iron was pulled through ever narrower holes in a drawing iron. According to Nuremberg's city archive, semi-mechanical drawing was probably invented there before 1360 and drawing by water power in 1408–1415. Among other things, wire went into the rings of mail.\n\nThat a monastery smithy drew it itself is game fiction.`
+    },
     "pulp": {
         title: "Dřevná drť (Papíroviny)",
         title_en: "Pulp (Paper Mash)",
