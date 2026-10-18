@@ -562,7 +562,10 @@ const CellariumSystem = {
     tavern: [
       { itemId: 'stamina_tonic', basePrice: 8, dailyStock: 3 },
       { itemId: 'beer', basePrice: 2, dailyStock: 20 },
-      { itemId: 'wine', basePrice: 7, dailyStock: 8 },
+      // PV-4/F2 (18.10.2026, schváleno — dokončení uzavření gapu): 7 → 8. Při 7 g (nákup 6–8 g) zbýval
+      // přeprodej Hospoda → Hospoda se ziskem 1 g/ks (21 % dní tier 6, až 68 % Celerarius t6); při 8 g
+      // (nákup 7–9 g) je v simulaci 2 let denních seedů 0 % dní se ziskem ve všech scénářích.
+      { itemId: 'wine', basePrice: 8, dailyStock: 8 },
       { itemId: 'seeds_cannabis', basePrice: 45, dailyStock: 1 }, // konopí seté — vzácné
     ],
     shop: [
