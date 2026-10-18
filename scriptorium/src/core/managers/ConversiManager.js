@@ -2350,7 +2350,9 @@ const ConversiManager = {
                             if (!feasibleProcs.length) break; // žádný proces se dnes už nevejde/není odemčen
                             const process = feasibleProcs[Math.floor(Math.random() * feasibleProcs.length)];
 
-                            const pool = AthanorDB.ingredients.filter(ing => (GameState.inventory[ing.id] || 0) > 0);
+                            // Alias ingredients (`as`, e.g. the monastery's own wines) stay out of the random pool:
+                            // the automatic research must not burn them, and its recipe key must stay canonical.
+                            const pool = AthanorDB.ingredients.filter(ing => !ing.as && (GameState.inventory[ing.id] || 0) > 0);
                             if (!pool.length) break; // nic na skladě k pokusu
 
                             const maxSlots = (typeof AthanorSystem !== 'undefined' && AthanorSystem.maxSlots) ? AthanorSystem.maxSlots() : 3;

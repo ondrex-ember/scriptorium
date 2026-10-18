@@ -474,9 +474,17 @@ const CellariumSystem = {
       const matterKey = affectedMatter.matter.key;
       const privilegeStatus = GameState.guildPravo && GameState.guildPravo[matterKey] && GameState.guildPravo[matterKey].status;
       if (privilegeStatus === 'granted') {
-        // Privilegium uděleno -> 10% poplatek cechu
-        guildFee = Math.round(total * 0.10);
-        total = Math.max(1, total - guildFee);
+        // Privilegium uděleno -> 10% poplatek cechu.
+        // PV-4/F3 (18.10.2026, schváleno): zbytek poplatku se přenáší, aby součet
+        // poplatků vycházel na přesných 10 % i u prodeje po kuse (dřív Math.round po
+        // transakci → 0 g u levných kusů). Počítá se v celých setinách groše
+        // (bez zlomků), zbytek < 100 je v GameState.guildFeeCarry[guildId]
+        // (klíč vzniká při prvním použití, bez migrace savu). Výplata zůstává ≥ 1 g.
+        if (!GameState.guildFeeCarry) GameState.guildFeeCarry = {};
+        const _raw = total * 10 + (GameState.guildFeeCarry[guildId] || 0);
+        guildFee = Math.min(Math.floor(_raw / 100), Math.max(0, total - 1));
+        GameState.guildFeeCarry[guildId] = Math.min(99, _raw - guildFee * 100);
+        total -= guildFee;
       } else {
         // Privilegium NENÍ uděleno -> fušerství (neoprávněný prodej), hlášení do Chroniconu.
         // count ořezán na klientovi i na serveru (MAX_COUNT_PER_REPORT) — jeden
@@ -560,7 +568,10 @@ const CellariumSystem = {
     shop: [
       { itemId: 'chalk', basePrice: 2, dailyStock: 30 },
       { itemId: 'salt', basePrice: 12, dailyStock: 2 },
-      { itemId: 'wine', basePrice: 4, dailyStock: 5 },
+      // PV-4/F2 (18.10.2026, schváleno): 4 → 9. Při 4 g šel přeprodej Obchod → Hospoda
+      // (výkup ≈ 4–9 g podle dne, vztahu a hodnosti). Simulace 2 roky denních seedů:
+      // při 9 g (nákup 8–10 g) není zisk v žádném scénáři; při 7 g zbýval 1 g/ks.
+      { itemId: 'wine', basePrice: 9, dailyStock: 5 },
       { itemId: 'seeds_thyme', basePrice: 6, dailyStock: 5 }, // tymián — vykuřování úlů
       { itemId: 'kopr', basePrice: 6, dailyStock: 8 }, // kopr — k rakům
       { itemId: 'seeds_kopr', basePrice: 10, dailyStock: 3 }, // semínka kopru — vzácnější

@@ -2510,7 +2510,45 @@ const GardenSystem = {
                 '<strong>Next:</strong> Build Uvarium in Cellarium → Buildings (requires Uvarium tech).');
         }
 
+        html += this._renderVineSaleHint(lang);
+
         el.innerHTML = html;
+    },
+
+    // pivo-vino-tri-kanaly-prodej-mrd v0.5 (PV-3 doplněk, 18.10.2026) — kam s
+    // hotovým vínem. Zrcadlí CellariumSystem._renderPivovarSaleHint. Cechový
+    // řádek jen když je Vinařský cech aktivní (jinak by hráč dostal odkaz na
+    // něco, co v Cellariu - Cechy zatím nevidí). Vinař se zmiňuje jen když
+    // existuje záložka Clientela (secular tier >= 3) a je odemčený.
+    _renderVineSaleHint: function(lang) {
+        const rankTier = (typeof RankSystem !== 'undefined' && RankSystem.getSecularRankTier) ? RankSystem.getSecularRankTier() : 1;
+        const vinarUnlocked = !!(typeof ContactsDB !== 'undefined' && ContactsDB.vinar
+            && (!ContactsDB.vinar.unlockTech || (GameState.researchedTechs || []).includes(ContactsDB.vinar.unlockTech)));
+        const hasClientela = rankTier >= 3 && vinarUnlocked;
+        const hintText = hasClientela
+            ? (lang === 'en'
+                ? 'Where to sell the wine: the Tavern pays best, then the Winemaker in Clientela (private deal — no guild asked), then the Market, the Shop least (Saeculum).'
+                : 'Kam s vínem: nejlépe zaplatí Hospoda, o něco hůř Vinař v Clientele (soukromý obchod — cech se neptá), pak Trh a nejméně Obchod (Saeculum).')
+            : (lang === 'en'
+                ? 'Where to sell the wine: the Tavern pays best, the Market less, the Shop least (Saeculum).'
+                : 'Kam s vínem: nejlépe zaplatí Hospoda, hůř Trh, nejméně Obchod (Saeculum).');
+        let h = `<div style="background:rgba(0,0,0,0.05); border-left:3px solid var(--accent-gold); padding:10px 14px; border-radius:6px; margin-top:12px; font-size:0.78rem;">
+            🍷 ${hintText}
+        </div>`;
+        if (!Array.isArray(GameState.activeGuilds) || !GameState.activeGuilds.includes('vintners')) return h;
+        const g = (typeof GuildsDB !== 'undefined') ? GuildsDB['vintners'] : null;
+        const gName = g ? (lang === 'en' ? g.name_en : g.name) : 'Vinařský cech';
+        const pravoStatus = (GameState.guildPravo && GameState.guildPravo['vintners:wine'] && GameState.guildPravo['vintners:wine'].status) || 'none';
+        if (pravoStatus === 'granted') {
+            h += `<div style="background:rgba(76,175,80,0.1); border:1px solid #4CAF50; padding:10px 14px; border-radius:6px; margin-top:8px; font-size:0.78rem;">
+                ✅ ${lang === 'en' ? `Legal sale right with ${gName} — 10% fee applies, no risk.` : `Máš právo prodeje od cechu ${gName} — platí se 10 % poplatek, bez rizika.`}
+            </div>`;
+        } else {
+            h += `<div style="background:rgba(197,90,60,0.1); border:1px solid #b05a3c; padding:10px 14px; border-radius:6px; margin-top:8px; font-size:0.78rem;">
+                ⚠️ ${lang === 'en' ? `Selling wine without ${gName}'s leave is fušerství — no fee, but suspicion grows and a raid may follow. Negotiate in Cellarium — Guilds.` : `Prodej vína bez svolení cechu ${gName} je fušerství — bez poplatku, ale podezření roste a časem hrozí nájezd. Vyjednej si to v Cellariu — Cechy.`}
+            </div>`;
+        }
+        return h;
     },
 
     // ── Sjednocený stat bar (počasí + odkaz na Přehled) — pro všech 6 podtabů ──

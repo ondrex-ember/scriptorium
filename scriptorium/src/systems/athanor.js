@@ -267,6 +267,66 @@ const AthanorDB = {
       lore_en: "The gift of the vine. A binder for egg tempera, the base of tinctures, a scribe's comfort after a long day.",
       dropNote: 'Z klášterního sklepa nebo od hospodského.'
     },
+    // ── The monastery's own wines (MRD athanor-vino v0.2, approved 18.10.2026, variant B) ──
+    // `as: 'wine'` = in a recipe KEY these count as 'wine' (no duplicated recipes), but their
+    // OWN thermal/moisture go into the profile. Only Vinum Obscurum differs (thermal 1 instead
+    // of 2): it keeps the "Bonus in the Athanor" promised by its item text. [game fiction]
+    // `as` ingredients are kept out of the Research brother's random pool (ConversiManager).
+    {
+      id: 'vinum', as: 'wine',
+      name: 'Klášterní bílé víno', name_en: 'Monastic White Wine', name_lat: 'Vinum',
+      rarity: 'common', source: 'crafted',
+      color: '#d8c878', icon: '🍷',
+      thermal: 2, moisture: 2,
+      lore: 'Klášterní bílé víno z Klevneru. V Athanoru platí jako běžné víno.',
+      lore_en: 'Monastic white wine from Klevner. In the Athanor it counts as ordinary wine.',
+      dropNote: 'Z klášterní vinice (Vinohrad).',
+      dropNote_en: 'From the monastery vineyard.'
+    },
+    {
+      id: 'vinum_rubrum', as: 'wine',
+      name: 'Červené víno', name_en: 'Red Wine', name_lat: 'Vinum Rubrum',
+      rarity: 'common', source: 'crafted',
+      color: '#7a1f3d', icon: '🍷',
+      thermal: 2, moisture: 2,
+      lore: 'Červené víno z Frankovky. V Athanoru platí jako běžné víno.',
+      lore_en: 'Red wine from Frankovka. In the Athanor it counts as ordinary wine.',
+      dropNote: 'Z klášterní vinice (Vinohrad).',
+      dropNote_en: 'From the monastery vineyard.'
+    },
+    {
+      id: 'vinum_praeclarum', as: 'wine',
+      name: 'Vzácné biskupské víno', name_en: "The Bishop's Rare Wine", name_lat: 'Vinum Praeclarum',
+      rarity: 'rare', source: 'crafted',
+      color: '#c9a24b', icon: '🏺',
+      thermal: 2, moisture: 2,
+      lore: 'Vzácné bílé víno z Tramínu. V Athanoru platí jako běžné víno — a prodat se dá za mnohem víc.',
+      lore_en: 'Rare white wine from Traminer. In the Athanor it counts as ordinary wine — and it sells for far more.',
+      dropNote: 'Z klášterní vinice (Vinohrad), zrálo ve Foudres.',
+      dropNote_en: 'From the monastery vineyard, aged in the Foudres.'
+    },
+    {
+      id: 'vinum_obscurum', as: 'wine',
+      name: 'Temné víno', name_en: 'Dark Wine', name_lat: 'Vinum Obscurum',
+      rarity: 'uncommon', source: 'crafted',
+      color: '#3b1a2e', icon: '🫙',
+      thermal: 1, moisture: 2,
+      lore: 'Tmavé víno z Modrého Janka. V kelímku je o stupeň chladnější než běžné víno — žhavé směsi snáší lépe.',
+      lore_en: 'Dark wine from Modrý Janek. In the crucible it runs one degree cooler than ordinary wine — hot mixtures tolerate it better.',
+      dropNote: 'Z klášterní vinice (Vinohrad), nízký výnos.',
+      dropNote_en: 'From the monastery vineyard, low yield.'
+    },
+    {
+      id: 'vinum_baci', as: 'wine',
+      name: 'Tmavě rubínové víno', name_en: 'Dark Ruby Wine', name_lat: 'Vinum Baci',
+      rarity: 'common', source: 'crafted',
+      color: '#5c1a33', icon: '🍷',
+      thermal: 2, moisture: 2,
+      lore: 'Tmavě rubínové víno z Baga. V Athanoru platí jako běžné víno.',
+      lore_en: 'Dark ruby wine from Baco Noir. In the Athanor it counts as ordinary wine.',
+      dropNote: 'Z klášterní vinice (Vinohrad).',
+      dropNote_en: 'From the monastery vineyard.'
+    },
     {
       id: 'rose',
       name: 'Růže', name_en: 'Wild Rose', name_lat: 'Rosa',
@@ -2195,6 +2255,15 @@ const AthanorDB = {
 
 const CombinationEngine = {
 
+  // Recipe key = canonical ingredient ids (an ingredient with `as` counts as that id,
+  // e.g. every own wine counts as 'wine'), sorted, + process. The real ids still feed the
+  // heat/moisture profile; only the lookup key (and the Codex entry) is canonical.
+  recipeKey(slotIds, processId) {
+    const alias = {};
+    AthanorDB.ingredients.forEach(i => { if (i.as) alias[i.id] = i.as; });
+    return [...slotIds].map(id => alias[id] || id).sort().join('+') + ':' + processId;
+  },
+
   // Vyhodnotí kombinaci ingrediencí + proces
   // Vrátí { success: true, combo } nebo { success: false, failure, hint }
   evaluate(slotIds, processId) {
@@ -2250,7 +2319,7 @@ const CombinationEngine = {
     }
 
     // Sestav klíč — ingredience seřazené abecedně
-    const key = [...slotIds].sort().join('+') + ':' + processId;
+    const key = CombinationEngine.recipeKey(slotIds, processId);
     const combo = AthanorDB.combinations[key];
 
     if (!combo) {
@@ -2423,6 +2492,44 @@ const AthanorSystem = {
     return true;
   },
 
+  // First use of the monastery's own wine in the Athanor (MRD athanor-vino v0.2): one
+  // panel notice + one Kronika entry per kind ('plain' wines / 'obscurum'). Flags live in
+  // GameState.flags.athanorOwnWine and are created on first use (no save migration).
+  _noteOwnWine(slotIds) {
+    const kinds = new Set();
+    slotIds.forEach(id => {
+      const ing = AthanorDB.ingredients.find(i => i.id === id);
+      if (ing && ing.as === 'wine') kinds.add(id === 'vinum_obscurum' ? 'obscurum' : 'plain');
+    });
+    if (!kinds.size) return;
+    if (!GameState.flags) GameState.flags = {};
+    const seen = GameState.flags.athanorOwnWine || (GameState.flags.athanorOwnWine = {});
+    const lang = AthanorSystem._lang();
+    const text = {
+      plain: {
+        panel_cs: '🍷 Víno z klášterní vinice poslouží v Athanoru jako běžné víno — recepty zůstávají stejné.',
+        panel_en: '🍷 Wine from the monastery vineyard serves in the Athanor as ordinary wine — the recipes stay the same.',
+        krn_cs: '🍷 Vlastní víno poprvé v Athanoru.',
+        krn_en: '🍷 Own wine first used in the Athanor.',
+        krn_la: '🍷 Vinum proprium primum in Athanore adhibitum.'
+      },
+      obscurum: {
+        panel_cs: '🫙 Temné víno z Modrého Janka je v kelímku o stupeň chladnější než běžné víno — žhavé směsi snáší lépe.',
+        panel_en: '🫙 The dark wine of Modrý Janek runs one degree cooler in the crucible than ordinary wine — hot mixtures tolerate it better.',
+        krn_cs: '🫙 Vinum Obscurum v Athanoru: o stupeň chladnější.',
+        krn_en: '🫙 Vinum Obscurum in the Athanor: one degree cooler.',
+        krn_la: '🫙 Vinum Obscurum in Athanore: uno gradu frigidius.'
+      }
+    };
+    kinds.forEach(kind => {
+      if (seen[kind]) return;
+      seen[kind] = true;
+      const t = text[kind];
+      if (typeof UI !== 'undefined' && UI.notifyPanel) UI.notifyPanel(lang === 'en' ? t.panel_en : t.panel_cs, 'system');
+      if (typeof Game !== 'undefined' && Game.addKronikaEntry) Game.addKronikaEntry('minor', t.krn_cs, t.krn_en, t.krn_la);
+    });
+  },
+
   // ── PROGRESS BAR TICK (každých 500ms) ──────────────────────
   // Cíleně aktualizuje jen šířku pruhu a zbývající čas přes DOM, BEZ
   // překreslení celého panelu — jedině tak má CSS transition co animovat.
@@ -2533,6 +2640,8 @@ const AthanorSystem = {
     // VITREA V3: destilace spotřebuje 1 baňku
     if (state.activeProcess === 'destillatio') Game.removeItem('glass_flask', 1);
 
+    AthanorSystem._noteOwnWine(slots);
+
     const process = AthanorDB.processes.find(p => p.id === state.activeProcess);
     const duration = process ? process.duration_ms : 10000;
 
@@ -2610,7 +2719,7 @@ const AthanorSystem = {
       }
 
       // Discovery log
-      const key = [...slots].sort().join('+') + ':' + processId;
+      const key = CombinationEngine.recipeKey(slots, processId);
       const isNewDiscovery = !state.discovered.includes(key);
       if (isNewDiscovery) {
         const tierBefore = AthanorSystem.masteryRelief();
@@ -3132,7 +3241,8 @@ const AthanorSystem = {
     pigments: ['lapis_lazuli', 'ochre', 'cinnabar', 'carbon_black', 'egg_tempera', 'linseed_oil', 'malachite',
       'auripigmentum', 'calx_cupri', 'cerusa', 'cinere_stanni', 'ink_gallic', 'lazulium_mellitum',
       'lithargyrum', 'minium', 'ochra_flava', 'palette_membrana', 'sinopia_tosta', 'verdigris_purum', 'verdigris'],
-    liquids: ['water', 'wine', 'vinegar', 'ash_water',
+    liquids: ['water', 'wine', 'vinum', 'vinum_rubrum', 'vinum_praeclarum', 'vinum_obscurum', 'vinum_baci',
+      'vinegar', 'ash_water',
       'acetum_destillatum', 'aqua_ardens', 'aqua_fortis', 'spiritus_vini'],
     minerals: ['chalk', 'gum_arabic', 'oak_bark', 'gall_nut', 'sulfur', 'alum', 'vitriol', 'lead', 'copper', 'tin', 'sal_petrae', 'arsenicum', 'antimony',
       'sal_alkali', 'sal_ammoniac', 'sandarak', 'tartarus', 'mercury', 'spodium', 'iron_ore', 'vapenec'],
