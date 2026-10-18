@@ -1619,6 +1619,9 @@ const STRINGS_cs = {
         reportFirst: '🪤 {name} (Linie pastí) nalíčil oka na Hvozdu. Nalíčeno {deployed}/{slots}.',
         reportNoSnares: '🪤 {name} (Linie pastí) nemá co na Hvozdu nalíčit — chybí oka. Vyrob je nebo je kup u Lovce.',
         reportShort: 'Linii chybí oka — doplň zásobu, příští obchůzka je nalíčí.',
+        reportPelts: 'Ze sítí přinesl: {list}.',   // L8
+        reportFox: 'liška ×{n}',
+        reportMarten: 'kuna ×{n}',
         cardTitle: 'Linie pastí — Hvozd',
         cardDeployed: 'Nalíčená oka v linii ({deployed}/{slots})',
         cardNoLand: 'Chybí pozemek Hvozd — koupíš ho v Cellariu (Pozemky).',

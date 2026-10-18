@@ -889,3 +889,18 @@ TechTree.push({
   requires: ["tech_laquei_2"],
   requiresBook: "book_ruralia_aucupium"
 });
+
+// L8 (hunting-pelts-l8-mrd v0.1): furrier's work. A label of this game, not a claim about period terminology;
+// no furriers' guild and no monastic rule on fur linings are sourced (MRD §4, Q7-Q9 pending), so the lining is
+// sold to a lay Weaver. The wool cloth comes from the Weaver, who opens with tech_de_re_rustica.
+// Cost 10 is a [hypotéza], tuned in L5b.
+TechTree.push({
+  id: "tech_pellicia",
+  name: "Pellicia — Kožešnictví",
+  name_en: "Pellicia — Furrier's Work",
+  cost: 10,
+  desc: "Z kožek, které zbydou po lovu, se dá ušít podšívka. Čtyři kožky přišité na kus sukna koupí Tkadlec. Odemkne: výrobu kožešinové podšívky (4 králičí nebo 4 veverčí kožky a sukno). Potřebuješ: právo lovu a Tkadlece, u něhož sukno koupíš.",
+  desc_en: "The pelts left over from the hunt can be sewn into a lining. The Weaver buys four pelts sewn onto a piece of cloth. Unlocks: making a fur lining (4 rabbit or 4 squirrel pelts and wool cloth). Thou needest: the right of the chase and the Weaver, from whom thou buyest the cloth.",
+  unlocks: ["fur_lining_squirrel", "fur_lining_rabbit"],
+  requires: ["tech_ius_venandi"]
+});

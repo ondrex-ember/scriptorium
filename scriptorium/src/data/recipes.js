@@ -19,6 +19,11 @@ const RecipesDB = [
   // hunting-ladder-catalog-mrd v0.8 (L6): hunting net, unlocked by tech_retia. The tech needs the read book
   // book_ruralia_aucupium, so only this one (cheaper) recipe exists (D1, approved 17.10.2026).
   { id: "hunting_net", output: "hunting_net", qty: 1, req: { "rope": 2, "wicker": 2, "stick": 2 }, cat: "craft", locked: true, desc: "Síť z provazu a proutí na ptáky a drobnou zvěř. Nalíčí ji Konvrš na Linii pastí.", desc_en: "A net of rope and withies for birds and small game. A lay brother sets it on the Trapline." },
+  // hunting-pelts-l8-mrd v0.1 (L8): fur lining, unlocked by tech_pellicia. Two recipes with the same output
+  // (the crafting UI shows them as one "or" card): 4 pelts of one kind + 1 wool cloth. Foxes and martens
+  // are only sold. The lining is sold to the Weaver (price is a [hypotéza], tuned in L5b).
+  { id: "fur_lining_squirrel", output: "fur_lining", qty: 1, req: { "squirrel_pelt": 4, "wool_cloth": 1 }, cat: "craft", locked: true, desc: "Čtyři veverčí kožky přišité na kus sukna.", desc_en: "Four squirrel pelts sewn onto a piece of cloth." },
+  { id: "fur_lining_rabbit", output: "fur_lining", qty: 1, req: { "rabbit_pelt": 4, "wool_cloth": 1 }, cat: "craft", locked: true, desc: "Čtyři králičí kožky přišité na kus sukna.", desc_en: "Four rabbit pelts sewn onto a piece of cloth." },
   // pyl-prepracovani-mrd (18.8.2026): sink pro nahromaděný pyl — fermentace
   // s medem. Bez vlastního tech gate, tech_liber_apium (Apiarium) už gatuje
   // pyl samotný.

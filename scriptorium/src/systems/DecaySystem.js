@@ -105,6 +105,9 @@ const DecaySystem = {
         manure: { rate: 0.18, flies: true },
         bone: { rate: 0.18, flies: true },
         rabbit_pelt: { rate: 0.18, flies: true },
+        squirrel_pelt: { rate: 0.18, flies: true },   // L8
+        fox_pelt: { rate: 0.18, flies: true },        // L8
+        marten_pelt: { rate: 0.18, flies: true },     // L8
         mouse: { rate: 0.18, flies: true },
         caught_small_game: { rate: 0.18, flies: true },
         cervec: { rate: 0.18, flies: true },

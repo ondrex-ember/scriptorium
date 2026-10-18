@@ -210,7 +210,7 @@ const ContactsDB = {
         primaryAxis: 'village',
         secondaryAxis: { axis: 'church', weight: 0.2 },   // roucha/paramenta
         unlockTech: 'tech_de_re_rustica',     // stříhání vlny žije pod Ovile (tech_lanificium zrušen — mechanika už existovala)
-        sellBonus: { items: { wool: null } }, // K4: null = cena z BASE_PRICES (wool: 5)
+        sellBonus: { items: { wool: null, fur_lining: 30 } }, // K4: null = cena z BASE_PRICES (wool: 5); L8: fur_lining fixed price (not in BASE_PRICES), [hypotéza] tuned in L5b
         // Clientela pool MRD (25.7.2026): hotové plátno/soukno (dosud bez
         // receptu i ceny) + liturgická roucha (přesunuto z ENTITY_SHOP.shop —
         // patří k osobnímu vztahu s tkadlecem, ne anonymnímu pultu Obchodu)
@@ -257,7 +257,8 @@ const ContactsDB = {
         sellBonus: {
             items: {
                 meat: 2, hide: null, leather: null, caught_small_game: 3,
-                cornu_cervi: 5, rabbit_pelt: 3
+                cornu_cervi: 5, rabbit_pelt: 3,
+                squirrel_pelt: 4, fox_pelt: 12, marten_pelt: 22   // L8 (hunting-pelts-l8-mrd v0.1): [hypotéza], tuned in L5b; not in BASE_PRICES, so only the Hunter buys pelts
             }
         }, // L2: Divoké maso exkluzivně (mimo trh), kůže z BASE_PRICES; fat/bone záměrně mimo (craft užití); cornu_cervi/rabbit_pelt: Clientela pool MRD 25.7.2026
         // L3a: exkluzivní nabídka — oko až od vztahu ≥ 25 (MRD bod 8 mechanismus)

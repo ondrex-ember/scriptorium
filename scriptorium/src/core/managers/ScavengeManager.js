@@ -1186,6 +1186,10 @@ const ScavengeManager = {
         return (GameState.inventory['stone_knife'] || 0) > 0 || (GameState.inventory['iron_knife'] || 0) > 0;
     },
 
+    // L8 (hunting-pelts-l8-mrd v0.1, O19): chance of a squirrel pelt left over when a caught animal is
+    // dressed, Dec-Feb only. GAME FICTION (MRD §4); [hypotéza], tuned in L5b.
+    SQUIRREL_PELT_CHANCE: 0.20,
+
     // Drops of one dressed animal, shared by processCaughtGame and processAllCaughtGame
     // (the caller removes the caught game itself).
     _dressDrops: function () {
@@ -1193,6 +1197,7 @@ const ScavengeManager = {
         Game.addItem('fat', 1);
         Game.addItem('scraps', 1);    // zbytky — krmivo (B3 vazba)
         if (Math.random() < 0.5) Game.addItem('bone', 1);
+        if (this._isWinter() && Math.random() < this.SQUIRREL_PELT_CHANCE) Game.addItem('squirrel_pelt', 1);
     },
 
     processCaughtGame: function () {
@@ -1212,7 +1217,7 @@ const ScavengeManager = {
         if (n <= 0) return;
         if (!this._hasDressingKnife()) { UI.notify(t('game.needKnifeDress'), true); return; }
         const inv = GameState.inventory;
-        const before = { meat: inv.meat || 0, fat: inv.fat || 0, scraps: inv.scraps || 0, bone: inv.bone || 0 };
+        const before = { meat: inv.meat || 0, fat: inv.fat || 0, scraps: inv.scraps || 0, bone: inv.bone || 0, squirrel_pelt: inv.squirrel_pelt || 0 };
         // Same batch gate as the scavenge claim: no per-item toast, save and re-render inside the loop.
         this._scavenging = true;
         try {
@@ -1246,6 +1251,10 @@ const ScavengeManager = {
     // L6 (MRD v0.8): the hunting net, a third trap type (tech_retia, which needs the book
     // book_ruralia_aucupium). It breaks least often; the catch factor is the same. [hypotéza], tuned in L5b.
     TRAPLINE_NET: { breakChance: 0.08, catchMult: 0.9 },
+    // L8 (hunting-pelts-l8-mrd v0.1, O21): in Dec-Feb a successful net catch is a fox or a marten instead
+    // of small game with these chances (it REPLACES the base catch, so the food does not grow); the
+    // lay brother brings the pelt already skinned. Nets only. GAME FICTION (MRD §4); [hypotéza], tuned in L5b.
+    TRAPLINE_NET_BIG: { fox: 0.04, marten: 0.03 },
 
     // Highest level whose tech is researched, or null.
     traplineLevel: function () {
@@ -1259,7 +1268,7 @@ const ScavengeManager = {
     },
 
     // One round of the line. Returns null when nothing happened (not unlocked, no parcel, not
-    // due yet), else { tended, caught, broken, refilled, deployed, slots }. The catch follows
+    // due yet), else { tended, caught, fox, marten, broken, refilled, deployed, slots } (fox / marten = pelts from nets, L8). The catch follows
     // the hunting season like the hand snares (availability x catchMult, plus the winter bonus
     // with tech_ius_venandi, O11); broken snares are replaced from the player's stock.
     tendTrapline: function (now) {
@@ -1281,13 +1290,21 @@ const ScavengeManager = {
         const tended = line.deployed;
         const tendedNet = Math.min(line.net, tended);
         const tendedWire = Math.min(line.wire, tended - tendedNet);
-        let caught = 0, broken = 0, brokenWire = 0, brokenNet = 0;
+        let caught = 0, broken = 0, brokenWire = 0, brokenNet = 0, fox = 0, marten = 0;
         for (let i = 0; i < tended; i++) {
             const isNet = i < tendedNet;
             const isWire = !isNet && i < tendedNet + tendedWire;
             const cfg = isNet ? netCfg : (isWire ? wireCfg : ropeCfg);
             if (Math.random() < availability * cfg.catchMult) {
-                caught++;
+                // L8: only a net in winter rolls for a big catch; every other trap keeps the exact
+                // sequence of random calls it had before.
+                let big = null;
+                if (isNet && winter) {
+                    const bigRoll = Math.random();
+                    if (bigRoll < this.TRAPLINE_NET_BIG.fox) big = 'fox';
+                    else if (bigRoll < this.TRAPLINE_NET_BIG.fox + this.TRAPLINE_NET_BIG.marten) big = 'marten';
+                }
+                if (big === 'fox') fox++; else if (big === 'marten') marten++; else caught++;
                 if (huntRight && winter && Math.random() < this.WINTER_HUNT_BONUS.extraSnare) caught++;
             }
             if (Math.random() < cfg.breakChance) { broken++; if (isNet) brokenNet++; else if (isWire) brokenWire++; }
@@ -1296,6 +1313,8 @@ const ScavengeManager = {
         line.net = tendedNet - brokenNet;
         line.wire = tendedWire - brokenWire;
         if (caught > 0) Game.addItem('caught_small_game', caught);
+        if (fox > 0) Game.addItem('fox_pelt', fox);
+        if (marten > 0) Game.addItem('marten_pelt', marten);
 
         // Only broken places are refilled, with the best snare type in stock (net before wire before rope, MRD v0.8).
         let free = Math.max(0, level.slots - line.deployed);
@@ -1311,7 +1330,7 @@ const ScavengeManager = {
         line.net += laidNet;
         line.wire += laidWire;
         const refilled = laidNet + laidWire + laidRope;
-        return { tended, caught, broken, refilled, deployed: line.deployed, wire: line.wire, net: line.net, slots: level.slots };
+        return { tended, caught, fox, marten, broken, refilled, deployed: line.deployed, wire: line.wire, net: line.net, slots: level.slots };
     },
 
     // cs + en report text of one round (ConversiManager._reportWork takes both languages).
@@ -1323,6 +1342,10 @@ const ScavengeManager = {
             if (res.tended === 0 && res.deployed === 0) return fill(T.reportNoSnares);
             let txt = fill(res.tended === 0 ? T.reportFirst : T.report);
             if (res.deployed < res.slots) txt += ' ' + T.reportShort;
+            const pelts = [];
+            if (res.fox > 0) pelts.push(T.reportFox.replace('{n}', res.fox));
+            if (res.marten > 0) pelts.push(T.reportMarten.replace('{n}', res.marten));
+            if (pelts.length) txt += ' ' + T.reportPelts.replace('{list}', pelts.join(', '));
             return txt;
         };
         return { cs: build(STRINGS.cs), en: build(STRINGS.en) };

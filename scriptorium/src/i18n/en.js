@@ -2432,6 +2432,9 @@ According to Theophilus, the organ is an instrument worthy of God, but its const
         reportFirst: '🪤 {name} (Trapline) set the snares in the Deep Wood. {deployed}/{slots} set.',
         reportNoSnares: '🪤 {name} (Trapline) has nothing to set in the Deep Wood — no snares. Make some or buy them from the Hunter.',
         reportShort: 'The line lacks snares — lay in a stock, the next round will set them.',
+        reportPelts: 'From the nets he brought: {list}.',   // L8
+        reportFox: 'fox ×{n}',
+        reportMarten: 'marten ×{n}',
         cardTitle: 'Trapline — The Deep Wood',
         cardDeployed: 'Snares set in the line ({deployed}/{slots})',
         cardNoLand: 'The Deep Wood parcel is missing — buy it in the Cellarium (Land).',
