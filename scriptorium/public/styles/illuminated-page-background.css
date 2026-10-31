@@ -25,35 +25,107 @@
 
 /* =====================================================================
    1. OUTSIDE THE MANUSCRIPT
-   The black gutter becomes a dim wooden / ink-dark desk instead of a
-   featureless black strip.
+   Luxurious black parchment desk with pigment stains, grain and a gold
+   vine, identical in every theme. All colours are tokens (--illum-desk-*),
+   so a theme / weather layer can retint the desk later without touching
+   these rules.
+
+   Why this block exists in this form:
+   The former rule used the `background` shorthand, which reset
+   background-color, while <body> is position: fixed and <html> is 0 px
+   high. The gradients had no area to paint and the canvas stayed white
+   around the manuscript. Giving <html> a height (below) and a real
+   background-color fixes both.
    ===================================================================== */
 
+:root:has(body.design-iluminovana) {
+    height: 100%;
+}
+
 body.design-iluminovana {
-    background:
-        radial-gradient(
-            ellipse at 50% 12%,
-            rgba(105, 72, 41, .18),
-            transparent 52%
-        ),
-        radial-gradient(
-            ellipse at 20% 72%,
-            rgba(92, 48, 28, .12),
-            transparent 42%
-        ),
-        repeating-linear-gradient(
-            90deg,
-            rgba(255,255,255,.012) 0 1px,
-            transparent 1px 7px
-        ),
+    --illum-desk-color: #0c0907;
+    --illum-desk-edge: #070504;
+    --illum-desk-in: #130d09;
+    --illum-desk-mid: #1b120c;
+
+    /* r, g, b triplets, used as rgba(var(--illum-desk-*), alpha) */
+    --illum-desk-rubric: 124, 43, 35;
+    --illum-desk-blue: 49, 77, 99;
+    --illum-desk-green: 82, 100, 62;
+    --illum-desk-gold: 196, 154, 70;
+    --illum-desk-warm: 105, 72, 41;
+
+    /* half of the manuscript width at >= 1200 px (see illuminated-foundation.css) */
+    --illum-desk-half: 660px;
+    /* the vine needs a gutter of at least ~120 px, see the media query below */
+    --illum-desk-vine: none;
+    --illum-grain: url('/rooms/parchment-grain.webp');
+
+    background-color: var(--illum-desk-color) !important;
+
+    background-image:
+        /* gold vine, left and right of the manuscript */
+        var(--illum-desk-vine),
+        var(--illum-desk-vine),
+
+        /* pigment dots (same recipe as the rail) */
+        radial-gradient(circle at 9% 18%, rgba(var(--illum-desk-rubric), .60) 0 3px, transparent 4px),
+        radial-gradient(circle at 91% 31%, rgba(var(--illum-desk-green), .50) 0 4px, transparent 5px),
+        radial-gradient(circle at 12% 57%, rgba(var(--illum-desk-blue), .55) 0 3px, transparent 4px),
+        radial-gradient(circle at 88% 72%, rgba(var(--illum-desk-rubric), .50) 0 4px, transparent 5px),
+        radial-gradient(circle at 7% 86%, rgba(var(--illum-desk-gold), .55) 0 2px, transparent 3px),
+        radial-gradient(circle at 94% 9%, rgba(var(--illum-desk-gold), .55) 0 2px, transparent 3px),
+
+        /* soft stains */
+        radial-gradient(ellipse at 6% 30%, rgba(var(--illum-desk-rubric), .16), transparent 22%),
+        radial-gradient(ellipse at 95% 60%, rgba(var(--illum-desk-blue), .15), transparent 24%),
+        radial-gradient(ellipse at 8% 80%, rgba(var(--illum-desk-warm), .22), transparent 26%),
+        radial-gradient(ellipse at 93% 15%, rgba(var(--illum-desk-warm), .20), transparent 26%),
+        radial-gradient(ellipse at 50% 12%, rgba(var(--illum-desk-warm), .10), transparent 52%),
+
+        /* parchment grain */
+        var(--illum-grain),
+
+        /* leather-dark base, lighter towards the manuscript */
         linear-gradient(
             90deg,
-            #0b0806 0%,
-            #17100b 26%,
-            #21160f 50%,
-            #17100b 74%,
-            #0b0806 100%
+            var(--illum-desk-edge) 0%,
+            var(--illum-desk-in) 30%,
+            var(--illum-desk-mid) 50%,
+            var(--illum-desk-in) 70%,
+            var(--illum-desk-edge) 100%
         ) !important;
+
+    background-repeat:
+        repeat-y, repeat-y,
+        no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+        no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+        repeat,
+        no-repeat !important;
+
+    background-size:
+        96px auto, 96px auto,
+        auto, auto, auto, auto, auto, auto,
+        auto, auto, auto, auto, auto,
+        640px 640px,
+        auto !important;
+
+    /* The vine hugs the manuscript edge; the right one is shifted so the
+       two are not mirror images. calc() uses 50vw: percentages in a
+       background-position offset refer to (area - image), not to the area. */
+    background-position:
+        right calc(50vw + var(--illum-desk-half) + 14px) top 0,
+        left calc(50vw + var(--illum-desk-half) + 14px) top -160px,
+        0 0, 0 0, 0 0, 0 0, 0 0, 0 0,
+        0 0, 0 0, 0 0, 0 0, 0 0,
+        0 0,
+        0 0 !important;
+}
+
+@media (min-width: 1560px) {
+    body.design-iluminovana {
+        --illum-desk-vine: url('/rooms/illum-desk-vine.svg');
+    }
 }
 
 
@@ -83,8 +155,14 @@ body.design-iluminovana #game-container {
         1px solid
         rgba(180, 137, 66, .62) !important;
 
+    /* double gold / rubric rule tooled around the manuscript, then the
+       original shadow (rail recipe: dark, gap, gold) */
     box-shadow:
-        0 0 42px rgba(0,0,0,.72),
+        0 0 0 5px #0a0705,
+        0 0 0 6px rgba(var(--illum-desk-gold), .55),
+        0 0 0 9px #0a0705,
+        0 0 0 10px rgba(var(--illum-desk-rubric), .60),
+        0 0 42px 10px rgba(0,0,0,.72),
         inset 1px 0 0 rgba(255,241,204,.20),
         inset -1px 0 0 rgba(255,241,204,.14) !important;
 }
@@ -436,28 +514,11 @@ body.design-iluminovana main#main-content::after {
 
 
 /* =====================================================================
-   8. DARK THEME
-   Keep the parchment identity, but lower reflected brightness.
+   8. DARK / NIGHT THEME
+   The page tint of the dark and night themes (page colour, grain, cards,
+   tabs, edge wash) lives in illuminated-theme-tint.css, which loads last.
+   Do not use filter on main: it would dim interactive content too.
    ===================================================================== */
-
-body.theme-dark.design-iluminovana main#main-content {
-    background-color: #2a2118 !important;
-
-    background-blend-mode:
-        normal,
-        normal,
-        normal,
-        normal,
-        normal,
-        normal,
-        multiply,
-        multiply,
-        multiply,
-        multiply,
-        multiply;
-
-    /* Do not use filter here: it would dim interactive content too. */
-}
 
 
 /*

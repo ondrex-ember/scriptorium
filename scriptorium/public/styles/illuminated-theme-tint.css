@@ -1,0 +1,143 @@
+/* =====================================================================
+   SCRIPTORIUM — ILLUMINATED THEME TINT v1
+   ---------------------------------------------------------------------
+   Load AFTER every other illuminated-*.css file (last stylesheet).
+
+   Principle:
+   - Design (Vzhled) = material and ornament: parchment, grain, frames.
+   - Theme (Téma)    = tint only: page colour, card colour, ink.
+   An Illuminated page keeps the same material in every theme; only the
+   tint changes. Light themes keep their existing parchment (no rule here).
+
+   This file tints the DARK and NIGHT themes:
+   1. tokens (page colour, card colours),
+   2. page: tinted base, corner art blended instead of painted over,
+   3. grain layer that stays visible on any base colour,
+   4. hard-coded light "page edge wash" replaced by a dark one,
+   5. tabs: hard-coded dark ink replaced by the theme ink.
+
+   Grain: /rooms/parchment-grain.webp is an RGBA overlay (light and dark
+   specks with alpha), derived from parchment-texture.webp. Unlike the
+   original texture it does not rely on multiply, so it also shows on
+   dark, grey, blue or parchment bases.
+
+   Presentation only. No HTML / JS / state / saves / routing changes.
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. TOKENS
+   ===================================================================== */
+
+body.design-iluminovana {
+    /* corner / floral art layers of main#main-content */
+    --illum-art-blend: multiply;
+}
+
+body.theme-dark.design-iluminovana {
+    --illum-page: #3a2e22;
+    --illum-card-a: rgba(38, 29, 21, .94);
+    --illum-card-b: rgba(27, 20, 14, .97);
+}
+
+body.theme-night.design-iluminovana {
+    --illum-page: #1d2635;
+    --illum-card-a: rgba(20, 27, 40, .94);
+    --illum-card-b: rgba(13, 18, 28, .97);
+}
+
+
+/* =====================================================================
+   2. PAGE
+   Layers 1-6 of main#main-content are corners, floral spray and vine art
+   with light parchment backdrops: blended with multiply they darken
+   instead of showing as light rectangles. Layers 7-11 keep multiply, as
+   before.
+   ===================================================================== */
+
+body:is(.theme-dark, .theme-night).design-iluminovana main#main-content {
+    background-color: var(--illum-page) !important;
+
+    background-blend-mode:
+        var(--illum-art-blend),
+        var(--illum-art-blend),
+        var(--illum-art-blend),
+        var(--illum-art-blend),
+        var(--illum-art-blend),
+        var(--illum-art-blend),
+        multiply,
+        multiply,
+        multiply,
+        multiply,
+        multiply !important;
+}
+
+
+/* =====================================================================
+   3. GRAIN
+   The active screen is transparent (the page stays visible between
+   cards) and is a stacking context, so the grain sits between the page
+   and the cards without redeclaring the page's layer list.
+   ===================================================================== */
+
+body:is(.theme-dark, .theme-night).design-iluminovana main#main-content > .screen.active {
+    background-image: var(--illum-grain) !important;
+    background-size: 640px 640px !important;
+    background-repeat: repeat !important;
+}
+
+body:is(.theme-dark, .theme-night).design-iluminovana main#main-content .card {
+    background-image:
+        var(--illum-grain),
+        linear-gradient(135deg, var(--illum-card-a), var(--illum-card-b)) !important;
+    background-size: 640px 640px, auto !important;
+}
+
+
+/* =====================================================================
+   4. EDGE WASH
+   illuminated-alignment-and-rail-fix.css draws a light parchment wash
+   (rgba(239, 231, 210, ...)) in the top-right and bottom-right corners
+   of the active screen. On a dark page it showed as light rectangles;
+   here it becomes a dark edge shadow with the same geometry.
+   ===================================================================== */
+
+body:is(.theme-dark, .theme-night).design-iluminovana main#main-content > .screen.active::before {
+    background:
+        linear-gradient(180deg,
+            rgba(8, 5, 3, 0) 0%,
+            rgba(8, 5, 3, 0) 58%,
+            rgba(8, 5, 3, .22) 84%,
+            rgba(8, 5, 3, .40) 100%),
+        linear-gradient(270deg,
+            rgba(8, 5, 3, 0) 0%,
+            rgba(8, 5, 3, 0) 46%,
+            rgba(8, 5, 3, .18) 74%,
+            rgba(8, 5, 3, .34) 100%) !important;
+}
+
+body:is(.theme-dark, .theme-night).design-iluminovana main#main-content > .screen.active::after {
+    background:
+        linear-gradient(0deg,
+            rgba(8, 5, 3, 0) 0%,
+            rgba(8, 5, 3, 0) 54%,
+            rgba(8, 5, 3, .20) 78%,
+            rgba(8, 5, 3, .38) 100%),
+        linear-gradient(270deg,
+            rgba(8, 5, 3, 0) 0%,
+            rgba(8, 5, 3, 0) 44%,
+            rgba(8, 5, 3, .18) 72%,
+            rgba(8, 5, 3, .34) 100%) !important;
+}
+
+
+/* =====================================================================
+   5. TABS
+   .filter-btn uses a hard-coded dark ink (#2c241b, #443226) in the
+   Illuminated design, unreadable on the dark and night pages.
+   ===================================================================== */
+
+body:is(.theme-dark, .theme-night).design-iluminovana main#main-content .filter-btn:not(.active) {
+    color: var(--ink-primary) !important;
+    background-color: rgba(0, 0, 0, .22) !important;
+}
