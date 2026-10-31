@@ -14,7 +14,10 @@
    2. page: tinted base, corner art blended instead of painted over,
    3. grain layer that stays visible on any base colour,
    4. hard-coded light "page edge wash" replaced by a dark one,
-   5. tabs: hard-coded dark ink replaced by the theme ink.
+   5. tabs: one consistent dark surface with the theme ink,
+   6. active filter chips, research card titles, lore resource tracker,
+      manuscripts resource row and state colours: ink that matches the
+      surface it sits on.
 
    Grain: /rooms/parchment-grain.webp is an RGBA overlay (light and dark
    specks with alpha), derived from parchment-texture.webp. Unlike the
@@ -38,12 +41,24 @@ body.theme-dark.design-iluminovana {
     --illum-page: #3a2e22;
     --illum-card-a: rgba(38, 29, 21, .94);
     --illum-card-b: rgba(27, 20, 14, .97);
+    --illum-title-ink: #e0a07c;
+    --illum-tab-a: rgba(40, 32, 24, .80);
+    --illum-tab-b: rgba(20, 16, 12, .90);
+    --illum-bar-a: rgba(38, 29, 21, .96);
+    --illum-bar-b: rgba(27, 20, 14, .96);
+    --illum-pill-bg: rgba(35, 28, 20, .85);
 }
 
 body.theme-night.design-iluminovana {
     --illum-page: #1d2635;
     --illum-card-a: rgba(20, 27, 40, .94);
     --illum-card-b: rgba(13, 18, 28, .97);
+    --illum-title-ink: #e8998a;
+    --illum-tab-a: rgba(24, 31, 44, .85);
+    --illum-tab-b: rgba(13, 18, 28, .92);
+    --illum-bar-a: rgba(20, 27, 40, .96);
+    --illum-bar-b: rgba(13, 18, 28, .96);
+    --illum-pill-bg: rgba(20, 27, 40, .85);
 }
 
 
@@ -134,10 +149,69 @@ body:is(.theme-dark, .theme-night).design-iluminovana main#main-content > .scree
 /* =====================================================================
    5. TABS
    .filter-btn uses a hard-coded dark ink (#2c241b, #443226) in the
-   Illuminated design, unreadable on the dark and night pages.
+   Illuminated design, unreadable on the dark and night pages. The
+   Scriptorium (lore) tabs additionally carry their own light
+   background-image (illuminated.css, #lore-content-wrapper > .filter-bar),
+   so the surface is replaced as well as the ink: every inactive tab is
+   the same dark surface with the theme ink.
    ===================================================================== */
 
 body:is(.theme-dark, .theme-night).design-iluminovana main#main-content .filter-btn:not(.active) {
     color: var(--ink-primary) !important;
     background-color: rgba(0, 0, 0, .22) !important;
+    background-image: linear-gradient(180deg, var(--illum-tab-a), var(--illum-tab-b)) !important;
+}
+
+/* Active filter chips (Crafting, Inventory): the light-theme rule sets a
+   dark rubric ink that is unreadable on the dark chip. */
+body:is(.theme-dark, .theme-night).design-iluminovana .illum-filter-chips > .filter-btn.active {
+    color: var(--illum-title-ink) !important;
+}
+
+
+/* =====================================================================
+   6. INK THAT MATCHES ITS SURFACE
+   ===================================================================== */
+
+/* Research card titles: hard-coded #673220 (illuminated.css) on dark cards */
+body:is(.theme-dark, .theme-night).design-iluminovana #lore-research-content .card strong {
+    color: var(--illum-title-ink) !important;
+}
+
+/* Lore resource tracker: light container and light pills carried the
+   theme ink (light on light). It follows the dark bar of the other screens. */
+body:is(.theme-dark, .theme-night).design-iluminovana #screen-lore .res-tracker-toggle-btn,
+body:is(.theme-dark, .theme-night).design-iluminovana #screen-lore .res-tracker-container {
+    background: linear-gradient(180deg, var(--illum-bar-a), var(--illum-bar-b)) !important;
+    color: var(--ink-primary) !important;
+}
+
+body:is(.theme-dark, .theme-night).design-iluminovana #screen-lore .res-tracker-title,
+body:is(.theme-dark, .theme-night).design-iluminovana #screen-lore .res-tracker-title-text,
+body:is(.theme-dark, .theme-night).design-iluminovana #screen-lore .res-tracker-icon,
+body:is(.theme-dark, .theme-night).design-iluminovana #screen-lore .res-tracker-close-btn {
+    color: var(--accent-gold) !important;
+}
+
+body:is(.theme-dark, .theme-night).design-iluminovana #screen-lore .res-pill {
+    background: var(--illum-pill-bg) !important;
+    border-color: rgba(197, 160, 89, .4) !important;
+    color: var(--ink-primary) !important;
+}
+
+/* Manuscripts panel keeps its authored light parchment block; only its
+   resource row inherited the light theme ink. */
+body:is(.theme-dark, .theme-night).design-iluminovana #lore-manuscripts-content > div:nth-child(1) {
+    color: #4a3323 !important;
+}
+
+/* State colours written inline by the JS templates (green = fulfilled,
+   orange = warning) lifted for dark surfaces. Elements that also set a
+   background or border in the same inline style are left alone. */
+body:is(.theme-dark, .theme-night).design-iluminovana main#main-content [style*="color:#5a9a5a"]:not([style*="background"]):not([style*="border"]) {
+    color: #8fcf8f !important;
+}
+
+body:is(.theme-dark, .theme-night).design-iluminovana main#main-content [style*="color:#e67e22"]:not([style*="background"]):not([style*="border"]) {
+    color: #f2a65a !important;
 }
