@@ -1131,7 +1131,7 @@ const GardenSystem = {
                     // Custom select — filtrovat podle cropType, jen ty co máme semena
                     let opts = Object.entries(GardenSystem.GARDEN_PLANTS_DB)
                         .filter(([, p]) => p.cropType === plot.cropType && (GameState.inventory[p.seed] || 0) > 0)
-                        .map(([key, p]) => `<option value="${key}">${p.icon} ${lang==='en'?p.name_en:p.name} (${GameState.inventory[p.seed]||0}×)</option>`)
+                        .map(([key, p]) => `<option value="${key}">${p.icon} ${lang==='en'?p.name_en:p.name} (${GameState.inventory[p.seed]||0}×) · ≈ ${GardenSystem._fmtGrowTime(GardenSystem.getGrowHours(key), growthSpeed)}</option>`)
                         .join('');
                     // Legacy: staré seeds_vegetable (dřív sdílené mrkví+cibulí) — vysází namátkou
                     // jednu z nich, dokud se zásoba přirozeně nevyčerpá (zahrada-rust-kveteni-mrd)
@@ -1302,6 +1302,19 @@ const GardenSystem = {
         return (p && p.growHours) ? p.growHours : 24;
     },
 
+    // sowing-info (31.10.2026): fill {name} placeholders of an i18n template
+    // (t() has no interpolation); unknown placeholders are left as written.
+    _fmt: function(tpl, vars) {
+        return String(tpl).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] !== undefined) ? vars[k] : m);
+    },
+
+    // sowing-info: bed growth time for the dropdown, hours → "36 h" / "3 d"
+    // (real time, already divided by the growth speed of the active techs).
+    _fmtGrowTime: function(hours, growthSpeed) {
+        const h = Math.max(1, Math.round(hours / (growthSpeed || 1)));
+        return h >= 48 ? Math.round(h / 24) + ' d' : h + ' h';
+    },
+
     // Zasadit konkrétní plodinu (tech_hortus_conclusus)
     plantGardenPlot: function(idx, plantKey) {
         const plot = GameState.garden[idx];
@@ -1311,7 +1324,7 @@ const GardenSystem = {
         // Legacy: staré seeds_vegetable od hráčů před novým systémem semen/růstu —
         // namátkou zasadí mrkev nebo cibuli, dokud se zásoba přirozeně nevyčerpá
         if (plantKey === '__legacy_vegetable__') {
-            if (!(GameState.inventory['seeds_vegetable'] > 0)) { UI.notify('⚠️ Chybí: stará semena zeleniny', true); return; }
+            if (!(GameState.inventory['seeds_vegetable'] > 0)) { UI.notify('⚠️ ' + this._fmt(t('garden.notEnoughSeed'), { seed: iName('seeds_vegetable'), have: GameState.inventory['seeds_vegetable'] || 0, need: 1 }), true); return; }
             if (plot.cropType !== 'vegetable') { UI.notify('⚠️ Tento záhon není pro zeleninu.', true); return; }
             Game.removeItem('seeds_vegetable', 1);
             if (typeof VigorSystem !== 'undefined') VigorSystem.addFatigue(0.5);
@@ -1333,8 +1346,7 @@ const GardenSystem = {
             return;
         }
         if (!(GameState.inventory[plant.seed] > 0)) {
-            const seedName = typeof ItemsDB !== 'undefined' && ItemsDB[plant.seed] ? ItemsDB[plant.seed].name : plant.seed;
-            UI.notify('⚠️ Chybí: ' + seedName, true);
+            UI.notify('⚠️ ' + this._fmt(t('garden.notEnoughSeed'), { seed: iName(plant.seed), have: GameState.inventory[plant.seed] || 0, need: 1 }), true);
             return;
         }
         Game.removeItem(plant.seed, 1);
@@ -2009,7 +2021,11 @@ const GardenSystem = {
                     .filter(([key, c]) => field.type !== 'fallow' || c.fallow)
                     .map(([key, c]) => {
                         const seedQty = GameState.inventory[c.seeds] || 0;
-                        return `<option value="${key}">${lang==='en'?c.name_en:c.name} (${seedQty})</option>`;
+                        // sowing-info (31.10.2026): slots with a fixed cost show stock/cost;
+                        // slots where the player picks the amount keep the plain stock
+                        // (the cost follows the amount input, see updateFieldSowInfo).
+                        const costLabel = this._fieldSeedRange(idx, field) ? `${seedQty}` : `${seedQty}/${this.FIELD_SEED_COST}`;
+                        return `<option value="${key}">${lang==='en'?c.name_en:c.name} (${costLabel})</option>`;
                     }).join('');
                 // pole-mala-policka-mrd (7.8.2026): sloty 0-1 mají navíc
                 // volbu množství semen (2-10), zbytek Pole seje pevně 30 (beze změny).
@@ -2018,14 +2034,15 @@ const GardenSystem = {
                 const isFlexible = idx < 2 || field.type === 'flexible';
                 const flexRange = field.type === 'flexible' ? this.FIELD_FLEXIBLE_SEED_RANGE : { min: 2, max: 10 };
                 const amtSelector = isFlexible
-                    ? `<input type="number" id="field-seed-amt-${idx}" min="${flexRange.min}" max="${flexRange.max}" value="${flexRange.min}" style="font-size:0.72rem;padding:2px;width:100%;margin-bottom:4px;" title="${lang==='en'?`Seeds to sow (${flexRange.min}-${flexRange.max})`:`Kolik semen zasít (${flexRange.min}-${flexRange.max})`}"/>`
+                    ? `<input type="number" id="field-seed-amt-${idx}" min="${flexRange.min}" max="${flexRange.max}" value="${flexRange.min}" oninput="GardenSystem.updateFieldSowInfo(${idx})" style="font-size:0.72rem;padding:2px;width:100%;margin-bottom:4px;" title="${lang==='en'?`Seeds to sow (${flexRange.min}-${flexRange.max})`:`Kolik semen zasít (${flexRange.min}-${flexRange.max})`}"/>`
                     : '';
                 const sowCall = isFlexible
                     ? `GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value, parseInt(document.getElementById('field-seed-amt-${idx}').value))`
                     : `GardenSystem.sowField(${idx}, document.getElementById('field-crop-sel-${idx}').value)`;
-                btn = `<select id="field-crop-sel-${idx}" style="font-size:0.75rem;padding:2px;width:100%;margin-bottom:4px;">${cropOpts}</select>
+                btn = `<select id="field-crop-sel-${idx}" onchange="GardenSystem.updateFieldSowInfo(${idx})" style="font-size:0.75rem;padding:2px;width:100%;margin-bottom:4px;">${cropOpts}</select>
                        ${amtSelector}
-                       <button class="craft-btn" onclick="${sowCall}">🌱 ${lang==='en'?'Sow':'Osít'}</button>`;
+                       <div id="field-sow-info-${idx}" style="font-size:0.66rem;line-height:1.35;opacity:0.85;margin-bottom:4px;text-align:left;"></div>
+                       <button class="craft-btn" id="field-sow-btn-${idx}" onclick="${sowCall}">🌱 ${lang==='en'?'Sow':'Osít'}</button>`;
             }
             else if (field.state === 'growing') {
                 const crop = this.CROPS_DB[field.crop];
@@ -2068,13 +2085,23 @@ const GardenSystem = {
         const seasonNow = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'summer';
         const seasonNames = { spring: lang==='en'?'Spring':'Jaro', summer: lang==='en'?'Summer':'Léto', autumn: lang==='en'?'Autumn':'Podzim', winter: lang==='en'?'Winter':'Zima' };
         const growthMultNow = this.FIELD_SEASON_GROWTH_MULT[seasonNow] || 1.0;
+        // sowing-info (31.10.2026): the growth multiplier is a DURATION factor
+        // (1.3× = slower), the old "Growth pace" label read as a speed-up. The
+        // yield factor (applied at harvest, by the season of the harvest) is shown too.
+        const yieldMultNow = this.FIELD_SEASON_YIELD_MULT[seasonNow] || 1.0;
+        const fmtMult = m => String(m).replace('.', lang==='en' ? '.' : ',');
         html += `<div style="font-size:0.78rem; opacity:0.65; padding:8px 12px; background:rgba(0,0,0,0.04); border-radius:6px; border-left:3px solid rgba(197,160,89,0.3);">
             💧 ${lang==='en'?'Water per irrigation':'Voda na závlahu'}: ${waterCost} | 
-            🌾 ${lang==='en'?'Growth pace':'Tempo růstu'}: ${seasonNames[seasonNow]} (${growthMultNow}×) | 
+            🌾 ${t('garden.fieldGrowthTime')}: ${seasonNames[seasonNow]} ×${fmtMult(growthMultNow)}${growthMultNow > 1 ? ' (' + t('garden.fieldSlower') + ')' : ''} | 
+            📉 ${t('garden.fieldYieldAtHarvest')}: ×${fmtMult(yieldMultNow)} | 
             ${hasHumno ? '✅ Humno: +sláma' : `🏗️ ${lang==='en'?'Build Humno for +straw':'Postav Humno pro +slámu'}`}
         </div>`;
 
         el.innerHTML = html;
+        // sowing-info: the cost / season / frost lines depend on the selected crop
+        GameState.fields.forEach((f, i) => {
+            if (!f.locked && f.state === 'ploughed') this.updateFieldSowInfo(i);
+        });
     },
 
     ploughField: function(idx) {
@@ -2091,6 +2118,67 @@ const GardenSystem = {
     // Počet semen potřebných k osetí celého pole (na rozdíl od záhonu, kde stačí 1)
     FIELD_SEED_COST: 30,
 
+    // sowing-info (31.10.2026): seed-amount range the player may choose for a slot,
+    // or null for a slot with the fixed FIELD_SEED_COST. Same rules as before:
+    // slots 0-1 = 2-10 (pole-mala-policka-mrd), field.type==='flexible' = 5-20
+    // (polnosti-iii-vozovy-park-mrd; checked first, as before).
+    _fieldSeedRange: function(idx, field) {
+        if (field.type === 'flexible') return this.FIELD_FLEXIBLE_SEED_RANGE;
+        if (idx < 2) return { min: 2, max: 10 };
+        return null;
+    },
+
+    // Seed cost of sowing a slot. One place for sowField and the UI preview, so
+    // they cannot disagree. For a slot with a range, a missing / empty / non-numeric
+    // amount (cleared input) now means the range minimum — it used to fall back to
+    // the fixed 30, i.e. above the slot's own maximum (A6).
+    _fieldSeedCost: function(idx, field, chosenAmt) {
+        const range = this._fieldSeedRange(idx, field);
+        if (!range) return this.FIELD_SEED_COST;
+        const n = Math.round(chosenAmt);
+        return Number.isFinite(n) ? Math.max(range.min, Math.min(range.max, n)) : range.min;
+    },
+
+    // sowing-info (31.10.2026): fills the info lines under a ploughed slot's crop
+    // select (seed cost vs stock, growth time, yield, frost risk) and disables the
+    // Sow button while the stock is short. Display only — sowField re-checks.
+    updateFieldSowInfo: function(idx) {
+        const field = GameState.fields && GameState.fields[idx];
+        const infoEl = document.getElementById('field-sow-info-' + idx);
+        const selEl = document.getElementById('field-crop-sel-' + idx);
+        if (!field || !infoEl || !selEl) return;
+        const crop = this.CROPS_DB[selEl.value];
+        if (!crop) { infoEl.innerHTML = ''; return; }
+        const lang = (GameState.settings && GameState.settings.language) || 'cs';
+        const dec = n => String(n).replace('.', lang === 'en' ? '.' : ',');
+
+        const amtEl = document.getElementById('field-seed-amt-' + idx);
+        const range = this._fieldSeedRange(idx, field);
+        const need = this._fieldSeedCost(idx, field, amtEl ? parseInt(amtEl.value) : undefined);
+        const have = GameState.inventory[crop.seeds] || 0;
+        const short = Math.max(0, need - have);
+
+        const season = (typeof Game !== 'undefined' && Game._getApiarySeason) ? Game._getApiarySeason() : 'summer';
+        const seasonName = { spring: lang==='en'?'Spring':'Jaro', summer: lang==='en'?'Summer':'Léto', autumn: lang==='en'?'Autumn':'Podzim', winter: lang==='en'?'Winter':'Zima' }[season];
+        const growthMult = this.FIELD_SEASON_GROWTH_MULT[season] || 1.0;
+        const days = Math.round((crop.growDays ? crop.growDays * growthMult : this.FIELD_PHASE_MS * 3 / 86400000) * 10) / 10;
+        const frostPct = Math.round((this.FIELD_FREEZE_KILL_CHANCE[crop.hardy] || 0) * 100);
+
+        const shortText = this._fmt(t('garden.fieldSeedShort'), { n: short });
+        let line1 = this._fmt(t('garden.fieldSeedNeed'), { need, have });
+        if (range) line1 += this._fmt(t('garden.fieldSeedRange'), { min: range.min, max: range.max });
+        if (short > 0) line1 += ` · <span style="color:#c0392b;font-weight:bold;">${shortText}</span>`;
+        const line2 = this._fmt(t('garden.fieldGrowInfo'), { days: dec(days), season: seasonName, mult: dec(growthMult), yield: crop.yield });
+        const line3 = this._fmt(t('garden.fieldFrostInfo'), { p: frostPct });
+        infoEl.innerHTML = `<div>${line1}</div><div>${line2}</div><div>${line3}</div>`;
+
+        const btnEl = document.getElementById('field-sow-btn-' + idx);
+        if (btnEl) {
+            btnEl.disabled = short > 0;
+            btnEl.title = short > 0 ? shortText : '';
+        }
+    },
+
     sowField: function(idx, cropKey, chosenAmt) {
         this._initFields();
         const field = GameState.fields[idx];
@@ -2105,18 +2193,13 @@ const GardenSystem = {
         // jako bariéru ke vstupu. Zbytek Pole beze změny na pevných 30.
         // polnosti-iii-vozovy-park-mrd (18.9.2026): field.type==='flexible'
         // (sloty 14-17) je druhý, dražší pružný tier s rozsahem 5-20.
-        let seedCost = this.FIELD_SEED_COST;
-        if (field.type === 'flexible' && chosenAmt) {
-            const r = this.FIELD_FLEXIBLE_SEED_RANGE;
-            seedCost = Math.max(r.min, Math.min(r.max, Math.round(chosenAmt)));
-        } else if (idx < 2 && chosenAmt) {
-            seedCost = Math.max(2, Math.min(10, Math.round(chosenAmt)));
-        }
+        // sowing-info (31.10.2026): cost rules moved to _fieldSeedCost (same values;
+        // an empty amount now means the slot minimum instead of 30).
+        const seedCost = this._fieldSeedCost(idx, field, chosenAmt);
         // Kontrola semen
         if (!(GameState.inventory[crop.seeds] >= seedCost)) {
-            const seedName = typeof ItemsDB !== 'undefined' && ItemsDB[crop.seeds] ? ItemsDB[crop.seeds].name : crop.seeds;
             const have = GameState.inventory[crop.seeds] || 0;
-            if (typeof UI !== 'undefined') UI.notify('⚠️ Chybí: ' + seedName + ' (' + have + '/' + seedCost + ')', true);
+            if (typeof UI !== 'undefined') UI.notify('⚠️ ' + this._fmt(t('garden.notEnoughSeed'), { seed: iName(crop.seeds), have, need: seedCost }), true);
             return;
         }
         Game.removeItem(crop.seeds, seedCost);
