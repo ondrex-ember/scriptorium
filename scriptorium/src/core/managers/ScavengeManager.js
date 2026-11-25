@@ -129,6 +129,13 @@ const ScavengeManager = {
         fishing: 'water',
         hunt: 'hunt',
     },
+    // Winter floor (W1, new-player fix): availability of the listed actions never drops
+    // below this value. Applied AFTER the curve interpolation in _availability, so the
+    // curves stay untouched and outside the window where the curve is lower (24 Nov - 9 Mar
+    // for nature) the result is identical to before. Keeps a minimal fibre/rope/water supply
+    // open in winter, otherwise a new player has no fibre -> no rope -> no knife and the
+    // tutorial step 2 cannot be finished. Game parameter, not a historical datum.
+    AVAILABILITY_FLOOR: { nature: 0.25 },
     // Below this the action is refused up front (no fatigue charged) instead of
     // letting the player pay vigor for a near-zero yield.
     AVAILABILITY_CLOSED_BELOW: 0.05,
@@ -183,7 +190,9 @@ const ScavengeManager = {
         const t1 = new Date(at.getFullYear(), loMonth + 1, 15).getTime();
         const v0 = curve[((loMonth % 12) + 12) % 12];
         const v1 = curve[(((loMonth + 1) % 12) + 12) % 12];
-        return v0 + (v1 - v0) * (at.getTime() - t0) / (t1 - t0);
+        const v = v0 + (v1 - v0) * (at.getTime() - t0) / (t1 - t0);
+        const floor = this.AVAILABILITY_FLOOR[type];
+        return (typeof floor === 'number') ? Math.max(v, floor) : v;
     },
 
     // One-time-per-year winter warning (panel entry), shown from 15 Oct to 30 Nov.
