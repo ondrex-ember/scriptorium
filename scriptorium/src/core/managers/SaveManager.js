@@ -30,6 +30,10 @@ const SaveManager = {
     _knownSeq: 0,
     _staleNoticeAt: 0,
     _persistRequested: false,
+    // reset-save-fix (25.11.2026): set by resetSave. While true, save() writes nothing, so the
+    // beforeunload emergency save (Game.save) and any timer cannot write the old in-memory state
+    // back over the just-deleted save.
+    _resetting: false,
 
     _readMeta: function () {
         try {
@@ -110,10 +114,14 @@ const SaveManager = {
             });
         });
     },
+    // Returns a promise that always resolves: after the delete is committed, or after a failure.
     _idbClear: function () {
-        SaveManager._idbOpen().then(db => {
-            db.transaction('saves', 'readwrite').objectStore('saves').delete('main');
-        }).catch(e => console.warn('IDB clear failed:', e));
+        return SaveManager._idbOpen().then(db => new Promise(resolve => {
+            const tx = db.transaction('saves', 'readwrite');
+            tx.objectStore('saves').delete('main');
+            tx.oncomplete = () => resolve();
+            tx.onerror = tx.onabort = () => resolve();
+        })).catch(e => console.warn('IDB clear failed:', e));
     },
     _checkSaveHint: function () {
         const h = Game._saveHint;
@@ -152,6 +160,7 @@ const SaveManager = {
     // force === true (strict) skips ONLY the stale-window check; used by importSave,
     // where overwriting the stored progress is the player's explicit intent.
     save: function (force) {
+        if (SaveManager._resetting) return false;   // reset-save-fix: a reset is in progress
         // data-save-safety-mrd (25.8.2026) — pojistka proti přepsání reálnýho
         // postupu čerstvým/resetnutým stavem (viz _loadedProgressBaseline výš).
         // researchedTechs.length je monotónní — v normální hře nikdy neklesá,
@@ -319,7 +328,21 @@ const SaveManager = {
     },
 
 
-    resetSave: function () { if (confirm(t('game.confirmReset'))) { try { localStorage.removeItem('scriptorium_save_v6_4'); SaveManager._idbClear(); } catch (e) { } location.reload(); } },
+    // reset-save-fix (25.11.2026): location.reload() fires beforeunload, whose emergency save wrote the
+    // old in-memory state back into localStorage + IndexedDB, so the reset never stuck. Now: (1) block
+    // save(), (2) delete localStorage, (3) bump the meta seq so any OTHER open window of the game counts
+    // as stale and cannot write the old save back, (4) reload only after the IndexedDB delete is
+    // committed (fallback 1.5 s so a hung IndexedDB cannot block the reset).
+    resetSave: function () {
+        if (!confirm(t('game.confirmReset'))) return;
+        SaveManager._resetting = true;
+        let _reloaded = false;
+        const _reload = () => { if (_reloaded) return; _reloaded = true; location.reload(); };
+        try { localStorage.removeItem('scriptorium_save_v6_4'); } catch (e) { }
+        SaveManager._writeMeta();
+        setTimeout(_reload, 1500);
+        try { SaveManager._idbClear().then(_reload, _reload); } catch (e) { _reload(); }
+    },
 
     // porta-tidings-routing-fix (15.10.2026) — retroaktivní úklid: staré savy
     // mají "feed_*" záznamy (Chronicon B/D zprávy) omylem uložené jako Porta
