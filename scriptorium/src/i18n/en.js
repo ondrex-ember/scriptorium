@@ -304,7 +304,8 @@ const STRINGS_en = {
         needTechAction: '⚠️ Thou lackest the knowledge for this yet.',
         acornCache: '🌰 Beneath a drift of leaves thou hast found someone\'s hoard of acorns (+{qty}) — a jay or squirrel had other plans for winter.',
         needPigFeed: 'The pigs need feed — kitchen scraps, beechnuts, acorns or hay',
-        winterNotice: '❄️ Winter draws near. Until mid-December gathering in field and forest will thin, then cease. Mow hay and lay in stores for thy beasts while there is time. The folk of the house need victuals in winter too: dress thy catch with a knife and cook it in the pot for the refectory. Cold slows spoilage but does not halt it — dress the meat at once. The Right of the Chase grants full winter hunting.',
+        winterNotice: '❄️ Winter draws near. Until mid-December gathering in field and forest will thin, then cease. Mow hay and lay in stores for thy beasts while there is time. The folk of the house need victuals in winter too: dress thy catch with a knife and cook it in the pot for the refectory. Cold slows spoilage but does not halt it — dress the meat at once. The Right of the Chase grants full winter hunting. A meagre gathering of herbs remains even in winter — enough for fibre and water, not for food.',
+        winterNoticeLate: '❄️ Winter holds the land. Gathering in field and forest is all but shut until the thaw; a meagre gathering of herbs and the chase remain. Even now a short "Gather herbs" errand yields the fibre for rope.',
         // v8.x — Farmyard notifications
         hennhouseBuilt: 'The henhouse stands ready.',
         sheepfoldBuilt: 'The sheepfold is built.',
