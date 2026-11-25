@@ -195,15 +195,22 @@ const ScavengeManager = {
         return (typeof floor === 'number') ? Math.max(v, floor) : v;
     },
 
-    // One-time-per-year winter warning (panel entry), shown from 15 Oct to 30 Nov.
+    // One-time-per-winter warning (panel entry). Early text 15 Oct - 30 Nov (winter draws near),
+    // late text 1 Dec - end of Feb (for a player who arrives after the early window).
+    // flags.winterNoticeYear holds the winter ID = the year in which the winter STARTED
+    // (Oct-Dec: this year, Jan-Feb: previous year), so a save that saw the early notice in
+    // autumn 2026 is not shown the late one in Jan 2027 (its ID is 2026 in both cases).
     winterNoticeTick: function () {
         const now = new Date();
-        const inWindow = (now.getMonth() === 9 && now.getDate() >= 15) || now.getMonth() === 10;
-        if (!inWindow) return;
+        const month = now.getMonth();
+        const early = (month === 9 && now.getDate() >= 15) || month === 10;
+        const late = month === 11 || month <= 1;
+        if (!early && !late) return;
         if (!GameState.flags) GameState.flags = {};
-        if (GameState.flags.winterNoticeYear === now.getFullYear()) return;
-        GameState.flags.winterNoticeYear = now.getFullYear();
-        UI.notifyPanel(t('game.winterNotice'), 'system');
+        const winterId = month <= 1 ? now.getFullYear() - 1 : now.getFullYear();
+        if (GameState.flags.winterNoticeYear === winterId) return;
+        GameState.flags.winterNoticeYear = winterId;
+        UI.notifyPanel(t(early ? 'game.winterNotice' : 'game.winterNoticeLate'), 'system');
         Game.save();
     },
 
