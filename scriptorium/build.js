@@ -66,6 +66,7 @@ const JS_MAIN = [
     'src/systems/VigorSystem.js',
     'src/systems/HealthSystem.js',  // Valetudo — neduhy, napojeno na VigorSystem._tick()
     'src/systems/CellariumSystem.js',
+    'src/systems/WinterReadinessSystem.js', // winter-readiness-mrd (25.11.2026) — read-only Winter card in the Cellarium
     'src/systems/SaeculumSystem.js',
     'src/systems/TemplumSystem.js',  // Templum (kostelní větev, T1 skeleton)
     'src/systems/InfirmariumSystem.js', // Infirmarium (ošetřovna, Sprint 1 skeleton)

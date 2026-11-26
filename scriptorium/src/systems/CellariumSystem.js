@@ -1531,6 +1531,8 @@ const CellariumSystem = {
       ...(hasLR ? [{ id: 'liber_rationum', icon: '📒', label: 'Liber Rationum', label_en: 'Liber Rationum' }] : []),
       ...(hasOldCellars ? [{ id: 'old_cellars', icon: '🕯️', label: 'Staré sklepy', label_en: 'Old Cellars' }] : []),
       ...(hasManufactura ? [{ id: 'manufaktura', icon: '⚙️', label: 'Manufaktura', label_en: 'Manufactory' }] : []),
+      // Zima — read-only winter readiness card (winter-readiness-mrd, 25.11.2026). Only 15 Oct - 31 Mar.
+      ...((typeof WinterReadinessSystem !== 'undefined' && WinterReadinessSystem.isVisible()) ? [{ id: 'winter', icon: '❄️', label: 'Zima', label_en: 'Winter' }] : []),
       { id: 'personal', icon: '👥', label: 'Personál', label_en: 'Personnel' },
       { id: 'buildings', icon: '🏗️', label: 'Budovy', label_en: 'Buildings' },
       // Cechy — cechy-a-prava-mrd.md §3, 16.8.2026. Vědomě NEgatováno tech_ius_terrae
@@ -1555,7 +1557,8 @@ const CellariumSystem = {
       const isCur = e.id === safeActive;
       const name = lang === 'en' ? e.label_en : e.label;
       const hours = lang === 'en' ? this.entityHoursLabel_en(e.id) : this.entityHoursLabel(e.id);
-      const openDot = `<span class="illum-minor-status-dot" style="color:${open ? '#5a9' : '#c55'};">●</span>`;
+      // The Winter card is an overview, not an opening-hours place: no open/closed dot.
+      const openDot = e.id === 'winter' ? '' : `<span class="illum-minor-status-dot" style="color:${open ? '#5a9' : '#c55'};">●</span>`;
       h += `
         <button onclick="CellariumSystem.switchEntity('${e.id}')"
                 class="filter-btn entity-tab-btn illum-minor-tab${isCur ? ' active' : ''}"
@@ -1591,6 +1594,7 @@ const CellariumSystem = {
     if (entity === 'buildings') return this.renderBuildings();
     if (entity === 'cechy') return this.renderCechyPanel();
     if (entity === 'pozemky') return this.renderPozemkyPanel();
+    if (entity === 'winter') return (typeof WinterReadinessSystem !== 'undefined') ? WinterReadinessSystem.render() : '';
     if (entity === 'manufaktura') return (typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderManufactura() : '';
     if (entity === 'personal') return (typeof SaeculumSystem !== 'undefined') ? SaeculumSystem.renderPersonal() : '';
 
